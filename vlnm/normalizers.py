@@ -1,6 +1,7 @@
 """
 Normalization methods.
 """
+# pylint: disable=no-self-use
 
 import numpy as np
 
@@ -20,8 +21,6 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
     one_of = ['formants', 'f0', 'f1', 'f2', 'f3']
 
     def _normalize_df(self, df, cols_in, cols_out, **__):
-        cols_in = [col for col in cols_in if col]
-        cols_out = [col for col in cols_out if col]
         df[cols_in] = df[cols_out]
         return df
 
@@ -36,7 +35,8 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         return self._normalize(
             df,
             [],
-            [self._normalize_df])
+            [self._normalize_df],
+            remove_none=True)
 
 class Log10Normalizer(FormantIntrinsicNormalizer):
     r"""
@@ -51,8 +51,6 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
         """
         Normalize using log10
         """
-        cols_in = [col for col in cols_in if col]
-        cols_out = [col for col in cols_out if col]
         df[cols_out] = np.log10(df[cols_in])
         return df
 
@@ -72,8 +70,6 @@ class LogNormalizer(FormantIntrinsicNormalizer):
         """
         Normalize using log10
         """
-        cols_in = [col for col in cols_in if col]
-        cols_out = [col for col in cols_out if col]
         df[cols_out] = np.log(df[cols_in])
         return df
 
@@ -88,8 +84,6 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     """
     def _normalize_df(self, df, cols_in, cols_out, **__):
-        cols_in = [col for col in cols_in if col]
-        cols_out = [col for col in cols_out if col]
         df[cols_out] = hz_to_mel(df[cols_in])
         return df
 
@@ -119,7 +113,5 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     """
     def _normalize_df(self, df, cols_in, cols_out, **__):
-        cols_in = [col for col in cols_in if col]
-        cols_out = [col for col in cols_out if col]
         df[cols_out] = hz_to_erb(df[cols_in])
         return df

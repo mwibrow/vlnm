@@ -47,9 +47,13 @@ class VowelNormalizer(object):
         if not callbacks:
             return df
         columns_out = columns_out or columns_in
-        constants = constants or  {}
+        constants = constants or {}
+        remove_none = kwargs.get('remove_none')
         if not margins and callbacks:
             for cols_in, cols_out in zip(columns_in, columns_out):
+                if remove_none:
+                    cols_in = [col for col in cols_in if col]
+                    cols_out = [col for col in cols_out if col]
                 df = callbacks[0](
                     df,
                     cols_in,
@@ -67,6 +71,9 @@ class VowelNormalizer(object):
             processed_df = group_df.copy()
             if callback:
                 for cols_in, cols_out in zip(columns_in, columns_out):
+                    if remove_none:
+                        cols_in = [col for col in cols_in if col]
+                        cols_out = [col for col in cols_out if col]
                     processed_df = callback(
                         processed_df,
                         cols_in,
@@ -88,10 +95,12 @@ class VowelNormalizer(object):
             ])
         return margin_df
 
-    def _normalize(self, df, margins, callbacks, constants=None):
+    def _normalize(self, df, margins, callbacks, constants=None, **kwargs):
         """
         Return normalize the formants in dataframe.
         """
+        normalize_kwargs = self.kwargs.copy()
+        normalize_kwargs.update(kwargs)
         return self.partition(
             df,
             margins,
@@ -99,7 +108,7 @@ class VowelNormalizer(object):
             self.columns_in,
             self.columns_out,
             constants or {},
-            **self.kwargs)
+            **normalize_kwargs)
 
 
 
