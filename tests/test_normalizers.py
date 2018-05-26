@@ -14,6 +14,7 @@ from vlnm.conversion import (
 )
 from vlnm.normalizers import (
     BarkNormalizer,
+    BladenNormalizer,
     ErbNormalizer,
     Log10Normalizer,
     LogNormalizer,
@@ -22,10 +23,11 @@ from vlnm.normalizers import (
 
 
 DATA_FRAME = pd.DataFrame(dict(
-    f0=[100, 200, 300, 400],
-    f1=[500, 600, 700, 800],
-    f2=[1100, 1200, 1300, 1400],
-    f3=[2100, 2200, 2300, 2400]
+    gender=['M'] * 4 + ['F'] * 4,
+    f0=[100 + i * 50 for i in range(8)],
+    f1=[500 + i * 50 for i in range(8)],
+    f2=[1000 + i * 50 for i in range(8)],
+    f3=[2000 + i * 50 for i in range(8)]
 ))
 
 class TestIntrinsicNormalizersValueError(unittest.TestCase):
@@ -33,33 +35,30 @@ class TestIntrinsicNormalizersValueError(unittest.TestCase):
     Check normalizers raise ValueError if no formants specified.
     """
 
-    def setUp(self):
-        self.df = DATA_FRAME.copy()
-
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
         with self.assertRaises(ValueError):
-            BarkNormalizer().normalize(self.df)
+            BarkNormalizer()
 
     def test_erb_normalizer(self):
         """Test ErbNormalizer"""
         with self.assertRaises(ValueError):
-            ErbNormalizer().normalize(self.df)
+            ErbNormalizer()
 
     def test_log10_normalizer(self):
         """Test Log10Normalizer"""
         with self.assertRaises(ValueError):
-            Log10Normalizer().normalize(self.df)
+            Log10Normalizer()
 
     def test_log_normalizer(self):
         """Test LogNormalizer"""
         with self.assertRaises(ValueError):
-            LogNormalizer().normalize(self.df)
+            LogNormalizer()
 
     def test_mel_normalizer(self):
         """Test MelNormalizer"""
         with self.assertRaises(ValueError):
-            MelNormalizer().normalize(self.df)
+            MelNormalizer()
 
 
 class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
@@ -68,7 +67,7 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
     """
 
     def setUp(self):
-        self.df = DATA_FRAME.copy()
+        self.df = DATA_FRAME.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
 
     def test_bark_normalizer(self):
@@ -116,7 +115,7 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
 
     def setUp(self):
         self.suffix = '_N'
-        self.df = DATA_FRAME.copy()
+        self.df = DATA_FRAME.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(
             f0='f0', f1='f1', f2='f2', f3='f3',
             suffix=self.suffix)
@@ -150,3 +149,34 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_mel)
         actual = MelNormalizer(**self.kwargs).normalize(self.df)
         self.assertTrue(actual.equals(expected))
+
+
+class TestBladenNormalizer(unittest.TestCase):
+    """
+    Test the BladenNormalizer
+    """
+
+    def setUp(self):
+        self.df = DATA_FRAME.copy()
+        self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
+
+    def test_no_gender(self):
+        """No gender column raises ValueError"""
+        with self.assertRaises(ValueError):
+            BladenNormalizer(**self.kwargs)
+
+    def test_no_male_or_female(self):
+        """No female or male column raises ValueError"""
+        with self.assertRaises(ValueError):
+            BladenNormalizer(gender='gender', **self.kwargs)
+
+    def test_minimal_kwargs(self):
+        """Minimally correct kwargs."""
+        BladenNormalizer(gender='gender', male='M', **self.kwargs)
+
+    def test_sunny_day(self):
+        """Sunny day test."""
+        normalizer = BladenNormalizer(
+            gender='gender',
+            male='M', **self.kwargs)
+        actual = normalizer.normalize(self.df)
