@@ -21,16 +21,20 @@ from vlnm.normalizers import (
 )
 
 
-class TestNormalizersValueError(unittest.TestCase):
+DATA_FRAME = pd.DataFrame(dict(
+    f0=[100, 200, 300, 400],
+    f1=[500, 600, 700, 800],
+    f2=[1100, 1200, 1300, 1400],
+    f3=[2100, 2200, 2300, 2400]
+))
+
+class TestIntrinsicNormalizersValueError(unittest.TestCase):
     """
     Check normalizers raise ValueError if no formants specified.
     """
 
     def setUp(self):
-        self.df = pd.DataFrame(dict(
-            f1=[100, 200, 300],
-            f2=[1100, 1200, 1300]
-        ))
+        self.df = DATA_FRAME.copy()
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
@@ -58,17 +62,14 @@ class TestNormalizersValueError(unittest.TestCase):
             MelNormalizer().normalize(self.df)
 
 
-class TestSunnyDayNormalizers(unittest.TestCase):
+class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
     """
     Sunny day tests for normalizers
     """
 
     def setUp(self):
-        self.df = pd.DataFrame(dict(
-            f1=[100, 200, 300],
-            f2=[1100, 1200, 1300]
-        ))
-        self.kwargs = dict(f1='f1', f2='f2')
+        self.df = DATA_FRAME.copy()
+        self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
@@ -108,18 +109,17 @@ def make_new_columns_expected(df, suffix, transform):
     tmp_df.columns = ['{}{}'.format(column, suffix) for column in tmp_df.columns]
     return pd.concat([df.copy(), tmp_df], axis=1)
 
-class TestNewColumns(unittest.TestCase):
+class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
     """
     Test normalized formants as new columns.
     """
 
     def setUp(self):
         self.suffix = '_N'
-        self.df = pd.DataFrame(dict(
-            f1=[100, 200, 300],
-            f2=[1100, 1200, 1300]
-        ))
-        self.kwargs = dict(f1='f1', f2='f2', suffix=self.suffix)
+        self.df = DATA_FRAME.copy()
+        self.kwargs = dict(
+            f0='f0', f1='f1', f2='f2', f3='f3',
+            suffix=self.suffix)
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
