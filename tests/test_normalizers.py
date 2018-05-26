@@ -158,7 +158,10 @@ class TestBladenNormalizer(unittest.TestCase):
 
     def setUp(self):
         self.df = DATA_FRAME.copy()
-        self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
+        self.columns = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = {}
+        for f, self.kwargs[f] in zip(self.columns, self.columns):
+            pass
 
     def test_no_gender(self):
         """No gender column raises ValueError"""
@@ -174,9 +177,24 @@ class TestBladenNormalizer(unittest.TestCase):
         """Minimally correct kwargs."""
         BladenNormalizer(gender='gender', male='M', **self.kwargs)
 
-    def test_sunny_day(self):
-        """Sunny day test."""
+    def test_with_female(self):
+        """Test specifying female label."""
         normalizer = BladenNormalizer(
             gender='gender',
-            male='M', **self.kwargs)
-        actual = normalizer.normalize(self.df)
+            female='F',
+            **self.kwargs)
+        expected = hz_to_bark(self.df.copy()[self.columns])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(self.df)[self.columns]
+        self.assertTrue(actual.equals(expected))
+
+    def test_with_male(self):
+        """Test specifying male label."""
+        normalizer = BladenNormalizer(
+            gender='gender',
+            male='M',
+            **self.kwargs)
+        expected = hz_to_bark(self.df.copy()[self.columns])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(self.df)[self.columns]
+        self.assertTrue(actual.equals(expected))
