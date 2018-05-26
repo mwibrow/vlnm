@@ -141,14 +141,15 @@ def check_kwargs(method, kwargs, required=None, one_of=None):
             raise ValueError(
                 '{} normalization requires {} argument'.format(
                     method, key))
-    for key in one_of:
-        if key in kwargs:
-            break
-    else:
-        if one_of:
-            raise ValueError(
-                '{} normalization requires at least one of {}'.format(
-                    method, one_of))
+    for items in one_of:
+        for item in items:
+            if item in kwargs:
+                break
+        else:
+            if one_of:
+                raise ValueError(
+                    '{} normalization requires at least one of {}'.format(
+                        method, one_of))
 
 
 def sanitize_formants(formants=None, f0=None, f1=None, f2=None, f3=None, **_):
