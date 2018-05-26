@@ -67,9 +67,6 @@ class LogNormalizer(FormantIntrinsicNormalizer):
     one_of = ['formants', 'f0', 'f1', 'f2', 'f3']
 
     def _normalize_df(self, df, cols_in, cols_out, **__):
-        """
-        Normalize using log10
-        """
         df[cols_out] = np.log(df[cols_in])
         return df
 
