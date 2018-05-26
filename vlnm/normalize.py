@@ -149,7 +149,7 @@ def check_kwargs(method, kwargs, required=None, one_of=None):
             if one_of:
                 raise ValueError(
                     '{} normalization requires at least one of {}'.format(
-                        method, one_of))
+                        method, items))
 
 
 def sanitize_formants(formants=None, f0=None, f1=None, f2=None, f3=None, **_):

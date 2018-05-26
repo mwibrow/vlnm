@@ -120,11 +120,11 @@ class BladenNormalizer(VowelNormalizer):
             1 + \displayfrac{F_i}{\displayfrac{F_i} + 1960}
             \right) - 0.53 - I(s_k)
 
-    Where :math:`I(s_k)` is an indicator function returning 1 if speaker :math:`k` is
-    female and 0 otherwise.
+    Where :math:`I(s_k)` is an indicator function returning 1 if speaker :math:`k`
+    is identified/identifying as female and 0 otherwise.
     """
     required = ['gender']
-    one_of = [['formant', 'f0', 'f1', 'f2', 'f3'], ['female']]
+    one_of = [['formant', 'f0', 'f1', 'f2', 'f3'], ['male', 'female']]
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         gender = kwargs['gender']
