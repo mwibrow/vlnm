@@ -108,6 +108,11 @@ class VowelNormalizer(object):
         """
         Return normalize the formants in dataframe.
         """
+        if not columns_in_dataframe(df, flatten(self.columns_in)):
+            missing = list(set(flatten(self.columns_in)).difference(
+                set(df.columns)))
+            raise ValueError(
+                'Data frame does not contain columns {}'.format(missing))
         normalize_kwargs = self.kwargs.copy()
         normalize_kwargs.update(kwargs)
         return self.partition(
