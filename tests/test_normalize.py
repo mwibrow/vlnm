@@ -72,3 +72,11 @@ class TestColumnsInDataFrame(unittest.TestCase):
             columns_in_dataframe(
                 pd.DataFrame(dict(a=[1, 2], b=[3, 4], c=[5, 6])),
                 ['a', ['b']], ['c']))
+
+    def test_not_in(self):
+        """Nested columns in dataframe"""
+        self.assertFalse(
+            columns_in_dataframe(
+                pd.DataFrame(dict(a=[1, 2], b=[3, 4], c=[5, 6])),
+                ['x', ['y']], ['z']))
+
