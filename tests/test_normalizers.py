@@ -14,6 +14,7 @@ from vlnm.conversion import (
 )
 from vlnm.normalizers import (
     BarkNormalizer,
+    BarkDifferenceNormalizer,
     BladenNormalizer,
     ErbNormalizer,
     Log10Normalizer,
@@ -198,3 +199,30 @@ class TestBladenNormalizer(unittest.TestCase):
         expected[self.df['gender'] == 'F'] -= 1.
         actual = normalizer.normalize(self.df)[self.columns]
         self.assertTrue(actual.equals(expected))
+
+
+class TestBlarkDifferenceNormalizer(unittest.TestCase):
+    """
+    Test the BarkDifferenceNormalizer class
+    """
+
+    def setUp(self):
+        self.df = DATA_FRAME.copy()
+        self.columns = ['f2', 'f3']
+        self.kwargs = {}
+        for f, self.kwargs[f] in zip(self.columns, self.columns):
+            pass
+
+    def test_no_f0_or_f1(self):
+        """No f0 or f1 columns ValueError"""
+        with self.assertRaises(ValueError):
+            BarkDifferenceNormalizer(**self.kwargs)
+
+    def test_f0(self):
+        """F0 subtraction"""
+
+        expected = (hz_to_bark(self.df[self.columns]) -
+            hz_to_bark(self.df['f0']))
+        actual = BarkDifferenceNormalizer(
+            f0='f0', **self.kwargs).normalize(self.df)
+        self.assertTrue(actual[self.columns].equals(expected))

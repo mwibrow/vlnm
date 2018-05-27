@@ -15,26 +15,10 @@ class VowelNormalizer(object):
     The VowelNormalizer class is the base class for all normalizers.
     """
     required = []
-    one_of = []
+    one_from = []
 
-    def __init__(self, **kwargs):
-        required, one_of = check_kwargs(
-            kwargs,
-            required=self.required,
-            one_of=self.__class__.one_of)
-        if required:
-            raise ValueError(
-                '{} requires the keyword argument \'{}\''.format(
-                    self.__class__.__name__, required))
-        if one_of:
-            raise ValueError(
-                '{} requires one of the keyword arguments {}'.format(
-                    self.__class__.__name__, one_of))
-        self.kwargs = kwargs
-        formants = sanitize_formants(**kwargs)
-        self.columns_in, self.columns_out = get_columns_out(
-            formants,
-            suffix=kwargs.get('suffix'))
+    def __init__(self):
+       pass
 
     def partition(
             self,
@@ -104,32 +88,73 @@ class VowelNormalizer(object):
             ])
         return margin_df
 
-    def _normalize(self, df, margins, callbacks, constants=None, **kwargs):
+    def _normalize(self, df, **kwargs):
         """
         Return normalize the formants in dataframe.
         """
-        if not columns_in_dataframe(df, flatten(self.columns_in)):
-            missing = list(set(flatten(self.columns_in)).difference(
-                set(df.columns)))
+
+        missing = check_required_kwargs(kwargs, self.required)
+        if missing:
             raise ValueError(
-                'Data frame does not contain columns {}'.format(missing))
-        normalize_kwargs = self.kwargs.copy()
-        normalize_kwargs.update(kwargs)
+                '{} requires keyword argument {}'.format(
+                    self.__class__.__name__,
+                    missing))
+        missing = check_one_from_kwargs(kwargs, self.one_from)
+        if missing:
+            raise ValueError(
+                '{} requires one keyword argument from {}'.format(
+                    self.__class__.__name__,
+                    missing))
+
+        columns_in = kwargs.pop('formants', {})
+        missing = check_columns(
+            kwargs,
+            cols_in + self.columns)
+        if missing:
+            raise ValueError(
+                'Data frame missing column {}'.format(
+                    missing))
+
+        columns_in = kwargs.pop('formants', {})
+        columns_out = get_columns_out(
+            columns_in,
+            kwargs.pop('suffix', {}))
+
         return self.partition(
             df,
-            margins,
-            callbacks,
-            self.columns_in,
-            self.columns_out,
-            constants or {},
-            **normalize_kwargs)
+            kwargs.pop('margins', []),
+            kwargs.pop('callbacks', []),
+            columns_in,
+            columns_out,
+            kwargs.pop('constants', {}),
+            **kwargs)
 
 
+def check_required_kwargs(kwargs, required):
+    for key in required:
+        if not key in kwargs:
+            return key
+    return None
 
-def check_kwargs(kwargs, required=None, one_of=None):
+def check_one_from_kwargs(kwargs, one_from):
+    for items in one_from:
+        for item in items:
+            if item in kwargs:
+                break
+        else:
+            if one_from:
+                return one_from
+    return None
+
+def check_data_frame_columns(df, columns):
+    for column in columns:
+        if not column in df.columns:
+            return column
+    return None
+
+def check_kwargs(method, kwargs, required=None, one_from=None):
     """
     Check presence of keyword arguments for normalization method.
-
 
     Parameters
     ----------
@@ -140,24 +165,27 @@ def check_kwargs(kwargs, required=None, one_of=None):
     required: list or None
     A list of keywords that are required for the normalization method.
 
-    one_of: list or None
+    one_from: list or None
     A list of keywords  of which at least one is required for the
     normalization method.
 
     """
     required = required or []
-    one_of = one_of or []
+    one_from = one_from or []
     for key in required:
         if not key in kwargs:
-            return key, None
-    for items in one_of:
+            raise ValueError(
+                '{} requires keyword argument {}'.format(
+                    method, key))
+    for items in one_from:
         for item in items:
             if item in kwargs:
                 break
         else:
-            if one_of:
-                return None, one_of
-    return None, None
+            if one_from:
+                raise ValueError(
+                    '{} requires one keyword argument from {}'.format(
+                        method, one_from))
 
 
 def columns_in_dataframe(df, *columns):

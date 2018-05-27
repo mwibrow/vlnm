@@ -148,9 +148,105 @@ class BladenNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
+        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
         return self._normalize(
             df,
-            self.kwargs.get('margins', kwargs.pop('margins', [])),
-            [self._normalize_df],
+            margins,
+            callbacks,
+            remove_none=True,
+            **kwargs)
+
+
+class BarkDifferenceNormalizer(VowelNormalizer):
+    r"""
+    .. math::
+
+        F_{i}^N = B_i - B^\prime
+
+    Where :math:`B_i` is a function converting the ith
+    frequency measured in hertz to the Bark scale, and
+    :math:`B^\prime` is :math:`B_0` or :math:`B_1`
+    depending on the context.
+    """
+    required = []
+    one_of = [['f0', 'f1'], ['formant', 'f0', 'f1', 'f2', 'f3']]
+
+    def _normalize_df(self, df, cols_in, cols_out, **kwargs):
+        f0, f1 = kwargs.get('f0'), kwargs.get('f1')
+        offset = hz_to_bark(f0 if f0 else f1)
+        df[cols_out] = hz_to_bark(df[cols_in]) - offset
+        return df
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize the a data frame.
+
+        Paramters
+        ---------
+        df: pandas.DataFrame
+        """
+        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
+        return self._normalize(
+            df,
+            margins,
+            callbacks,
+            remove_none=True,
+            **kwargs)
+
+
+class NordstromNormalizer(VowelNormalizer):
+    r"""
+    ..math::
+
+        F_i = F_i \left(
+                1 + I(F_i)\left(
+                    \displayfrac{
+                        \mu_{F_3}^{\mbox{male}}
+                    }{
+                        \mu_{F_3}^{\mbox{female}}
+                    }
+                \right)
+            \right
+
+    Where :math:`\mu_{F_3}` is the mean :math:`F_3` across
+    all vowels where :math:`F_1` is greater than 600Hz,
+    and :math:`I(F_i)` is an indicator function which
+    returns 1 if :math:`F_i` is from a speaker
+    identified/identifying as female, and 0 otherwise.
+    """
+    required = ['f1', 'f3', 'gender']
+    one_of = [['formant', 'f0', 'f1', 'f2', 'f3'], ['male', 'female']]
+
+    def _normalize_df(self, df, cols_in, cols_out, **kwargs):
+        gender = kwargs['gender']
+        female, male = kwargs.get('female'), kwargs.get('male')
+        value = female if female else male
+        indicator = np.repeat(
+            np.atleast_2d(
+                (df[gender] == value).astype(float)),
+            len(cols_in),
+            axis=0).T
+        if value == male:
+            indicator = 1. - indicator
+            mu_male =
+        df[cols_out] = hz_to_bark(df[cols_in]) - indicator
+        return df
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize the a data frame.
+
+        Paramters
+        ---------
+        df: pandas.DataFrame
+        """
+        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
+        return self._normalize(
+            df,
+            margins,
+            callbacks,
             remove_none=True,
             **kwargs)
