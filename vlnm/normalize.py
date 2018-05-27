@@ -5,7 +5,9 @@ Module for vowel normalization
 import numpy as np
 import pandas as pd
 
-from .utils import str_or_list
+from .utils import (
+    flatten,
+    str_or_list)
 
 
 class VowelNormalizer(object):
@@ -16,11 +18,18 @@ class VowelNormalizer(object):
     one_of = []
 
     def __init__(self, **kwargs):
-        check_kwargs(
-            self.__class__.__name__,
+        required, one_of = check_kwargs(
             kwargs,
             required=self.required,
             one_of=self.__class__.one_of)
+        if required:
+            raise ValueError(
+                '{} requires the keyword argument \'{}\''.format(
+                    self.__class__.__name__, required))
+        if one_of:
+            raise ValueError(
+                '{} requires one of the keyword arguments {}'.format(
+                    self.__class__.__name__, one_of))
         self.kwargs = kwargs
         formants = sanitize_formants(**kwargs)
         self.columns_in, self.columns_out = get_columns_out(
@@ -112,16 +121,13 @@ class VowelNormalizer(object):
 
 
 
-def check_kwargs(method, kwargs, required=None, one_of=None):
+def check_kwargs(kwargs, required=None, one_of=None):
     """
     Check presence of keyword arguments for normalization method.
-    Raises a :data:`ValueError` if keywords are missing.
+
 
     Parameters
     ----------
-
-    method: str
-    The name of the nomalization method.
 
     kwargs: dict
     The dictionary containing keyword arguments
@@ -138,19 +144,25 @@ def check_kwargs(method, kwargs, required=None, one_of=None):
     one_of = one_of or []
     for key in required:
         if not key in kwargs:
-            raise ValueError(
-                '{} normalization requires {} argument'.format(
-                    method, key))
+            return key, None
     for items in one_of:
         for item in items:
             if item in kwargs:
                 break
         else:
             if one_of:
-                raise ValueError(
-                    '{} normalization requires at least one of {}'.format(
-                        method, items))
+                return None, one_of
+    return None, None
 
+
+def columns_in_dataframe(df, *columns):
+    """
+    Check columns exists in data frame
+    """
+    for column in flatten(list(columns)):
+        if not column in df.columns:
+            return False
+    return True
 
 def sanitize_formants(formants=None, f0=None, f1=None, f2=None, f3=None, **_):
     """

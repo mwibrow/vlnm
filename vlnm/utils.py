@@ -1,13 +1,20 @@
 """
 Misc. utilities.
 """
-import itertools
+
 
 def flatten(items):
     """
     Flatten a list of lists.
     """
-    return [item for item in itertools.chain.from_iterable(items) if item]
+    if items == []:
+        return items
+    if isinstance(items, list):
+        flattend = []
+        for item in items:
+            flattend.extend(flatten(item))
+        return flattend
+    return [items]
 
 def str_or_list(value):
     """

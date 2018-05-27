@@ -28,6 +28,13 @@ class TestFlatten(unittest.TestCase):
         actual = flatten([[], [[]], []])
         self.assertEqual(len(actual), 0)
 
+    def test_nested_lists(self):
+        """
+        Nested lists.
+        """
+        expected = ['a', 'b', 'c', 'd']
+        actual = flatten(['a', ['b', 'c'], [['d']]])
+        self.assertListEqual(actual, expected)
 
 
 class TestStrOrList(unittest.TestCase):
