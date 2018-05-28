@@ -6,6 +6,9 @@ import numpy as np
 import pandas as pd
 
 from .utils import (
+    check_data_frame_columns,
+    check_one_from_kwargs,
+    check_required_kwargs,
     flatten,
     str_or_list)
 
@@ -16,9 +19,6 @@ class VowelNormalizer(object):
     """
     required = []
     one_from = []
-
-    def __init__(self):
-       pass
 
     def partition(
             self,
@@ -120,53 +120,6 @@ class VowelNormalizer(object):
             kwargs.pop('constants', {}),
             **kwargs)
 
-
-
-
-def check_kwargs(method, kwargs, required=None, one_from=None):
-    """
-    Check presence of keyword arguments for normalization method.
-
-    Parameters
-    ----------
-
-    kwargs: dict
-    The dictionary containing keyword arguments
-
-    required: list or None
-    A list of keywords that are required for the normalization method.
-
-    one_from: list or None
-    A list of keywords  of which at least one is required for the
-    normalization method.
-
-    """
-    required = required or []
-    one_from = one_from or []
-    for key in required:
-        if not key in kwargs:
-            raise ValueError(
-                '{} requires keyword argument {}'.format(
-                    method, key))
-    for items in one_from:
-        for item in items:
-            if item in kwargs:
-                break
-        else:
-            if one_from:
-                raise ValueError(
-                    '{} requires one keyword argument from {}'.format(
-                        method, one_from))
-
-
-def columns_in_dataframe(df, *columns):
-    """
-    Check columns exists in data frame
-    """
-    for column in flatten(list(columns)):
-        if not column in df.columns:
-            return False
-    return True
 
 def sanitize_formants(formants=None, f0=None, f1=None, f2=None, f3=None, **_):
     """
