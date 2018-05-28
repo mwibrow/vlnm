@@ -154,7 +154,6 @@ class BladenNormalizer(VowelNormalizer):
             margins=margins,
             callbacks=callbacks,
             remove_none=True,
-            formants=[kwargs.pop('formants')],
             **kwargs)
 
 
@@ -193,7 +192,6 @@ class BarkDifferenceNormalizer(VowelNormalizer):
             margins=margins,
             callbacks=callbacks,
             remove_none=True,
-            formants=[kwargs.pop('formants')],
             **kwargs)
 
 

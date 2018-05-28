@@ -104,8 +104,9 @@ class VowelNormalizer(object):
                     self.__class__.__name__,
                     missing))
 
+        formants = sanitize_formants(kwargs.pop('formants'))
         columns_in, columns_out = get_columns_out(
-            kwargs.pop('formants', []),
+            formants,
             kwargs.pop('suffix', {}))
         return self.partition(
             df,
@@ -149,10 +150,10 @@ def get_columns_out(columns_in, suffix=None):
     """
     if not columns_in or not suffix:
         return columns_in, columns_in
-    #transform = np.vectorize(lambda value: '{}{}'.format(value, suffix) if value else value)
-    columns_out = ['{}{}'.format(value, suffix) if value else value
-                   for value in columns_in]
-    return columns_in, columns_out
+    transform = np.vectorize(lambda value: '{}{}'.format(value, suffix) if value else value)
+    # columns_out = ['{}{}'.format(value, suffix) if value else value
+    #                for value in columns_in]
+    return columns_in, transform(columns_in).tolist()
 
 
 FORMANT_KWARGS_DOCSTRING = """
