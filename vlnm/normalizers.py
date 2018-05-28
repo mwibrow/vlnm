@@ -174,9 +174,12 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         f0, f1 = kwargs.get('f0'), kwargs.get('f1')
-        offset = hz_to_bark(df[f0] if f0 else df[f1])
-        for col_in, col_out in zip(cols_in, cols_out):
-            df[col_out] = hz_to_bark(df[col_in]) - offset
+        offset = np.repeat(
+            np.atleast_2d(hz_to_bark(df[f0] if f0 else df[f1])),
+            len(cols_in),
+            axis=0).T
+
+        df[cols_out] = hz_to_bark(df[cols_in]) - offset
         return df
 
     def normalize(self, df, **kwargs):
@@ -220,16 +223,18 @@ class NordstromNormalizer(VowelNormalizer):
     required = ['f1', 'f3', 'formants', 'gender']
     one_from = [['male', 'female']]
 
-    def _calculate_mu_ratio(self, df, f1=None, f3=None, constants=None, **kwargs):
+    def calculate_f3_means(self, df, f1=None, f3=None, constants=None, **kwargs):
+        """
+        Calculate the f3 means.
+        """
         gender = kwargs['gender']
         female, male = infer_gender_labels(
             df,
             gender,
             female=kwargs.get('female'),
             male=kwargs.get('male'))
-        constants = constants or {}
-        constants['mu_female'] = df[df[(gender == female) & (f1 > 600)]][f3].mean()
-        constants['mu_male'] = df[df[(gender == male) & (f1 > 600)]][f3].mean()
+        constants['mu_female'] = df[(df[gender] == female) & (df[f1] > 600)][f3].mean()
+        constants['mu_male'] = df[(df[gender] == male) & (df[f1] > 600)][f3].mean()
         return df
 
     def _normalize_df(self, df, cols_in, cols_out, constants=None, **kwargs):
@@ -247,10 +252,9 @@ class NordstromNormalizer(VowelNormalizer):
             axis=0).T
 
         mu_female, mu_male = constants['mu_female'], constants['mu_male']
-        for col_in, col_out in zip(cols_in, cols_out):
-            df[col_out] = (
-                df[col_in] * (
-                    1. + indicator * mu_male / mu_female))
+        df[cols_out] = (
+            df[cols_in] * (
+                1. + indicator * mu_male / mu_female))
         return df
 
     def normalize(self, df, **kwargs):
@@ -262,7 +266,8 @@ class NordstromNormalizer(VowelNormalizer):
         df: pandas.DataFrame
         """
         margins = kwargs.pop('margins', [])
-        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
+        callbacks = [None] * (len(margins) - 1) + [self.calculate_f3_means,
+                                                   self._normalize_df]
         return self._normalize(
             df,
             margins=margins,

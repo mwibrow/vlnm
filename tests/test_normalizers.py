@@ -20,7 +20,8 @@ from vlnm.normalizers import (
     ErbNormalizer,
     Log10Normalizer,
     LogNormalizer,
-    MelNormalizer
+    MelNormalizer,
+    NordstromNormalizer
 )
 
 
@@ -38,27 +39,27 @@ class TestIntrinsicNormalizersValueError(unittest.TestCase):
     """
 
     def test_bark_normalizer(self):
-        """Test BarkNormalizer"""
+        """Test BarkNormalizer."""
         with self.assertRaises(ValueError):
             BarkNormalizer().normalize(DATA_FRAME)
 
     def test_erb_normalizer(self):
-        """Test ErbNormalizer"""
+        """Test ErbNormalizer."""
         with self.assertRaises(ValueError):
             ErbNormalizer().normalize(DATA_FRAME)
 
     def test_log10_normalizer(self):
-        """Test Log10Normalizer"""
+        """Test Log10Normalizer."""
         with self.assertRaises(ValueError):
             Log10Normalizer().normalize(DATA_FRAME)
 
     def test_log_normalizer(self):
-        """Test LogNormalizer"""
+        """Test LogNormalizer."""
         with self.assertRaises(ValueError):
             LogNormalizer().normalize(DATA_FRAME)
 
     def test_mel_normalizer(self):
-        """Test MelNormalizer"""
+        """Test MelNormalizer."""
         with self.assertRaises(ValueError):
             MelNormalizer().normalize(DATA_FRAME)
 
@@ -73,31 +74,31 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
         self.kwargs = dict(formants=['f0', 'f1', 'f2', 'f3'])
 
     def test_bark_normalizer(self):
-        """Test BarkNormalizer"""
+        """Test BarkNormalizer."""
         expected = hz_to_bark(self.df.copy())
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
-        """Test ErbNormalizer"""
+        """Test ErbNormalizer."""
         expected = hz_to_erb(self.df.copy())
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log10_normalizer(self):
-        """Test Log10Normalizer"""
+        """Test Log10Normalizer."""
         expected = np.log10(self.df.copy())
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log_normalizer(self):
-        """Test LogNormalizer"""
+        """Test LogNormalizer."""
         expected = np.log(self.df.copy())
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_mel_normalizer(self):
-        """Test MelNormalizer"""
+        """Test MelNormalizer."""
         expected = hz_to_mel(self.df.copy())
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
@@ -105,7 +106,7 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
 
 
 def make_new_columns_expected(df, suffix, transform):
-    """Helper for class Test new columns"""
+    """Helper for class Test new columns."""
     tmp_df = transform(df.copy())
     tmp_df.columns = ['{}{}'.format(column, suffix) for column in tmp_df.columns]
     return pd.concat([df.copy(), tmp_df], axis=1)
@@ -123,31 +124,31 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
             suffix=self.suffix)
 
     def test_bark_normalizer(self):
-        """Test BarkNormalizer"""
+        """Test BarkNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_bark)
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
-        """Test ErbNormalizer"""
+        """Test ErbNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_erb)
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log10_normalizer(self):
-        """Test Log10Normalizer"""
+        """Test Log10Normalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, np.log10)
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log_normalizer(self):
-        """Test LogNormalizer"""
+        """Test LogNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, np.log)
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_mel_normalizer(self):
-        """Test MelNormalizer"""
+        """Test MelNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_mel)
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
@@ -155,7 +156,7 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
 
 class TestBladenNormalizer(unittest.TestCase):
     """
-    Test the BladenNormalizer
+    Test the BladenNormalizer.
     """
 
     def setUp(self):
@@ -165,12 +166,12 @@ class TestBladenNormalizer(unittest.TestCase):
             formants=self.formants)
 
     def test_no_gender(self):
-        """No gender column raises ValueError"""
+        """No gender column raises ValueError."""
         with self.assertRaises(ValueError):
             BladenNormalizer().normalize(self.df, **self.kwargs)
 
     def test_no_male_or_female(self):
-        """No female or male column raises ValueError"""
+        """No female or male column raises ValueError."""
         with self.assertRaises(ValueError):
             BladenNormalizer().normalize(self.df, gender='gender', **self.kwargs)
 
@@ -217,17 +218,60 @@ class TestBarkDifferenceNormalizer(unittest.TestCase):
         self.kwargs = dict(formants=self.formants)
 
     def test_no_f0_or_f1(self):
-        """No f0 or f1 columns ValueError"""
+        """No f0 or f1 columns ValueError."""
         with self.assertRaises(ValueError):
             BarkDifferenceNormalizer().normalize(self.df, **self.kwargs)
 
     def test_f0(self):
-        """F0 subtraction"""
-
+        """F0 subtraction."""
         expected = self.df.copy()
         for formant in self.formants:
             expected[formant] = (hz_to_bark(self.df[formant]) -
-                hz_to_bark(self.df['f0']))
+                                 hz_to_bark(self.df['f0']))
         actual = BarkDifferenceNormalizer().normalize(
             self.df, f0='f0', **self.kwargs)
         self.assertTrue(actual[self.formants].equals(expected[self.formants]))
+
+    def test_f1(self):
+        """F1 subtraction."""
+        expected = self.df.copy()
+        for formant in self.formants:
+            expected[formant] = (hz_to_bark(self.df[formant]) -
+                                 hz_to_bark(self.df['f1']))
+        actual = BarkDifferenceNormalizer().normalize(
+            self.df, f1='f1', **self.kwargs)
+        self.assertTrue(actual[self.formants].equals(expected[self.formants]))
+
+
+class TestNordstromNormalizer(unittest.TestCase):
+    """
+    Tests for the NordstromNormalizer class.
+    """
+
+    def setUp(self):
+        self.df = DATA_FRAME.copy()
+        self.formants = ['f2', 'f3']
+        self.kwargs = dict(
+            formants=self.formants)
+
+    def test_no_f1_or_f3(self):
+        """No f1 or f3 columns ValueError."""
+        with self.assertRaises(ValueError):
+            NordstromNormalizer().normalize(self.df, formants=[])
+
+    def test_mu_ratio(self):
+        """Calculate mu ratios."""
+        df = self.df
+        mu_male = df[(df['gender'] == 'M') & (df['f1'] > 600)]['f3'].mean()
+        mu_female = df[(df['gender'] == 'F') & (df['f1'] > 600)]['f3'].mean()
+
+        constants = {}
+        NordstromNormalizer().calculate_f3_means(
+            df,
+            f1='f1',
+            f3='f3',
+            constants=constants,
+            gender='gender',
+            female='F')
+        self.assertEqual(constants['mu_female'], mu_female)
+        self.assertEqual(constants['mu_male'], mu_male)
