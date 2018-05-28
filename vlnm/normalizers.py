@@ -32,7 +32,11 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
-        return self._normalize(df, **kwargs)
+        return self._normalize(
+            df,
+            margins=[],
+            callbacks=[self._normalize_df],
+            **kwargs)
 
 
 class Log10Normalizer(FormantIntrinsicNormalizer):

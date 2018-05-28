@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 from .utils import (
-    check_data_frame_columns,
     check_one_from_kwargs,
     check_required_kwargs,
     flatten,
@@ -92,7 +91,6 @@ class VowelNormalizer(object):
         """
         Return normalize the formants in dataframe.
         """
-
         missing = check_required_kwargs(kwargs, self.required)
         if missing:
             raise ValueError(
@@ -106,9 +104,8 @@ class VowelNormalizer(object):
                     self.__class__.__name__,
                     missing))
 
-        columns_in = kwargs.pop('formants', {})
-        columns_out = get_columns_out(
-            columns_in,
+        columns_in, columns_out = get_columns_out(
+            kwargs.pop('formants', []),
             kwargs.pop('suffix', {}))
 
         return self.partition(
@@ -153,8 +150,10 @@ def get_columns_out(columns_in, suffix=None):
     """
     if not columns_in or not suffix:
         return columns_in, columns_in
-    transform = np.vectorize(lambda value: '{}{}'.format(value, suffix) if value else value)
-    return columns_in, transform(columns_in).tolist()
+    #transform = np.vectorize(lambda value: '{}{}'.format(value, suffix) if value else value)
+    columns_out = ['{}{}'.format(value, suffix) if value else value
+                   for value in columns_in]
+    return columns_in, columns_out
 
 
 FORMANT_KWARGS_DOCSTRING = """
