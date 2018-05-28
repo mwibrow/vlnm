@@ -119,37 +119,37 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         self.suffix = '_N'
         self.df = DATA_FRAME.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(
-            f0='f0', f1='f1', f2='f2', f3='f3',
+            formants=['f0', 'f1', 'f2', 'f3'],
             suffix=self.suffix)
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_bark)
-        actual = BarkNormalizer(**self.kwargs).normalize(self.df)
+        actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
         """Test ErbNormalizer"""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_erb)
-        actual = ErbNormalizer(**self.kwargs).normalize(self.df)
+        actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log10_normalizer(self):
         """Test Log10Normalizer"""
         expected = make_new_columns_expected(self.df, self.suffix, np.log10)
-        actual = Log10Normalizer(**self.kwargs).normalize(self.df)
+        actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log_normalizer(self):
         """Test LogNormalizer"""
         expected = make_new_columns_expected(self.df, self.suffix, np.log)
-        actual = LogNormalizer(**self.kwargs).normalize(self.df)
+        actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_mel_normalizer(self):
         """Test MelNormalizer"""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_mel)
-        actual = MelNormalizer(**self.kwargs).normalize(self.df)
+        actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
 
