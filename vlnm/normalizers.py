@@ -127,15 +127,16 @@ class BladenNormalizer(VowelNormalizer):
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         gender = kwargs['gender']
-        female, male = kwargs.get('female'), kwargs.get('male')
-        value = female if female else male
+        female, _male = infer_gender_labels(
+            df,
+            gender,
+            female=kwargs.get('female'),
+            male=kwargs.get('male'))
         indicator = np.repeat(
             np.atleast_2d(
-                (df[gender] == value).astype(float)),
+                (df[gender] == female).astype(float)),
             len(cols_in),
             axis=0).T
-        if value == male:
-            indicator = 1. - indicator
         df[cols_out] = hz_to_bark(df[cols_in]) - indicator
         return df
 
@@ -219,19 +220,37 @@ class NordstromNormalizer(VowelNormalizer):
     required = ['f1', 'f3', 'formants', 'gender']
     one_from = [['male', 'female']]
 
-    def _normalize_df(self, df, cols_in, cols_out, **kwargs):
+    def _calculate_mu_ratio(self, df, f1=None, f3=None, constants=None, **kwargs):
         gender = kwargs['gender']
-        female, male = kwargs.get('female'), kwargs.get('male')
-        value = female if female else male
+        female, male = infer_gender_labels(
+            df,
+            gender,
+            female=kwargs.get('female'),
+            male=kwargs.get('male'))
+        constants = constants or {}
+        constants['mu_female'] = df[df[(gender == female) & (f1 > 600)]][f3].mean()
+        constants['mu_male'] = df[df[(gender == male) & (f1 > 600)]][f3].mean()
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **kwargs):
+        gender = kwargs['gender']
+        female, _male = infer_gender_labels(
+            df,
+            gender,
+            female=kwargs.get('female'),
+            male=kwargs.get('male'))
+
         indicator = np.repeat(
             np.atleast_2d(
-                (df[gender] == value).astype(float)),
+                (df[gender] == female).astype(float)),
             len(cols_in),
             axis=0).T
-        if value == male:
-            indicator = 1. - indicator
 
-        df[cols_out] = hz_to_bark(df[cols_in]) - indicator
+        mu_female, mu_male = constants['mu_female'], constants['mu_male']
+        for col_in, col_out in zip(cols_in, cols_out):
+            df[col_out] = (
+                df[col_in] * (
+                    1. + indicator * mu_male / mu_female))
         return df
 
     def normalize(self, df, **kwargs):
@@ -250,3 +269,16 @@ class NordstromNormalizer(VowelNormalizer):
             callbacks=callbacks,
             remove_none=True,
             **kwargs)
+
+
+def infer_gender_labels(df, gender, female=None, male=None):
+    """
+    Infer female and male gender labels.
+    """
+    if female and not male:
+        male = [label for label in df[gender].unique()
+                if not label == female][0]
+    elif male and not female:
+        female = [label for label in df[gender].unique()
+                  if not label == male][0]
+    return female, male
