@@ -223,8 +223,11 @@ class TestBarkDifferenceNormalizer(unittest.TestCase):
 
     def test_f0(self):
         """F0 subtraction"""
-        expected = (hz_to_bark(self.df[self.formants]) -
-            hz_to_bark(self.df['f0']))
+
+        expected = self.df.copy()
+        for formant in self.formants:
+            expected[formant] = (hz_to_bark(self.df[formant]) -
+                hz_to_bark(self.df['f0']))
         actual = BarkDifferenceNormalizer().normalize(
             self.df, f0='f0', **self.kwargs)
-        self.assertTrue(actual[self.formants].equals(expected))
+        self.assertTrue(actual[self.formants].equals(expected[self.formants]))

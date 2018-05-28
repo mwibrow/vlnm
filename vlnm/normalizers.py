@@ -173,8 +173,9 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         f0, f1 = kwargs.get('f0'), kwargs.get('f1')
-        offset = hz_to_bark(f0 if f0 else f1)
-        df[cols_out] = hz_to_bark(df[cols_in]) - offset
+        offset = hz_to_bark(df[f0] if f0 else df[f1])
+        for col_in, col_out in zip(cols_in, cols_out):
+            df[col_out] = hz_to_bark(df[col_in]) - offset
         return df
 
     def normalize(self, df, **kwargs):
