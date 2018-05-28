@@ -160,70 +160,71 @@ class TestBladenNormalizer(unittest.TestCase):
 
     def setUp(self):
         self.df = DATA_FRAME.copy()
-        self.columns = ['f0', 'f1', 'f2', 'f3']
-        self.kwargs = {}
-        for f, self.kwargs[f] in zip(self.columns, self.columns):
-            pass
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(
+            formants=self.formants)
 
     def test_no_gender(self):
         """No gender column raises ValueError"""
         with self.assertRaises(ValueError):
-            BladenNormalizer(**self.kwargs)
+            BladenNormalizer().normalize(self.df, **self.kwargs)
 
     def test_no_male_or_female(self):
         """No female or male column raises ValueError"""
         with self.assertRaises(ValueError):
-            BladenNormalizer(gender='gender', **self.kwargs)
+            BladenNormalizer().normalize(self.df, gender='gender', **self.kwargs)
 
     def test_minimal_kwargs(self):
         """Minimally correct kwargs."""
-        BladenNormalizer(gender='gender', male='M', **self.kwargs)
+        BladenNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', **self.kwargs)
 
     def test_with_female(self):
         """Test specifying female label."""
-        normalizer = BladenNormalizer(
+        normalizer = BladenNormalizer()
+
+        expected = hz_to_bark(self.df.copy()[self.formants])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            self.df,
             gender='gender',
             female='F',
-            **self.kwargs)
-        expected = hz_to_bark(self.df.copy()[self.columns])
-        expected[self.df['gender'] == 'F'] -= 1.
-        actual = normalizer.normalize(self.df)[self.columns]
+            **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
     def test_with_male(self):
         """Test specifying male label."""
-        normalizer = BladenNormalizer(
+        normalizer = BladenNormalizer()
+        expected = hz_to_bark(self.df.copy()[self.formants])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            self.df,
             gender='gender',
             male='M',
-            **self.kwargs)
-        expected = hz_to_bark(self.df.copy()[self.columns])
-        expected[self.df['gender'] == 'F'] -= 1.
-        actual = normalizer.normalize(self.df)[self.columns]
+            **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
 
-class TestBlarkDifferenceNormalizer(unittest.TestCase):
+class TestBarkDifferenceNormalizer(unittest.TestCase):
     """
     Test the BarkDifferenceNormalizer class
     """
 
     def setUp(self):
         self.df = DATA_FRAME.copy()
-        self.columns = ['f2', 'f3']
-        self.kwargs = {}
-        for f, self.kwargs[f] in zip(self.columns, self.columns):
-            pass
+        self.formants = ['f2', 'f3']
+        self.kwargs = dict(formants=self.formants)
 
     def test_no_f0_or_f1(self):
         """No f0 or f1 columns ValueError"""
         with self.assertRaises(ValueError):
-            BarkDifferenceNormalizer(**self.kwargs)
+            BarkDifferenceNormalizer().normalize(self.df, **self.kwargs)
 
     def test_f0(self):
         """F0 subtraction"""
-
-        expected = (hz_to_bark(self.df[self.columns]) -
+        expected = (hz_to_bark(self.df[self.formants]) -
             hz_to_bark(self.df['f0']))
-        actual = BarkDifferenceNormalizer(
-            f0='f0', **self.kwargs).normalize(self.df)
-        self.assertTrue(actual[self.columns].equals(expected))
+        actual = BarkDifferenceNormalizer().normalize(
+            self.df, f0='f0', **self.kwargs)
+        self.assertTrue(actual[self.formants].equals(expected))

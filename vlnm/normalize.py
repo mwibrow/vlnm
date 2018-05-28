@@ -107,7 +107,6 @@ class VowelNormalizer(object):
         columns_in, columns_out = get_columns_out(
             kwargs.pop('formants', []),
             kwargs.pop('suffix', {}))
-
         return self.partition(
             df,
             kwargs.pop('margins', []),
