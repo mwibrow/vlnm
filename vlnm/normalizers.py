@@ -122,8 +122,8 @@ class BladenNormalizer(VowelNormalizer):
     Where :math:`I(s_k)` is an indicator function returning 1 if speaker :math:`k`
     is identified/identifying as female and 0 otherwise.
     """
-    required = ['formant', 'gender']
-    one_of = [['male', 'female']]
+    required = ['formants', 'gender']
+    one_from = [['male', 'female']]
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         gender = kwargs['gender']
@@ -154,6 +154,7 @@ class BladenNormalizer(VowelNormalizer):
             margins=margins,
             callbacks=callbacks,
             remove_none=True,
+            formants=[kwargs.pop('formants')],
             **kwargs)
 
 
@@ -192,6 +193,7 @@ class BarkDifferenceNormalizer(VowelNormalizer):
             margins=margins,
             callbacks=callbacks,
             remove_none=True,
+            formants=[kwargs.pop('formants')],
             **kwargs)
 
 
