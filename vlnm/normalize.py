@@ -107,15 +107,6 @@ class VowelNormalizer(object):
                     missing))
 
         columns_in = kwargs.pop('formants', {})
-        missing = check_columns(
-            kwargs,
-            cols_in + self.columns)
-        if missing:
-            raise ValueError(
-                'Data frame missing column {}'.format(
-                    missing))
-
-        columns_in = kwargs.pop('formants', {})
         columns_out = get_columns_out(
             columns_in,
             kwargs.pop('suffix', {}))
@@ -130,27 +121,7 @@ class VowelNormalizer(object):
             **kwargs)
 
 
-def check_required_kwargs(kwargs, required):
-    for key in required:
-        if not key in kwargs:
-            return key
-    return None
 
-def check_one_from_kwargs(kwargs, one_from):
-    for items in one_from:
-        for item in items:
-            if item in kwargs:
-                break
-        else:
-            if one_from:
-                return one_from
-    return None
-
-def check_data_frame_columns(df, columns):
-    for column in columns:
-        if not column in df.columns:
-            return column
-    return None
 
 def check_kwargs(method, kwargs, required=None, one_from=None):
     """
