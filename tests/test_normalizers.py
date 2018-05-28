@@ -12,6 +12,7 @@ from vlnm.conversion import (
     hz_to_erb,
     hz_to_mel
 )
+
 from vlnm.normalizers import (
     BarkNormalizer,
     BarkDifferenceNormalizer,
@@ -39,27 +40,27 @@ class TestIntrinsicNormalizersValueError(unittest.TestCase):
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
         with self.assertRaises(ValueError):
-            BarkNormalizer()
+            BarkNormalizer().normalize(DATA_FRAME)
 
     def test_erb_normalizer(self):
         """Test ErbNormalizer"""
         with self.assertRaises(ValueError):
-            ErbNormalizer()
+            ErbNormalizer().normalize(DATA_FRAME)
 
     def test_log10_normalizer(self):
         """Test Log10Normalizer"""
         with self.assertRaises(ValueError):
-            Log10Normalizer()
+            Log10Normalizer().normalize(DATA_FRAME)
 
     def test_log_normalizer(self):
         """Test LogNormalizer"""
         with self.assertRaises(ValueError):
-            LogNormalizer()
+            LogNormalizer().normalize(DATA_FRAME)
 
     def test_mel_normalizer(self):
         """Test MelNormalizer"""
         with self.assertRaises(ValueError):
-            MelNormalizer()
+            MelNormalizer().normalize(DATA_FRAME)
 
 
 class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):

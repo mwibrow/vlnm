@@ -18,7 +18,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
     Base class for formant-intrinsic normaliztion.
     """
 
-    one_of = [['formants', 'f0', 'f1', 'f2', 'f3']]
+    required = ['formants']
 
     def _normalize_df(self, df, cols_in, cols_out, **__):
         df[cols_in] = df[cols_out]
@@ -32,12 +32,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
-        return self._normalize(
-            df,
-            [],
-            [self._normalize_df],
-            remove_none=True,
-            **kwargs)
+        return self._normalize(df, **kwargs)
 
 
 class Log10Normalizer(FormantIntrinsicNormalizer):
@@ -123,8 +118,8 @@ class BladenNormalizer(VowelNormalizer):
     Where :math:`I(s_k)` is an indicator function returning 1 if speaker :math:`k`
     is identified/identifying as female and 0 otherwise.
     """
-    required = ['gender']
-    one_of = [['formant', 'f0', 'f1', 'f2', 'f3'], ['male', 'female']]
+    required = ['formant', 'gender']
+    one_of = [['male', 'female']]
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         gender = kwargs['gender']
@@ -148,12 +143,12 @@ class BladenNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
-        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        margins = kwargs.pop('margins', [])
         callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
         return self._normalize(
             df,
-            margins,
-            callbacks,
+            margins=margins,
+            callbacks=callbacks,
             remove_none=True,
             **kwargs)
 
@@ -169,8 +164,8 @@ class BarkDifferenceNormalizer(VowelNormalizer):
     :math:`B^\prime` is :math:`B_0` or :math:`B_1`
     depending on the context.
     """
-    required = []
-    one_of = [['f0', 'f1'], ['formant', 'f0', 'f1', 'f2', 'f3']]
+    required = ['formants']
+    one_from = [['f0', 'f1']]
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         f0, f1 = kwargs.get('f0'), kwargs.get('f1')
@@ -186,12 +181,12 @@ class BarkDifferenceNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
-        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        margins = kwargs.pop('margins', [])
         callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
         return self._normalize(
             df,
-            margins,
-            callbacks,
+            margins=margins,
+            callbacks=callbacks,
             remove_none=True,
             **kwargs)
 
@@ -216,8 +211,8 @@ class NordstromNormalizer(VowelNormalizer):
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
     """
-    required = ['f1', 'f3', 'gender']
-    one_of = [['formant', 'f0', 'f1', 'f2', 'f3'], ['male', 'female']]
+    required = ['f1', 'f3', 'formants', 'gender']
+    one_from = [['male', 'female']]
 
     def _normalize_df(self, df, cols_in, cols_out, **kwargs):
         gender = kwargs['gender']
@@ -230,7 +225,7 @@ class NordstromNormalizer(VowelNormalizer):
             axis=0).T
         if value == male:
             indicator = 1. - indicator
-            mu_male =
+
         df[cols_out] = hz_to_bark(df[cols_in]) - indicator
         return df
 
@@ -242,11 +237,11 @@ class NordstromNormalizer(VowelNormalizer):
         ---------
         df: pandas.DataFrame
         """
-        margins = self.kwargs.get('margins', kwargs.pop('margins', []))
+        margins = kwargs.pop('margins', [])
         callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
         return self._normalize(
             df,
-            margins,
-            callbacks,
+            margins=margins,
+            callbacks=callbacks,
             remove_none=True,
             **kwargs)
