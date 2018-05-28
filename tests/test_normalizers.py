@@ -70,36 +70,36 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
 
     def setUp(self):
         self.df = DATA_FRAME.copy()[['f0', 'f1', 'f2', 'f3']]
-        self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
+        self.kwargs = dict(formants=['f0', 'f1', 'f2', 'f3'])
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer"""
         expected = hz_to_bark(self.df.copy())
-        actual = BarkNormalizer(**self.kwargs).normalize(self.df)
+        actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
         """Test ErbNormalizer"""
         expected = hz_to_erb(self.df.copy())
-        actual = ErbNormalizer(**self.kwargs).normalize(self.df)
+        actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log10_normalizer(self):
         """Test Log10Normalizer"""
         expected = np.log10(self.df.copy())
-        actual = Log10Normalizer(**self.kwargs).normalize(self.df)
+        actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_log_normalizer(self):
         """Test LogNormalizer"""
         expected = np.log(self.df.copy())
-        actual = LogNormalizer(**self.kwargs).normalize(self.df)
+        actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     def test_mel_normalizer(self):
         """Test MelNormalizer"""
         expected = hz_to_mel(self.df.copy())
-        actual = MelNormalizer(**self.kwargs).normalize(self.df)
+        actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
 
