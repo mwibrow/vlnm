@@ -266,6 +266,7 @@ class NordstromNormalizer(VowelNormalizer):
         df: pandas.DataFrame
         """
         margins = kwargs.pop('margins', [])
+        margins.append(kwargs.get('gender'))
         callbacks = [None] * (len(margins) - 1) + [self.calculate_f3_means,
                                                    self._normalize_df]
         return self._normalize(
@@ -280,10 +281,15 @@ def infer_gender_labels(df, gender, female=None, male=None):
     """
     Infer female and male gender labels.
     """
+    labels = df[gender].dropna().unique()
+    if len(labels) != 2:
+        raise ValueError(
+            'More than two labels for gender. '
+            'Gender-based normalization assumes binary labelling')
     if female and not male:
-        male = [label for label in df[gender].unique()
+        male = [label for label in labels
                 if not label == female][0]
     elif male and not female:
-        female = [label for label in df[gender].unique()
+        female = [label for label in labels
                   if not label == male][0]
     return female, male
