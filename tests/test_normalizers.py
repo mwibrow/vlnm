@@ -36,7 +36,8 @@ def generate_data_frame(
     random_seed(seed)
     df_factors = factors.copy()
     df_factors.update(speaker=[speaker for speaker in range(speakers)])
-    base_df = pd.DataFrame(list(itertools.product(*df_factors.values())),
+    base_df = pd.DataFrame(
+        list(itertools.product(*df_factors.values())),
         columns=df_factors.keys())
     index = base_df['speaker'] % len(genders)
     base_df['gender'] = np.array(genders)[index]
