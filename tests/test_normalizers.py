@@ -1,10 +1,11 @@
 """
 Tests for the normalizers library.
 """
-
+import itertools
 import unittest
 
 import numpy as np
+from numpy.random import seed as random_seed
 import pandas as pd
 
 from vlnm.conversion import (
@@ -24,14 +25,35 @@ from vlnm.normalizers import (
     NordstromNormalizer
 )
 
+def generate_data_frame(
+        speakers=1,
+        genders=None,
+        factors=None,
+        seed=None):
+    """
+    Generate a random(ish) data-frame for testing.
+    """
+    random_seed(seed)
+    df_factors = factors.copy()
+    df_factors.update(speaker=[speaker for speaker in range(speakers)])
+    base_df = pd.DataFrame(list(itertools.product(*df_factors.values())),
+        columns=df_factors.keys())
+    index = base_df['speaker'] % len(genders)
+    base_df['gender'] = np.array(genders)[index]
+    formants = ['f0', 'f1', 'f2', 'f3']
+    for f, formant in enumerate(formants):
+        base_df[formant] = (index + 1) * 250 + f * 400
+        base_df[formant] += np.random.randint(50, size=len(base_df)) - 25
+    return base_df
 
-DATA_FRAME = pd.DataFrame(dict(
-    gender=['M'] * 4 + ['F'] * 4,
-    f0=[100 + i * 50 for i in range(8)],
-    f1=[500 + i * 50 for i in range(8)],
-    f2=[1000 + i * 50 for i in range(8)],
-    f3=[2000 + i * 50 for i in range(8)]
-))
+
+DATA_FRAME = generate_data_frame(
+    speakers = 8,
+    genders=['M', 'F'],
+    factors=dict(
+        group=['HV', 'LV'],
+        test=['pre', 'post'],
+        vowel=['a', 'e', 'i', 'o', 'u']))
 
 class TestIntrinsicNormalizersValueError(unittest.TestCase):
     """
