@@ -48,7 +48,7 @@ def generate_data_frame(
 
 
 DATA_FRAME = generate_data_frame(
-    speakers = 8,
+    speakers=8,
     genders=['M', 'F'],
     factors=dict(
         group=['HV', 'LV'],
