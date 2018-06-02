@@ -9,8 +9,7 @@ def make_set_up(set_up=None):
     def _do_set_up(obj):
         if set_up:
             return set_up(obj)
-        else:
-            return obj.setUp()
+        return obj.setUp()
     return _do_set_up
 
 def repeat_test(iterations=100, seed=None, set_up=None):
