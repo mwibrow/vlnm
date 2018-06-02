@@ -226,8 +226,6 @@ class NordstromNormalizer(VowelNormalizer):
     def calculate_f3_means(
             self,
             df,
-            _cols_in,
-            _cols_out,
             f1=None,
             f3=None,
             constants=None,
@@ -303,35 +301,15 @@ def infer_gender_labels(df, gender, female=None, male=None):
     return female, male
 
 
-class LCENormalizer(VowelNormalizer):
-    r"""
-
-    ..math::
-
-        F_i = F_i \displayfrac{F_i}{\max{F_i}}
-
+class SpeakerVowelNormalizer(VowelNormalizer):
     """
-    required = ['formants']
+    Base class for normalization over speaker formants.
+    """
 
-    def speaker_maximums(
-            self,
-            df,
-            cols_in,
-            _cols_out,
-            constants=None,
-            **__):
-        """
-        Calculate speaker formant maximums.
-        """
-        for col_in in cols_in:
-            key = '{}_max'.format(col_in)
-            constants[key] = df[col_in].max()
+    def _speaker_summary(self, df, _cols_in, _constants=None, **_):
         return df
 
-    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
-        for col_in, col_out in zip(cols_in, cols_out):
-            key = '{}_max'.format(col_in)
-            df[col_out] = df[col_in] / constants[key]
+    def _normalize_df(self, df, _cols_in, _cols_out, _constants=None, **__):
         return df
 
     def normalize(self, df, **kwargs):
@@ -343,8 +321,9 @@ class LCENormalizer(VowelNormalizer):
         df: pandas.DataFrame
         """
         margins = kwargs.pop('margins', [])
-        margins.append(kwargs.get('gender'))
-        callbacks = [None] * (len(margins) - 1) + [self.speaker_maximums,
+        if kwargs.get('speaker'):
+            margins.append(kwargs.get('speaker'))
+        callbacks = [None] * (len(margins) - 1) + [self._speaker_summary,
                                                    self._normalize_df]
         return self._normalize(
             df,
@@ -352,3 +331,94 @@ class LCENormalizer(VowelNormalizer):
             callbacks=callbacks,
             remove_none=True,
             **kwargs)
+
+
+class LCENormalizer(SpeakerVowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i = F_i \displayfrac{F_i}{\max{F_i}}
+
+    """
+    required = ['formants']
+
+    def _speaker_summary(
+            self,
+            df,
+            cols_in=None,
+            constants=None,
+            **__):
+        for col_in in cols_in:
+            key = '{}_max'.format(col_in)
+            constants[key] = df[col_in].max()
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            key = '{}_max'.format(col_in)
+            df[col_out] = df[col_in] / constants[key]
+        return df
+
+
+class GerstmanNormalizer(SpeakerVowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i = F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
+
+    """
+    required = ['formants']
+
+    def _speaker_summary(
+            self,
+            df,
+            cols_in=None,
+            constants=None,
+            **__):
+        for col_in in cols_in:
+            constants['{}_max'.format(col_in)] = df[col_in].max()
+            constants['{}_min'.format(col_in)] = df[col_in].min()
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            fmin = constants['{}_min'.format(col_in)]
+            fmax = constants['{}_max'.format(col_in)]
+            df[col_out] = 999 * (df[col_in] - fmin) / (fmax - fmin)
+        return df
+
+
+
+class LobanovNormalizer(SpeakerVowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i = F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
+
+    Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
+    mean and standard deviation (respectively) of the
+    formant :math:`F_i` for a given speaker.
+
+    """
+    required = ['formants']
+
+    def _speaker_summary(
+            self,
+            df,
+            cols_in=None,
+            constants=None,
+            **__):
+        for col_in in cols_in:
+            constants['{}_mu'.format(col_in)] = df[col_in].mean()
+            constants['{}_sigma'.format(col_in)] = df[col_in].std() or 0.
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            f_mu = constants['{}_mu'.format(col_in)]
+            f_sigma = constants['{}_sigma'.format(col_in)]
+            df[col_out] = (df[col_in] - f_mu) / f_sigma if f_sigma else 0.
+        return df
