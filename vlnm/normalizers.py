@@ -426,3 +426,35 @@ class LobanovNormalizer(SpeakerVowelNormalizer):
             f_sigma = constants['{}_sigma'.format(col_in)]
             df[col_out] = (df[col_in] - f_mu) / f_sigma if f_sigma else 0.
         return df
+
+
+class NearyNormalizer(SpeakerVowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i = \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+    required = ['formants']
+
+    def speaker_summary(
+            self,
+            df,
+            cols_in=None,
+            constants=None,
+            **__):
+        """Mean log for speaker formants."""
+        for col_in in cols_in:
+            constants['{}_mu_log'.format(col_in)] = (
+                np.mean(np.log(df[col_in].dropna())))
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            df[col_out] = (
+                np.log(df[col_in].dropna()) -
+                constants['{}_mu_log'.format(col_in)])
+        return df
