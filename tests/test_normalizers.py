@@ -24,6 +24,7 @@ from vlnm.normalizers import (
     LogNormalizer,
     LCENormalizer,
     MelNormalizer,
+    NearyNormalizer,
     NordstromNormalizer
 )
 
@@ -391,6 +392,34 @@ class TestLobanovNormalizer(unittest.TestCase):
                 expected['{}_sigma'.format(col)] = df[col].std()
             actual = {}
             LobanovNormalizer().speaker_summary(
+                df,
+                cols_in=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+
+class TestNearyNormalizer(unittest.TestCase):
+    """
+    Tests for the NearyNormalizer class.
+    """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.kwargs = dict(
+            formants=['f1', 'f2', 'f3'])
+
+    @repeat_test()
+    def test_speaker_summary(self):
+        """Check mean log formant values for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            cols_in = self.kwargs['formants']
+            expected = {}
+            for col in cols_in:
+                expected['{}_mu_log'.format(col)] = (
+                    np.mean(np.log(df[col].dropna())))
+            actual = {}
+            NearyNormalizer().speaker_summary(
                 df,
                 cols_in=self.kwargs['formants'],
                 constants=actual)
