@@ -152,35 +152,47 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
 
     def setUp(self):
         self.suffix = '_N'
-        self.df = DATA_FRAME.copy()[['f0', 'f1', 'f2', 'f3']]
+        df = generate_data_frame(
+            speakers=8,
+            genders=['M', 'F'],
+            factors=dict(
+                group=['HV', 'LV'],
+                test=['pre', 'post'],
+                vowel=['a', 'e', 'i', 'o', 'u']))
+        self.df = df.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(
             formants=['f0', 'f1', 'f2', 'f3'],
             suffix=self.suffix)
 
+    @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_bark)
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
+    @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_erb)
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
+    @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, np.log10)
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
+    @repeat_test()
     def test_log_normalizer(self):
         """Test LogNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, np.log)
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
+    @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
         expected = make_new_columns_expected(self.df, self.suffix, hz_to_mel)
@@ -302,6 +314,8 @@ class TestNordstromNormalizer(unittest.TestCase):
         constants = {}
         NordstromNormalizer().calculate_f3_means(
             df,
+            [],
+            [],
             f1='f1',
             f3='f3',
             constants=constants,

@@ -223,7 +223,15 @@ class NordstromNormalizer(VowelNormalizer):
     required = ['f1', 'f3', 'formants', 'gender']
     one_from = [['male', 'female']]
 
-    def calculate_f3_means(self, df, f1=None, f3=None, constants=None, **kwargs):
+    def calculate_f3_means(
+            self,
+            df,
+            _cols_in,
+            _cols_out,
+            f1=None,
+            f3=None,
+            constants=None,
+            **kwargs):
         """
         Calculate the f3 means.
         """
@@ -293,3 +301,54 @@ def infer_gender_labels(df, gender, female=None, male=None):
         female = [label for label in labels
                   if not label == male][0]
     return female, male
+
+
+class LCENormalizer(VowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i = F_i \displayfrac{F_i}{\max{F_i}}
+
+    """
+    required = ['formants']
+
+    def speaker_maximums(
+            self,
+            df,
+            cols_in,
+            _cols_out,
+            constants=None,
+            **__):
+        """
+        Calculate speaker formant maximums.
+        """
+        for col_in in cols_in:
+            key = '{}_max'.format(col_in)
+            constants[key] = df[col_in].max()
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            key = '{}_max'.format(col_in)
+            df[col_out] = df[col_in] / constants[key]
+        return df
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize the a data frame.
+
+        Paramters
+        ---------
+        df: pandas.DataFrame
+        """
+        margins = kwargs.pop('margins', [])
+        margins.append(kwargs.get('gender'))
+        callbacks = [None] * (len(margins) - 1) + [self.speaker_maximums,
+                                                   self._normalize_df]
+        return self._normalize(
+            df,
+            margins=margins,
+            callbacks=callbacks,
+            remove_none=True,
+            **kwargs)
