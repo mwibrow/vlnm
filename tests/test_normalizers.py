@@ -5,7 +5,6 @@ import itertools
 import unittest
 
 import numpy as np
-from numpy.random import seed as random_seed
 import pandas as pd
 
 from vlnm.conversion import (
@@ -28,12 +27,10 @@ from vlnm.normalizers import (
 def generate_data_frame(
         speakers=1,
         genders=None,
-        factors=None,
-        seed=None):
+        factors=None):
     """
     Generate a random(ish) data-frame for testing.
     """
-    random_seed(seed)
     df_factors = factors.copy()
     df_factors.update(speaker=[speaker for speaker in range(speakers)])
     base_df = pd.DataFrame(
