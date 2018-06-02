@@ -448,7 +448,7 @@ class NearyNormalizer(SpeakerVowelNormalizer):
             **kwargs):
         """Mean log for speaker formants."""
         method = kwargs.get('method', 'intrinsic')
-        if method.lower() == 'extrinsic':
+        if 'extrinsic' in method.lower():
             mu_log = np.mean(np.mean(np.log(df[cols_in].dropna())))
             for col_in in cols_in:
                 constants['{}_mu_log'.format(col_in)] = mu_log
@@ -458,9 +458,12 @@ class NearyNormalizer(SpeakerVowelNormalizer):
                     np.mean(np.log(df[col_in].dropna())))
         return df
 
-    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **kwargs):
         for col_in, col_out in zip(cols_in, cols_out):
             df[col_out] = (
                 np.log(df[col_in].dropna()) -
                 constants['{}_mu_log'.format(col_in)])
+        method = kwargs.get('method', 'intrinsic')
+        if 'exp' in method.lower():
+            df[cols_out] = np.exp(df[cols_out])
         return df
