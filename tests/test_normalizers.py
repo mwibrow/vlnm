@@ -1,7 +1,7 @@
 """
 Tests for the normalizers library.
 """
-import itertools
+
 import unittest
 
 import numpy as np
@@ -18,42 +18,33 @@ from vlnm.normalizers import (
     BarkDifferenceNormalizer,
     BladenNormalizer,
     ErbNormalizer,
+    GerstmanNormalizer,
+    LobanovNormalizer,
     Log10Normalizer,
     LogNormalizer,
+    LCENormalizer,
     MelNormalizer,
     NordstromNormalizer
 )
 
-from tests.helpers import repeat_test
-
-def generate_data_frame(
-        speakers=1,
-        genders=None,
-        factors=None):
-    """
-    Generate a random(ish) data-frame for testing.
-    """
-    df_factors = factors.copy()
-    df_factors.update(speaker=[speaker for speaker in range(speakers)])
-    base_df = pd.DataFrame(
-        list(itertools.product(*df_factors.values())),
-        columns=df_factors.keys())
-    index = base_df['speaker'] % len(genders)
-    base_df['gender'] = np.array(genders)[index]
-    formants = ['f0', 'f1', 'f2', 'f3']
-    for f, formant in enumerate(formants):
-        base_df[formant] = (index + 1) * 250 + f * 400
-        base_df[formant] += np.random.randint(50, size=len(base_df)) - 25
-    return base_df
+from tests.helpers import (
+    generate_data_frame,
+    repeat_test)
 
 
-DATA_FRAME = generate_data_frame(
-    speakers=8,
-    genders=['M', 'F'],
-    factors=dict(
-        group=['HV', 'LV'],
-        test=['pre', 'post'],
-        vowel=['a', 'e', 'i', 'o', 'u']))
+def get_test_dataframe():
+    """Generate a test dataframe."""
+    df = generate_data_frame(
+        speakers=8,
+        genders=['M', 'F'],
+        factors=dict(
+            group=['HV', 'LV'],
+            test=['pre', 'post'],
+            vowel=['a', 'e', 'i', 'o', 'u']))
+    return df
+
+
+DATA_FRAME = get_test_dataframe()
 
 class TestIntrinsicNormalizersValueError(unittest.TestCase):
     """
@@ -321,3 +312,86 @@ class TestNordstromNormalizer(unittest.TestCase):
             female='F')
         self.assertEqual(constants['mu_female'], mu_female)
         self.assertEqual(constants['mu_male'], mu_male)
+
+
+class TestLCENormalizer(unittest.TestCase):
+    """
+    Tests for the LCENormalizer class.
+    """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.kwargs = dict(
+            formants=['f1', 'f2', 'f3'])
+
+    @repeat_test()
+    def test_speaker_summary(self):
+        """Check maximum formant value for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            cols_in = self.kwargs['formants']
+            expected = {}
+            for col in cols_in:
+                expected['{}_max'.format(col)] = df[col].max()
+            actual = {}
+            LCENormalizer().speaker_summary(
+                df,
+                cols_in=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+
+class TestGerstmanNormalizer(unittest.TestCase):
+    """
+    Tests for the GerstmanNormalizer class.
+    """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.kwargs = dict(
+            formants=['f1', 'f2', 'f3'])
+
+    @repeat_test()
+    def test_speaker_summary(self):
+        """Check maximum and minium formant value for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            cols_in = self.kwargs['formants']
+            expected = {}
+            for col in cols_in:
+                expected['{}_max'.format(col)] = df[col].max()
+                expected['{}_min'.format(col)] = df[col].min()
+            actual = {}
+            GerstmanNormalizer().speaker_summary(
+                df,
+                cols_in=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+
+class TestLobanovNormalizer(unittest.TestCase):
+    """
+    Tests for the LobanovNormalizer class.
+    """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.kwargs = dict(
+            formants=['f1', 'f2', 'f3'])
+
+    @repeat_test()
+    def test_speaker_summary(self):
+        """Check mean and standard formant values for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            cols_in = self.kwargs['formants']
+            expected = {}
+            for col in cols_in:
+                expected['{}_mu'.format(col)] = df[col].mean()
+                expected['{}_sigma'.format(col)] = df[col].std()
+            actual = {}
+            LobanovNormalizer().speaker_summary(
+                df,
+                cols_in=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
