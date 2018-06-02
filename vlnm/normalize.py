@@ -8,7 +8,6 @@ import pandas as pd
 from .utils import (
     check_one_from_kwargs,
     check_required_kwargs,
-    flatten,
     str_or_list)
 
 

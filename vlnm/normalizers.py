@@ -306,7 +306,8 @@ class SpeakerVowelNormalizer(VowelNormalizer):
     Base class for normalization over speaker formants.
     """
 
-    def _speaker_summary(self, df, _cols_in, _constants=None, **_):
+    def speaker_summary(self, df, _cols_in, _constants=None, **_):
+        """Calculate summary statistics for a spealer."""
         return df
 
     def _normalize_df(self, df, _cols_in, _cols_out, _constants=None, **__):
@@ -323,7 +324,7 @@ class SpeakerVowelNormalizer(VowelNormalizer):
         margins = kwargs.pop('margins', [])
         if kwargs.get('speaker'):
             margins.append(kwargs.get('speaker'))
-        callbacks = [None] * (len(margins) - 1) + [self._speaker_summary,
+        callbacks = [None] * (len(margins) - 1) + [self.speaker_summary,
                                                    self._normalize_df]
         return self._normalize(
             df,
@@ -343,12 +344,13 @@ class LCENormalizer(SpeakerVowelNormalizer):
     """
     required = ['formants']
 
-    def _speaker_summary(
+    def speaker_summary(
             self,
             df,
             cols_in=None,
             constants=None,
             **__):
+        """Maximum formant values for a speaker."""
         for col_in in cols_in:
             key = '{}_max'.format(col_in)
             constants[key] = df[col_in].max()
@@ -371,12 +373,13 @@ class GerstmanNormalizer(SpeakerVowelNormalizer):
     """
     required = ['formants']
 
-    def _speaker_summary(
+    def speaker_summary(
             self,
             df,
             cols_in=None,
             constants=None,
             **__):
+        """Maximum and minimum formant values for a speaker."""
         for col_in in cols_in:
             constants['{}_max'.format(col_in)] = df[col_in].max()
             constants['{}_min'.format(col_in)] = df[col_in].min()
@@ -405,12 +408,13 @@ class LobanovNormalizer(SpeakerVowelNormalizer):
     """
     required = ['formants']
 
-    def _speaker_summary(
+    def speaker_summary(
             self,
             df,
             cols_in=None,
             constants=None,
             **__):
+        """Mean and and standard deviation formant values for a speaker."""
         for col_in in cols_in:
             constants['{}_mu'.format(col_in)] = df[col_in].mean()
             constants['{}_sigma'.format(col_in)] = df[col_in].std() or 0.
