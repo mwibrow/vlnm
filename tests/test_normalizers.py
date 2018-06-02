@@ -314,8 +314,6 @@ class TestNordstromNormalizer(unittest.TestCase):
         constants = {}
         NordstromNormalizer().calculate_f3_means(
             df,
-            [],
-            [],
             f1='f1',
             f3='f3',
             constants=constants,

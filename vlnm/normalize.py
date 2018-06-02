@@ -48,8 +48,8 @@ class VowelNormalizer(object):
                     cols_out = [col for col in cols_out if col]
                 df = callbacks[0](
                     df,
-                    cols_in,
-                    cols_out,
+                    cols_in=cols_in,
+                    cols_out=cols_out,
                     constants=constants,
                     **kwargs)
             return df
@@ -68,9 +68,9 @@ class VowelNormalizer(object):
                         cols_out = [col for col in cols_out if col]
                     processed_df = callback(
                         processed_df,
-                        cols_in,
-                        cols_out,
-                        constants,
+                        cols_in=cols_in,
+                        cols_out=cols_out,
+                        constants=constants,
                         **kwargs)
                     if len(margins) > 1:
                         processed_df = self.partition(
