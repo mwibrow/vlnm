@@ -410,7 +410,9 @@ class TestNearyNormalizer(unittest.TestCase):
 
     @repeat_test()
     def test_speaker_summary(self):
-        """Check mean log formant values for all speakers."""
+        """
+        Check formant intrinsic formant values for all speakers.
+        """
         for speaker in self.df['speaker'].unique():
             df = self.df[self.df['speaker'] == speaker]
             cols_in = self.kwargs['formants']
@@ -423,4 +425,24 @@ class TestNearyNormalizer(unittest.TestCase):
                 df,
                 cols_in=self.kwargs['formants'],
                 constants=actual)
+            self.assertDictEqual(actual, expected)
+
+    @repeat_test()
+    def test_speaker_summary_extrinsic(self):
+        """
+        Check formant extrinsic formant values for all speakers.
+        """
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            cols_in = self.kwargs['formants']
+            expected = {}
+            mu_log = np.mean(np.mean(np.log(df[cols_in].dropna())))
+            for col in cols_in:
+                expected['{}_mu_log'.format(col)] = mu_log
+            actual = {}
+            NearyNormalizer().speaker_summary(
+                df,
+                cols_in=self.kwargs['formants'],
+                constants=actual,
+                method='extrinsic')
             self.assertDictEqual(actual, expected)
