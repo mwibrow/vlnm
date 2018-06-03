@@ -342,6 +342,49 @@ class TestLCENormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
+    @repeat_test()
+    def test_output(self):
+        """
+        Check normalized formant output.
+        """
+        suffix = '_N'
+        df = self.df.copy()
+        formants = self.kwargs['formants']
+        expected = df.groupby('speaker', as_index=False).apply(
+            lambda x: lce_helper(x, formants, suffix))
+
+        actual = LCENormalizer().normalize(
+            self.df,
+            formants=[formants],
+            suffix=suffix,
+            speaker='speaker')
+
+        expected = expected.dropna().sort_values(
+            by=sorted(expected.columns)).reset_index(drop=True)
+        actual = actual.dropna().sort_values(
+            by=sorted(actual.columns)).reset_index(drop=True)
+
+        try:
+            assert_frame_equal(
+                actual,
+                expected,
+                check_exact=False,
+                check_less_precise=False)
+        except AssertionError:
+            for i in range(len(expected)):
+                self.assertDictEqual(
+                    actual.loc[i, :].to_dict(),
+                    expected.loc[i, :].to_dict())
+
+
+def lce_helper(df, formants, suffix):
+    """Helper for LCENormalizerTests."""
+    in_cols = formants
+    out_cols = ['{}{}'.format(col, suffix) for col in in_cols]
+    f_max = df[in_cols].max()
+    df[out_cols] = df[in_cols] / f_max
+    return df
+
 
 class TestGerstmanNormalizer(unittest.TestCase):
     """
@@ -397,18 +440,21 @@ class TestGerstmanNormalizer(unittest.TestCase):
         actual = actual.dropna().sort_values(
             by=sorted(actual.columns)).reset_index(drop=True)
 
-        # for i in range(len(expected)):
-        #     self.assertDictEqual(actual.loc[i, :].to_dict(),
-        #         expected.loc[i, :].to_dict())
-        assert_frame_equal(
-            actual,
-            expected,
-            check_exact=False,
-            check_less_precise=False)
+        try:
+            assert_frame_equal(
+                actual,
+                expected,
+                check_exact=False,
+                check_less_precise=False)
+        except AssertionError:
+            for i in range(len(expected)):
+                self.assertDictEqual(
+                    actual.loc[i, :].to_dict(),
+                    expected.loc[i, :].to_dict())
 
 
 def gerstman_helper(df, formants, suffix):
-    """Helper for LobanovNormalizerTests."""
+    """Helper for GerstmanNormalizerTests."""
     in_cols = formants
     out_cols = ['{}{}'.format(col, suffix) for col in in_cols]
     f_min = df[in_cols].min()
@@ -471,14 +517,18 @@ class TestLobanovNormalizer(unittest.TestCase):
         actual = actual.dropna().sort_values(
             by=sorted(actual.columns)).reset_index(drop=True)
 
-        # for i in range(len(expected)):
-        #     self.assertDictEqual(actual.loc[i, :].to_dict(),
-        #         expected.loc[i, :].to_dict())
-        assert_frame_equal(
-            actual,
-            expected,
-            check_exact=False,
-            check_less_precise=False)
+        try:
+            assert_frame_equal(
+                actual,
+                expected,
+                check_exact=False,
+                check_less_precise=False)
+        except AssertionError:
+            for i in range(len(expected)):
+                self.assertDictEqual(
+                    actual.loc[i, :].to_dict(),
+                    expected.loc[i, :].to_dict())
+
 
 def lobanov_helper(df, formants, suffix):
     """Helper for LobanovNormalizerTests."""
@@ -488,6 +538,7 @@ def lobanov_helper(df, formants, suffix):
     f_sigma = df[formants].std()
     df[out_cols] = (df[in_cols] - f_mu) / f_sigma
     return df
+
 
 class TestNearyNormalizer(unittest.TestCase):
     """
