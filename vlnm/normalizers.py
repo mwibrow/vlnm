@@ -311,7 +311,6 @@ class SpeakerVowelNormalizer(VowelNormalizer):
         return df
 
     def _normalize_df(self, df, _cols_in, _cols_out, _constants=None, **__):
-        print('BASECLASS NORMALIZE')
         return df
 
     def normalize(self, df, **kwargs):
