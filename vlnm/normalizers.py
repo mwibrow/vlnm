@@ -306,6 +306,8 @@ class SpeakerVowelNormalizer(VowelNormalizer):
     Base class for normalization over speaker formants.
     """
 
+    required = ['formants', 'speaker']
+
     def speaker_summary(self, df, _cols_in, _constants=None, **_):
         """Calculate summary statistics for a spealer."""
         return df
@@ -343,7 +345,6 @@ class LCENormalizer(SpeakerVowelNormalizer):
         F_i = F_i \displayfrac{F_i}{\max{F_i}}
 
     """
-    required = ['formants']
 
     def speaker_summary(
             self,
@@ -372,7 +373,6 @@ class GerstmanNormalizer(SpeakerVowelNormalizer):
         F_i = F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
 
     """
-    required = ['formants']
 
     def speaker_summary(
             self,
@@ -407,7 +407,6 @@ class LobanovNormalizer(SpeakerVowelNormalizer):
     formant :math:`F_i` for a given speaker.
 
     """
-    required = ['formants']
 
     def speaker_summary(
             self,
@@ -439,7 +438,6 @@ class NearyNormalizer(SpeakerVowelNormalizer):
     Where :math:`\mu_{x}` is the mean of :math:`x`
 
     """
-    required = ['formants']
 
     def speaker_summary(
             self,
