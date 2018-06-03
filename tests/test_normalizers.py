@@ -34,10 +34,10 @@ from tests.helpers import (
     repeat_test)
 
 
-def get_test_dataframe():
+def get_test_dataframe(speakers=8):
     """Generate a test dataframe."""
     df = generate_data_frame(
-        speakers=8,
+        speakers=speakers,
         genders=['M', 'F'],
         factors=dict(
             group=['HV', 'LV'],
@@ -408,7 +408,7 @@ class TestLobanovNormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
-    # @repeat_test()
+    @repeat_test()
     def test_output(self):
         """
         Check normalized formant output.
@@ -430,6 +430,9 @@ class TestLobanovNormalizer(unittest.TestCase):
         actual = actual.sort_values(
             by=sorted(actual.columns)).reset_index(drop=True)
 
+        # for i in range(len(expected)):
+        #     self.assertDictEqual(actual.loc[i, :].to_dict(),
+        #         expected.loc[i, :].to_dict())
         assert_frame_equal(
             actual,
             expected,
