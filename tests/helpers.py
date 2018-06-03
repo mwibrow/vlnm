@@ -33,7 +33,7 @@ def generate_data_frame(
         speakers=1,
         genders=None,
         factors=None,
-        na_percentage=0):
+        na_percentage=1.):
     """
     Generate a random(ish) data-frame for testing.
     """
@@ -48,6 +48,6 @@ def generate_data_frame(
     for f, formant in enumerate(formants):
         base_df[formant] = (index + 1) * 250 + f * 400
         base_df[formant] += np.random.randint(50, size=len(base_df)) - 25
-        i = np.random.random(len(base_df)) > (na_percentage / 100.)
+        i = np.random.random(len(base_df)) > (1. - na_percentage / 100.)
         base_df.loc[i, formant] = np.nan
     return base_df
