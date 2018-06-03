@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 from vlnm.conversion import (
     hz_to_bark,
@@ -352,6 +353,11 @@ class TestGerstmanNormalizer(unittest.TestCase):
         self.kwargs = dict(
             formants=['f1', 'f2', 'f3'])
 
+    def test_no_formants(self):
+        """No formant column raises value error."""
+        with self.assertRaises(ValueError):
+            GerstmanNormalizer().normalize(self.df)
+
     @repeat_test()
     def test_speaker_summary(self):
         """Check maximum and minium formant value for all speakers."""
@@ -380,6 +386,11 @@ class TestLobanovNormalizer(unittest.TestCase):
         self.kwargs = dict(
             formants=['f1', 'f2', 'f3'])
 
+    def test_no_formants(self):
+        """No formant column raises value error."""
+        with self.assertRaises(ValueError):
+            LobanovNormalizer().normalize(self.df)
+
     @repeat_test()
     def test_speaker_summary(self):
         """Check mean and standard formant values for all speakers."""
@@ -397,6 +408,42 @@ class TestLobanovNormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
+    @repeat_test()
+    def test_output(self):
+        """
+        Check normalized formant output.
+        """
+        suffix = '_N'
+        df = self.df.copy()
+        formants = self.kwargs['formants']
+        expected = df.groupby('speaker', as_index=False).apply(
+            lambda x: lobanov_helper(x, formants, suffix))
+
+        actual = LobanovNormalizer().normalize(
+            self.df,
+            formants=[formants],
+            suffix=suffix,
+            speaker='speaker')
+
+        expected = expected.sort_values(
+            by=sorted(expected.columns)).reset_index(drop=True)
+        actual = actual.sort_values(
+            by=sorted(actual.columns)).reset_index(drop=True)
+
+        assert_frame_equal(
+            actual,
+            expected,
+            check_exact=False,
+            check_less_precise=False)
+
+def lobanov_helper(df, formants, suffix):
+    """Helper for LobanovNormalizerTests."""
+    in_cols = formants
+    out_cols = ['{}{}'.format(col, suffix) for col in in_cols]
+    f_mu = df[formants].mean()
+    f_sigma = df[formants].std()
+    df[out_cols] = (df[in_cols] - f_mu) / f_sigma
+    return df
 
 class TestNearyNormalizer(unittest.TestCase):
     """
@@ -407,6 +454,11 @@ class TestNearyNormalizer(unittest.TestCase):
         self.df = get_test_dataframe()
         self.kwargs = dict(
             formants=['f1', 'f2', 'f3'])
+
+    def test_no_formants(self):
+        """No formant column raises value error."""
+        with self.assertRaises(ValueError):
+            NearyNormalizer().normalize(self.df)
 
     @repeat_test()
     def test_speaker_summary(self):

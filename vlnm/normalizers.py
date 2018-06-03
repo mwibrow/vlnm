@@ -311,6 +311,7 @@ class SpeakerVowelNormalizer(VowelNormalizer):
         return df
 
     def _normalize_df(self, df, _cols_in, _cols_out, _constants=None, **__):
+        print('BASECLASS NORMALIZE')
         return df
 
     def normalize(self, df, **kwargs):
@@ -326,6 +327,7 @@ class SpeakerVowelNormalizer(VowelNormalizer):
             margins.append(kwargs.get('speaker'))
         callbacks = [None] * (len(margins) - 1) + [self.speaker_summary,
                                                    self._normalize_df]
+
         return self._normalize(
             df,
             margins=margins,

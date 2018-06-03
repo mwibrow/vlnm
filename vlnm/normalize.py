@@ -42,6 +42,8 @@ class VowelNormalizer(object):
         remove_none = kwargs.get('remove_none')
         if not margins and callbacks:
             for cols_in, cols_out in zip(columns_in, columns_out):
+                cols_in = str_or_list(cols_in)
+                cols_out = str_or_list(cols_out)
                 if remove_none:
                     cols_in = [col for col in cols_in if col]
                     cols_out = [col for col in cols_out if col]
@@ -54,7 +56,6 @@ class VowelNormalizer(object):
             return df
 
         margin, callback = margins[0], callbacks[0]
-
         margin_df = pd.DataFrame()
         grouped = df.groupby(by=margin, as_index=False) if margin else df
 
@@ -71,7 +72,7 @@ class VowelNormalizer(object):
                         cols_out=cols_out,
                         constants=constants,
                         **kwargs)
-                    if len(margins) > 1:
+                    if len(callbacks) > 1:
                         processed_df = self.partition(
                             processed_df,
                             margins[1:],
@@ -104,6 +105,7 @@ class VowelNormalizer(object):
                     missing))
 
         formants = sanitize_formants(kwargs.pop('formants'))
+
         columns_in, columns_out = get_columns_out(
             formants,
             kwargs.pop('suffix', {}))
