@@ -408,7 +408,7 @@ class TestLobanovNormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
-    @repeat_test()
+    # @repeat_test()
     def test_output(self):
         """
         Check normalized formant output.
