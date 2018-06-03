@@ -375,6 +375,47 @@ class TestGerstmanNormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
+    @repeat_test()
+    def test_output(self):
+        """
+        Check normalized formant output.
+        """
+        suffix = '_N'
+        df = self.df.copy()
+        formants = self.kwargs['formants']
+        expected = df.groupby('speaker', as_index=False).apply(
+            lambda x: gerstman_helper(x, formants, suffix))
+
+        actual = GerstmanNormalizer().normalize(
+            self.df,
+            formants=[formants],
+            suffix=suffix,
+            speaker='speaker')
+
+        expected = expected.dropna().sort_values(
+            by=sorted(expected.columns)).reset_index(drop=True)
+        actual = actual.dropna().sort_values(
+            by=sorted(actual.columns)).reset_index(drop=True)
+
+        # for i in range(len(expected)):
+        #     self.assertDictEqual(actual.loc[i, :].to_dict(),
+        #         expected.loc[i, :].to_dict())
+        assert_frame_equal(
+            actual,
+            expected,
+            check_exact=False,
+            check_less_precise=False)
+
+
+def gerstman_helper(df, formants, suffix):
+    """Helper for LobanovNormalizerTests."""
+    in_cols = formants
+    out_cols = ['{}{}'.format(col, suffix) for col in in_cols]
+    f_min = df[in_cols].min()
+    f_max = df[in_cols].max()
+    df[out_cols] = 999 * (df[in_cols] - f_min) / (f_max - f_min)
+    return df
+
 
 class TestLobanovNormalizer(unittest.TestCase):
     """
@@ -425,9 +466,9 @@ class TestLobanovNormalizer(unittest.TestCase):
             suffix=suffix,
             speaker='speaker')
 
-        expected = expected.sort_values(
+        expected = expected.dropna().sort_values(
             by=sorted(expected.columns)).reset_index(drop=True)
-        actual = actual.sort_values(
+        actual = actual.dropna().sort_values(
             by=sorted(actual.columns)).reset_index(drop=True)
 
         # for i in range(len(expected)):
