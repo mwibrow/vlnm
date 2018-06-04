@@ -5,6 +5,8 @@ Normalization methods.
 
 import numpy as np
 
+from scipy.spatial import ConvexHull # pylint: disable=no-name-in-module
+
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_mel,
@@ -204,7 +206,7 @@ class NordstromNormalizer(VowelNormalizer):
     r"""
     ..math::
 
-        F_i = F_i \left(
+        F_i^\prime F_i \left(
                 1 + I(F_i)\left(
                     \displayfrac{
                         \mu_{F_3}^{\mbox{male}}
@@ -342,7 +344,7 @@ class LCENormalizer(SpeakerVowelNormalizer):
 
     ..math::
 
-        F_i = F_i \displayfrac{F_i}{\max{F_i}}
+        F_i^\prime F_i \displayfrac{F_i}{\max{F_i}}
 
     """
 
@@ -370,7 +372,7 @@ class GerstmanNormalizer(SpeakerVowelNormalizer):
 
     ..math::
 
-        F_i = F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^\prime F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
 
     """
 
@@ -400,7 +402,7 @@ class LobanovNormalizer(SpeakerVowelNormalizer):
 
     ..math::
 
-        F_i = F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
+        F_i^\prime F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
 
     Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
     mean and standard deviation (respectively) of the
@@ -433,7 +435,7 @@ class NearyNormalizer(SpeakerVowelNormalizer):
 
     ..math::
 
-        F_i = \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+        F_i^\prime \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
 
     Where :math:`\mu_{x}` is the mean of :math:`x`
 
@@ -465,4 +467,38 @@ class NearyNormalizer(SpeakerVowelNormalizer):
         method = kwargs.get('method', 'intrinsic')
         if 'exp' in method.lower():
             df[cols_out] = np.exp(df[cols_out])
+        return df
+
+
+class ConvexHullNormalizer(SpeakerVowelNormalizer):
+    r"""
+    ..math::
+        F_i^\prime = \displayfrac{F_i - C(F_i)}{\max(F_i) - \min(F_i)}
+
+    Where :math:`C\left(F_i\left)` returns ith component of the centroid
+    :math:`C` of the convex hull fitted to a speaker's formant data.
+    """
+
+    def speaker_summary(
+            self,
+            df,
+            cols_in=None,
+            constants=None,
+            **_):
+        """Calculate parameters for a speaker."""
+        matrix = df[cols_in].as_matirx()
+        hull = ConvexHull(matrix)
+        centroid = np.mean(matrix[hull.vertices], axis=1)
+        for i, col_in in enumerate(cols_in):
+            constants['{}_max'.format(col_in)] = df[col_in].max()
+            constants['{}_min'.format(col_in)] = df[col_in].min()
+            constants['{}_centrod'.format(col_in)] = centroid[i]
+        return df
+
+    def _normalize_df(self, df, cols_in, cols_out, constants=None, **__):
+        for col_in, col_out in zip(cols_in, cols_out):
+            fmin = constants['{}_min'.format(col_in)]
+            fmax = constants['{}_max'.format(col_in)]
+            centroid = constants['{}_centrod'.format(col_in)]
+            df[col_out] = (df[col_in] - centroid) / (fmax - fmin)
         return df
