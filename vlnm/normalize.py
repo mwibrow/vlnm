@@ -10,6 +10,66 @@ from .utils import (
     check_required_kwargs,
     str_or_list)
 
+class Normalizer:
+    """
+    Base class for normalizers
+    """
+    required = []
+
+    def partition(
+            self,
+            df,
+            margins,
+            actions,
+            column_map,
+            constants,
+            *args,
+            **kwargs):
+        """
+        Partition the data frame for normalistion.
+        """
+
+        if margins:
+            margin = margins[0]
+            groups = df.groupby(margins, as_index=False)
+            out_df = pd.DataFrame()
+            for _, group_df in groups:
+                action = actions.get(margin)
+                if action:
+                    action(
+                        group_df,
+                        constants,
+                        column_map,
+                        *args,
+                        **kwargs)
+                normed_df = self.partition(
+                    group_df,
+                    margins[1:],
+                    actions,
+                    constants,
+                    column_map,
+                    *args,
+                    **kwargs)
+                if normed_df is not None:
+                    out_df = pd.concat([out_df, normed_df], axis=0)
+            return out_df
+        if action:
+            return self.normalize(df, constants, column_map, *args, **kwargs)
+        return df
+
+    def normalize(
+            self,
+            df,
+            constants,
+            column_map,
+            *args,
+            **kwargs): # pylint: disable=no-self-use,unused-argument
+        """
+        Default normalization
+        """
+        return df
+
+
 
 class VowelNormalizer(object):
     """
