@@ -1,5 +1,17 @@
 """
 Module for vowel normalization
+
+
+Normalizer(
+    df,
+    groups=['test', 'variabilty'],
+    columns=dict(
+        speaker='particiant',
+        f0='f0',
+        f1='f1',
+        f2='f2',
+        f3='f3')
+)
 """
 
 import numpy as np
@@ -10,6 +22,24 @@ from .utils import (
     check_required_kwargs,
     str_or_list)
 
+def docs(cls):
+    return cls
+
+
+
+def columns(columns):
+    """
+    Cllass
+    """
+    def cls_decorator(cls):
+        cls._columns = columns
+    return cls_decorator
+
+@docs
+@columns(
+    'speaker',
+    ['f0', 'f1', 'f2', 'f3']
+)
 class Normalizer:
     """
     Base class for normalizers
