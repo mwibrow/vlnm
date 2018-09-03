@@ -55,6 +55,15 @@ class TestItemsToStr(unittest.TestCase):
         actual = items_to_str(items, junction='and', oxford=True)
         self.assertEqual(actual, expected)
 
+    def test_quote(self):
+        """
+        Use quotes
+        """
+        items = [1, 2, 3, 4]
+        expected = "'1', '2', '3', '4'"
+        actual = items_to_str(items, quote="'")
+        self.assertEqual(actual, expected)
+
 class TestFlatten(unittest.TestCase):
     """
     Tests for the flatten function

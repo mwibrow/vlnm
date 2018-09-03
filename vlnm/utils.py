@@ -2,25 +2,31 @@
 Misc. utilities.
 """
 
-def items_to_str(items, sep=',', junction=None, oxford=False):
+def items_to_str(items, sep=',', junction=None, oxford=False, quote=None):
     """
     Convert a list of items to a stringified list.
     """
     if not items:
         return ''
     sorted_items = sorted(items)
+    quote = quote or ''
     if len(sorted_items) == 2:
         return '{}{}{}{}'.format(
-            sorted_items[0],
+            '{}{}{}'.format(quote, sorted_items[0], quote),
             sep if oxford or not junction else '',
             ' {} '.format(junction) if junction else ' ',
-            sorted_items[1])
+            '{}{}{}'.format(quote, sorted_items[1], quote))
     elif len(items) == 1:
-        return '{}'.format(sorted_items[0])
+        return '{}{}{}'.format(quote, sorted_items[0], quote)
     return '{}{} {}'.format(
-        sorted_items[0],
+        '{}{}{}'.format(quote, sorted_items[0], quote),
         sep,
-        items_to_str(sorted_items[1:], sep=sep, junction=junction, oxford=oxford))
+        items_to_str(
+            sorted_items[1:],
+            sep=sep,
+            junction=junction,
+            oxford=oxford,
+            quote=quote))
 
 def flatten(items):
     """
