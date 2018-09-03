@@ -13,7 +13,7 @@ def items_to_str(items, sep=',', junction=None, oxford=False):
         return '{}{}{}{}'.format(
             sorted_items[0],
             sep if oxford or not junction else '',
-            ' {} '.format(junction) if junction else '{} '.format(sep),
+            ' {} '.format(junction) if junction else ' ',
             sorted_items[1])
     elif len(items) == 1:
         return '{}'.format(sorted_items[0])
