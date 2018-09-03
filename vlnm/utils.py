@@ -6,14 +6,13 @@ def items_to_str(items, sep=',', junction=None, oxford=False):
     """
     Convert a list of items to a stringified list.
     """
-    print(items, sep, junction, oxford)
     if not items:
         return ''
     sorted_items = sorted(items)
     if len(sorted_items) == 2:
         return '{}{}{}{}'.format(
             sorted_items[0],
-            sep if oxford else '',
+            sep if oxford or not junction else '',
             ' {} '.format(junction) if junction else '{} '.format(sep),
             sorted_items[1])
     elif len(items) == 1:

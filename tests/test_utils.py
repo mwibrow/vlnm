@@ -11,8 +11,49 @@ from vlnm.utils import (
     check_one_from_kwargs,
     check_required_kwargs,
     flatten,
+    items_to_str,
     str_or_list)
 
+class TestItemsToStr(unittest.TestCase):
+    """
+    Tests for the items_to_str function
+    """
+
+    def test_default(self):
+        """
+        Default args.
+        """
+        items = [1, 2, 3, 4]
+        expected = '1, 2, 3, 4'
+        actual = items_to_str(items)
+        self.assertEqual(actual, expected)
+
+    def test_sep(self):
+        """
+        Different separator
+        """
+        items = [1, 2, 3, 4]
+        expected = '1| 2| 3| 4'
+        actual = items_to_str(items, sep='|')
+        self.assertEqual(actual, expected)
+
+    def test_junction(self):
+        """
+        Add (con)junction
+        """
+        items = [1, 2, 3, 4]
+        expected = '1, 2, 3 and 4'
+        actual = items_to_str(items, junction='and')
+        self.assertEqual(actual, expected)
+
+    def test_oxford(self):
+        """
+        Use oxford comma
+        """
+        items = [1, 2, 3, 4]
+        expected = '1, 2, 3, and 4'
+        actual = items_to_str(items, junction='and', oxford=True)
+        self.assertEqual(actual, expected)
 
 class TestFlatten(unittest.TestCase):
     """
