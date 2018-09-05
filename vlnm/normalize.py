@@ -43,6 +43,16 @@ def columns(columns):
 class Normalizer:
     """
     Base class for normalizers
+
+    vowel_normalizer.normalize(
+        df,
+        columns=dict(
+            formants=dict(
+                f0='F0',
+                f1='F1'
+            )
+        )
+    )
     """
     required = []
 
