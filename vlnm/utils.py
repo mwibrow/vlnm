@@ -28,6 +28,42 @@ def items_to_str(items, sep=',', junction=None, oxford=False, quote=None):
             oxford=oxford,
             quote=quote))
 
+def merge_columns(column_specs, kwargs):
+    """
+    Merge required columns with given columns
+    """
+    for spec in column_specs:
+        column = column_specs[spec]
+        try:
+            if column not in kwargs:
+                kwargs[column] = column
+        except TypeError:
+            if not any(item in kwargs for item in column):
+                for item in column:
+                    kwargs[item] = item
+    return kwargs
+
+def check_required_columns(column_specs, kwargs, replace=True):
+    for spec in column_specs:
+        column = column_specs[spec]
+        try:
+            if column not in kwargs:
+                if replace:
+                    kwargs[column] = column
+                else:
+                    raise ValueError()
+        except TypeError:
+            if not any(item in kwargs for item in column):
+                if replace:
+                    for item in column:
+                        kwargs[item] = item
+                else:
+                    raise ValueError()
+    return False
+
+
+
+
 def flatten(items):
     """
     Flatten a list of lists.
@@ -49,15 +85,15 @@ def str_or_list(value):
         return value
     return [value]
 
-def check_required_kwargs(kwargs, required):
-    """
-    Check required keyword arguments are present.
-    """
-    required = required or []
-    for key in required:
-        if not key in kwargs:
-            return key
-    return None
+# def check_required_kwargs(kwargs, required):
+#     """
+#     Check required keyword arguments are present.
+#     """
+#     required = required or []
+#     for key in required:
+#         if not key in kwargs:
+#             return key
+#     return None
 
 def check_one_from_kwargs(kwargs, one_from):
     """

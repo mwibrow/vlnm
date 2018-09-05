@@ -46,6 +46,18 @@ class Normalizer:
     """
     required = []
 
+    def __init__(self, **kwargs):
+        self.default_kwargs = kwargs
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize a dataframe.
+        """
+        normalizer_kwargs = {}
+        normalizer_kwargs.update(self.default_kwargs, kwargs)
+        check_normalizer_kwargs(
+            self._columns,
+            normalizer_kwargs)
     def partition(
             self,
             df,
@@ -84,10 +96,10 @@ class Normalizer:
                     out_df = pd.concat([out_df, normed_df], axis=0)
             return out_df
         if action:
-            return self.normalize(df, constants, column_map, *args, **kwargs)
+            return self._normalize(df, constants, column_map, *args, **kwargs)
         return df
 
-    def normalize(
+    def _normalize(
             self,
             df,
             constants,
