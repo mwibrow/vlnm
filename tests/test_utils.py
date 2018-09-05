@@ -8,11 +8,32 @@ import pandas as pd
 
 from vlnm.utils import (
     check_data_frame_columns,
+    merge_columns,
     check_one_from_kwargs,
-    check_required_kwargs,
+    check_required_columns,
     flatten,
     items_to_str,
     str_or_list)
+
+class TestMergeColumns(unittest.TestCase):
+    """
+    tests for the merge_columns
+    """
+
+    def test_merge_columns(self):
+        """
+        test something
+        """
+        required = dict(
+            required='speaker',
+            formants=['f0', 'f1', 'f2', 'f3']
+        )
+        kwargs = {}
+        kwargs = merge_columns(required, {})
+        for kwarg in ['speaker', 'f0', 'f1', 'f2', 'f3']:
+            self.assertIn(kwarg, kwargs)
+
+
 
 class TestItemsToStr(unittest.TestCase):
     """
