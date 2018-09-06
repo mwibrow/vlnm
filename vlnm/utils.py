@@ -65,6 +65,7 @@ def check_columns(df, column_specs, kwargs):
     """
     Check if required, optional and grouping columns are in the data frame.
     """
+    column_map = {}
     for spec in column_specs:
         column = column_specs[spec]
         try:
@@ -78,6 +79,7 @@ def check_columns(df, column_specs, kwargs):
                 raise ValueError(
                     REQUIRED_COLUMN_GIVEN_NOT_FOUND.format(
                         column, given)) from None
+            column_map[spec] = given or default
         except TypeError:
             givens = [kwargs.get(item) for item in column if kwargs.get(item)]
             if givens:
@@ -86,17 +88,25 @@ def check_columns(df, column_specs, kwargs):
                         raise ValueError(
                             COLUMN_GIVEN_NOT_FOUND.format(
                                 spec.capitalize(), given)) from None
+                for item in column:
+                    if item in kwargs:
+                        column_map[item] = kwargs.get(item)
             else:
                 defaults = [item for item in column if not kwargs.get(item)]
                 if not any(default in df.columns for default in defaults):
                     raise ValueError(
                         AT_LEAST_ONE_COLUMN_NOT_FOUND.format(
                             items_to_str(defaults))) from None
+                for item in defaults:
+                    if item in df.columns:
+                        column_map[item] = item
     if 'groups' in kwargs:
         for group in kwargs['groups']:
             if not group in df.columns:
                 raise ValueError(
                     COLUMN_NOT_FOUND.format(group)) from None
+    return column_map
+
 
 def check_required_columns(column_specs, kwargs, replace=True):
     for spec in column_specs:
