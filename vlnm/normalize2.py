@@ -53,7 +53,7 @@ class Normalizer:
         )
     )
     """
-    required = []
+    _columns = {}
 
     def __init__(self, **kwargs):
         self.default_kwargs = merge_columns(self._columns, kwargs)

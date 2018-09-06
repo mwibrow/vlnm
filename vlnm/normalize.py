@@ -13,8 +13,9 @@ class VowelNormalizer:
     _column_spec = {}
 
     def __init__(self, **kwargs):
-        self.default_kwargs = merge_columns(self._column_spec, kwargs)
+        self.default_kwargs = kwargs
 
+    
     def normalize(self, df, **kwargs):
         """Normalize the formant data in a data frame.
 
