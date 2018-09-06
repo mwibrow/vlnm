@@ -2,24 +2,31 @@
 Misc. utilities.
 """
 
+def quote_item(item, pre='', post=''):
+    """Format an string item with quotes.
+    """
+    post = post or pre
+    return f'{pre}{item}{post}'
+
 def items_to_str(items, sep=',', junction=None, oxford=False, quote=None):
     """
-    Convert a list of items to a stringified list.
+    Convert a list of items to a nicely formatted stringified list.
     """
     if not items:
         return ''
     sorted_items = sorted(items)
     quote = quote or ''
     if len(sorted_items) == 2:
-        return '{}{}{}{}'.format(
-            '{}{}{}'.format(quote, sorted_items[0], quote),
+        return ''.join([
+            quote_item(sorted_items[0], quote),
             sep if oxford or not junction else '',
             ' {} '.format(junction) if junction else ' ',
-            '{}{}{}'.format(quote, sorted_items[1], quote))
+            quote_item(sorted_items[1], quote)
+        ])
     elif len(items) == 1:
-        return '{}{}{}'.format(quote, sorted_items[0], quote)
+        return quote_item(sorted_items[0], quote)
     return '{}{} {}'.format(
-        '{}{}{}'.format(quote, sorted_items[0], quote),
+        quote_item(sorted_items[0], quote),
         sep,
         items_to_str(
             sorted_items[1:],
