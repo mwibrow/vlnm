@@ -43,6 +43,54 @@ def merge_columns(column_specs, kwargs):
                     kwargs[item] = item
     return kwargs
 
+REQUIRED_COLUMN_NOT_FOUND = (
+    'Required column \'{}\' not found in the data frame')
+REQUIRED_COLUMN_GIVEN_NOT_FOUND = (
+    'Required {} column (given as \'{}\') missing in data frame')
+COLUMN_GIVEN_NOT_FOUND = (
+    '{} column (given as \'{}\') missing in data frame')
+AT_LEAST_ONE_COLUMN_NOT_FOUND = (
+    'Expected at least one column from \'{}\' to be in data frame')
+COLUMN_NOT_FOUND = (
+    'Column \'{}\' missing in data frame')
+
+def check_columns(df, column_specs, kwargs):
+    """
+    Check if required, optional and grouping columns are in the data frame.
+    """
+    for spec in column_specs:
+        column = column_specs[spec]
+        try:
+            default = column
+            given = kwargs.get(column, None)
+            if not given and default not in df.columns:
+                raise ValueError(
+                    REQUIRED_COLUMN_NOT_FOUND.format(
+                        default)) from None
+            elif given is not None and given not in df.columns:
+                raise ValueError(
+                    REQUIRED_COLUMN_GIVEN_NOT_FOUND.format(
+                        column, given)) from None
+        except TypeError:
+            givens = [kwargs.get(item) for item in column if kwargs.get(item)]
+            if givens:
+                for given in givens:
+                    if not given in df.columns:
+                        raise ValueError(
+                            COLUMN_GIVEN_NOT_FOUND.format(
+                                spec.capitalize(), given)) from None
+            else:
+                defaults = [item for item in column if not kwargs.get(item)]
+                if not any(default in df.columns for default in defaults):
+                    raise ValueError(
+                        AT_LEAST_ONE_COLUMN_NOT_FOUND.format(
+                            items_to_str(defaults))) from None
+    if 'groups' in kwargs:
+        for group in kwargs['groups']:
+            if not group in df.columns:
+                raise ValueError(
+                    COLUMN_NOT_FOUND.format(group)) from None
+
 def check_required_columns(column_specs, kwargs, replace=True):
     for spec in column_specs:
         column = column_specs[spec]
