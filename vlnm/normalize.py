@@ -6,15 +6,32 @@ import pandas as pd
 import vlnm.decorators as decorators
 
 
-def check_columns(df, column_specs, groups):
+def check_columns(df, column_specs, column_map, groups):
     for spec in column_specs:
         if spec == 'required':
             for column in column_specs[spec]:
-                if not column in df.columns:
-                    raise ValueError()
+                if column in column_map and column[column] not in df:
+                    raise ValueError('required column A mapped to B but B not in dataframe')
+                if not column in df:
+                    raise ValueError('required column A not it dataframe and no mapping given')
         else:
-            if not any(column in df for column in column_specs[spec]):
-                raise ValueError()
+            defaults = [column in column_specs[spec]
+                        if not column_map.get(column)]
+            mappings = [column_map[column] in column_specs[spec]
+                        if column_map.get(column)]
+            if defaults:
+                if not mappings and not any(default in df for default in defaults):
+                    raise ValueError('expected one of A columns in dataframe')
+            else:
+                if not any(mapping in df for mapping in mappings):
+                    if mappings:
+                        column, mapping = [column, mapping
+                            for column, mapping in column_map if not mapping in df][0]
+                        raise ValueError('expected one of A colums in dataframe'
+                            'B was mapped to C but C is not in dataframe')
+                    else:
+                        raise ValueError('expected one of A columns in dataframe.')
+
     for column in groups:
         if not column in df.columns:
             raise ValueError()
@@ -22,6 +39,16 @@ def check_columns(df, column_specs, groups):
 class VowelNormalizer:
     """
     Base class for vowel normalizers.
+
+    normalize(
+        df,
+        formants=['f1', 'f2', 'f3'],
+        columns=dict(
+            speaker: 'f3',
+            f1='my_f1',
+            f2='my_f2'
+        )
+    )
     """
     _column_specs = {}
 
@@ -43,10 +70,10 @@ class VowelNormalizer:
     def partition(
             self,
             df,
+            formants,
             groups,
             actions,
             constants,
-            new_columns=column_format,
             **kwargs):
         """
         Partition the data frame for normalistion.
@@ -65,6 +92,7 @@ class VowelNormalizer:
                         **kwargs)
                 normed_df = self.partition(
                     grouped_df.copy(),
+                    formants,
                     groups[1:],
                     actions,
                     constants,
@@ -73,27 +101,26 @@ class VowelNormalizer:
                     out_df = pd.concat([out_df, normed_df], axis=0)
             return out_df
 
-        out_df = self._normalize(
+        new_columns = kwargs['new_columns']
+        normed_df = self._normalize(
             df.copy() if new_columns else df,
             constants,
             **kwargs)
         if new_columns:
-            for column in ['f0', 'f1', 'f2', 'f3']:
-                if column in out_df.columns:
-                    df[new_column.format(column)] = out_df[column]
-            return df
-        return out_df
-
+            for formant in formants:
+                df[new_columns.format(formant)] = normed_df[formant]
         return df
 
     def _normalize(
             self,
             df,
+            formants,
             constants,
             **kwargs):  # pylint: disable=no-self-use,unused-argument
         """
         Default normalizer: do nothing.
         """
+
         return df
 
 class FormantIntrinsicNormalizer(VowelNormalizer):
