@@ -25,7 +25,7 @@ def check_columns(df, column_specs, column_map, groups):
             else:
                 if not any(mapping in df for mapping in mappings):
                     if mappings:
-                        column, mapping = [column, mapping
+                        column, mapping = [(column, mapping)
                             for column, mapping in column_map if not mapping in df][0]
                         raise ValueError('expected one of A colums in dataframe'
                             'B was mapped to C but C is not in dataframe')
