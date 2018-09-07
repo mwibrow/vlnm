@@ -15,10 +15,10 @@ def check_columns(df, column_specs, column_map, groups):
                 if not column in df:
                     raise ValueError('required column A not it dataframe and no mapping given')
         else:
-            defaults = [column in column_specs[spec]
-                        if not column_map.get(column)]
-            mappings = [column_map[column] in column_specs[spec]
-                        if column_map.get(column)]
+            defaults = [column for column in column_specs[spec]
+                        if column not in column_map]
+            mappings = [column_map[column] for column in column_specs[spec]
+                        if column in column_map]
             if defaults:
                 if not mappings and not any(default in df for default in defaults):
                     raise ValueError('expected one of A columns in dataframe')
@@ -60,12 +60,33 @@ class VowelNormalizer:
         """Normalize the formant data in a data frame.
 
         """
-        current_kwargs = {}
-        current_kwargs.update(self.default_kwargs, kwargs)
+        options = {}
+        options.update(self.default_kwargs, kwargs)
 
-        groups = current_kwargs.get('groups') or []
-        check_columns(df, self._column_specs, groups)
-        self.partition(df, groups, {}, **kwargs)
+        column_map = options.pop('columns', {})
+        formants = options.pop('formants', [])
+        groups = options.pop('groups', [])
+        constants = options.pop('constats', {})
+        actions = self.actions
+        check_columns(
+            df,
+            self._column_specs,
+            column_map,
+            groups)
+
+        for formant in formants:
+            options[formant] = (
+                options.get(formant) or
+                column_map.get(formant) or
+                formant)
+
+        return self.partition(
+            df,
+            formants,
+            groups,
+            actions,
+            constants,
+            **options)
 
     def partition(
             self,
