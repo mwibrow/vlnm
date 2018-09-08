@@ -65,7 +65,7 @@ class VowelDataFrame(pd.DataFrame):
     Thin wrapper around a pandas DataFrame class.
 
     """
-    _metadata = ['column_map']
+    _metadata = ['column_alias']
 
     def __init__(self, *args, **kwargs):
         column_alias = kwargs.pop('column_alias', {})
@@ -101,6 +101,14 @@ class VowelDataFrame(pd.DataFrame):
     def __setitem__(self, name, value):
         return self.set_column(name, value)
 
+    def groupby(self, name):
+        """
+        Wrapper around DataFrame.groupby
+        """
+        column = self.resolve_column(name)
+        grouped = super(VowelDataFrame, self).groupby(column, as_index=False)
+        for group, group_df in grouped:
+            yield group, VowelDataFrame(group_df, column_alias=self.column_alias)
 
 class VowelNormalizer:
     """
