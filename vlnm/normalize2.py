@@ -17,27 +17,19 @@ Normalizer(
 import numpy as np
 import pandas as pd
 
+from .decorators import (
+    columns as Columns,
+    docs as Docs
+)
 from .utils import (
     merge_columns,
     str_or_list)
 
-def docs(cls):
-    return cls
 
-
-
-def columns(cols):
-    """
-    Cllass
-    """
-    def cls_decorator(cls):
-        cls._columns = cols
-    return cls_decorator
-
-@docs
-@columns(
-    'speaker',
-    ['f0', 'f1', 'f2', 'f3']
+@Docs
+@Columns(
+    required='speaker',
+    formants=['f0', 'f1', 'f2', 'f3']
 )
 class Normalizer:
     """

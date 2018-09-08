@@ -3,38 +3,67 @@ Vowel normalizer module
 """
 import pandas as pd
 
-import vlnm.decorators as decorators
+from vlnm.decorators import (
+    columns as Columns
+    docs as Docs
+)
+
+from vlnm.utils import (
+    items_to_str
+)
 
 
 def check_columns(df, column_specs, column_map, groups):
+    """Check if required and given columns are present in the dataframe
+
+    """
+    # Check the column specificaton for the class.
     for spec in column_specs:
         if spec == 'required':
+            # Required column.
             for column in column_specs[spec]:
-                if column in column_map and column[column] not in df:
-                    raise ValueError('required column A mapped to B but B not in dataframe')
+                mapped_column = column_map.get(column)
+                if mapped_column and mapped_column not in df:
+                    raise ValueError(
+                        f'Required column `{column}` mapped to `{mapped_column}`, '
+                        f'but `{mapped_column}`` is not in the data frame')
                 if not column in df:
-                    raise ValueError('required column A not it dataframe and no mapping given')
+                    raise ValueError(
+                        f'Required column `{column}`` is not in the data frame, '
+                        f'and no mapping given')
         else:
-            defaults = [column for column in column_specs[spec]
+            # Optionally required columns (i.e., at least one)
+            columns = column_specs[spec]
+            columns_str = items_to_str(
+                columns, junction='or', quote="`")
+            defaults = [column for column in columns
                         if column not in column_map]
-            mappings = [column_map[column] for column in column_specs[spec]
+            mappings = [column_map[column] for column in columns
                         if column in column_map]
             if defaults:
                 if not mappings and not any(default in df for default in defaults):
-                    raise ValueError('expected one of A columns in dataframe')
+                    raise ValueError(
+                        f'Expected one of columns {columns_str} in data frame')
             else:
                 if not any(mapping in df for mapping in mappings):
                     if mappings:
-                        column, mapping = [(column, mapping)
+                        column, mapping = [
+                            (column, mapping)
                             for column, mapping in column_map if not mapping in df][0]
-                        raise ValueError('expected one of A colums in dataframe'
-                            'B was mapped to C but C is not in dataframe')
-                    else:
-                        raise ValueError('expected one of A columns in dataframe.')
 
+                        raise ValueError(
+                            f'Expected one of colums {columns_str} in data frame. '
+                            f'`{column}` was mapped to `{mapping}`, '
+                            f'but `{mapping}` is not in the data frame')
+                    else:
+                        raise ValueError(
+                            f'Expected one of columns {columns_str} in data frame')
+    # Columns in groups
     for column in groups:
         if not column in df.columns:
-            raise ValueError()
+            raise ValueError(
+                f'Grouping column `{column}` not in data frame')
+
 
 class VowelNormalizer:
     """
@@ -144,30 +173,38 @@ class VowelNormalizer:
 
         return df
 
+@Docs
+@Columns(
+    formants=['f0', 'f1', 'f2', 'f3', 'f4']
+)
 class FormantIntrinsicNormalizer(VowelNormalizer):
     r"""
     Base class for formant-intrinsic normaliztion.
     """
 
-    required = ['formants']
+    def __init__(self, **kwargs):
+        super(FormantIntrinsicNormalizer, self).__init__(**kwargs)
 
-    def _normalize_df(self, df, columns_map, **__):
-        df[cols_in] = df[cols_out]
+    def _transform(self, data):
+        return data
+
+    def partition(self, df, *args, **kwargs):
+        """Override partition method from base class.
+        """
+        return self._normalize(df, *args, **kwargs)
+
+    def _normalize(self, df, column_map=None, new_columns='{}', **__):
+        column_map = column_map or {}
+        columns_in = []
+        columns_out = []
+        for formant in self._column_specs['formants']:
+            column = column_map.get(formant, formant)
+            columns_in.append(column)
+            columns_out.append(new_columns.format(column))
+
+        df[columns_out] = self._transform(df[columns_in])
         return df
 
-    def normalize(self, df, **kwargs):
-        """
-        Normalize the a data frame.
-
-        Paramters
-        ---------
-        df: pandas.DataFrame
-        """
-        return self._normalize(
-            df,
-            margins=[],
-            callbacks=[self._normalize_df],
-            **kwargs)
 
 class Log10Normalizer(FormantIntrinsicNormalizer):
     r"""
@@ -177,9 +214,8 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
 
        F_i^N = \log_{10}\left(F_i\right)
     """
-    def _normalize_df(self, df, cols_in, cols_out, **__):
+    def _transform(self, df):
         """
         Normalize using log10
         """
-        df[cols_out] = np.log10(df[cols_in])
-        return df
+        return np.log10(df)
