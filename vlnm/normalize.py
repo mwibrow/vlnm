@@ -3,11 +3,6 @@ Vowel normalizer module
 """
 import pandas as pd
 
-from vlnm.decorators import (
-    columns as Columns
-    docs as Docs
-)
-
 from vlnm.utils import (
     items_to_str
 )
@@ -173,49 +168,30 @@ class VowelNormalizer:
 
         return df
 
-@Docs
-@Columns(
-    formants=['f0', 'f1', 'f2', 'f3', 'f4']
-)
+
 class FormantIntrinsicNormalizer(VowelNormalizer):
     r"""
     Base class for formant-intrinsic normaliztion.
     """
 
-    def __init__(self, **kwargs):
-        super(FormantIntrinsicNormalizer, self).__init__(**kwargs)
+    def _transform(self, df):  # pylint: disable=no-self-use
+        return df
 
-    def _transform(self, data):
-        return data
-
-    def partition(self, df, *args, **kwargs):
+    def partition(self, df, **kwargs):  # pylint: disable=arguments-differ
         """Override partition method from base class.
         """
-        return self._normalize(df, *args, **kwargs)
+        return self._normalize(df, **kwargs)
 
-    def _normalize(self, df, column_map=None, new_columns='{}', **__):
-        column_map = column_map or {}
+    def _normalize(self, df, **kwargs):  # pylint: disable=arguments-differ
+        column_map = kwargs.pop('column_map', {})
+        new_columns = kwargs.pop('new_columns', '{}')
+        formants = kwargs.pop('formants')
         columns_in = []
         columns_out = []
-        for formant in self._column_specs['formants']:
+        for formant in formants:
             column = column_map.get(formant, formant)
             columns_in.append(column)
             columns_out.append(new_columns.format(column))
 
         df[columns_out] = self._transform(df[columns_in])
         return df
-
-
-class Log10Normalizer(FormantIntrinsicNormalizer):
-    r"""
-    Normalize using the base 10 logarithm of the formant values.
-
-     .. math::
-
-       F_i^N = \log_{10}\left(F_i\right)
-    """
-    def _transform(self, df):
-        """
-        Normalize using log10
-        """
-        return np.log10(df)
