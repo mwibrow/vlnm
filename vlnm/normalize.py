@@ -60,6 +60,48 @@ def check_columns(df, column_specs, column_map, groups):
                 f'Grouping column `{column}` not in data frame')
 
 
+class VowelDataFrame(pd.DataFrame):
+    """
+    Thin wrapper around a pandas DataFrame class.
+
+    """
+    _metadata = ['column_map']
+
+    def __init__(self, *args, **kwargs):
+        column_alias = kwargs.pop('column_alias', {})
+        super(VowelDataFrame, self).__init__(*args, **kwargs)
+        self.column_alias = column_alias
+
+    def resolve_column(self, name):
+        """
+        Map a column name onto a data frame column
+        """
+        try:
+            mapped = self.column_alias.get(name, name)
+        except TypeError:
+            names = name
+            mapped = [self.column_alias.get(name, name) for name in names]
+        return mapped
+
+    def get_column(self, name):
+        """
+        Return a (possibly aliased) column
+        """
+        return super(VowelDataFrame, self).__getitem__(self.resolve_column(name))
+
+    def set_column(self, name, value):
+        """
+        Set the values for a (possibly aliased) column
+        """
+        return super(VowelDataFrame, self).__setitem__(self.resolve_column(name), value)
+
+    def __getitem__(self, name):
+        return self.get_column(name)
+
+    def __setitem__(self, name, value):
+        return self.set_column(name, value)
+
+
 class VowelNormalizer:
     """
     Base class for vowel normalizers.

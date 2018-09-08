@@ -28,7 +28,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df):
+    def transform(self, df, *__):
         """
         Transform formants.
         """
@@ -118,3 +118,74 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
         Transform formants.
         """
         return hz_to_erb(df)
+
+
+def infer_gender_labels(df, gender, female=None, male=None):
+    """
+    Infer female and male gender labels.
+    """
+    labels = df[gender].dropna().unique()
+    if len(labels) != 2:
+        raise ValueError(
+            'More than two labels for gender. '
+            'Gender-based normalization assumes binary labelling')
+    if female and not male:
+        male = [label for label in labels
+                if not label == female][0]
+    elif male and not female:
+        female = [label for label in labels
+                  if not label == male][0]
+    return female, male
+
+@DocString
+@Columns(
+    required=['gender'],
+    formants=['f0', 'f1', 'f2', 'f3']
+    gender=['female', 'male']
+)
+class BladenNormalizer(VowelNormalizer):
+    r"""
+    .. math::
+
+        F_{ik}^N = 26.81 \ln\left(
+            1 + \displayfrac{F_i}{\displayfrac{F_i} + 1960}
+            \right) - 0.53 - I(s_k)
+
+    Where :math:`I(s_k)` is an indicator function returning 1 if speaker :math:`k`
+    is identified/identifying as female and 0 otherwise.
+    """
+
+    def norm(self, df, **kwargs):
+        column_map = kwargs.get('column_map', {})
+        gender = column_map.get('gender', 'gender')
+        formants = kwargs.get(formants)
+        female, _male = infer_gender_labels(
+            df,
+            gender,
+            female=kwargs.get('female'),
+            male=kwargs.get('male'))
+        indicator = np.repeat(
+            np.atleast_2d(
+                (df[gender] == female).astype(float)),
+            len(cols_in),
+            axis=0).T
+
+        columns = [kwargs.get(formant) for formant in formants]
+        return hz_to_bark(df[columns]) - indicator
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize the a data frame.
+
+        Paramters
+        ---------
+        df: pandas.DataFrame
+        """
+        margins = kwargs.pop('margins', [])
+        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
+        return self._normalize(
+            df,
+            margins=margins,
+            callbacks=callbacks,
+            remove_none=True,
+            **kwargs)
