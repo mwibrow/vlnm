@@ -10,7 +10,7 @@ def docstring(cls):
 
 
 
-def columns(column_spec):
+def columns(**column_spec):
     """
     Decorator for specifying require and optional data frame columns.
     """
