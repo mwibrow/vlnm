@@ -85,7 +85,7 @@ class VowelNormalizer:
 
         """
         options = {}
-        options.update(self.default_kwargs, kwargs)
+        options.update(self.default_kwargs, **kwargs)
 
         column_map = options.pop('columns', {})
         formants = options.pop('formants', [])
@@ -106,13 +106,29 @@ class VowelNormalizer:
 
         return self.partition(
             df,
+            formants=formants,
+            groups=groups,
+            actions=actions,
+            constants=constants,
+            **options)
+
+    def partition(self, df, **kwargs):
+        """
+        Partition the data frame for normalistion.
+        """
+        formants = kwargs.pop('formants')
+        groups = kwargs.pop('groups')
+        actions = kwargs.pop('actions')
+        constants = kwargs.pop('constants')
+        return self._partition(
+            df,
             formants,
             groups,
             actions,
             constants,
-            **options)
+            **kwargs)
 
-    def partition(
+    def _partition(
             self,
             df,
             formants,
@@ -120,9 +136,6 @@ class VowelNormalizer:
             actions,
             constants,
             **kwargs):
-        """
-        Partition the data frame for normalistion.
-        """
 
         if groups:
             group = groups[0]
@@ -135,7 +148,7 @@ class VowelNormalizer:
                         grouped_df,
                         constants,
                         **kwargs)
-                normed_df = self.partition(
+                normed_df = self._partition(
                     grouped_df.copy(),
                     formants,
                     groups[1:],
@@ -147,7 +160,7 @@ class VowelNormalizer:
             return out_df
 
         new_columns = kwargs['new_columns']
-        normed_df = self._normalize(
+        normed_df = self.norm(
             df.copy() if new_columns else df,
             constants,
             **kwargs)
@@ -156,14 +169,14 @@ class VowelNormalizer:
                 df[new_columns.format(formant)] = normed_df[formant]
         return df
 
-    def _normalize(
+    def norm(
             self,
             df,
             formants,
             constants,
             **kwargs):  # pylint: disable=no-self-use,unused-argument
         """
-        Default normalizer: do nothing.
+        Default normalizer transform: do nothing.
         """
 
         return df
@@ -174,15 +187,12 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
     Base class for formant-intrinsic normaliztion.
     """
 
-    def _transform(self, df):  # pylint: disable=no-self-use
-        return df
-
-    def partition(self, df, **kwargs):  # pylint: disable=arguments-differ
+    def partition(self, df, **kwargs):
         """Override partition method from base class.
         """
-        return self._normalize(df, **kwargs)
+        return self.norm(df, **kwargs)
 
-    def _normalize(self, df, **kwargs):  # pylint: disable=arguments-differ
+    def norm(self, df, **kwargs):  # pylint: disable=arguments-differ
         column_map = kwargs.pop('column_map', {})
         new_columns = kwargs.pop('new_columns', '{}')
         formants = kwargs.pop('formants')
@@ -193,5 +203,11 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
             columns_in.append(column)
             columns_out.append(new_columns.format(column))
 
-        df[columns_out] = self._transform(df[columns_in])
+        df[columns_out] = self.transform(df[columns_in])
+        return df
+
+    def transform(self, df, **_):  # pylint: disable=no-self-use
+        """
+        Default transform for formant intrinsic normalizers
+        """
         return df
