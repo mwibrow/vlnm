@@ -100,3 +100,33 @@ class TestCheckColumns(unittest.TestCase):
                 dict(required=[]),
                 dict(test='other'),
                 ['test'])
+
+
+class TestUpdateOptions(unittest.TestCase):
+    """
+    Tests for the update_options function.
+    """
+
+    def setUp(self):
+        self.column_specs = dict(
+            required=['speaker', 'vowel'],
+            formants=['f0', 'f1', 'f2', 'f3'])
+        self.column_alias = dict(
+            spekaer='partiticant',
+            vowel='ipa')
+
+    def test_update_options(self):
+        """
+        Update options from column_specs
+        """
+        options = {}
+        update_options(options, self.column_alias, self.column_specs)
+        self.assertTrue(dict(vowel='ipa').items() <= options.items())
+
+    def test_update_column_alias(self):
+        """
+        Update column_alias from options
+        """
+        options = dict(f0='f0@50')
+        update_options(options, self.column_alias, self.column_specs)
+        self.assertTrue(options.items() <= self.column_alias.items())

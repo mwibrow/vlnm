@@ -11,62 +11,83 @@ from vlnm.utils import (
 
 
 def check_columns(df, column_specs, column_alias, groups):
-    """Check if required and given columns are present in the dataframe
     """
+    Check if required and choice columns are present in the dataframe.
+    """
+    columns = column_specs.get('required')
+    if columns:
+        check_required_columns(df, columns, column_specs)
+    columns = column_specs.get('formants')
+    if columns:
+        for formant in columns:
+            if not re.match(r'f\d', formant):
+                raise ValueError(
+                    f'Formant `{formant}` is invalid. '
+                    f'Formants should be specified as `fn` '
+                    f'where n is a number.')
+    for spec in column_specs:
+        if spec != 'required':
+            check_choice_columns(df, column_specs[spec], column_alias)
 
-    # Required columns.
-    columns = column_specs.get('required', [])
+    if groups:
+        check_group_columns(df, groups, column_alias)
+
+def check_required_columns(df, columns, column_alias):
+    """
+    Check required columns are in the data frame.
+    """
     for column in columns:
         alias = column_alias.get(column)
         if alias and alias not in df:
             raise ValueError(
-                f'Required column `{column}` alised to `{alias}`, '
+                f'Required column `{column}` aliased to `{alias}`, '
                 f'but `{alias}` is not in the data frame')
         else:
             if not column in df:
                 raise ValueError(
                     f'Required column `{column}` is not in the data frame, '
                     f'and no mapping given')
-    # formants
-    columns = column_specs.get('formants', [])
-    for column in columns:
-        if not re.match(r'f\d', column):
-            raise ValueError(
-                f'Formant `{column}` is invalid. '
-                f'Formants should be specified as `fn` '
-                f'where n is a number.')
 
-    # choice columns:
-    for spec in column_specs:
-        if spec == 'required':
-            continue
-        columns = column_specs[spec]
-        columns_str = items_to_str(
-            columns, junction='or', quote="`")
-        defaults = [column for column in columns
-                    if column not in column_alias]
-        mappings = [column_alias[column] for column in columns
-                    if column in column_alias]
-        if defaults:
-            if not mappings and not any(default in df for default in defaults):
-                raise ValueError(
-                    f'Expected one of columns {columns_str} in data frame')
-        elif not any(mapping in df for mapping in mappings):
-            if mappings:
-                column, mapping = [
-                    (column, mapping)
-                    for column, mapping in column_alias if not mapping in df][0]
 
-                raise ValueError(
-                    f'Expected one of colums {columns_str} in data frame. '
-                    f'`{column}` was mapped to `{mapping}`, '
-                    f'but `{mapping}` is not in the data frame')
+def check_choice_columns(df, columns, column_alias):
+    """
+    Check at least one of a choice of columns is in the data frame.
+    """
+    columns_str = items_to_str(
+        columns, junction='or', quote="`")
+    defaults = [column for column in columns
+                if column not in column_alias]
+    mappings = [column_alias[column] for column in columns
+                if column in column_alias]
+    if defaults:
+        if not mappings and not any(default in df for default in defaults):
             raise ValueError(
                 f'Expected one of columns {columns_str} in data frame')
+    elif not any(mapping in df for mapping in mappings):
+        if mappings:
+            column, mapping = [
+                (column, mapping)
+                for column, mapping in column_alias if not mapping in df][0]
 
-    # Columns in groups
+            raise ValueError(
+                f'Expected one of colums {columns_str} in data frame. '
+                f'`{column}` was mapped to `{mapping}`, '
+                f'but `{mapping}` is not in the data frame')
+        raise ValueError(
+            f'Expected one of columns {columns_str} in data frame')
+
+def check_group_columns(df, groups, column_alias):
+    """
+    Check (aliased) group columns are in the data frame
+    """
     for column in groups:
-        if not column in df.columns:
+        alias = column_alias.get(column)
+        if alias:
+            if not alias in df:
+                raise ValueError(
+                    f'Grouping column `{column}` '
+                    f'aliased as `{alias}` not in data frame')
+        elif column not in df.columns:
             raise ValueError(
                 f'Grouping column `{column}` not in data frame')
 
