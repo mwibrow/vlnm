@@ -1,6 +1,8 @@
 """
 Vowel normalizer module
 """
+import re
+
 import pandas as pd
 
 from vlnm.utils import (
@@ -8,7 +10,7 @@ from vlnm.utils import (
 )
 
 
-def check_columns(df, column_specs, column_map, groups):
+def check_columns(df, column_specs, column_alias, groups):
     """Check if required and given columns are present in the dataframe
 
     """
@@ -17,7 +19,7 @@ def check_columns(df, column_specs, column_map, groups):
         if spec == 'required':
             # Required column.
             for column in column_specs[spec]:
-                mapped_column = column_map.get(column)
+                mapped_column = column_alias.get(column)
                 if mapped_column and mapped_column not in df:
                     raise ValueError(
                         f'Required column `{column}` mapped to `{mapped_column}`, '
@@ -28,13 +30,22 @@ def check_columns(df, column_specs, column_map, groups):
                         f'and no mapping given')
         else:
             # Optionally required columns (i.e., at least one)
+
+            if spec == 'formants':
+                for formant in column_specs[spec]:
+                    if re.match(r'f\d', formant):
+                        raise ValueError(
+                            f'Formant `{formant}` is invalid. '
+                            f'Formants should be specified as `fn` '
+                            f'where n is a number.')
+
             columns = column_specs[spec]
             columns_str = items_to_str(
                 columns, junction='or', quote="`")
             defaults = [column for column in columns
-                        if column not in column_map]
-            mappings = [column_map[column] for column in columns
-                        if column in column_map]
+                        if column not in column_alias]
+            mappings = [column_alias[column] for column in columns
+                        if column in column_alias]
             if defaults:
                 if not mappings and not any(default in df for default in defaults):
                     raise ValueError(
@@ -44,7 +55,7 @@ def check_columns(df, column_specs, column_map, groups):
                     if mappings:
                         column, mapping = [
                             (column, mapping)
-                            for column, mapping in column_map if not mapping in df][0]
+                            for column, mapping in column_alias if not mapping in df][0]
 
                         raise ValueError(
                             f'Expected one of colums {columns_str} in data frame. '
@@ -53,62 +64,25 @@ def check_columns(df, column_specs, column_map, groups):
                     else:
                         raise ValueError(
                             f'Expected one of columns {columns_str} in data frame')
+
     # Columns in groups
     for column in groups:
         if not column in df.columns:
             raise ValueError(
                 f'Grouping column `{column}` not in data frame')
 
-
-class VowelDataFrame(pd.DataFrame):
+def update_options(options, column_alias, column_specs):
+    """Update options with column_alias keys (and vice versa).
     """
-    Thin wrapper around a pandas DataFrame class.
+    for spec in column_specs:
+        for column in column_specs[spec]:
+            if column in options:
+                column_alias[column] = options[column]
+            else:
+                if column in column_alias and column not in options:
+                    options[column] = column_alias[column]
+    return options, column_alias
 
-    """
-    _metadata = ['column_alias']
-
-    def __init__(self, *args, **kwargs):
-        column_alias = kwargs.pop('column_alias', {})
-        super(VowelDataFrame, self).__init__(*args, **kwargs)
-        self.column_alias = column_alias
-
-    def resolve_column(self, name):
-        """
-        Map a column name onto a data frame column
-        """
-        try:
-            mapped = self.column_alias.get(name, name)
-        except TypeError:
-            names = name
-            mapped = [self.column_alias.get(name, name) for name in names]
-        return mapped
-
-    def get_column(self, name):
-        """
-        Return a (possibly aliased) column
-        """
-        return super(VowelDataFrame, self).__getitem__(self.resolve_column(name))
-
-    def set_column(self, name, value):
-        """
-        Set the values for a (possibly aliased) column
-        """
-        return super(VowelDataFrame, self).__setitem__(self.resolve_column(name), value)
-
-    def __getitem__(self, name):
-        return self.get_column(name)
-
-    def __setitem__(self, name, value):
-        return self.set_column(name, value)
-
-    def groupby(self, name):
-        """
-        Wrapper around DataFrame.groupby
-        """
-        column = self.resolve_column(name)
-        grouped = super(VowelDataFrame, self).groupby(column, as_index=False)
-        for group, group_df in grouped:
-            yield group, VowelDataFrame(group_df, column_alias=self.column_alias)
 
 class VowelNormalizer:
     """
@@ -137,22 +111,18 @@ class VowelNormalizer:
         options = {}
         options.update(self.default_kwargs, **kwargs)
 
-        column_map = options.pop('columns', {})
+        column_alias = options.pop('column_alias', {})
         formants = options.pop('formants', [])
         groups = options.pop('groups', [])
-        constants = options.pop('constats', {})
-        actions = self.actions
+        constants = options.pop('constants', {})
+        actions = self.actions.update(options.pop('actions', {}))
+
+        update_options(options, column_alias, self._column_specs)
         check_columns(
             df,
             self._column_specs,
-            column_map,
+            column_alias,
             groups)
-
-        for formant in formants:
-            options[formant] = (
-                options.get(formant) or
-                column_map.get(formant) or
-                formant)
 
         return self.partition(
             df,
@@ -212,19 +182,14 @@ class VowelNormalizer:
         new_columns = kwargs['new_columns']
         normed_df = self.norm(
             df.copy() if new_columns else df,
-            constants,
+            constants=constants,
             **kwargs)
         if new_columns:
             for formant in formants:
                 df[new_columns.format(formant)] = normed_df[formant]
         return df
 
-    def norm(
-            self,
-            df,
-            formants,
-            constants,
-            **kwargs):  # pylint: disable=no-self-use,unused-argument
+    def norm(self, df, **kwargs):  # pylint: disable=no-self-use,unused-argument
         """
         Default normalizer transform: do nothing.
         """
@@ -243,13 +208,13 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         return self.norm(df, **kwargs)
 
     def norm(self, df, **kwargs):  # pylint: disable=arguments-differ
-        column_map = kwargs.pop('column_map', {})
+        column_alias = kwargs.pop('column_alias', {})
         new_columns = kwargs.pop('new_columns', '{}')
         formants = kwargs.pop('formants')
         columns_in = []
         columns_out = []
         for formant in formants:
-            column = column_map.get(formant, formant)
+            column = column_alias.get(formant, formant)
             columns_in.append(column)
             columns_out.append(new_columns.format(column))
 

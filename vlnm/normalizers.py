@@ -28,7 +28,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, *__):
+    def transform(self, df, **__):
         """
         Transform formants.
         """
@@ -140,8 +140,8 @@ def infer_gender_labels(df, gender, female=None, male=None):
 @DocString
 @Columns(
     required=['gender'],
-    formants=['f0', 'f1', 'f2', 'f3']
-    gender=['female', 'male']
+    formants=['f0', 'f1', 'f2', 'f3'],
+    gender_label=['female', 'male']
 )
 class BladenNormalizer(VowelNormalizer):
     r"""
@@ -156,9 +156,9 @@ class BladenNormalizer(VowelNormalizer):
     """
 
     def norm(self, df, **kwargs):
-        column_map = kwargs.get('column_map', {})
-        gender = column_map.get('gender', 'gender')
-        formants = kwargs.get(formants)
+        gender = kwargs.get('gender')
+        formants = kwargs.get('formants')
+
         female, _male = infer_gender_labels(
             df,
             gender,
@@ -167,25 +167,10 @@ class BladenNormalizer(VowelNormalizer):
         indicator = np.repeat(
             np.atleast_2d(
                 (df[gender] == female).astype(float)),
-            len(cols_in),
+            len(formants),
             axis=0).T
 
         columns = [kwargs.get(formant) for formant in formants]
         return hz_to_bark(df[columns]) - indicator
 
-    def normalize(self, df, **kwargs):
-        """
-        Normalize the a data frame.
 
-        Paramters
-        ---------
-        df: pandas.DataFrame
-        """
-        margins = kwargs.pop('margins', [])
-        callbacks = [None] * (len(margins) - 1) + [self._normalize_df]
-        return self._normalize(
-            df,
-            margins=margins,
-            callbacks=callbacks,
-            remove_none=True,
-            **kwargs)
