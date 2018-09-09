@@ -199,10 +199,11 @@ class VowelNormalizer:
                     out_df = pd.concat([out_df, normed_df], axis=0)
             return out_df
 
-        new_columns = kwargs['new_columns']
+        new_columns = kwargs.get('new_columns', '{}')
         normed_df = self.norm(
             df.copy() if new_columns else df,
             constants=constants,
+            formants=formants,
             **kwargs)
         if new_columns:
             for formant in formants:

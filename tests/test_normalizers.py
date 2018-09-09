@@ -13,6 +13,7 @@ from vlnm.conversion import (
     hz_to_mel)
 from vlnm.normalizers import (
     BarkNormalizer,
+    BladenNormalizer,
     ErbNormalizer,
     LogNormalizer,
     Log10Normalizer,
@@ -151,3 +152,54 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         self.assertTrue(actual.equals(expected))
 
 
+class TestBladenNormalizer(unittest.TestCase):
+    """
+    Test the BladenNormalizer.
+    """
+
+    def setUp(self):
+        self.df = DATA_FRAME.copy()
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(
+            formants=self.formants)
+
+    def test_no_gender(self):
+        """No gender column raises ValueError."""
+        with self.assertRaises(ValueError):
+            BladenNormalizer().normalize(self.df, **self.kwargs)
+
+    def test_no_male_or_female(self):
+        """No female or male column raises ValueError."""
+        with self.assertRaises(ValueError):
+            BladenNormalizer().normalize(self.df, gender='gender', **self.kwargs)
+
+    def test_minimal_kwargs(self):
+        """Minimally correct kwargs."""
+        BladenNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', **self.kwargs)
+
+    def test_with_female(self):
+        """Test specifying female label."""
+        normalizer = BladenNormalizer()
+
+        expected = hz_to_bark(self.df.copy()[self.formants])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            self.df,
+            gender='gender',
+            female='F',
+            **self.kwargs)[self.formants]
+        self.assertTrue(actual.equals(expected))
+
+    def test_with_male(self):
+        """Test specifying male label."""
+        normalizer = BladenNormalizer()
+        expected = hz_to_bark(self.df.copy()[self.formants])
+        expected[self.df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            self.df,
+            gender='gender',
+            male='M',
+            **self.kwargs)[self.formants]
+        self.assertTrue(actual.equals(expected))
