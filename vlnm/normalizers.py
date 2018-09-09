@@ -173,4 +173,3 @@ class BladenNormalizer(VowelNormalizer):
         columns = [kwargs.get(formant) for formant in formants]
         return hz_to_bark(df[columns]) - indicator
 
-

@@ -33,7 +33,7 @@ def check_columns(df, column_specs, column_alias, groups):
 
             if spec == 'formants':
                 for formant in column_specs[spec]:
-                    if re.match(r'f\d', formant):
+                    if not re.match(r'f\d', formant):
                         raise ValueError(
                             f'Formant `{formant}` is invalid. '
                             f'Formants should be specified as `fn` '
