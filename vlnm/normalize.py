@@ -12,7 +12,6 @@ from vlnm.utils import (
 
 def check_columns(df, column_specs, column_alias, groups):
     """Check if required and given columns are present in the dataframe
-
     """
     # Check the column specificaton for the class.
     for spec in column_specs:
@@ -23,10 +22,10 @@ def check_columns(df, column_specs, column_alias, groups):
                 if mapped_column and mapped_column not in df:
                     raise ValueError(
                         f'Required column `{column}` mapped to `{mapped_column}`, '
-                        f'but `{mapped_column}`` is not in the data frame')
+                        f'but `{mapped_column}` is not in the data frame')
                 if not column in df:
                     raise ValueError(
-                        f'Required column `{column}`` is not in the data frame, '
+                        f'Required column `{column}` is not in the data frame, '
                         f'and no mapping given')
         else:
             # Optionally required columns (i.e., at least one)
