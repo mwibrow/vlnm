@@ -1,7 +1,7 @@
 """
 Vowel normalizer module
 """
-from __future.utils import raise_from
+from future.utils import raise_from
 import re
 
 import pandas as pd
@@ -15,23 +15,23 @@ def check_columns(df, column_specs, column_alias, groups):
     """
     Check if required and choice columns are present in the dataframe.
     """
-    columns = column_specs.get('required')
+    columns = column_specs.get('required', [])
     if columns:
         check_required_columns(df, columns, column_specs)
-    columns = column_specs.get('formants')
-    if columns:
-        for formant in columns:
-            if not re.match(r'f\d', formant):
-                raise_from(ValueError(
-                    'Formant `{formant}` is invalid. '
-                    'Formants should be specified as `fn` '
-                    'where n is a number.'.format(
-                        formant=formant
-                    )), None)
-    for spec in column_specs:
-        if spec != 'required':
-            check_choice_columns(df, column_specs[spec], column_alias)
 
+    columns = column_specs.get('choice', [])
+    for choices in columns:
+        check_choice_columns(df, columns[choices], column_alias)
+        if choices == 'formants':
+            formants = columns[choices]
+            for formant in formants:
+                if not re.match(r'f\d', formant):
+                    raise_from(ValueError(
+                        'Formant `{formant}` is invalid. '
+                        'Formants should be specified as `fn` '
+                        'where n is a number.'.format(
+                            formant=formant
+                        )), None)
     if groups:
         check_group_columns(df, groups, column_alias)
 
@@ -53,7 +53,6 @@ def check_required_columns(df, columns, column_alias):
                 raise_from(ValueError(
                     'Required column `{column}` is not in the data frame, '
                     'and no mapping given'.format(column=column)), None)
-
 
 def check_choice_columns(df, columns, column_alias):
     """
