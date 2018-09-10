@@ -1,6 +1,7 @@
 """
 Vowel normalizer module
 """
+from future.utils import raise_from
 import re
 
 import pandas as pd
@@ -21,10 +22,12 @@ def check_columns(df, column_specs, column_alias, groups):
     if columns:
         for formant in columns:
             if not re.match(r'f\d', formant):
-                raise ValueError(
-                    f'Formant `{formant}` is invalid. '
-                    f'Formants should be specified as `fn` '
-                    f'where n is a number.')
+                raise_from(ValueError(
+                    'Formant `{formant}` is invalid. '
+                    'Formants should be specified as `fn` '
+                    'where n is a number.'.format(
+                        formant=formant
+                    )), None)
     for spec in column_specs:
         if spec != 'required':
             check_choice_columns(df, column_specs[spec], column_alias)
@@ -39,14 +42,17 @@ def check_required_columns(df, columns, column_alias):
     for column in columns:
         alias = column_alias.get(column)
         if alias and alias not in df:
-            raise ValueError(
-                f'Required column `{column}` aliased to `{alias}`, '
-                f'but `{alias}` is not in the data frame')
+            raise_from(ValueError(
+                'Required column `{column}` aliased to `{alias}`, '
+                'but `{alias}` is not in the data frame'.format(
+                    column=column,
+                    alias=alias)),
+                None)
         else:
             if not column in df:
-                raise ValueError(
-                    f'Required column `{column}` is not in the data frame, '
-                    f'and no mapping given')
+                raise_from(ValueError(
+                    'Required column `{column}` is not in the data frame, '
+                    'and no mapping given'.format(column=column)), None)
 
 
 def check_choice_columns(df, columns, column_alias):
@@ -61,20 +67,26 @@ def check_choice_columns(df, columns, column_alias):
                 if column in column_alias]
     if defaults:
         if not mappings and not any(default in df for default in defaults):
-            raise ValueError(
-                f'Expected one of columns {columns_str} in data frame')
+            raise_from(ValueError(
+                'Expected one of columns {columns_str} '
+                'in data frame'.format(columns_str=columns_str)), None)
     elif not any(mapping in df for mapping in mappings):
         if mappings:
             column, mapping = [
                 (column, mapping)
                 for column, mapping in column_alias if not mapping in df][0]
 
-            raise ValueError(
-                f'Expected one of colums {columns_str} in data frame. '
-                f'`{column}` was mapped to `{mapping}`, '
-                f'but `{mapping}` is not in the data frame')
-        raise ValueError(
-            f'Expected one of columns {columns_str} in data frame')
+            raise_from(ValueError(
+                'Expected one of colums {columns_str} in data frame. '
+                '`{column}` was mapped to `{mapping}`, '
+                'but `{mapping}` is not in the data frame'.format(
+                    columns_str=columns_str,
+                    column=column,
+                    mapping=mapping
+                )), None)
+        raise_from(ValueError(
+            'Expected one of columns {columns_str} '
+            'in data frame'.format(columns_str=columns_str)), None)
 
 def check_group_columns(df, groups, column_alias):
     """
@@ -84,12 +96,16 @@ def check_group_columns(df, groups, column_alias):
         alias = column_alias.get(column)
         if alias:
             if not alias in df:
-                raise ValueError(
-                    f'Grouping column `{column}` '
-                    f'aliased as `{alias}` not in data frame')
+                raise_from(ValueError(
+                    'Grouping column `{column}` '
+                    'aliased as `{alias}` not in data frame'.format(
+                        column=column,
+                        alias=alias
+                    )), None)
         elif column not in df.columns:
-            raise ValueError(
-                f'Grouping column `{column}` not in data frame')
+            raise_from(ValueError(
+                'Grouping column `{column}` not in data frame'.format(
+                    column=column)), None)
 
 def update_options(options, column_alias, column_specs):
     """Update options with column_alias keys (and vice versa).
