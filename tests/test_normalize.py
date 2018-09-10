@@ -53,7 +53,9 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[], formants=['f3']),
+                dict(required=[], choice=dict(
+                    formants=['f3']
+                )),
                 {},
                 [])
 
@@ -64,7 +66,9 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[], formants=['f3']),
+                dict(required=[], choice=dict(
+                    formants=['f3']
+                )),
                 dict(f3='f3@50'),
                 [])
 
@@ -75,7 +79,9 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[], formants=['fk']),
+                dict(required=[], choice=dict(
+                    formants=['fk']
+                )),
                 {},
                 [])
 
