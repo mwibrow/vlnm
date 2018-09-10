@@ -172,3 +172,39 @@ class BladenNormalizer(VowelNormalizer):
 
         columns = [kwargs.get(formant, formant) for formant in formants]
         return hz_to_bark(df[columns]) - indicator
+
+
+@DocString
+@Columns(
+    required=['f1', 'f2', 'f3'],
+    optional=['f0']
+)
+class BarkDifferenceNormalizer(VowelNormalizer):
+    r"""
+    .. math::
+
+        F_{i}^N = B_i - B^\prime
+
+    Where :math:`B_i` is a function converting the ith
+    frequency measured in hertz to the Bark scale, and
+    :math:`B^\prime` is :math:`B_0` or :math:`B_1`
+    depending on the context.
+    """
+
+    def norm(self, df, **kwargs):
+        f0 = kwargs.get('f0')
+        f1 = kwargs.get('f1')
+        f2 = kwargs.get('f2')
+        f3 = kwargs.get('f3')
+
+        z0 = hz_to_bark(df[f0]) if f0 else None
+        z1 = hz_to_bark(df[f1])
+        z2 = hz_to_bark(df[f2])
+        z3 = hz_to_bark(df[f3])
+
+        if z0:
+            df['z1-z0'] = z1 - z0
+        df['z2-z1'] = z2 - z1
+        df['z3-z2'] = z3 - z2
+
+        return df

@@ -1,7 +1,7 @@
 """
 Vowel normalizer module
 """
-from future.utils import raise_from
+from __future.utils import raise_from
 import re
 
 import pandas as pd
