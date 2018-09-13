@@ -58,18 +58,19 @@ def Returns(**returns):
         Decorate {cls} with {_returns}
         """
         cls._returns = returns
+    return cls_decorator
 
-def validate_columns(df, columns, aliases, errors=True):
+def validate_columns(normalizer, df, columns, aliases):
     """
     Validate columns against a data frame.
     """
     if columns.required:
-        validate_required_columns(df, columns.required, aliases)
+        validate_required_columns(normalizer, df, columns.required, aliases)
     if columns.choice:
-        validate_choice_columns(df, columns.choice, aliases)
+        validate_choice_columns(normalizer, df, columns.choice, aliases)
     return True
 
-def validate_required_columns(df, columns, aliases):
+def validate_required_columns(normalizer, df, columns, aliases):
     """
     Validate required columns against a data frame.
     """
@@ -79,17 +80,22 @@ def validate_required_columns(df, columns, aliases):
             continue
         if column in aliases:
             raise_from(ValueError(
-                'Required column {name} was aliased to {column}. '
+                '{normalizer} requires column {name}. '
+                '{name} was aliased to {column}. '
                 'But {column} is not in the data frame.'.format(
+                    normalizer=normalizer,
                     name=name,
                     column=column)
             ), None)
         raise_from(ValueError(
-            'Required column {name} is not in the data frame.'.format(
-                name=name)), None)
+            ' {normalizer} requires column {name}. '
+            'But {name} is not in the data frame.'.format(
+                    normalizer=normalizer,
+                    name=name
+                )), None)
     return True
 
-def validate_choice_columns(df, columns, aliases):
+def validate_choice_columns(normalizer, df, columns, aliases):
     """
     Validate choice columns against a data frame.
     """
@@ -101,22 +107,56 @@ def validate_choice_columns(df, columns, aliases):
         if name in aliases:
             column = aliases
             raise_from(ValueError(
-                'Expected one of {column_list} to be in the data frame. '
+                '{normalizer} expected one of {column_list} '
+                'to be in the data frame. '
                 '{name} was was aliased to {column}. '
                 'But {column} is not in the data frame.'.format(
+                    normalizer=normalizer,
                     column_list=column_list,
                     name=name,
                     column=column)
             ), None)
         raise_from(ValueError(
-            'Expected one of {column_list} to be in the data frame. '.format(
-                 columns_list=column_list), None))
+            '{normalizer} expected one of {column_list} '
+            'to be in the data frame. '.format(
+                normalizer=normalizer,
+                column_list=column_list
+                ), None))
 
-def validate_keywords(expected, actual):
+def validate_keywords(normalizer, expected, actual):
     """
     Validate keyword arguments.
     """
-    if keywords.required:
-        validate_required_keywords(expected, actual)
-    if keywords.required:
-        validate_required_keywords(expected, actual)
+    if expected.required:
+        validate_required_keywords(normalizer, expected, actual)
+    if expected.choice:
+        validate_choice_keywords(normalizer, expected, actual)
+    return True
+
+def validate_required_keywords(normalizer, expected, actual):
+    """
+    Validate required keywords.
+    """
+    missing = [keyword for keyword in expected
+               if not keyword in actual]
+    if missing:
+        keyword = missing[0]
+        raise_from(ValueError(
+            '{normalizer} required {keyword} argument'.format(
+                normalizer=normalizer,
+                keyword=keyword
+                ), None))
+
+def validate_choice_keywords(normalizer, expected, actual):
+    """
+    Validate choice keywords
+    """
+    present = [keyword for keyword in expected
+               if keyword in actual]
+    if not present:
+        keywords = [keyword for keyword in expected]
+        raise_from(ValueError(
+            '{normalizer} expected one of {keywords} argument'.format(
+                normalizer=normalizer,
+                keywords=keywords
+                ), None))
