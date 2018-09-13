@@ -11,17 +11,15 @@ from vlnm.utils import (
 )
 
 
-def check_columns(df, column_specs, column_alias, groups):
+def check_columns(df, columns, aliases, groups):
     """
     Check if required and choice columns are present in the dataframe.
     """
-    columns = column_specs.get('required', [])
-    if columns:
-        check_required_columns(df, columns, column_specs)
+    if columns.required:
+        check_required_columns(df, columns.required, aliases)
 
-    columns = column_specs.get('choice', [])
-    for choices in columns:
-        check_choice_columns(df, columns[choices], column_alias)
+    for choices in columns.choice:
+        check_choice_columns(df, columns.choice[choices], aliases)
         if choices == 'formants':
             formants = columns[choices]
             for formant in formants:
@@ -33,20 +31,21 @@ def check_columns(df, column_specs, column_alias, groups):
                             formant=formant
                         )), None)
     if groups:
-        check_group_columns(df, groups, column_alias)
+        check_group_columns(df, groups, aliases)
 
-def check_required_columns(df, columns, column_alias):
+def check_required_columns(df, columns, aliases):
     """
     Check required columns are in the data frame.
     """
     for column in columns:
-        alias = column_alias.get(column)
+        alias = aliases.get(column)
         if alias and alias not in df:
-            raise_from(ValueError(
-                'Required column `{column}` aliased to `{alias}`, '
-                'but `{alias}` is not in the data frame'.format(
-                    column=column,
-                    alias=alias)),
+            raise_from(
+                ValueError(
+                    'Required column `{column}` aliased to `{alias}`, '
+                    'but `{alias}` is not in the data frame'.format(
+                        column=column,
+                        alias=alias)),
                 None)
         else:
             if not column in df:
@@ -54,16 +53,16 @@ def check_required_columns(df, columns, column_alias):
                     'Required column `{column}` is not in the data frame, '
                     'and no mapping given'.format(column=column)), None)
 
-def check_choice_columns(df, columns, column_alias):
+def check_choice_columns(df, columns, aliases):
     """
     Check at least one of a choice of columns is in the data frame.
     """
     columns_str = items_to_str(
         columns, junction='or', quote="`")
     defaults = [column for column in columns
-                if column not in column_alias]
-    mappings = [column_alias[column] for column in columns
-                if column in column_alias]
+                if column not in aliases]
+    mappings = [aliases[column] for column in columns
+                if column in aliases]
     if defaults:
         if not mappings and not any(default in df for default in defaults):
             raise_from(ValueError(
@@ -73,7 +72,7 @@ def check_choice_columns(df, columns, column_alias):
         if mappings:
             column, mapping = [
                 (column, mapping)
-                for column, mapping in column_alias if not mapping in df][0]
+                for column, mapping in aliases if not mapping in df][0]
 
             raise_from(ValueError(
                 'Expected one of colums {columns_str} in data frame. '
