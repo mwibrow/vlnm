@@ -34,9 +34,9 @@ def validate_required_columns(normalizer, df, columns, aliases):
         raise_from(ValueError(
             ' {normalizer} requires column {name}. '
             'But {name} is not in the data frame.'.format(
-                    normalizer=normalizer,
-                    name=name
-                )), None)
+                normalizer=normalizer,
+                name=name
+            )), None)
     return True
 
 def validate_choice_columns(normalizer, df, columns, aliases):
@@ -44,7 +44,7 @@ def validate_choice_columns(normalizer, df, columns, aliases):
     Validate choice columns against a data frame.
     """
     missing = [name for name in columns
-        if name not in aliases and aliases.get(name, name) not in df]
+               if name not in aliases and aliases.get(name, name) not in df]
     if any(missing):
         name = missing[0]
         column_list = columns
