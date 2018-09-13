@@ -6,6 +6,7 @@ import unittest
 
 import pandas as pd
 
+from vlnm.decorators import Options
 from vlnm.normalize import (
     check_columns,
     update_options
@@ -31,7 +32,7 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=['vowel']),
+                Options(required=['vowel']),
                 {},
                 [])
 
@@ -66,7 +67,7 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[], choice=dict(
+                Options(required=[], choice=dict(
                     formants=['f3']
                 )),
                 dict(f3='f3@50'),
@@ -79,7 +80,7 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[], choice=dict(
+                Options(required=[], choice=dict(
                     formants=['fk']
                 )),
                 {},
@@ -92,7 +93,7 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[]),
+                Options(required=[]),
                 {},
                 ['test'])
 
@@ -103,7 +104,7 @@ class TestCheckColumns(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_columns(
                 self.df,
-                dict(required=[]),
+                Options(required=[]),
                 dict(test='other'),
                 ['test'])
 

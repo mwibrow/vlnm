@@ -8,15 +8,18 @@ from vlnm.conversion import (
     hz_to_erb,
     hz_to_mel)
 from vlnm.decorators import (
-    docstring as DocString,
-    columns as Columns)
+    DocString,
+    Columns,
+    Keywords)
 from vlnm.normalize import (
     VowelNormalizer,
     FormantIntrinsicNormalizer)
 
 @DocString
 @Columns(
-    formants=['f0', 'f1', 'f2', 'f3']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class Log10Normalizer(FormantIntrinsicNormalizer):
     r"""
@@ -37,7 +40,9 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
 
 @DocString
 @Columns(
-    formants=['f0', 'f1', 'f2', 'f3']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class LogNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -59,7 +64,9 @@ class LogNormalizer(FormantIntrinsicNormalizer):
 
 @DocString
 @Columns(
-    formants=['f0', 'f1', 'f2', 'f3']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class MelNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -79,7 +86,9 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
 @DocString
 @Columns(
-    formants=['f0', 'f1', 'f2', 'f3']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class BarkNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -101,7 +110,9 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
 
 @DocString
 @Columns(
-    formants=['f0', 'f1', 'f2', 'f3']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class ErbNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -140,8 +151,14 @@ def infer_gender_labels(df, gender, female=None, male=None):
 @DocString
 @Columns(
     required=['gender'],
-    formants=['f0', 'f1', 'f2', 'f3'],
-    gender_label=['female', 'male']
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
+)
+@Keywords(
+    choice=dict(
+        gender_label=['male', 'female']
+    )
 )
 class BladenNormalizer(VowelNormalizer):
     r"""
@@ -177,7 +194,8 @@ class BladenNormalizer(VowelNormalizer):
 @DocString
 @Columns(
     required=['f1', 'f2', 'f3'],
-    optional=['f0']
+    optional=['f0'],
+    returns=['z1-z0', 'z2-z1', 'z3-z2']
 )
 class BarkDifferenceNormalizer(VowelNormalizer):
     r"""
