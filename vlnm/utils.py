@@ -8,7 +8,7 @@ def quote_item(item, pre='', post=''):
     post = post or pre
     return f'{pre}{item}{post}'
 
-def items_to_str(items, sep=',', junction=None, oxford=False, quote=None):
+def nameify(items, sep=',', junction=None, oxford=False, quote=None):
     """
     Convert a list of items to a nicely formatted stringified list.
     """
@@ -28,7 +28,7 @@ def items_to_str(items, sep=',', junction=None, oxford=False, quote=None):
     return '{}{} {}'.format(
         quote_item(sorted_items[0], quote),
         sep,
-        items_to_str(
+        nameify(
             sorted_items[1:],
             sep=sep,
             junction=junction,
@@ -60,74 +60,6 @@ AT_LEAST_ONE_COLUMN_NOT_FOUND = (
     'Expected at least one column from \'{}\' to be in data frame')
 COLUMN_NOT_FOUND = (
     'Column \'{}\' missing in data frame')
-
-def check_columns(df, column_specs, kwargs):
-    """
-    Check if required, optional and grouping columns are in the data frame.
-    """
-    column_map = {}
-    for spec in column_specs:
-        column = column_specs[spec]
-        try:
-            default = column
-            given = kwargs.get(column, None)
-            if not given and default not in df.columns:
-                raise ValueError(
-                    REQUIRED_COLUMN_NOT_FOUND.format(
-                        default)) from None
-            elif given is not None and given not in df.columns:
-                raise ValueError(
-                    REQUIRED_COLUMN_GIVEN_NOT_FOUND.format(
-                        column, given)) from None
-            column_map[spec] = given or default
-        except TypeError:
-            givens = [kwargs.get(item) for item in column if kwargs.get(item)]
-            if givens:
-                for given in givens:
-                    if not given in df.columns:
-                        raise ValueError(
-                            COLUMN_GIVEN_NOT_FOUND.format(
-                                spec.capitalize(), given)) from None
-                for item in column:
-                    if item in kwargs:
-                        column_map[item] = kwargs.get(item)
-            else:
-                defaults = [item for item in column if not kwargs.get(item)]
-                if not any(default in df.columns for default in defaults):
-                    raise ValueError(
-                        AT_LEAST_ONE_COLUMN_NOT_FOUND.format(
-                            items_to_str(defaults))) from None
-                for item in defaults:
-                    if item in df.columns:
-                        column_map[item] = item
-    if 'groups' in kwargs:
-        for group in kwargs['groups']:
-            if not group in df.columns:
-                raise ValueError(
-                    COLUMN_NOT_FOUND.format(group)) from None
-    return column_map
-
-
-def check_required_columns(column_specs, kwargs, replace=True):
-    for spec in column_specs:
-        column = column_specs[spec]
-        try:
-            if column not in kwargs:
-                if replace:
-                    kwargs[column] = column
-                else:
-                    raise ValueError()
-        except TypeError:
-            if not any(item in kwargs for item in column):
-                if replace:
-                    for item in column:
-                        kwargs[item] = item
-                else:
-                    raise ValueError()
-    return False
-
-
-
 
 def flatten(items):
     """

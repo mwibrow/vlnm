@@ -75,6 +75,18 @@ class TestValidationPasses(unittest.TestCase):
             {})
         self.assertTrue(valid)
 
+    def test_choice_column_alias(self):
+        """
+        Choice column alias present in data frame.
+        """
+        df = self.df.copy()[['participant', 'f0@50']]
+        valid = validate_required_columns(
+            self.normalizer,
+            df,
+            ['speaker'],
+            dict(speaker='participant'))
+        self.assertTrue(valid)
+
 class TestValidationErrors(unittest.TestCase):
     """
     Check missing columns/keywords raises errors
