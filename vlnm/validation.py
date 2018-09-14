@@ -52,7 +52,7 @@ def validate_required_columns(normalizer, df, columns, aliases):
         column = aliases.get(name, name)
         if column in df:
             continue
-        if column in aliases:
+        if name in aliases:
             raise_from(RequiredColumnAliasMissingError(
                 '{normalizer} requires column {name}. '
                 '{name} was aliased to {column}. '
@@ -69,33 +69,35 @@ def validate_required_columns(normalizer, df, columns, aliases):
             )), None)
     return True
 
-def validate_choice_columns(normalizer, df, columns, aliases):
+def validate_choice_columns(normalizer, df, choices, aliases):
     """
     Validate choice columns against a data frame.
     """
-    missing = [name for name in columns
-               if name not in aliases and aliases.get(name, name) not in df]
-    if any(missing):
-        name = missing[0]
-        column_list = columns
-        if name in aliases:
-            column = aliases
-            raise_from(ChoiceColumnAliasMissingError(
+    for choice in choices:
+        columns = choices[choice]
+        missing = [name for name in columns
+                   if name not in aliases and aliases.get(name, name) not in df]
+        if any(missing):
+            name = missing[0]
+            column_list = columns
+            if name in aliases:
+                column = aliases
+                raise_from(ChoiceColumnAliasMissingError(
+                    '{normalizer} expected one of {column_list} '
+                    'to be in the data frame. '
+                    '{name} was was aliased to {column}. '
+                    'But {column} is not in the data frame.'.format(
+                        normalizer=normalizer,
+                        column_list=column_list,
+                        name=name,
+                        column=column)
+                ), None)
+            raise_from(ChoiceColumnMissingError(
                 '{normalizer} expected one of {column_list} '
-                'to be in the data frame. '
-                '{name} was was aliased to {column}. '
-                'But {column} is not in the data frame.'.format(
+                'to be in the data frame. '.format(
                     normalizer=normalizer,
-                    column_list=column_list,
-                    name=name,
-                    column=column)
-            ), None)
-        raise_from(ChoiceColumnMissingError(
-            '{normalizer} expected one of {column_list} '
-            'to be in the data frame. '.format(
-                normalizer=normalizer,
-                column_list=column_list
-                ), None))
+                    column_list=column_list)
+                ), None)
 
 def validate_keywords(normalizer, expected, actual):
     """
