@@ -78,8 +78,8 @@ def validate_choice_columns(normalizer, df, choices, aliases):
     for choice in choices:
         columns = choices[choice]
         missing = [name for name in columns
-                   if name not in aliases and aliases.get(name, name) not in df]
-        if any(missing):
+                   if aliases.get(name, name) not in df]
+        if len(missing) == len(columns):
             name = missing[0]
             if name in aliases:
                 column = aliases
@@ -132,7 +132,7 @@ def validate_choice_keywords(normalizer, choices, actual):
     for choice in choices:
         keywords = choices[choice]
         present = [keyword for keyword in keywords
-                if keyword in actual]
+                   if keyword in actual]
         if not present:
             raise_from(ChoiceKeywordMissingError(
                 '{normalizer} expected one of {keywords} argument'.format(
