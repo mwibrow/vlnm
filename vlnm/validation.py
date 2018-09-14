@@ -4,6 +4,8 @@ Module for validating normalizer columns and arguments.
 
 from future.utils import raise_from
 
+from vlnm.utils import nameify
+
 class RequiredColumnMissingError(Exception):
     """
     Exception raised when a required column is missing.
@@ -58,14 +60,14 @@ def validate_required_columns(normalizer, df, columns, aliases):
                 '{name} was aliased to {column}. '
                 'But {column} is not in the data frame.'.format(
                     normalizer=normalizer,
-                    name=name,
-                    column=column)
+                    name=nameify(name, quote='\''),
+                    column=nameify(column, quote='\''))
             ), None)
         raise_from(RequiredColumnMissingError(
             ' {normalizer} requires column {name}. '
             'But {name} is not in the data frame.'.format(
                 normalizer=normalizer,
-                name=name
+                name=nameify(name, quote='\'')
             )), None)
     return True
 
@@ -79,7 +81,6 @@ def validate_choice_columns(normalizer, df, choices, aliases):
                    if name not in aliases and aliases.get(name, name) not in df]
         if any(missing):
             name = missing[0]
-            column_list = columns
             if name in aliases:
                 column = aliases
                 raise_from(ChoiceColumnAliasMissingError(
@@ -88,15 +89,15 @@ def validate_choice_columns(normalizer, df, choices, aliases):
                     '{name} was was aliased to {column}. '
                     'But {column} is not in the data frame.'.format(
                         normalizer=normalizer,
-                        column_list=column_list,
-                        name=name,
-                        column=column)
+                        column_list=nameify(columns, junction='or', quote='\''),
+                        name=nameify(name, quote='\''),
+                        column=nameify(column, quote='\''))
                 ), None)
             raise_from(ChoiceColumnMissingError(
                 '{normalizer} expected one of {column_list} '
                 'to be in the data frame. '.format(
                     normalizer=normalizer,
-                    column_list=column_list)
+                    column_list=nameify(columns, junction='or', quote='\''))
                 ), None)
 
 def validate_keywords(normalizer, expected, actual):
@@ -120,7 +121,7 @@ def validate_required_keywords(normalizer, expected, actual):
         raise_from(RequiredKeywordMissingError(
             '{normalizer} required {keyword} argument'.format(
                 normalizer=normalizer,
-                keyword=keyword
+                keyword=nameify(keyword)
                 ), None))
 
 def validate_choice_keywords(normalizer, expected, actual):
@@ -134,5 +135,5 @@ def validate_choice_keywords(normalizer, expected, actual):
         raise_from(ChoiceKeywordMissingError(
             '{normalizer} expected one of {keywords} argument'.format(
                 normalizer=normalizer,
-                keywords=keywords
+                keywords=nameify(keywords, junction='or', quote='\'')
                 ), None))
