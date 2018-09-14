@@ -122,7 +122,8 @@ def validate_required_keywords(normalizer, expected, actual):
             '{normalizer} required {keyword} argument'.format(
                 normalizer=normalizer,
                 keyword=nameify(keyword)
-                ), None))
+                )), None)
+    return True
 
 def validate_choice_keywords(normalizer, expected, actual):
     """
@@ -136,4 +137,5 @@ def validate_choice_keywords(normalizer, expected, actual):
             '{normalizer} expected one of {keywords} argument'.format(
                 normalizer=normalizer,
                 keywords=nameify(keywords, junction='or', quote='\'')
-                ), None))
+                )), None)
+    return True
