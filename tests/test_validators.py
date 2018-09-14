@@ -25,6 +25,44 @@ from vlnm.validation import (
     validate_required_columns,
     validate_required_keywords)
 
+class TestValidationPasses(unittest.TestCase):
+    """
+    Check columns/keywords are in data frame
+    """
+
+    def setUp(self):
+        self.df = pd.DataFrame({
+            'speaker': ['speaker1', 'speaker2'],
+            'participant': ['participant1', 'participant2'],
+            'f0': [100, 200],
+            'f0@50': [150, 250]
+        })
+        self.normalizer = 'test-normalizer'
+
+    def test_required_column(self):
+        """
+        Required column present in data frame.
+        """
+        df = self.df.copy()[['speaker', 'f0']]
+        valid = validate_required_columns(
+            self.normalizer,
+            df,
+            ['speaker'],
+            {})
+        self.assertTrue(valid)
+
+    def test_required_column_alias(self):
+        """
+        Required column alias present in data frame.
+        """
+        df = self.df.copy()[['participant', 'f0@50']]
+        valid = validate_required_columns(
+            self.normalizer,
+            df,
+            ['speaker'],
+            {'speaker': 'participant'})
+        self.assertTrue(valid)
+
 class TestValidationErrors(unittest.TestCase):
     """
     Check missing columns/keywords raises errors
