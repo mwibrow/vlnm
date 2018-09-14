@@ -165,7 +165,7 @@ class TestKeywordValidationPasses(unittest.TestCase):
         """
         valid = validate_choice_keywords(
             self.normalizer,
-            ['female', 'male'],
+            dict(gender_label=['female', 'male']),
             dict(female='F'))
         self.assertTrue(valid)
 
@@ -194,5 +194,5 @@ class TestKeywordValidationErrors(unittest.TestCase):
         with self.assertRaises(ChoiceKeywordMissingError):
             validate_choice_keywords(
                 self.normalizer,
-                ['female', 'male'],
+                dict(gender_label=['female', 'male']),
                 dict())

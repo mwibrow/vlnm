@@ -125,17 +125,18 @@ def validate_required_keywords(normalizer, expected, actual):
                 )), None)
     return True
 
-def validate_choice_keywords(normalizer, expected, actual):
+def validate_choice_keywords(normalizer, choices, actual):
     """
     Validate choice keywords
     """
-    present = [keyword for keyword in expected
-               if keyword in actual]
-    if not present:
-        keywords = [keyword for keyword in expected]
-        raise_from(ChoiceKeywordMissingError(
-            '{normalizer} expected one of {keywords} argument'.format(
-                normalizer=normalizer,
-                keywords=nameify(keywords, junction='or', quote='\'')
-                )), None)
+    for choice in choices:
+        keywords = choices[choice]
+        present = [keyword for keyword in keywords
+                if keyword in actual]
+        if not present:
+            raise_from(ChoiceKeywordMissingError(
+                '{normalizer} expected one of {keywords} argument'.format(
+                    normalizer=normalizer,
+                    keywords=nameify(keywords, junction='or', quote='\'')
+                    )), None)
     return True
