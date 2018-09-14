@@ -7,10 +7,6 @@ import unittest
 
 import pandas as pd
 
-from vlnm.decorators import (
-    Columns,
-    Keywords,
-    Returns)
 from vlnm.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
@@ -133,7 +129,7 @@ class TestColumnValidationErrors(unittest.TestCase):
         """
         Choice column missing in data frame raises error.
         """
-        with self.assertRaises(ChoiceColumnMissingError):
+        with self.assertRaises(ChoiceColumnAliasMissingError):
             validate_choice_columns(
                 self.normalizer,
                 self.df,
