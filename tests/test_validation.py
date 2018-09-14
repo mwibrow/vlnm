@@ -139,3 +139,60 @@ class TestColumnValidationErrors(unittest.TestCase):
                 self.df,
                 dict(formants=['f0', 'f1', 'f2', 'f3']),
                 dict(f0='f0@50'))
+
+
+class TestKeywordValidationPasses(unittest.TestCase):
+    """
+    Check keyword arguments are provided.
+    """
+
+    def setUp(self):
+        self.normalizer = 'test-normalizer'
+
+    def test_required_keyword(self):
+        """
+        Required keyword passes.
+        """
+        valid = validate_required_keywords(
+            self.normalizer,
+            ['method'],
+            dict(method='method1'))
+        self.assertTrue(valid)
+
+    def test_choice_keyword(self):
+        """
+        Choice keywords passes.
+        """
+        valid = validate_choice_keywords(
+            self.normalizer,
+            ['female', 'male'],
+            dict(female='F'))
+        self.assertTrue(valid)
+
+class TestKeywordValidationErrors(unittest.TestCase):
+    """
+    Check missing keywords raises errors
+    """
+
+    def setUp(self):
+        self.normalizer = 'test-normalizer'
+
+    def test_required_keyword_missing(self):
+        """
+        Missing required keyword raises error.
+        """
+        with self.assertRaises(RequiredKeywordMissingError):
+            validate_required_keywords(
+                self.normalizer,
+                ['method'],
+                dict())
+
+    def test_choice_keyword_missing(self):
+        """
+        Missing choice keywords raises error.
+        """
+        with self.assertRaises(ChoiceKeywordMissingError):
+            validate_choice_keywords(
+                self.normalizer,
+                ['female', 'male'],
+                dict())
