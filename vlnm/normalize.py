@@ -1,122 +1,12 @@
 """
 Vowel normalizer module
 """
-from future.utils import raise_from
-import re
 
 import pandas as pd
 
-from vlnm.utils import (
-    items_to_str
-)
-
-
-def check_columns(df, columns, aliases, groups):
-    """
-    Check if required and choice columns are present in the dataframe.
-    """
-    if columns.required:
-        check_required_columns(df, columns.required, aliases)
-
-    for choices in columns.choice:
-        check_choice_columns(df, columns.choice[choices], aliases)
-        if choices == 'formants':
-            formants = columns[choices]
-            for formant in formants:
-                if not re.match(r'f\d', formant):
-                    raise_from(ValueError(
-                        'Formant `{formant}` is invalid. '
-                        'Formants should be specified as `fn` '
-                        'where n is a number.'.format(
-                            formant=formant
-                        )), None)
-    if groups:
-        check_group_columns(df, groups, aliases)
-
-def check_required_columns(df, columns, aliases):
-    """
-    Check required columns are in the data frame.
-    """
-    for column in columns:
-        alias = aliases.get(column)
-        if alias and alias not in df:
-            raise_from(
-                ValueError(
-                    'Required column `{column}` aliased to `{alias}`, '
-                    'but `{alias}` is not in the data frame'.format(
-                        column=column,
-                        alias=alias)),
-                None)
-        else:
-            if not column in df:
-                raise_from(ValueError(
-                    'Required column `{column}` is not in the data frame, '
-                    'and no mapping given'.format(column=column)), None)
-
-def check_choice_columns(df, columns, aliases):
-    """
-    Check at least one of a choice of columns is in the data frame.
-    """
-    columns_str = items_to_str(
-        columns, junction='or', quote="`")
-    defaults = [column for column in columns
-                if column not in aliases]
-    mappings = [aliases[column] for column in columns
-                if column in aliases]
-    if defaults:
-        if not mappings and not any(default in df for default in defaults):
-            raise_from(ValueError(
-                'Expected one of columns {columns_str} '
-                'in data frame'.format(columns_str=columns_str)), None)
-    elif not any(mapping in df for mapping in mappings):
-        if mappings:
-            column, mapping = [
-                (column, mapping)
-                for column, mapping in aliases if not mapping in df][0]
-
-            raise_from(ValueError(
-                'Expected one of colums {columns_str} in data frame. '
-                '`{column}` was mapped to `{mapping}`, '
-                'but `{mapping}` is not in the data frame'.format(
-                    columns_str=columns_str,
-                    column=column,
-                    mapping=mapping
-                )), None)
-        raise_from(ValueError(
-            'Expected one of columns {columns_str} '
-            'in data frame'.format(columns_str=columns_str)), None)
-
-def check_group_columns(df, groups, column_alias):
-    """
-    Check (aliased) group columns are in the data frame
-    """
-    for column in groups:
-        alias = column_alias.get(column)
-        if alias:
-            if not alias in df:
-                raise_from(ValueError(
-                    'Grouping column `{column}` '
-                    'aliased as `{alias}` not in data frame'.format(
-                        column=column,
-                        alias=alias
-                    )), None)
-        elif column not in df.columns:
-            raise_from(ValueError(
-                'Grouping column `{column}` not in data frame'.format(
-                    column=column)), None)
-
-def update_options(options, column_alias, column_specs):
-    """Update options with column_alias keys (and vice versa).
-    """
-    for spec in column_specs:
-        for column in column_specs[spec]:
-            if column in options:
-                column_alias[column] = options[column]
-            else:
-                if column in column_alias and column not in options:
-                    options[column] = column_alias[column]
-    return options, column_alias
-
+from vlnm.validation import (
+    validate_columns,
+    validate_keywords)
 
 class VowelNormalizer:
     """
@@ -132,7 +22,10 @@ class VowelNormalizer:
         )
     )
     """
-    _column_specs = {}
+    _columns = None
+    _keywords = None
+    _name = None
+    _returns = None
 
     def __init__(self, **kwargs):
         self.default_kwargs = kwargs
@@ -145,18 +38,22 @@ class VowelNormalizer:
         options = {}
         options.update(self.default_kwargs, **kwargs)
 
-        column_alias = options.pop('column_alias', {})
+        aliases = options.pop('aliases', {})
         formants = options.pop('formants', [])
         groups = options.pop('groups', [])
         constants = options.pop('constants', {})
         actions = self.actions.update(options.pop('actions', {}))
 
-        update_options(options, column_alias, self._column_specs)
-        check_columns(
+        validate_columns(
+            self._name or self.__class__.__name__,
             df,
-            self._column_specs,
-            column_alias,
-            groups)
+            self._columns,
+            aliases)
+
+        validate_keywords(
+            self._name or self.__class__.__name__,
+            self._keywords,
+            options)
 
         return self.partition(
             df,
@@ -243,13 +140,13 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         return self.norm(df, **kwargs)
 
     def norm(self, df, **kwargs):  # pylint: disable=arguments-differ
-        column_alias = kwargs.pop('column_alias', {})
+        aliases = kwargs.pop('aliases', {})
         new_columns = kwargs.pop('new_columns', '{}')
         formants = kwargs.pop('formants')
         columns_in = []
         columns_out = []
         for formant in formants:
-            column = column_alias.get(formant, formant)
+            column = aliases.get(formant, formant)
             columns_in.append(column)
             columns_out.append(new_columns.format(column))
 
