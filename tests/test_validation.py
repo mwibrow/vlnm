@@ -25,9 +25,9 @@ from vlnm.validation import (
     validate_required_columns,
     validate_required_keywords)
 
-class TestValidationPasses(unittest.TestCase):
+class TestColumnValidationPasses(unittest.TestCase):
     """
-    Check columns/keywords are in data frame
+    Check columns are in data frame
     """
 
     def setUp(self):
@@ -87,9 +87,9 @@ class TestValidationPasses(unittest.TestCase):
             dict(speaker='participant'))
         self.assertTrue(valid)
 
-class TestValidationErrors(unittest.TestCase):
+class TestColumnValidationErrors(unittest.TestCase):
     """
-    Check missing columns/keywords raises errors
+    Check missing columns raises errors
     """
 
     def setUp(self):
