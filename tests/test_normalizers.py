@@ -18,7 +18,9 @@ from vlnm.normalizers import (
     LogNormalizer,
     Log10Normalizer,
     MelNormalizer)
-
+from vlnm.validation import (
+    ChoiceKeywordMissingError
+)
 from tests.helpers import (
     generate_data_frame,
     repeat_test)
@@ -119,21 +121,24 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
     @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
-        expected = make_new_columns_expected(self.df, self.new_columns, hz_to_bark)
+        expected = make_new_columns_expected(
+            self.df, self.new_columns, hz_to_bark)
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
-        expected = make_new_columns_expected(self.df, self.new_columns, hz_to_erb)
+        expected = make_new_columns_expected(
+            self.df, self.new_columns, hz_to_erb)
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
-        expected = make_new_columns_expected(self.df, self.new_columns, np.log10)
+        expected = make_new_columns_expected(
+            self.df, self.new_columns, np.log10)
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
@@ -166,12 +171,12 @@ class TestBladenNormalizer(unittest.TestCase):
 
     def test_no_gender(self):
         """No gender column raises ValueError."""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChoiceKeywordMissingError):
             BladenNormalizer().normalize(self.df, **self.kwargs)
 
     def test_no_male_or_female(self):
         """No female or male column raises ValueError."""
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChoiceKeywordMissingError):
             BladenNormalizer().normalize(self.df, gender='gender', **self.kwargs)
 
     def test_minimal_kwargs(self):

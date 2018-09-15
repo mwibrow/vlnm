@@ -11,16 +11,6 @@ from vlnm.validation import (
 class VowelNormalizer:
     """
     Base class for vowel normalizers.
-
-    normalize(
-        df,
-        formants=['f1', 'f2', 'f3'],
-        columns=dict(
-            speaker: 'f3',
-            f1='my_f1',
-            f2='my_f2'
-        )
-    )
     """
     _columns = None
     _keywords = None
