@@ -16,8 +16,6 @@ from vlnm.validation import (
     RequiredKeywordMissingError,
     validate_choice_columns,
     validate_choice_keywords,
-    validate_columns,
-    validate_keywords,
     validate_required_columns,
     validate_required_keywords)
 

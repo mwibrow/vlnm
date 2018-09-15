@@ -206,12 +206,14 @@ class BladenNormalizer(VowelNormalizer):
 
 @DocString
 @Columns(
-    required=['f1', 'f2', 'f3'],
-    optional=['f0'],
+    required=['f0', 'f1', 'f2', 'f3'],
     returns=['z1-z0', 'z2-z1', 'z3-z2']
 )
 @Keywords(
-    optional=['hz_to_bark']
+    choice=dict(
+        formants=['f1', 'f2', 'f3']
+    ),
+    optional=['fo', 'hz_to_bark']
 )
 class BarkDifferenceNormalizer(VowelNormalizer):
     r"""
@@ -238,10 +240,15 @@ class BarkDifferenceNormalizer(VowelNormalizer):
         z2 = convert(df[f2])
         z3 = convert(df[f3])
 
-        if z0:
+        if z0 is not None:
             df['z1-z0'] = z1 - z0
         df['z2-z1'] = z2 - z1
         df['z3-z2'] = z3 - z2
+
+        drop = [
+            column for column in df.columns
+            if column in ['f0', 'f1', 'f2', 'f3', 'f4']]
+        df = df.drop(drop, axis=1)
 
         return df
 
@@ -249,6 +256,11 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 @DocString
 @Columns(
     required='speaker'
+)
+@Keywords(
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
 )
 class LCENormalizer(VowelNormalizer):
     r"""
@@ -270,15 +282,17 @@ class LCENormalizer(VowelNormalizer):
             df,
             formants=None,
             constants=None,
-            **__):
+            **__):  # pylint: disable=no-self-use
         """Maximum formant values for a speaker."""
 
         for formant in formants:
             key = '{}_max'.format(formant)
             constants[key] = df[formant].max()
-        return df
 
-    def norm_df(self, df, formants=None, constants=None, **__):
+
+    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
         if not constants or not formants:
             return df
         for formant in formants:

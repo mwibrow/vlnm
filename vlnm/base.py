@@ -29,6 +29,11 @@ class VowelNormalizer:
 
     def __init__(self, **kwargs):
         self.default_kwargs = kwargs
+        self.default_kwargs.update(
+            f0='f0',
+            f1='f1',
+            f2='f2',
+            f3='f3')
         self.actions = {}
 
     def normalize(self, df, **kwargs):
