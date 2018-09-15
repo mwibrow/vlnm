@@ -197,7 +197,7 @@ def validate_required_keywords(normalizer, expected, actual):
     if missing:
         keyword = missing[0]
         raise_from(RequiredKeywordMissingError(
-            '{normalizer} required {keyword} argument'.format(
+            '{normalizer} required {keyword} keyword argument'.format(
                 normalizer=normalizer,
                 keyword=nameify(keyword)
                 )), None)
@@ -213,7 +213,8 @@ def validate_choice_keywords(normalizer, choices, actual):
                    if keyword in actual]
         if not present:
             raise_from(ChoiceKeywordMissingError(
-                '{normalizer} expected one of {keywords} argument'.format(
+                '{normalizer} expected one of {keywords} '
+                'as a keyword argument'.format(
                     normalizer=normalizer,
                     keywords=nameify(keywords, junction='or', quote='\'')
                     )), None)

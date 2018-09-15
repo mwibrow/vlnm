@@ -210,10 +210,7 @@ class BladenNormalizer(VowelNormalizer):
     returns=['z1-z0', 'z2-z1', 'z3-z2']
 )
 @Keywords(
-    choice=dict(
-        formants=['f1', 'f2', 'f3']
-    ),
-    optional=['fo', 'hz_to_bark']
+    optional=['f0', 'hz_to_bark']
 )
 class BarkDifferenceNormalizer(VowelNormalizer):
     r"""
@@ -230,15 +227,11 @@ class BarkDifferenceNormalizer(VowelNormalizer):
     def norm(self, df, **kwargs):
 
         convert = kwargs.get('hz_to_bark', hz_to_bark)
-        f0 = kwargs.get('f0')
-        f1 = kwargs.get('f1')
-        f2 = kwargs.get('f2')
-        f3 = kwargs.get('f3')
 
-        z0 = convert(df[f0]) if f0 else None
-        z1 = convert(df[f1])
-        z2 = convert(df[f2])
-        z3 = convert(df[f3])
+        z0 = convert(df['f0']) if 'f0' in df else None
+        z1 = convert(df['f1'])
+        z2 = convert(df['f2'])
+        z3 = convert(df['f3'])
 
         if z0 is not None:
             df['z1-z0'] = z1 - z0
@@ -256,11 +249,6 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 @DocString
 @Columns(
     required=['speaker']
-)
-@Keywords(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
 )
 class LCENormalizer(VowelNormalizer):
     r"""

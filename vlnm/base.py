@@ -18,6 +18,8 @@ def prepare_df(df, columns, aliases):
             df[column] = df[alias]
     return df
 
+FORMANTS = ['f0', 'f1', 'f2', 'f3']
+
 class VowelNormalizer:
     """
     Base class for vowel normalizers.
@@ -29,11 +31,6 @@ class VowelNormalizer:
 
     def __init__(self, **kwargs):
         self.default_kwargs = kwargs
-        self.default_kwargs.update(
-            f0='f0',
-            f1='f1',
-            f2='f2',
-            f3='f3')
         self.actions = {}
         self.groups = kwargs.pop('groups', [])
 
@@ -44,11 +41,15 @@ class VowelNormalizer:
         options = {}
         options.update(self.default_kwargs, **kwargs)
 
-        aliases = options.pop('aliases', {})
         formants = options.pop(
             'formants',
-            [formant for formant in ['f0', 'f1', 'f2', 'f3']
+            [formant for formant in FORMANTS
              if formant in df or kwargs.get(formant)])
+        aliases = options.pop('aliases', {})
+        for formant in FORMANTS:
+            alias = kwargs.pop(formant, None)
+            if alias:
+                aliases[formant] = alias
 
         groups = options.pop('groups', [])
         groups.extend(self.groups)
