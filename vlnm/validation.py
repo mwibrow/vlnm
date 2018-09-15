@@ -134,17 +134,17 @@ def validate_required_columns(normalizer, df, columns, aliases):
         if name in aliases:
             raise_from(RequiredColumnAliasMissingError(
                 '{normalizer} requires column {name}. '
-                '{name} was aliased to {column}. '
+                'The column {name} was aliased to {column}. '
                 'But {column} is not in the data frame.'.format(
                     normalizer=normalizer,
-                    name=nameify(name, quote='\''),
-                    column=nameify(column, quote='\''))
+                    name=nameify([name], quote='\''),
+                    column=nameify([column], quote='\''))
             ), None)
         raise_from(RequiredColumnMissingError(
             ' {normalizer} requires column {name}. '
             'But {name} is not in the data frame.'.format(
                 normalizer=normalizer,
-                name=nameify(name, quote='\'')
+                name=nameify([name], quote='\'')
             )), None)
     return True
 
@@ -163,12 +163,12 @@ def validate_choice_columns(normalizer, df, choices, aliases):
                 raise_from(ChoiceColumnAliasMissingError(
                     '{normalizer} expected one of {column_list} '
                     'to be in the data frame. '
-                    '{name} was was aliased to {column}. '
+                    'The column {name} was was aliased to {column}. '
                     'But {column} is not in the data frame.'.format(
                         normalizer=normalizer,
                         column_list=nameify(columns, junction='or', quote='\''),
-                        name=nameify(name, quote='\''),
-                        column=nameify(column, quote='\''))
+                        name=nameify([name], quote='\''),
+                        column=nameify([column], quote='\''))
                 ), None)
             raise_from(ChoiceColumnMissingError(
                 '{normalizer} expected one of {column_list} '
@@ -199,7 +199,7 @@ def validate_required_keywords(normalizer, expected, actual):
         raise_from(RequiredKeywordMissingError(
             '{normalizer} required {keyword} keyword argument'.format(
                 normalizer=normalizer,
-                keyword=nameify(keyword)
+                keyword=nameify([keyword])
                 )), None)
     return True
 

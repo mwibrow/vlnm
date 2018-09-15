@@ -20,9 +20,12 @@ from vlnm.normalizers import (
     LCENormalizer,
     LogNormalizer,
     Log10Normalizer,
-    MelNormalizer)
+    MelNormalizer,
+    NordstromNormalizer)
 from vlnm.validation import (
-    ChoiceKeywordMissingError
+    ChoiceKeywordMissingError,
+    RequiredColumnMissingError,
+    RequiredColumnAliasMissingError
 )
 from tests.helpers import (
     generate_data_frame,
@@ -237,6 +240,56 @@ class TestBladenNormalizer(unittest.TestCase):
             male='M',
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
+
+
+class TestNordstromNormalizer(unittest.TestCase):
+    """
+    Tests for the NordstromNormalizer class.
+    """
+
+    def setUp(self):
+        self.df = DATA_FRAME.copy()
+        self.formants = ['f2', 'f3']
+        self.kwargs = dict(
+            formants=self.formants)
+
+    def test_no_gender_column(self):
+        """No gender column."""
+        with self.assertRaises(RequiredColumnMissingError):
+            df = self.df.copy()
+            df = df.drop('gender', axis=1)
+            NordstromNormalizer().normalize(df, female='F')
+
+    def test_no_aliased_gender_column(self):
+        """No aliased gender column."""
+        with self.assertRaises(RequiredColumnAliasMissingError):
+            df = self.df.copy()
+            NordstromNormalizer().normalize(
+                df,
+                female='F',
+                aliases=dict(
+                    gender='sex'
+                ))
+
+    def test_no_female_or_male_label(self):
+        """No female or male label raise error."""
+        with self.assertRaises(ChoiceKeywordMissingError):
+            NordstromNormalizer().normalize(self.df)
+
+    def test_mu_ratio(self):
+        """Calculate mu ratios."""
+        df = self.df
+        mu_male = df[(df['gender'] == 'M') & (df['f1'] > 600)]['f3'].mean()
+        mu_female = df[(df['gender'] == 'F') & (df['f1'] > 600)]['f3'].mean()
+
+        constants = {}
+        NordstromNormalizer().calculate_f3_means(
+            df,
+            constants=constants,
+            gender='gender',
+            female='F')
+        self.assertEqual(constants['mu_female'], mu_female)
+        self.assertEqual(constants['mu_male'], mu_male)
 
 
 class TestLCENormalizer(unittest.TestCase):
