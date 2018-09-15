@@ -202,6 +202,16 @@ class TestBladenNormalizer(unittest.TestCase):
         with self.assertRaises(ChoiceKeywordMissingError):
             BladenNormalizer().normalize(self.df, **self.kwargs)
 
+    def test_no_gender_alias(self):
+        """No gender column alias raises ValueError."""
+        with self.assertRaises(RequiredColumnAliasMissingError):
+            df = self.df.copy()
+            df = df.drop('gender', axis=1)
+            BladenNormalizer().normalize(
+                df,
+                aliases=dict(gender='sex'),
+                **self.kwargs)
+
     def test_no_male_or_female(self):
         """No female or male column raises ValueError."""
         with self.assertRaises(ChoiceKeywordMissingError):
