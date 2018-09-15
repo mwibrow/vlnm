@@ -97,8 +97,6 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-
-
 def rename_columns(df, rename, transform):
     """Helper for class Test new columns."""
     tmp_df = transform(df.copy())
