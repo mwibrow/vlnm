@@ -113,22 +113,24 @@ class ChoiceKeywordMissingError(Exception):
     Exception raise when a choice column is missing.
     """
 
-def validate_columns(normalizer, df, columns, aliases):
+def validate_columns(normalizer, df, columns, aliases, **kwargs):
     """
     Validate columns against a data frame.
     """
     if columns.required:
-        validate_required_columns(normalizer, df, columns.required, aliases)
+        validate_required_columns(
+            normalizer, df, columns.required, aliases, **kwargs)
     if columns.choice:
-        validate_choice_columns(normalizer, df, columns.choice, aliases)
+        validate_choice_columns(
+            normalizer, df, columns.choice, aliases)
     return True
 
-def validate_required_columns(normalizer, df, columns, aliases):
+def validate_required_columns(normalizer, df, columns, aliases, **kwargs):
     """
     Validate required columns against a data frame.
     """
     for name in columns:
-        column = aliases.get(name, name)
+        column = kwargs.get(name) or aliases.get(name) or name
         if column in df:
             continue
         if name in aliases:

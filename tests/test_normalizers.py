@@ -249,6 +249,39 @@ class TestBladenNormalizer(unittest.TestCase):
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
+    def test_gender_alias(self):
+        """Test aliased gender column."""
+        normalizer = BladenNormalizer()
+
+        df = self.df.copy()
+        df['sex'] = df['gender']
+        df = df.drop('gender', axis=1)
+
+        expected = hz_to_bark(df[self.formants])
+        expected[df['sex'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            df,
+            aliases=dict(gender='sex'),
+            female='F',
+            **self.kwargs)[self.formants]
+        self.assertTrue(actual.equals(expected))
+
+    def test_gender_alias_keyword(self):
+        """Test keyword aliased gender column."""
+        normalizer = BladenNormalizer()
+
+        df = self.df.copy()
+        df['sex'] = df['gender']
+        df = df.drop('gender', axis=1)
+
+        expected = hz_to_bark(df[self.formants])
+        expected[df['sex'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            df,
+            gender='sex',
+            female='F',
+            **self.kwargs)[self.formants]
+        self.assertTrue(actual.equals(expected))
 
 class TestNordstromNormalizer(unittest.TestCase):
     """

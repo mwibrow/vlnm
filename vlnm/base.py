@@ -61,7 +61,8 @@ class VowelNormalizer:
             self._name or self.__class__.__name__,
             df,
             self._columns,
-            aliases)
+            aliases,
+            **options)
 
         validate_keywords(
             self._name or self.__class__.__name__,
