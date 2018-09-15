@@ -14,7 +14,7 @@ def make_set_up(set_up=None):
         return obj.setUp()
     return _do_set_up
 
-def repeat_test(iterations=100, seed=None, set_up=None):
+def repeat_test(iterations=1, seed=None, set_up=None):
     """
     Decorator for repeating tests with random numbers.
     """

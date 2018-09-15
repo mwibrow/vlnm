@@ -1,10 +1,75 @@
 """
 Module for validating normalizer columns and arguments.
 """
+# pylint: disable=protected-access, invalid-name, too-few-public-methods
 
 from future.utils import raise_from
 
 from vlnm.utils import nameify
+
+class Parameters:
+    """
+    Base class for normalizer decorator.
+    """
+    def __init__(
+            self,
+            required=None,
+            optional=None,
+            choice=None,
+            returns=None):
+
+        self.required = required
+        self.choice = choice
+        self.optional = optional
+        self.returns = returns
+
+def Columns(**columns):
+    """
+    Decorator for specifying require and optional data frame columns.
+    """
+    def cls_decorator(cls):
+        """
+        Decorate {cls} with {_columns}
+        """
+        cls._columns = Parameters(**columns)
+        return cls
+    return cls_decorator
+
+def Keywords(**keywords):
+    """
+    Decorator for specifying required and optional normalizer keywords.
+    """
+    def cls_decorator(cls):
+        """
+        Decorate {cls} with {_keywords}
+        """
+        cls._keywords = Parameters(**keywords)
+        return cls
+    return cls_decorator
+
+def Returns(**returns):
+    """
+    Decorator for specifying columns returned by a normalizer.
+    """
+
+    def cls_decorator(cls):
+        """
+        Decorate {cls} with {_returns}
+        """
+        cls._returns = returns
+    return cls_decorator
+
+def Defaults(**defaults):
+    """
+    Decorator for specifying default columns/defaults
+    """
+
+    def cls_decorator(cls):
+        """
+        Decorate {cls} with {_defaults}
+        """
+        cls._defaults = defaults
+    return cls_decorator
 
 class RequiredColumnMissingError(Exception):
     """
@@ -104,10 +169,11 @@ def validate_keywords(normalizer, expected, actual):
     """
     Validate keyword arguments.
     """
-    if expected.required:
-        validate_required_keywords(normalizer, expected, actual)
-    if expected.choice:
-        validate_choice_keywords(normalizer, expected, actual)
+    if expected:
+        if expected.required:
+            validate_required_keywords(normalizer, expected.required, actual)
+        if expected.choice:
+            validate_choice_keywords(normalizer, expected.choice, actual)
     return True
 
 def validate_required_keywords(normalizer, expected, actual):

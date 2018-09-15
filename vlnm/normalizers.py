@@ -7,11 +7,11 @@ from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from vlnm.decorators import (
-    DocString,
+from vlnm.documentation import DocString
+from vlnm.validation import (
     Columns,
     Keywords)
-from vlnm.normalize import (
+from vlnm.base import (
     VowelNormalizer,
     FormantIntrinsicNormalizer)
 
@@ -21,6 +21,9 @@ from vlnm.normalize import (
         formants=['f0', 'f1', 'f2', 'f3']
     )
 )
+@Keywords(
+    optional=['aliases', 'rename']
+)
 class Log10Normalizer(FormantIntrinsicNormalizer):
     r"""
     Normalize using the base 10 logarithm of the formant values.
@@ -29,7 +32,6 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
 
        F_i^N = \log_{10}\left(F_i\right)
 
-    {{columns}}
     """
     def transform(self, df, **__):
         """
@@ -68,6 +70,9 @@ class LogNormalizer(FormantIntrinsicNormalizer):
         formants=['f0', 'f1', 'f2', 'f3']
     )
 )
+@Keywords(
+    optional=['hz_to_mel']
+)
 class MelNormalizer(FormantIntrinsicNormalizer):
     r"""
     Normalise vowels using the Mel scale.
@@ -78,17 +83,21 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **_):
+    def transform(self, df, **kwargs):
         """
         Transform formants.
         """
-        return hz_to_mel(df)
+        convert = kwargs.get('hz_to_mel', hz_to_mel)
+        return convert(df)
 
 @DocString
 @Columns(
     choice=dict(
         formants=['f0', 'f1', 'f2', 'f3']
     )
+)
+@Keywords(
+    optional=['hz_to_bark']
 )
 class BarkNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -102,17 +111,21 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **_):
+    def transform(self, df, **kwargs):
         """
         Transform formants.
         """
-        return hz_to_bark(df)
+        convert = kwargs.get('hz_to_bark', hz_to_bark)
+        return convert(df)
 
 @DocString
 @Columns(
     choice=dict(
         formants=['f0', 'f1', 'f2', 'f3']
     )
+)
+@Keywords(
+    optional=['hz_to_erb']
 )
 class ErbNormalizer(FormantIntrinsicNormalizer):
     r"""
@@ -124,11 +137,12 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **_):
+    def transform(self, df, **kwargs):
         """
         Transform formants.
         """
-        return hz_to_erb(df)
+        convert = kwargs.get('hz_to_erb', hz_to_erb)
+        return convert(df)
 
 
 def infer_gender_labels(df, gender, female=None, male=None):
@@ -157,7 +171,7 @@ def infer_gender_labels(df, gender, female=None, male=None):
 )
 @Keywords(
     choice=dict(
-        gender_label=['male', 'female']
+        gender_label=['female', 'male']
     )
 )
 class BladenNormalizer(VowelNormalizer):
@@ -197,6 +211,9 @@ class BladenNormalizer(VowelNormalizer):
     optional=['f0'],
     returns=['z1-z0', 'z2-z1', 'z3-z2']
 )
+@Keywords(
+    optional=['hz_to_bark']
+)
 class BarkDifferenceNormalizer(VowelNormalizer):
     r"""
     .. math::
@@ -210,15 +227,17 @@ class BarkDifferenceNormalizer(VowelNormalizer):
     """
 
     def norm(self, df, **kwargs):
+
+        convert = kwargs.get('hz_to_bark', hz_to_bark)
         f0 = kwargs.get('f0')
         f1 = kwargs.get('f1')
         f2 = kwargs.get('f2')
         f3 = kwargs.get('f3')
 
-        z0 = hz_to_bark(df[f0]) if f0 else None
-        z1 = hz_to_bark(df[f1])
-        z2 = hz_to_bark(df[f2])
-        z3 = hz_to_bark(df[f3])
+        z0 = convert(df[f0]) if f0 else None
+        z1 = convert(df[f1])
+        z2 = convert(df[f2])
+        z3 = convert(df[f3])
 
         if z0:
             df['z1-z0'] = z1 - z0
