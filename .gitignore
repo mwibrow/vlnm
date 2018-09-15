@@ -24,6 +24,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+docs/build/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -37,6 +38,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.nox/
 .tox/
 .coverage
 .coverage.*
