@@ -247,7 +247,7 @@ class TestLCENormalizer(unittest.TestCase):
     def setUp(self):
         self.df = get_test_dataframe()
         self.kwargs = dict(
-            formants=['f1', 'f2', 'f3'])
+            formants=['f0', 'f1', 'f2', 'f3'])
 
     @repeat_test()
     def test_get_speaker_max(self):
@@ -278,7 +278,6 @@ class TestLCENormalizer(unittest.TestCase):
 
         actual = LCENormalizer().normalize(
             self.df,
-            formants=formants,
             rename='{}_N',
             speaker='speaker')
 

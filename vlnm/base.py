@@ -35,6 +35,7 @@ class VowelNormalizer:
             f2='f2',
             f3='f3')
         self.actions = {}
+        self.groups = kwargs.pop('groups', [])
 
     def normalize(self, df, **kwargs):
         """Normalize the formant data in a data frame.
@@ -45,9 +46,19 @@ class VowelNormalizer:
 
         aliases = options.pop('aliases', {})
         formants = options.pop('formants', [])
+        if not formants:
+            formants = list(
+                set(
+                    [formant for formant in ['f0', 'f1', 'f2', 'f3']
+                     if formant in df] +
+                    [kwargs.get(formant) for formant in ['f0', 'f1', 'f2', 'f3']
+                     if kwargs.get(formant)]))
+
         groups = options.pop('groups', [])
+        groups.extend(self.groups)
         constants = options.pop('constants', {})
-        actions = self.actions.update(options.pop('actions', {}))
+        actions = options.pop('actions', {})
+        actions.update(self.actions)
 
         validate_columns(
             self._name or self.__class__.__name__,
@@ -110,7 +121,8 @@ class VowelNormalizer:
                         aliases)
                     action(
                         group_df,
-                        constants,
+                        formants=formants,
+                        constants=constants,
                         **kwargs)
                 normed_df = self._partition(
                     grouped_df.copy(),
@@ -132,16 +144,20 @@ class VowelNormalizer:
 
         normed_df = self.norm(
             group_df,
+            formants=formants,
             constants=constants,
             **kwargs)
 
+        returns = self._returns or formants
         rename = kwargs.get('rename')
         if rename:
-            for column in normed_df.columns:
-                df[rename.format(column)] = normed_df[column]
+            for column in returns:
+                if column in normed_df:
+                    df[rename.format(column)] = normed_df[column]
         else:
-            for column in normed_df.columns:
-                df[column] = normed_df[column]
+            for column in returns:
+                if column in normed_df:
+                    df[column] = normed_df[column]
 
         return df
 
@@ -162,16 +178,19 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
     def partition(self, df, **kwargs):
         """Override partition method from base class.
         """
-        return self.norm(df, **kwargs)
+        return self.pre_norm(df, **kwargs)
 
-    def norm(self, df, **kwargs):  # pylint: disable=arguments-differ
+    def pre_norm(self, df, **kwargs):
+        """
+        Pre-normalization step.
+        """
         aliases = kwargs.pop('aliases', {})
         rename = kwargs.pop('rename', '{}')
         formants = kwargs.pop('formants')
 
         group_df = df.copy()
         group_df = prepare_df(group_df, formants, aliases)
-        normed_df = self.transform(df, **kwargs)
+        normed_df = self.norm(df, **kwargs)
 
         if rename:
             for column in normed_df.columns:
@@ -182,7 +201,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
 
         return df
 
-    def transform(self, df, **_):  # pylint: disable=no-self-use
+    def norm(self, df, **_):  # pylint: disable=no-self-use
         """
         Default transform for formant intrinsic normalizers
         """
