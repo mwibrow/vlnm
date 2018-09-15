@@ -188,7 +188,8 @@ class BladenNormalizer(VowelNormalizer):
     """
 
     def norm(self, df, **kwargs):
-        gender = kwargs.get('gender')
+        aliases = kwargs.get('aliases')
+        gender = kwargs.get('gender') or aliases.get('gender') or 'gender'
         formants = [column for column in df.columns
                     if column in FORMANTS]  # Ugh
 

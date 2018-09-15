@@ -143,6 +143,7 @@ class VowelNormalizer:
             group_df,
             formants=formants,
             constants=constants,
+            aliases=aliases,
             **kwargs)
 
         returns = self._returns or formants
