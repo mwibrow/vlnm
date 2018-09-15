@@ -147,7 +147,8 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
     @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
-        expected = make_new_columns_expected(self.df, self.new_columns, hz_to_mel)
+        expected = make_new_columns_expected(
+            self.df, self.new_columns, hz_to_mel)
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
