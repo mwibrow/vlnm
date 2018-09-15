@@ -47,6 +47,18 @@ def Keywords(**keywords):
         return cls
     return cls_decorator
 
+def Name(name):
+    """
+    Decorator for adding custom name to a normalizer class.
+    """
+    def cls_decorator(cls):
+        """
+        Decorate {cls} with {_name}
+        """
+        cls._name = name
+        return cls
+    return cls_decorator
+
 def Returns(**returns):
     """
     Decorator for specifying columns returned by a normalizer.

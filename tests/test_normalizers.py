@@ -93,10 +93,10 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
 
 
 
-def make_new_columns_expected(df, new_columns, transform):
+def rename_columns(df, rename, transform):
     """Helper for class Test new columns."""
     tmp_df = transform(df.copy())
-    tmp_df.columns = [new_columns.format(column) for column in tmp_df.columns]
+    tmp_df.columns = [rename.format(column) for column in tmp_df.columns]
     return pd.concat([df.copy(), tmp_df], axis=1)
 
 class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
@@ -105,7 +105,7 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
     """
 
     def setUp(self):
-        self.new_columns = '{}_N'
+        self.rename = '{}_N'
         df = generate_data_frame(
             speakers=8,
             genders=['M', 'F'],
@@ -116,44 +116,44 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         self.df = df.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(
             formants=['f0', 'f1', 'f2', 'f3'],
-            new_columns=self.new_columns)
+            rename=self.rename)
 
     @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
-        expected = make_new_columns_expected(
-            self.df, self.new_columns, hz_to_bark)
+        expected = rename_columns(
+            self.df, self.rename, hz_to_bark)
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
-        expected = make_new_columns_expected(
-            self.df, self.new_columns, hz_to_erb)
+        expected = rename_columns(
+            self.df, self.rename, hz_to_erb)
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
-        expected = make_new_columns_expected(
-            self.df, self.new_columns, np.log10)
+        expected = rename_columns(
+            self.df, self.rename, np.log10)
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_log_normalizer(self):
         """Test LogNormalizer."""
-        expected = make_new_columns_expected(self.df, self.new_columns, np.log)
+        expected = rename_columns(self.df, self.rename, np.log)
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
     @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
-        expected = make_new_columns_expected(
-            self.df, self.new_columns, hz_to_mel)
+        expected = rename_columns(
+            self.df, self.rename, hz_to_mel)
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
