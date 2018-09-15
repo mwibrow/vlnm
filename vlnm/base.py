@@ -45,14 +45,10 @@ class VowelNormalizer:
         options.update(self.default_kwargs, **kwargs)
 
         aliases = options.pop('aliases', {})
-        formants = options.pop('formants', [])
-        if not formants:
-            formants = list(
-                set(
-                    [formant for formant in ['f0', 'f1', 'f2', 'f3']
-                     if formant in df] +
-                    [kwargs.get(formant) for formant in ['f0', 'f1', 'f2', 'f3']
-                     if kwargs.get(formant)]))
+        formants = options.pop(
+            'formants',
+            [formant for formant in ['f0', 'f1', 'f2', 'f3']
+             if formant in df or kwargs.get(formant)])
 
         groups = options.pop('groups', [])
         groups.extend(self.groups)
