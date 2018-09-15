@@ -255,7 +255,7 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 
 @DocString
 @Columns(
-    required='speaker'
+    required=['speaker']
 )
 @Keywords(
     choice=dict(

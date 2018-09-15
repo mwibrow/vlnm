@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 from vlnm.conversion import (
     hz_to_bark,
@@ -16,6 +17,7 @@ from vlnm.normalizers import (
     BarkNormalizer,
     BladenNormalizer,
     ErbNormalizer,
+    LCENormalizer,
     LogNormalizer,
     Log10Normalizer,
     MelNormalizer)
@@ -235,3 +237,73 @@ class TestBladenNormalizer(unittest.TestCase):
             male='M',
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
+
+
+class TestLCENormalizer(unittest.TestCase):
+    """
+    Tests for the LCENormalizer class.
+    """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.kwargs = dict(
+            formants=['f1', 'f2', 'f3'])
+
+    @repeat_test()
+    def test_get_speaker_max(self):
+        """Check maximum formant value for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            formants = self.kwargs['formants']
+            expected = {}
+            for formant in formants:
+                expected['{}_max'.format(formant)] = df[formant].max()
+            actual = {}
+            LCENormalizer().get_speaker_max(
+                df,
+                formants=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+    @repeat_test()
+    def test_output(self):
+        """
+        Check normalized formant output.
+        """
+        rename = '{}_N'
+        df = self.df.copy()
+        formants = self.kwargs['formants']
+        expected = df.groupby('speaker', as_index=False).apply(
+            lambda x: lce_helper(x, formants, rename))
+
+        actual = LCENormalizer().normalize(
+            self.df,
+            formants=formants,
+            rename='{}_N',
+            speaker='speaker')
+
+        expected = expected.dropna().sort_values(
+            by=sorted(expected.columns)).reset_index(drop=True)
+        actual = actual.dropna().sort_values(
+            by=sorted(actual.columns)).reset_index(drop=True)
+
+        try:
+            assert_frame_equal(
+                actual,
+                expected,
+                check_exact=False,
+                check_less_precise=False)
+        except AssertionError:
+            for i in range(len(expected)):
+                self.assertDictEqual(
+                    actual.loc[i, :].to_dict(),
+                    expected.loc[i, :].to_dict())
+
+
+def lce_helper(df, formants, rename):
+    """Helper for LCENormalizerTests."""
+    in_cols = formants
+    out_cols = [rename.format(col) for col in in_cols]
+    f_max = df[in_cols].max()
+    df[out_cols] = df[in_cols] / f_max
+    return df
