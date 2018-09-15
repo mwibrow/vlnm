@@ -177,7 +177,8 @@ class TestBladenNormalizer(unittest.TestCase):
     def test_no_male_or_female(self):
         """No female or male column raises ValueError."""
         with self.assertRaises(ChoiceKeywordMissingError):
-            BladenNormalizer().normalize(self.df, gender='gender', **self.kwargs)
+            BladenNormalizer().normalize(
+                self.df, gender='gender', **self.kwargs)
 
     def test_minimal_kwargs(self):
         """Minimally correct kwargs."""
