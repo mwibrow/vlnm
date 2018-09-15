@@ -188,7 +188,8 @@ class BladenNormalizer(VowelNormalizer):
 
     def norm(self, df, **kwargs):
         gender = kwargs.get('gender')
-        formants = kwargs.get('formants')
+        formants = [column for column in df.columns
+                    if column in ['f0', 'f1', 'f2', 'f3', 'f4']]  # Ugh
 
         female, _male = infer_gender_labels(
             df,
@@ -200,9 +201,7 @@ class BladenNormalizer(VowelNormalizer):
                 (df[gender] == female).astype(float)),
             len(formants),
             axis=0).T
-
-        columns = [kwargs.get(formant, formant) for formant in formants]
-        return hz_to_bark(df[columns]) - indicator
+        return hz_to_bark(df[formants]) - indicator
 
 
 @DocString
@@ -244,4 +243,44 @@ class BarkDifferenceNormalizer(VowelNormalizer):
         df['z2-z1'] = z2 - z1
         df['z3-z2'] = z3 - z2
 
+        return df
+
+
+@DocString
+@Columns(
+    required='speaker'
+)
+class LCENormalizer(VowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime F_i \displayfrac{F_i}{\max{F_i}}
+
+    """
+
+    def __init__(self, **kwargs):
+        super(LCENormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.get_speaker_max
+        )
+
+    def get_speaker_max(
+            self,
+            df,
+            formants=None,
+            constants=None,
+            **__):
+        """Maximum formant values for a speaker."""
+
+        for formant in formants:
+            key = '{}_max'.format(formant)
+            constants[key] = df[formant].max()
+        return df
+
+    def norm_df(self, df, formants=None, constants=None, **__):
+        if not constants or not formants:
+            return df
+        for formant in formants:
+            df[formant] = df[formant] / constants.get('{}_max'.format(formant))
         return df

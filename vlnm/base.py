@@ -8,6 +8,16 @@ from vlnm.validation import (
     validate_columns,
     validate_keywords)
 
+def prepare_df(df, columns, aliases):
+    """
+    Prepare
+    """
+    for column in columns:
+        alias = aliases.get(column)
+        if alias and alias in df:
+            df[column] = df[alias]
+    return df
+
 class VowelNormalizer:
     """
     Base class for vowel normalizers.
@@ -51,6 +61,7 @@ class VowelNormalizer:
             groups=groups,
             actions=actions,
             constants=constants,
+            aliases=aliases,
             **options)
 
     def partition(self, df, **kwargs):
@@ -61,12 +72,14 @@ class VowelNormalizer:
         groups = kwargs.pop('groups')
         actions = kwargs.pop('actions')
         constants = kwargs.pop('constants')
+        aliases = kwargs.pop('aliases')
         return self._partition(
             df,
             formants,
             groups,
             actions,
             constants,
+            aliases,
             **kwargs)
 
     def _partition(
@@ -76,6 +89,7 @@ class VowelNormalizer:
             groups,
             actions,
             constants,
+            aliases,
             **kwargs):
 
         if groups:
@@ -85,8 +99,12 @@ class VowelNormalizer:
             for _, grouped_df in grouped:
                 action = actions.get(group)
                 if action:
+                    group_df = prepare_df(
+                        grouped_df.copy(),
+                        formants + groups,
+                        aliases)
                     action(
-                        grouped_df,
+                        group_df,
                         constants,
                         **kwargs)
                 normed_df = self._partition(
@@ -95,21 +113,33 @@ class VowelNormalizer:
                     groups[1:],
                     actions,
                     constants,
+                    aliases,
                     **kwargs)
                 if normed_df is not None:
                     out_df = pd.concat([out_df, normed_df], axis=0)
             return out_df
 
-        new_columns = kwargs.get('new_columns', '{}')
+        rename = kwargs.get('rename', '{}')
+        group_df = prepare_df(
+            df.copy(),
+            formants + groups,
+            aliases)
+
         normed_df = self.norm(
-            df.copy() if new_columns else df,
+            group_df,
             constants=constants,
-            formants=formants,
             **kwargs)
-        if new_columns:
-            for formant in formants:
-                df[new_columns.format(formant)] = normed_df[formant]
+
+        rename = kwargs.get('rename')
+        if rename:
+            for column in normed_df.columns:
+                df[rename.format(column)] = normed_df[column]
+        else:
+            for column in normed_df.columns:
+                df[column] = normed_df[column]
+
         return df
+
 
     def norm(self, df, **kwargs):  # pylint: disable=no-self-use,unused-argument
         """
@@ -131,16 +161,20 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
 
     def norm(self, df, **kwargs):  # pylint: disable=arguments-differ
         aliases = kwargs.pop('aliases', {})
-        new_columns = kwargs.pop('new_columns', '{}')
+        rename = kwargs.pop('rename', '{}')
         formants = kwargs.pop('formants')
-        columns_in = []
-        columns_out = []
-        for formant in formants:
-            column = aliases.get(formant, formant)
-            columns_in.append(column)
-            columns_out.append(new_columns.format(column))
 
-        df[columns_out] = self.transform(df[columns_in])
+        group_df = df.copy()
+        group_df = prepare_df(group_df, formants, aliases)
+        normed_df = self.transform(df, **kwargs)
+
+        if rename:
+            for column in normed_df.columns:
+                df[rename.format(column)] = normed_df[column]
+        else:
+            for column in normed_df.columns:
+                df[column] = normed_df[column]
+
         return df
 
     def transform(self, df, **_):  # pylint: disable=no-self-use
