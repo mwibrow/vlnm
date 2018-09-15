@@ -33,7 +33,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
        F_i^N = \log_{10}\left(F_i\right)
 
     """
-    def transform(self, df, **__):
+    def norm(self, df, **__):
         """
         Transform formants.
         """
@@ -56,7 +56,7 @@ class LogNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **_):
+    def norm(self, df, **_):
         """
         Transform formants.
         """
@@ -83,7 +83,7 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **kwargs):
+    def norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -111,7 +111,7 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **kwargs):
+    def norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -137,7 +137,7 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def transform(self, df, **kwargs):
+    def norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -276,6 +276,7 @@ class LCENormalizer(VowelNormalizer):
         self.actions.update(
             speaker=self.get_speaker_max
         )
+        self.groups = ['speaker']
 
     def get_speaker_max(
             self,
@@ -284,7 +285,6 @@ class LCENormalizer(VowelNormalizer):
             constants=None,
             **__):  # pylint: disable=no-self-use
         """Maximum formant values for a speaker."""
-
         for formant in formants:
             key = '{}_max'.format(formant)
             constants[key] = df[formant].max()
@@ -295,6 +295,7 @@ class LCENormalizer(VowelNormalizer):
         formants = kwargs.get('formants')
         if not constants or not formants:
             return df
+
         for formant in formants:
             df[formant] = df[formant] / constants.get('{}_max'.format(formant))
         return df
