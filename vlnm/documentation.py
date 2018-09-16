@@ -21,4 +21,3 @@ def document_columns(columns):
     docs = ''
 
     return docs
-
