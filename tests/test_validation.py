@@ -11,6 +11,7 @@ from vlnm.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
     ChoiceKeywordMissingError,
+    Parameters,
     RequiredColumnAliasMissingError,
     RequiredColumnMissingError,
     RequiredKeywordMissingError,
@@ -18,6 +19,31 @@ from vlnm.validation import (
     validate_choice_keywords,
     validate_required_columns,
     validate_required_keywords)
+
+class TestParameters(unittest.TestCase):
+    """
+    Tests for the parameters class.
+    """
+
+    def test_as_list(self):
+        """
+        Test the as_list method
+        """
+        expected = [
+            'speaker', 'gender',
+            'f0', 'f1', 'f2', 'f3',
+            'child', 'adolescent', 'adult',
+            'column1'
+        ]
+        actual = Parameters(
+            required=['speaker', 'gender'],
+            choice=dict(
+                formants=['f0', 'f1', 'f2', 'f3'],
+                ages=['child', 'adolescent', 'adult']
+            ),
+            optional=['column1']).as_list()
+        self.assertEqual(sorted(expected), sorted(actual))
+
 
 class TestColumnValidationPasses(unittest.TestCase):
     """
@@ -80,6 +106,7 @@ class TestColumnValidationPasses(unittest.TestCase):
             ['speaker'],
             dict(speaker='participant'))
         self.assertTrue(valid)
+
 
 class TestColumnValidationErrors(unittest.TestCase):
     """
@@ -162,6 +189,7 @@ class TestKeywordValidationPasses(unittest.TestCase):
             dict(gender_label=['female', 'male']),
             dict(female='F'))
         self.assertTrue(valid)
+
 
 class TestKeywordValidationErrors(unittest.TestCase):
     """

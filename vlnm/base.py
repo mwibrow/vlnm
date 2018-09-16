@@ -46,10 +46,11 @@ class VowelNormalizer:
             [formant for formant in FORMANTS
              if formant in df or kwargs.get(formant)])
         aliases = options.pop('aliases', {})
-        for formant in FORMANTS:
-            alias = kwargs.pop(formant, None)
+        columns = set(self._columns.as_list() + FORMANTS)
+        for column in columns:
+            alias = kwargs.pop(column, None)
             if alias:
-                aliases[formant] = alias
+                aliases[column] = alias
 
         groups = options.pop('groups', [])
         groups.extend(self.groups)

@@ -18,10 +18,21 @@ class Parameters:
             choice=None,
             returns=None):
 
-        self.required = required
-        self.choice = choice
-        self.optional = optional
-        self.returns = returns
+        self.required = required or []
+        self.choice = choice or {}
+        self.optional = optional or []
+        self.returns = returns or []
+
+    def as_list(self):
+        """
+        Return all parameters as a list.
+        """
+        parameters = []
+        parameters.extend(self.required)
+        for choices in self.choice.values():
+            parameters.extend(choices)
+        parameters.extend(self.optional)
+        return parameters
 
 def Columns(**columns):
     """
