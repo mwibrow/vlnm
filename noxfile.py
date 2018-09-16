@@ -23,5 +23,5 @@ def test(session):
     session.run(
         'py.test',
         '--cov=vlnm',
-        '--cov-report term-missing',
+        '--cov-report=term-missing',
         'tests')
