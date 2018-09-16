@@ -4,8 +4,6 @@ Test for the utils module.
 
 import unittest
 
-import pandas as pd
-
 from vlnm.utils import (
     merge_columns,
     flatten,
