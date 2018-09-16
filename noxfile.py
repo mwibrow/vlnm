@@ -17,7 +17,10 @@ def test(session):
     """
     Test
     """
-    session.install('pytest')
+    session.install('pytest', 'pytest-cov')
     session.install('-r', 'requirements.txt')
     session.env['PYTHONPATH'] = '.'
-    session.run('pytest')
+    session.run(
+        'py.test',
+        '--cov=vlnm',
+        '--cov-report' 'term-missing')

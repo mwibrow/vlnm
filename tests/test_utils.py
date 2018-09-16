@@ -10,6 +10,7 @@ from vlnm.utils import (
     merge_columns,
     flatten,
     nameify,
+    quote_item,
     str_or_list)
 
 class TestMergeColumns(unittest.TestCase):
@@ -37,6 +38,11 @@ class TestNameify(unittest.TestCase):
     Tests for the nameify function
     """
 
+    def test_no_args(self):
+        """
+        No args returns empty string.
+        """
+        self.assertEqual('', nameify([]))
     def test_default(self):
         """
         Default args.
@@ -82,6 +88,7 @@ class TestNameify(unittest.TestCase):
         actual = nameify(items, quote="'")
         self.assertEqual(actual, expected)
 
+
 class TestFlatten(unittest.TestCase):
     """
     Tests for the flatten function
@@ -108,6 +115,14 @@ class TestFlatten(unittest.TestCase):
         expected = ['a', 'b', 'c', 'd']
         actual = flatten(['a', ['b', 'c'], [['d']]])
         self.assertListEqual(actual, expected)
+
+
+class TestQuoteItem(unittest.TestCase):
+    """Test the quote_item function"""
+
+    def test_quote_item(self):
+        """Sunny day test."""
+        self.assertEqual('"test"', quote_item('test', '"'))
 
 
 class TestStrOrList(unittest.TestCase):
