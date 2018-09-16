@@ -1,24 +1,73 @@
 """
 Tests for the validation module
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, protected-access, too-few-public-methods
 
 import unittest
 
 import pandas as pd
 
+from vlnm.base import VowelNormalizer
+
 from vlnm.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
     ChoiceKeywordMissingError,
+    Columns,
+    Keywords,
+    Name,
     Parameters,
     RequiredColumnAliasMissingError,
     RequiredColumnMissingError,
     RequiredKeywordMissingError,
     validate_choice_columns,
     validate_choice_keywords,
+    validate_keywords,
     validate_required_columns,
     validate_required_keywords)
+
+
+class TestDecorators(unittest.TestCase):
+    """
+    Tests for the validation decorators
+    """
+
+    def test_columns(self):
+        """Test the Columns decorator
+        """
+
+        @Columns(
+            required=['vowel']
+        )
+        class TestClass(VowelNormalizer):
+            """Test class"""
+
+        self.assertIsInstance(TestClass._columns, Parameters)
+        self.assertEqual(TestClass._columns.required, ['vowel'])
+
+    def test_keywords(self):
+        """Test the Keywords decorator
+        """
+
+        @Keywords(
+            required=['gender']
+        )
+        class TestClass(VowelNormalizer):
+            """Test class"""
+
+        self.assertIsInstance(TestClass._keywords, Parameters)
+        self.assertEqual(TestClass._keywords.required, ['gender'])
+
+    def test_name(self):
+        """Test the Name decorator
+        """
+        name = 'Test Normalizer'
+        @Name(name)
+        class TestClass(VowelNormalizer):
+            """Test class"""
+
+        self.assertEqual(TestClass._name, name)
+
 
 class TestParameters(unittest.TestCase):
     """
@@ -189,6 +238,33 @@ class TestKeywordValidationPasses(unittest.TestCase):
             dict(gender_label=['female', 'male']),
             dict(female='F'))
         self.assertTrue(valid)
+
+    def test_validate_keywords_none(self):
+        """
+        Test the validate_keywords function with no keywords.
+        """
+        self.assertTrue(validate_keywords(
+            self.normalizer,
+            Parameters(),
+            {}))
+
+    def test_validate_keywords_required(self):
+        """
+        Test the validate_keywords function with required keywords.
+        """
+        self.assertTrue(validate_keywords(
+            self.normalizer,
+            Parameters(required=['gender']),
+            dict(gender='sex')))
+
+    def test_validate_keywords_choice(self):
+        """
+        Test the validate_keywords function with choice keywords.
+        """
+        self.assertTrue(validate_keywords(
+            self.normalizer,
+            Parameters(choice=dict(gender=['female', 'male'])),
+            dict(female='F')))
 
 
 class TestKeywordValidationErrors(unittest.TestCase):

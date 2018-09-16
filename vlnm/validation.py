@@ -1,7 +1,7 @@
 """
 Module for validating normalizer columns and arguments.
 """
-# pylint: disable=protected-access, invalid-name, too-few-public-methods
+# pylint: disable=invalid-name, protected-access, too-few-public-methods
 
 from future.utils import raise_from
 
@@ -70,29 +70,6 @@ def Name(name):
         return cls
     return cls_decorator
 
-def Returns(**returns):
-    """
-    Decorator for specifying columns returned by a normalizer.
-    """
-
-    def cls_decorator(cls):
-        """
-        Decorate {cls} with {_returns}
-        """
-        cls._returns = returns
-    return cls_decorator
-
-def Defaults(**defaults):
-    """
-    Decorator for specifying default columns/defaults
-    """
-
-    def cls_decorator(cls):
-        """
-        Decorate {cls} with {_defaults}
-        """
-        cls._defaults = defaults
-    return cls_decorator
 
 class RequiredColumnMissingError(Exception):
     """
