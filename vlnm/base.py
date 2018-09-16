@@ -170,7 +170,6 @@ class VowelNormalizer:
         """
         Default normalizer transform: do nothing.
         """
-
         return df
 
 

@@ -163,16 +163,12 @@ def infer_gender_labels(df, gender, female=None, male=None):
     Infer female and male gender labels.
     """
     labels = df[gender].dropna().unique()
-    if len(labels) != 2:
-        raise ValueError(
-            'More than two labels for gender. '
-            'Gender-based normalization assumes binary labelling')
     if female and not male:
-        male = [label for label in labels
-                if not label == female][0]
+        male_labels = [label for label in labels if not label == female]
+        male = male_labels[0] if male_labels else None
     elif male and not female:
-        female = [label for label in labels
-                  if not label == male][0]
+        female_labels = [label for label in labels if not label == male]
+        female = female_labels[0] if female_labels else None
     return female, male
 
 
@@ -278,7 +274,6 @@ class NordstromNormalizer(VowelNormalizer):
         gender = kwargs['gender']
         formants = [column for column in df.columns
                     if column in FORMANTS]  # Ugh
-
 
         female, _male = infer_gender_labels(
             df,

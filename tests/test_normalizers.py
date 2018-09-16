@@ -273,7 +273,7 @@ class TestBladenNormalizer(unittest.TestCase):
                 **self.kwargs)
 
     def test_no_male_or_female(self):
-        """No female or male column raises ValueError."""
+        """No female or male column raises Error."""
         with self.assertRaises(ChoiceKeywordMissingError):
             BladenNormalizer().normalize(
                 self.df, gender='gender', **self.kwargs)
@@ -343,6 +343,7 @@ class TestBladenNormalizer(unittest.TestCase):
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
+
 class TestNordstromNormalizer(unittest.TestCase):
     """
     Tests for the NordstromNormalizer class.
@@ -392,6 +393,11 @@ class TestNordstromNormalizer(unittest.TestCase):
         self.assertEqual(constants['mu_female'], mu_female)
         self.assertEqual(constants['mu_male'], mu_male)
 
+    def test_output(self):
+        """Test output of Nordstrom normalizer."""
+        df = self.df
+        actual = NordstromNormalizer().normalize(
+            df, gender='gender', female='F')
 
 class TestLCENormalizer(unittest.TestCase):
     """
@@ -418,6 +424,20 @@ class TestLCENormalizer(unittest.TestCase):
                 formants=self.kwargs['formants'],
                 constants=actual)
             self.assertDictEqual(actual, expected)
+
+    def test_no_constants(self):
+        """No constants in norm method returns data frame."""
+        df = True  # Actual value doesn't matter
+        expected = df
+        actual = LCENormalizer().norm(
+            df, formants=['f0', 'f1', 'f2'], constants={})
+
+    def test_no_formants(self):
+        """No formants in norm method returns data frame."""
+        df = True  # Actual value doesn't matter
+        expected = df
+        actual = LCENormalizer().norm(
+            df, formants={}, constants=dict(mu=1.))
 
     @repeat_test()
     def test_output(self):
