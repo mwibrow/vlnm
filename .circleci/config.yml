@@ -6,11 +6,11 @@ jobs:
     docker:
       - image: googleapis/nox:0.18.2
     steps:
-      - run:
-        name: Upgrade nox
-        command: |
-          pip install --upgrade nox
       - checkout
+      - run:
+          name: Upgrade nox
+          command: |
+            pip install --upgrade nox
       - run:
           name: Test
           command: |
