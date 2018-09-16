@@ -399,6 +399,7 @@ class TestNordstromNormalizer(unittest.TestCase):
         actual = NordstromNormalizer().normalize(
             df, gender='gender', female='F')
 
+
 class TestLCENormalizer(unittest.TestCase):
     """
     Tests for the LCENormalizer class.
@@ -431,6 +432,7 @@ class TestLCENormalizer(unittest.TestCase):
         expected = df
         actual = LCENormalizer().norm(
             df, formants=['f0', 'f1', 'f2'], constants={})
+        self.assertEqual(expected, actual)
 
     def test_no_formants(self):
         """No formants in norm method returns data frame."""
@@ -438,6 +440,7 @@ class TestLCENormalizer(unittest.TestCase):
         expected = df
         actual = LCENormalizer().norm(
             df, formants={}, constants=dict(mu=1.))
+        self.assertEqual(expected, actual)
 
     @repeat_test()
     def test_output(self):
