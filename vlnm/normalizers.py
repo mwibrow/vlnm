@@ -16,80 +16,6 @@ from vlnm.base import (
     VowelNormalizer,
     FormantIntrinsicNormalizer)
 
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['aliases', 'rename']
-)
-class Log10Normalizer(FormantIntrinsicNormalizer):
-    r"""
-    Normalize using the base 10 logarithm of the formant values.
-
-     .. math::
-
-       F_i^N = \log_{10}\left(F_i\right)
-
-    """
-    def norm(self, df, **__):
-        """
-        Transform formants.
-        """
-        return np.log10(df)
-
-
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-class LogNormalizer(FormantIntrinsicNormalizer):
-    r"""
-    Normalize using the natural logarithm of the formant values.
-
-     .. math::
-
-       F_i^N = \log\left(F_i\right)
-
-    {{columns}}
-    """
-    def norm(self, df, **_):
-        """
-        Transform formants.
-        """
-        return np.log(df)
-
-
-
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['hz_to_mel']
-)
-class MelNormalizer(FormantIntrinsicNormalizer):
-    r"""
-    Normalise vowels using the Mel scale.
-
-    .. math::
-
-       F_i^N = 1127 \ln\left(1 + \displayfrac{F_i}{700}\right)
-
-    {{columns}}
-    """
-    def norm(self, df, **kwargs):
-        """
-        Transform formants.
-        """
-        convert = kwargs.get('hz_to_mel', hz_to_mel)
-        return convert(df)
 
 @DocString
 @Columns(
@@ -116,8 +42,10 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
         """
         Transform formants.
         """
+        formants = kwargs.get('formants')
         convert = kwargs.get('hz_to_bark', hz_to_bark)
-        return convert(df)
+        df[formants] = convert(df[formants])
+        return df
 
 @DocString
 @Columns(
@@ -142,8 +70,92 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
         """
         Transform formants.
         """
+        formants = kwargs.get('formants')
         convert = kwargs.get('hz_to_erb', hz_to_erb)
-        return convert(df)
+        df[formants] = convert(df[formants])
+        return df
+
+
+@DocString
+@Columns(
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
+)
+@Keywords(
+    optional=['aliases', 'rename']
+)
+class Log10Normalizer(FormantIntrinsicNormalizer):
+    r"""
+    Normalize using the base 10 logarithm of the formant values.
+
+     .. math::
+
+       F_i^N = \log_{10}\left(F_i\right)
+
+    """
+    def norm(self, df, **kwargs):
+        """
+        Transform formants.
+        """
+        formants = kwargs.get('formants')
+        df[formants] = np.log10(df[formants])
+        return df
+
+
+@DocString
+@Columns(
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
+)
+class LogNormalizer(FormantIntrinsicNormalizer):
+    r"""
+    Normalize using the natural logarithm of the formant values.
+
+     .. math::
+
+       F_i^N = \log\left(F_i\right)
+
+    {{columns}}
+    """
+    def norm(self, df, **kwargs):
+        """
+        Transform formants.
+        """
+        formants = kwargs.get('formants')
+        df[formants] = np.log(df[formants])
+        return df
+
+
+
+@DocString
+@Columns(
+    choice=dict(
+        formants=['f0', 'f1', 'f2', 'f3']
+    )
+)
+@Keywords(
+    optional=['hz_to_mel']
+)
+class MelNormalizer(FormantIntrinsicNormalizer):
+    r"""
+    Normalise vowels using the Mel scale.
+
+    .. math::
+
+       F_i^N = 1127 \ln\left(1 + \displayfrac{F_i}{700}\right)
+
+    {{columns}}
+    """
+    def norm(self, df, **kwargs):
+        """
+        Transform formants.
+        """
+        formants = kwargs.get('formants')
+        convert = kwargs.get('hz_to_mel', hz_to_mel)
+        df[formants] = convert(df[formants])
+        return df
 
 
 def infer_gender_labels(df, gender, female=None, male=None):
@@ -162,6 +174,7 @@ def infer_gender_labels(df, gender, female=None, male=None):
         female = [label for label in labels
                   if not label == male][0]
     return female, male
+
 
 @DocString
 @Columns(
