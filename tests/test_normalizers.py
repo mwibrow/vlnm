@@ -97,11 +97,71 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
         actual = MelNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
+
+class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
+    """
+    Sunny day tests for normalizers with aliased columns.
+    """
+
+    def setUp(self):
+        df = generate_data_frame(
+            speakers=8,
+            genders=['M', 'F'],
+            factors=dict(
+                group=['HV', 'LV'],
+                test=['pre', 'post'],
+                vowel=['a', 'e', 'i', 'o', 'u']))
+        self.df = df.copy()
+        self.df['f0@50'] = self.df['f0']
+        self.df = self.df.drop('f0', axis=1)
+
+    @repeat_test()
+    def test_bark_normalizer(self):
+        """Test BarkNormalizer."""
+        expected = self.df.copy()
+        expected['f0@50'] = hz_to_bark(expected['f0@50'])
+        actual = BarkNormalizer().normalize(self.df, f0='f0@50')
+        self.assertTrue(actual.equals(expected))
+
+    @repeat_test()
+    def test_erb_normalizer(self):
+        """Test ErbNormalizer."""
+        expected = self.df.copy()
+        expected['f0@50'] = hz_to_erb(expected['f0@50'])
+        actual = ErbNormalizer().normalize(self.df, f0='f0@50')
+        self.assertTrue(actual.equals(expected))
+
+    @repeat_test()
+    def test_log10_normalizer(self):
+        """Test Log10Normalizer."""
+        expected = self.df.copy()
+        expected['f0@50'] = np.log10(expected['f0@50'])
+        actual = Log10Normalizer().normalize(self.df, f0='f0@50')
+        self.assertTrue(actual.equals(expected))
+
+    @repeat_test()
+    def test_log_normalizer(self):
+        """Test LogNormalizer."""
+        expected = self.df.copy()
+        expected['f0@50'] = np.log(expected['f0@50'])
+        actual = LogNormalizer().normalize(self.df, f0='f0@50')
+        self.assertTrue(actual.equals(expected))
+
+    @repeat_test()
+    def test_mel_normalizer(self):
+        """Test MelNormalizer."""
+        expected = self.df.copy()
+        expected['f0@50'] = hz_to_mel(expected['f0@50'])
+        actual = MelNormalizer().normalize(self.df, f0='f0@50')
+        self.assertTrue(actual.equals(expected))
+
+
 def rename_columns(df, rename, transform):
     """Helper for class Test new columns."""
     tmp_df = transform(df.copy())
     tmp_df.columns = [rename.format(column) for column in tmp_df.columns]
     return pd.concat([df.copy(), tmp_df], axis=1)
+
 
 class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
     """
