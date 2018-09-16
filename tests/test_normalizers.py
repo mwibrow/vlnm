@@ -398,7 +398,7 @@ class TestNordstromNormalizer(unittest.TestCase):
         df = self.df
         actual = NordstromNormalizer().normalize(
             df, gender='gender', female='F')
-
+        self.assertTrue(actual is not None)
 
 class TestLCENormalizer(unittest.TestCase):
     """
