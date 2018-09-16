@@ -1,5 +1,5 @@
 future==0.16.0
 numpy==1.15.1
 pandas==0.23.4
-pystahce==0.5.4
+pystache==0.5.4
 scipy==1.1.0

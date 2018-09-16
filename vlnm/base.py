@@ -5,6 +5,7 @@ Vowel normalizer module
 import pandas as pd
 
 from vlnm.validation import (
+    Parameters,
     validate_columns,
     validate_keywords)
 
@@ -24,10 +25,10 @@ class VowelNormalizer:
     """
     Base class for vowel normalizers.
     """
-    _columns = None
-    _keywords = None
-    _name = None
-    _returns = None
+    _columns = Parameters()
+    _keywords = Parameters()
+    _name = ''
+    _returns = []
 
     def __init__(self, **kwargs):
         self.default_kwargs = kwargs
@@ -48,7 +49,8 @@ class VowelNormalizer:
         if not formants:
             formants = [formant for formant in FORMANTS if formant in df]
         aliases = options.pop('aliases', {})
-        columns = set(self._columns.as_list() + FORMANTS)
+        columns = (set(self._columns.as_list() + FORMANTS)
+                   if self._columns else FORMANTS)
         for column in columns:
             alias = kwargs.pop(column, None)
             if alias:
@@ -137,7 +139,7 @@ class VowelNormalizer:
                     out_df = pd.concat([out_df, normed_df], axis=0)
             return out_df
 
-        rename = kwargs.get('rename', '{}')
+        rename = kwargs.get('rename')
         group_df = prepare_df(
             df.copy(),
             formants + groups,
@@ -188,7 +190,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
         """
 
         aliases = kwargs.pop('aliases', {})
-        rename = kwargs.pop('rename', '{}')
+        rename = kwargs.pop('rename', None)
         formants = kwargs.get('formants', [])
 
         group_df = df.copy()
