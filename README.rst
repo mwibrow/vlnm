@@ -1,10 +1,11 @@
-# VLNM 🗣
-
+VLNM 🗣
+=======
 |build status|
 
 Vowel normalization in python.
 
-## Introduction
+Introduction
+============
 
 This repository will (eventually) implement the vowel normalization
 proceedures described in Flynn, N. and Foulkes, P. (2011)
