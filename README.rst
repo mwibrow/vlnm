@@ -16,4 +16,4 @@ ICPhs  XVII, Hong Kong, 17-21 August 2011, p683-686.
     :target: https://travis-ci.org/mwibrow/vlnm
 
 .. |coverage| image:: https://coveralls.io/repos/github/mwibrow/vlnm/badge.svg
-:target: https://coveralls.io/github/mwibrow/vlnm
+    :target: https://coveralls.io/github/mwibrow/vlnm
