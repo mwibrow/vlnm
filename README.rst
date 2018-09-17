@@ -1,7 +1,5 @@
 # VLNM 🗣
 
-[![CircleCI](https://circleci.com/gh/mwibrow/vlnm/tree/master.svg?style=shield)](https://circleci.com/gh/mwibrow/vlnm/tree/master)
-
 Vowel normalization in python.
 
 ## Introduction
