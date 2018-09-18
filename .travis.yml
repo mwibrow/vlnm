@@ -2,8 +2,8 @@ language: python
 python: "3.6"
 
 branches:
-    only:
-      - master
+  only:
+    - master
 
 install:
   - pip install coveralls nox
