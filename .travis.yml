@@ -2,8 +2,7 @@ language: python
 python: "3.6"
 
 install:
-  - pip install nox
-  - pip install coveralls
+  - pip install coveralls nox
 
 script: nox --session "test"
 
