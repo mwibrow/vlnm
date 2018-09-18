@@ -35,9 +35,25 @@ class VowelNormalizer:
         self.actions = {}
         self.groups = kwargs.pop('groups', [])
 
-    def normalize(self, df, **kwargs):
-        """Normalize the formant data in a data frame.
+    def validate(self, df, aliases, **options):
+        """
+        Validate the arguments given to the normalize method.
+        """
+        validate_columns(
+            self._name or self.__class__.__name__,
+            df,
+            self._columns,
+            aliases,
+            **options)
 
+        validate_keywords(
+            self._name or self.__class__.__name__,
+            self._keywords,
+            options)
+
+    def normalize(self, df, **kwargs):
+        """
+        Normalize the formant data in a data frame.
         """
         options = {}
         options.update(self.default_kwargs, **kwargs)
@@ -62,17 +78,7 @@ class VowelNormalizer:
         actions = options.pop('actions', {})
         actions.update(self.actions)
 
-        validate_columns(
-            self._name or self.__class__.__name__,
-            df,
-            self._columns,
-            aliases,
-            **options)
-
-        validate_keywords(
-            self._name or self.__class__.__name__,
-            self._keywords,
-            options)
+        self.validate(df, aliases, **options)
 
         return self.partition(
             df,
