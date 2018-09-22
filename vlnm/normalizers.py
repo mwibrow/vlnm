@@ -421,7 +421,10 @@ class GerstmanNormalizer(VowelNormalizer):
             df[formant] = 999 * (df[formant] - fmin) / (fmax - fmin)
         return df
 
-
+@DocString
+@Columns(
+    required=['speaker']
+)
 class LobanovNormalizer(VowelNormalizer):
     r"""
 
@@ -434,8 +437,14 @@ class LobanovNormalizer(VowelNormalizer):
     formant :math:`F_i` for a given speaker.
 
     """
+    def __init__(self, **kwargs):
+        super(LobanovNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
 
-    def speaker_summary(
+    def speaker_stats(
             self,
             df,
             **kwargs):  # pylint: disable=no-self-use
