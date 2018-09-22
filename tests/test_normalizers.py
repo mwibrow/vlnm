@@ -343,6 +343,29 @@ class TestBladenNormalizer(unittest.TestCase):
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual = BladenNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+            list(rename.format(f) for f in self.formants))
+        actual = BladenNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
 
 class TestNordstromNormalizer(unittest.TestCase):
     """
