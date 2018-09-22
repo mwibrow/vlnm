@@ -485,7 +485,14 @@ class NearyNormalizer(VowelNormalizer):
 
     """
 
-    def speaker_summary(
+    def __init__(self, **kwargs):
+        super(NearyNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
+
+    def speaker_stats(
             self,
             df,
             **kwargs):  # pylint: disable=no-self-use
@@ -512,6 +519,6 @@ class NearyNormalizer(VowelNormalizer):
                 np.log(df[formant].dropna()) -
                 constants['{}_mu_log'.format(formant)])
         method = kwargs.get('method', 'intrinsic')
-        if 'exp' in method.lower():
+        if 'extrinsic' in method.lower():
             df[formants] = np.exp(df[formants])
         return df
