@@ -426,7 +426,7 @@ class TestNordstromNormalizer(unittest.TestCase):
     def test_default_columns(self):
         """Check default columns returned."""
         expected = self.df.columns
-        actual =  NordstromNormalizer().normalize(
+        actual = NordstromNormalizer().normalize(
             self.df,
             gender='gender', male='M', **self.kwargs).columns
 
@@ -455,8 +455,8 @@ class TestLCENormalizer(unittest.TestCase):
 
     def setUp(self):
         self.df = get_test_dataframe()
-        self.kwargs = dict(
-            formants=['f0', 'f1', 'f2', 'f3'])
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(formants=self.formants)
 
     @repeat_test()
     def test_get_speaker_max(self):
@@ -522,6 +522,28 @@ class TestLCENormalizer(unittest.TestCase):
                 self.assertDictEqual(
                     actual.loc[i, :].to_dict(),
                     expected.loc[i, :].to_dict())
+
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual = LCENormalizer().normalize(
+            self.df, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+            list(rename.format(f) for f in self.formants))
+        actual = LCENormalizer().normalize(
+            self.df, rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
 
 
 def lce_helper(df, formants, rename):
