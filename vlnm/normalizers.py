@@ -378,3 +378,124 @@ class LCENormalizer(VowelNormalizer):
         for formant in formants:
             df[formant] = df[formant] / constants.get('{}_max'.format(formant))
         return df
+
+@DocString
+@Columns(
+    required=['speaker']
+)
+class GerstmanNormalizer(VowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
+
+    """
+
+    def speaker_summary(
+            self,
+            df,
+            formants=None,
+            constants=None,
+            **__):  # pylint: disable=no-self-use
+        """Maximum and minimum formant values for a speaker."""
+        for formant in formants:
+            constants['{}_max'.format(formant)] = df[formant].max()
+            constants['{}_min'.format(formant)] = df[formant].min()
+
+
+    def norm(self, df, **kwargs):
+        constants = kwargs.get('constants', [])
+        formants = kwargs.get('formants', [])
+
+        for formant in formants:
+            fmin = constants['{}_min'.format(formant)]
+            fmax = constants['{}_max'.format(formant)]
+            df[formant] = 999 * (df[formant] - fmin) / (fmax - fmin)
+        return df
+
+
+class LobanovNormalizer(VowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
+
+    Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
+    mean and standard deviation (respectively) of the
+    formant :math:`F_i` for a given speaker.
+
+    """
+
+    def speaker_summary(
+            self,
+            df,
+            **kwargs):  # pylint: disable=no-self-use
+        """Mean and and standard deviation formant values for a speaker."""
+
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
+
+        for formant in formants or []:
+            constants['{}_mu'.format(formant)] = df[formant].mean()
+            constants['{}_sigma'.format(formant)] = df[formant].std() or 0.
+
+
+    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
+
+        for formant in formants:
+            f_mu = constants['{}_mu'.format(formant)]
+            f_sigma = constants['{}_sigma'.format(formant)]
+            df[formant] = (df[formant] - f_mu) / f_sigma if f_sigma else 0.
+        return df
+
+
+@DocString
+@Columns(
+    required=['speaker'],
+    optional=['method']
+)
+class NearyNormalizer(VowelNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+
+    def speaker_summary(
+            self,
+            df,
+            **kwargs):  # pylint: disable=no-self-use
+        """Mean log for speaker formants."""
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
+        method = kwargs.get('method', 'intrinsic')
+        if 'extrinsic' in method.lower():
+            mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
+            for formant in formants:
+                constants['{}_mu_log'.format(formant)] = mu_log
+        else:
+            for formant in formants:
+                constants['{}_mu_log'.format(formant)] = (
+                    np.mean(np.log(df[formant].dropna())))
+        return df
+
+    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
+
+        for formant in formants:
+            df[formant] = (
+                np.log(df[formant].dropna()) -
+                constants['{}_mu_log'.format(formant)])
+        method = kwargs.get('method', 'intrinsic')
+        if 'exp' in method.lower():
+            df[formants] = np.exp(df[formants])
+        return df
