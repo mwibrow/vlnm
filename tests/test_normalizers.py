@@ -423,6 +423,31 @@ class TestNordstromNormalizer(unittest.TestCase):
             df, gender='gender', female='F')
         self.assertTrue(actual is not None)
 
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual =  NordstromNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+            list(rename.format(f) for f in self.formants))
+        actual = NordstromNormalizer().normalize(
+            self.df,
+            gender='gender', male='M', rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+
 class TestLCENormalizer(unittest.TestCase):
     """
     Tests for the LCENormalizer class.
