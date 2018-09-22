@@ -392,7 +392,14 @@ class GerstmanNormalizer(VowelNormalizer):
 
     """
 
-    def speaker_summary(
+    def __init__(self, **kwargs):
+        super(GerstmanNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_range
+        )
+        self.groups = ['speaker']
+
+    def speaker_range(
             self,
             df,
             formants=None,

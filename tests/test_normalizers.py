@@ -6,7 +6,9 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from pandas.testing import assert_frame_equal
+from pandas.testing import (
+    assert_frame_equal,
+    assert_series_equal)
 
 from vlnm.conversion import (
     hz_to_bark,
@@ -17,6 +19,7 @@ from vlnm.normalizers import (
     BarkNormalizer,
     BladenNormalizer,
     ErbNormalizer,
+    GerstmanNormalizer,
     LCENormalizer,
     LogNormalizer,
     Log10Normalizer,
@@ -553,3 +556,86 @@ def lce_helper(df, formants, rename):
     f_max = df[in_cols].max()
     df[out_cols] = df[in_cols] / f_max
     return df
+
+
+class TestGerstmanNormalizer(unittest.TestCase):
+    """Tests for the Gerstman normalizer class."""
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(formants=self.formants)
+
+
+    @repeat_test()
+    def test_speaker_summary(self):
+        """Check maximum and minimum value for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            formants = self.kwargs['formants']
+            expected = {}
+            for formant in formants:
+                expected['{}_min'.format(formant)] = df[formant].min()
+                expected['{}_max'.format(formant)] = df[formant].max()
+            actual = {}
+            GerstmanNormalizer().speaker_range(
+                df,
+                formants=self.kwargs['formants'],
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+    def test_no_speaker(self):
+        """No speaker column raises error."""
+        df = self.df.copy().drop('speaker', axis=1)
+        with self.assertRaises(RequiredColumnMissingError):
+            GerstmanNormalizer().normalize(df, **self.kwargs)
+
+    def test_no_aliased_speaker(self):
+        """No alised speaker column raises error."""
+
+        df = self.df.copy()
+        with self.assertRaises(RequiredColumnAliasMissingError):
+            GerstmanNormalizer().normalize(
+                df,
+                speaker='participant',
+                **self.kwargs)
+
+    def test_output(self):
+        """Check output."""
+        df = GerstmanNormalizer().normalize(
+            self.df.copy(),
+            **self.kwargs)
+
+        for speaker in self.df['speaker'].unique():
+            actual_df = df[df['speaker'] == speaker]
+            expected_df = self.df[self.df['speaker'] == speaker]
+            for formant in self.formants:
+                fmin = expected_df[formant].min()
+                fmax = expected_df[formant].max()
+
+                actual = actual_df[formant]
+                expected = 999 * (expected_df[formant] - fmin) / (fmax - fmin)
+
+                assert_series_equal(actual, expected)
+
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual = GerstmanNormalizer().normalize(
+            self.df, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+            list(rename.format(f) for f in self.formants))
+        actual = GerstmanNormalizer().normalize(
+            self.df, rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
