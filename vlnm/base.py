@@ -73,7 +73,7 @@ class VowelNormalizer:
                 aliases[column] = alias
 
         groups = options.pop('groups', [])
-        groups.extend(self.groups)
+        groups.extend(aliases.get(group, group) for group in self.groups)
         constants = options.pop('constants', {})
         actions = options.pop('actions', {})
         actions.update(self.actions)
