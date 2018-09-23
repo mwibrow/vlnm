@@ -479,12 +479,12 @@ class NearyNormalizer(VowelNormalizer):
 
     ..math::
 
-        F_i^\prime = \tau\left(
+        F_i^\prime = T\left(
             \log\left(F_i\right) - \frac{1}{n-m+1}
                 \sum_{j=m}{n}\mu_{\log\left(F_j\right)}
         \right)
 
-    Where :math:`\tau_{x}=x` :math:`\tau_{x}=\exp(x)`,
+    Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,
     and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
     """
