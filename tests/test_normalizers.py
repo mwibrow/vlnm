@@ -5,10 +5,6 @@ Tests for the normalize module.
 import unittest
 
 import numpy as np
-import pandas as pd
-from pandas.testing import (
-    assert_frame_equal,
-    assert_series_equal)
 
 from vlnm.conversion import (
     hz_to_bark,
@@ -33,8 +29,10 @@ from vlnm.validation import (
     RequiredColumnAliasMissingError
 )
 from tests.helpers import (
-    generate_data_frame,
-    repeat_test)
+    assert_frame_equal,
+    assert_series_equal,
+    concat_df,
+    generate_data_frame)
 
 
 def get_test_dataframe(speakers=8):
@@ -50,6 +48,7 @@ def get_test_dataframe(speakers=8):
 
 
 DATA_FRAME = get_test_dataframe()
+
 
 class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
     """
@@ -67,35 +66,30 @@ class TestIntrinsicNormalizersSunnyDay(unittest.TestCase):
         self.df = df.copy()[['f0', 'f1', 'f2', 'f3']]
         self.kwargs = dict(formants=['f0', 'f1', 'f2', 'f3'])
 
-    @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
         expected = hz_to_bark(self.df.copy())
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
         expected = hz_to_erb(self.df.copy())
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
         expected = np.log10(self.df.copy())
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log_normalizer(self):
         """Test LogNormalizer."""
         expected = np.log(self.df.copy())
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
         expected = hz_to_mel(self.df.copy())
@@ -120,7 +114,6 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         self.df['f0@50'] = self.df['f0']
         self.df = self.df.drop('f0', axis=1)
 
-    @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
         expected = self.df.copy()
@@ -128,7 +121,6 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         actual = BarkNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
         expected = self.df.copy()
@@ -136,7 +128,6 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         actual = ErbNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
         expected = self.df.copy()
@@ -144,7 +135,6 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         actual = Log10Normalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log_normalizer(self):
         """Test LogNormalizer."""
         expected = self.df.copy()
@@ -152,7 +142,6 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         actual = LogNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
         expected = self.df.copy()
@@ -165,7 +154,7 @@ def rename_columns(df, rename, transform):
     """Helper for class Test new columns."""
     tmp_df = transform(df.copy())
     tmp_df.columns = [rename.format(column) for column in tmp_df.columns]
-    return pd.concat([df.copy(), tmp_df], axis=1)
+    return concat_df([df.copy(), tmp_df], axis=1)
 
 
 class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
@@ -187,7 +176,6 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
             formants=['f0', 'f1', 'f2', 'f3'],
             rename=self.rename)
 
-    @repeat_test()
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
         expected = rename_columns(
@@ -195,7 +183,6 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         actual = BarkNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
         expected = rename_columns(
@@ -203,7 +190,6 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         actual = ErbNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
         expected = rename_columns(
@@ -211,14 +197,12 @@ class TestIntrinsicNormalizersNewColumns(unittest.TestCase):
         actual = Log10Normalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_log_normalizer(self):
         """Test LogNormalizer."""
         expected = rename_columns(self.df, self.rename, np.log)
         actual = LogNormalizer().normalize(self.df, **self.kwargs)
         self.assertTrue(actual.equals(expected))
 
-    @repeat_test()
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
         expected = rename_columns(
@@ -363,7 +347,7 @@ class TestBladenNormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = BladenNormalizer().normalize(
             self.df,
             gender='gender', male='M', rename=rename, **self.kwargs).columns
@@ -371,6 +355,7 @@ class TestBladenNormalizer(unittest.TestCase):
         expected = sorted(expected)
         actual = sorted(actual)
         self.assertListEqual(actual, expected)
+
 
 class TestNordstromNormalizer(unittest.TestCase):
     """
@@ -443,7 +428,7 @@ class TestNordstromNormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = NordstromNormalizer().normalize(
             self.df,
             gender='gender', male='M', rename=rename, **self.kwargs).columns
@@ -463,7 +448,6 @@ class TestLCENormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
-    @repeat_test()
     def test_get_speaker_max(self):
         """Check maximum formant value for all speakers."""
         for speaker in self.df['speaker'].unique():
@@ -495,7 +479,6 @@ class TestLCENormalizer(unittest.TestCase):
             df, formants={}, constants=dict(mu=1.))
         self.assertEqual(expected, actual)
 
-    @repeat_test()
     def test_output(self):
         """
         Check normalized formant output.
@@ -510,6 +493,8 @@ class TestLCENormalizer(unittest.TestCase):
             self.df,
             rename='{}_N',
             speaker='speaker')
+
+        self.assertEqual(len(actual), len(expected))
 
         expected = expected.dropna().sort_values(
             by=sorted(expected.columns)).reset_index(drop=True)
@@ -542,7 +527,7 @@ class TestLCENormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = LCENormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
 
@@ -568,7 +553,6 @@ class TestGerstmanNormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
-    @repeat_test()
     def test_speaker_summary(self):
         """Check maximum and minimum value for all speakers."""
         for speaker in self.df['speaker'].unique():
@@ -607,6 +591,8 @@ class TestGerstmanNormalizer(unittest.TestCase):
             self.df.copy(),
             **self.kwargs)
 
+        self.assertEqual(len(df), len(self.df))
+
         for speaker in self.df['speaker'].unique():
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
@@ -633,7 +619,7 @@ class TestGerstmanNormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = GerstmanNormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
 
@@ -650,7 +636,6 @@ class TestLobanovNormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
-    @repeat_test()
     def test_speaker_stats(self):
         """Check maximum and minimum value for all speakers."""
         for speaker in self.df['speaker'].unique():
@@ -689,6 +674,8 @@ class TestLobanovNormalizer(unittest.TestCase):
             self.df.copy(),
             **self.kwargs)
 
+        self.assertEqual(len(df), len(self.df))
+
         for speaker in self.df['speaker'].unique():
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
@@ -715,7 +702,7 @@ class TestLobanovNormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = LobanovNormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
 
@@ -732,7 +719,6 @@ class TestNearyNormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
-    @repeat_test()
     def test_speaker_stats(self):
         """Check speaker parameter values for all speakers."""
         for speaker in self.df['speaker'].unique():
@@ -749,7 +735,6 @@ class TestNearyNormalizer(unittest.TestCase):
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
-    @repeat_test()
     def test_speaker_stats_extrinsic(self):
         """Check speaker parameter values for all speakers."""
         for speaker in self.df['speaker'].unique():
@@ -789,6 +774,8 @@ class TestNearyNormalizer(unittest.TestCase):
             self.df.copy(),
             **self.kwargs)
 
+        self.assertEqual(len(df), len(self.df))
+
         for speaker in self.df['speaker'].unique():
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
@@ -806,6 +793,8 @@ class TestNearyNormalizer(unittest.TestCase):
             self.df.copy(),
             method='extrinsic',
             **self.kwargs)
+
+        self.assertEqual(len(df), len(self.df))
 
         for speaker in self.df['speaker'].unique():
             actual_df = df[df['speaker'] == speaker]
@@ -834,7 +823,7 @@ class TestNearyNormalizer(unittest.TestCase):
         """Check new columns returned."""
         rename = '{}\''
         expected = (list(self.df.columns) +
-            list(rename.format(f) for f in self.formants))
+                    list(rename.format(f) for f in self.formants))
         actual = NearyNormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
 
