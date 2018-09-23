@@ -472,7 +472,7 @@ class LobanovNormalizer(VowelNormalizer):
 @DocString
 @Columns(
     required=['speaker'],
-    optional=['method']
+    optional=['method', 'transform']
 )
 class NearyNormalizer(VowelNormalizer):
     r"""
@@ -518,7 +518,7 @@ class NearyNormalizer(VowelNormalizer):
             df[formant] = (
                 np.log(df[formant].dropna()) -
                 constants['{}_mu_log'.format(formant)])
-        method = kwargs.get('method', 'intrinsic')
-        if 'extrinsic' in method.lower():
+        transform = kwargs.get('transform')
+        if transform:
             df[formants] = np.exp(df[formants])
         return df
