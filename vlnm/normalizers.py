@@ -479,15 +479,13 @@ class NearyNormalizer(VowelNormalizer):
 
     ..math::
 
-        F_i^\prime \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+        F_i^\prime = \tau\left(
+            \log\left(F_i\right) - \frac{1}{n-m+1}
+                \sum_{j=m}{n}\mu_{\log\left(F_j\right)}
+        \right)
 
-
-    ..math::
-
-        F_i^\prime \log\left(F_i\right) - \frac{1}{N}
-            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
-
-    Where :math:`\mu_{x}` is the mean of :math:`x`
+    Where :math:`\tau_{x}=x` :math:`\tau_{x}=\exp(x)`,
+    and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
     """
 
@@ -528,3 +526,77 @@ class NearyNormalizer(VowelNormalizer):
         if transform:
             df[formants] = np.exp(df[formants])
         return df
+
+
+class Neary1Normalizer(NearyNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime = \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+
+    def __init__(self, **kwargs):
+        kwargs['method'] = 'intrinsic'
+        kwargs['transform'] = False
+        super(Neary1Normalizer, self).__init__(**kwargs)
+
+
+class Neary2Normalizer(NearyNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime = \log\left(F_i\right) - \frac{1}{N}
+            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+
+    def __init__(self, **kwargs):
+        kwargs['method'] = 'extrinsic'
+        kwargs['transform'] = False
+        super(Neary2Normalizer, self).__init__(**kwargs)
+
+
+class Neary1ExpNormalizer(NearyNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime = \exp\left(
+            \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+        \right)
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+
+    def __init__(self, **kwargs):
+        kwargs['method'] = 'intrinsic'
+        kwargs['transform'] = True
+        super(Neary1ExpNormalizer, self).__init__(**kwargs)
+
+
+class Neary2ExpNormalizer(NearyNormalizer):
+    r"""
+
+    ..math::
+
+        F_i^\prime = \exp\left(
+            \log\left(F_i\right) - \frac{1}{N}
+            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
+        \right)
+
+    Where :math:`\mu_{x}` is the mean of :math:`x`
+
+    """
+
+    def __init__(self, **kwargs):
+        kwargs['method'] = 'extrinsic'
+        kwargs['transform'] = True
+        super(Neary2ExpNormalizer, self).__init__(**kwargs)
