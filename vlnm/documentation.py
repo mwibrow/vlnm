@@ -14,7 +14,7 @@ def DocString(cls):
         dict(columns=document_columns(cls._columns)))
     return cls
 
-def document_columns(columns):
+def document_columns(columns):  ## pylint: disable=unused-argument
     """
     Generate
     """

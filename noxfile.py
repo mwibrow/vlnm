@@ -9,8 +9,11 @@ def lint(session):
     """
     Lint
     """
-    session.install('pylint')
+    session.install('-r', 'requirements.txt')
+    session.install('-r', 'requirements-dev.txt')
+    session.env['PYTHONPATH'] = '.'
     session.run('pylint', 'vlnm', 'tests')
+
 
 @nox.session(python=['3.6'])
 def test(session):

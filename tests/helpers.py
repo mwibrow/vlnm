@@ -6,6 +6,20 @@ import itertools
 import numpy as np
 import pandas as pd
 
+import pandas.testing
+
+def assert_frame_equal(*args, **kwargs):
+    """Wrapper around pandas testing helper"""
+    return pandas.testing.assert_frame_equal(*args, **kwargs)
+
+def assert_series_equal(*args, **kwargs):
+    """Wrapper around pandas testing helper"""
+    return pandas.testing.assert_series_equal(*args, **kwargs)
+
+def concat_df(*args, **kwargs):
+    """Wrapper around pandas data-frame conact"""
+    return pd.concat(*args, **kwargs)
+
 def make_set_up(set_up=None):
     """Make the set up function for a repeating test."""
     def _do_set_up(obj):

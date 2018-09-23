@@ -23,7 +23,7 @@ def nameify(items, sep=',', junction=None, oxford=False, quote=None):
             ' {} '.format(junction) if junction else ' ',
             quote_item(sorted_items[1], quote)
         ])
-    elif len(items) == 1:
+    if len(items) == 1:
         return quote_item(sorted_items[0], quote)
     return '{}{} {}'.format(
         quote_item(sorted_items[0], quote),
