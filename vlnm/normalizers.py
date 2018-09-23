@@ -481,6 +481,12 @@ class NearyNormalizer(VowelNormalizer):
 
         F_i^\prime \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
 
+
+    ..math::
+
+        F_i^\prime \log\left(F_i\right) - \frac{1}{N}
+            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
+
     Where :math:`\mu_{x}` is the mean of :math:`x`
 
     """
