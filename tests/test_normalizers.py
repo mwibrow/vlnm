@@ -787,11 +787,54 @@ class TestNearyNormalizer(unittest.TestCase):
 
                 assert_series_equal(actual, expected)
 
+    def test_output_transform(self):
+        """Check output with exponential transform."""
+        df = NearyNormalizer().normalize(
+            self.df.copy(),
+            transform=True,
+            **self.kwargs)
+
+        self.assertEqual(len(df), len(self.df))
+
+        for speaker in self.df['speaker'].unique():
+            actual_df = df[df['speaker'] == speaker]
+            expected_df = self.df[self.df['speaker'] == speaker]
+            for formant in self.formants:
+                mu_log = np.mean(np.log(expected_df[formant].dropna()))
+
+                actual = actual_df[formant].dropna()
+                expected = np.exp(
+                    np.log(expected_df[formant].dropna()) - mu_log)
+
+                assert_series_equal(actual, expected)
+
     def test_output_extrinsic(self):
         """Check output for extrinsic normalizer."""
         df = NearyNormalizer().normalize(
             self.df.copy(),
             method='extrinsic',
+            **self.kwargs)
+
+        self.assertEqual(len(df), len(self.df))
+
+        for speaker in self.df['speaker'].unique():
+            actual_df = df[df['speaker'] == speaker]
+            expected_df = self.df[self.df['speaker'] == speaker]
+            for formant in self.formants:
+                mu_log = np.mean(
+                    np.mean(np.log(expected_df[self.formants].dropna())))
+
+                actual = actual_df[formant].dropna()
+                expected = np.log(expected_df[formant].dropna()) - mu_log
+
+                assert_series_equal(actual, expected)
+
+    def test_output_extrinsic_transform(self):
+        """Check output for extrinsic normalizer with exponential transform."""
+        df = NearyNormalizer().normalize(
+            self.df.copy(),
+            method='extrinsic',
+            transform=True,
             **self.kwargs)
 
         self.assertEqual(len(df), len(self.df))
