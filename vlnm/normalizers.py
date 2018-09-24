@@ -629,7 +629,7 @@ class WattFabricius(VowelNormalizer):
 
     """
     def __init__(self, **kwargs):
-        super(WattFabricius, self).__init__(**kargs)
+        super(WattFabricius, self).__init__(**kwargs)
         self.actions.update(
             speaker=self.speaker_stats
         )
