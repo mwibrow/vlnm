@@ -600,3 +600,31 @@ class Neary2ExpNormalizer(NearyNormalizer):
         kwargs['method'] = 'extrinsic'
         kwargs['transform'] = True
         super(Neary2ExpNormalizer, self).__init__(**kwargs)
+
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel']
+)
+@Keywords(
+    required=['fleece', 'trap']
+)
+class WattFabricius(VowelNormalizer):
+    """
+    ..math::
+
+        F_i^\prime = \frac{F_i}{S(F_i)}
+
+    Where:
+
+    ..math::
+
+        S(F_j) = F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]
+
+    and
+
+    ..math::
+
+        F_1[/u^\prime/] = F_1[/u^\prime/] = F_1[/i/]
+
+    """
