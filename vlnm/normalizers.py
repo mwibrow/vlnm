@@ -556,7 +556,7 @@ class NearyGMNormalizer(NearyNormalizer):
 @Keywords(
     required=['fleece', 'trap']
 )
-class WattFabricius(VowelNormalizer):
+class WattFabriciusNormalizer(VowelNormalizer):
     r"""
     ..math::
 
@@ -566,17 +566,17 @@ class WattFabricius(VowelNormalizer):
 
     ..math::
 
-        S(F_j) = F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]
+        S(F_j) = \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
 
     and
 
     ..math::
 
-        F_1[/u^\prime/] = F_1[/u^\prime/] = F_1[/i/]
+        F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
 
     """
     def __init__(self, **kwargs):
-        super(WattFabricius, self).__init__(**kwargs)
+        super(WattFabriciusNormalizer, self).__init__(**kwargs)
         self.actions.update(
             speaker=self.speaker_stats
         )
@@ -589,7 +589,9 @@ class WattFabricius(VowelNormalizer):
         """
         constants = kwargs['constants']
         formants = kwargs['formants']
-        vowel = kwargs['formants']
+        f1 = kwargs['f1']
+        f2 = kwargs['f2']
+        vowel = kwargs['vowel']
         trap = kwargs['trap']
         fleece = kwargs['fleece']
 
@@ -600,6 +602,13 @@ class WattFabricius(VowelNormalizer):
                 df[df[vowel] == trap][formant].mean())
             constants['{}_goose'.format(formant)] = (
                 constants['{}_fleece'.format(formant)])
+
+        constants['{}_goose'.format(f1)] = (
+            constants['{}_fleece'.format(f1)])
+        constants['{}_goose'.format(f2)] = (
+            constants['{}_fleece'.format(f1)])
+
+        for formant in formants:
             constants['{}_centroid'] = (
                 constants['{}_fleece'.format(formant)] +
                 constants['{}_trap'.format(formant)] +
@@ -614,3 +623,121 @@ class WattFabricius(VowelNormalizer):
             df[formant] /= centroid
 
         return df
+
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel', 'f1', 'f2']
+)
+@Keywords(
+    required=['fleece', 'trap']
+)
+class WattFabricius2Normalizer(WattFabriciusNormalizer):
+    r"""
+    ..math::
+
+        F_i^\prime = \frac{F_i}{S(F_i)}
+
+    Where:
+
+    ..math::
+
+        S(F_j) = \begin{cases}
+            \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
+            & \text{when } j = 2
+            \\
+            \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
+            & text{otherwise}
+        \end{cases}
+
+    and
+
+    ..math::
+
+        F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
+
+    """
+
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """
+        Calculate the speakers centroid.
+        """
+        super(WattFabricius2Normalizer).speaker_stats(df, **kwargs)
+        constants = kwargs['constants']
+
+        f2 = kwargs['f2']
+
+        constants['{}_centroid'.format(f2)] = (
+            constants['{}_fleece'.format(f2)] +
+            constants['{}_goose'.format(f2)]) / 2
+
+        return df
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel', 'f1', 'f2']
+)
+@Keywords(
+    required=['point_vowels']
+)
+class WattFabricius3Normalizer(WattFabricius2Normalizer):
+    r"""
+    ..math::
+
+        F_i^\prime = \frac{F_i}{S(F_i)}
+
+    Where:
+
+    ..math::
+
+        S(F_j) = \begin{cases}
+            \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
+            & \text{when } j = 2
+            \\
+            \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
+            & text{otherwise}
+        \end{cases}
+
+    and
+
+    ..math::
+
+        F_j[/u^\prime/] = \text{argmin}_\rho \mu_{F_k[rho \in P]}
+
+    where :math:`P` is the set of point vowels.
+    """
+
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """
+        Calculate the speakers centroid.
+        """
+        constants = kwargs['constants']
+        formants = kwargs['formants']
+        f2 = kwargs['f2']
+        vowel = kwargs['vowel']
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+
+        aliases = kwargs.get('aliases')
+        point_vowels = [aliases.get(point_vowel, point_vowel)
+                        for point_vowel in kwargs.get('point_vowel')]
+
+        for formant in formants:
+            constants['{}_fleece'.format(formant)] = (
+                df[df[vowel] == fleece][formant].mean())
+            constants['{}_trap'.format(formant)] = (
+                df[df[vowel] == trap][formant].mean())
+            constants['{}_goose'.format(formant)] = (
+                df[df[vowel].isin(point_vowels)].groupby(
+                    vowel).apply(lambda x, i=formant: x[i].mean()).min()).min()
+
+            constants['{}_centroid'] = (
+                constants['{}_fleece'.format(formant)] +
+                constants['{}_trap'.format(formant)] +
+                constants['{}_goose'.format(formant)]) / 3
+
+        constants['{}_centroid'.format(f2)] = (
+            constants['{}_fleece'.format(f2)] +
+            constants['{}_goose'.format(f2)]) / 2
