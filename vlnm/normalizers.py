@@ -547,3 +547,70 @@ class NearyGMNormalizer(NearyNormalizer):
         for formant in formants:
             constants['{}_mu_log'.format(formant)] = mu_log
         return df
+
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel', 'f1', 'f2']
+)
+@Keywords(
+    required=['fleece', 'trap']
+)
+class WattFabricius(VowelNormalizer):
+    r"""
+    ..math::
+
+        F_i^\prime = \frac{F_i}{S(F_i)}
+
+    Where:
+
+    ..math::
+
+        S(F_j) = F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]
+
+    and
+
+    ..math::
+
+        F_1[/u^\prime/] = F_1[/u^\prime/] = F_1[/i/]
+
+    """
+    def __init__(self, **kwargs):
+        super(WattFabricius, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
+
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """
+        Calculate the speakers centroid.
+        """
+        constants = kwargs['constants']
+        formants = kwargs['formants']
+        vowel = kwargs['formants']
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+
+        for formant in formants:
+            constants['{}_fleece'.format(formant)] = (
+                df[df[vowel] == fleece][formant].mean())
+            constants['{}_trap'.format(formant)] = (
+                df[df[vowel] == trap][formant].mean())
+            constants['{}_goose'.format(formant)] = (
+                constants['{}_fleece'.format(formant)])
+            constants['{}_centroid'] = (
+                constants['{}_fleece'.format(formant)] +
+                constants['{}_trap'.format(formant)] +
+                constants['{}_goose'.format(formant)]) / 3
+
+    def norm(self, df, **kwargs):
+        constants = kwargs['constants']
+        formants = kwargs['formants']
+
+        for formant in formants:
+            centroid = constants['{}_centroid'.format(formant)]
+            df[formant] /= centroid
+
+        return df
