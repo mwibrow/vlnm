@@ -495,7 +495,6 @@ class NearyNormalizer(VowelNormalizer):
         for formant in formants:
             constants['{}_mu_log'.format(formant)] = (
                 np.mean(np.log(df[formant].dropna())))
-        return df
 
     def norm(self, df, **kwargs):
         constants = kwargs.get('constants')
@@ -546,7 +545,6 @@ class NearyGMNormalizer(NearyNormalizer):
         mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
         for formant in formants:
             constants['{}_mu_log'.format(formant)] = mu_log
-        return df
 
 
 @DocString
@@ -621,9 +619,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
         for formant in formants:
             centroid = constants['{}_centroid'.format(formant)]
             df[formant] /= centroid
-
         return df
-
 
 @DocString
 @Columns(
@@ -672,7 +668,6 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
             constants['{}_fleece'.format(f2)] +
             constants['{}_goose'.format(f2)]) / 2
 
-        return df
 
 @DocString
 @Columns(
@@ -741,3 +736,104 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
         constants['{}_centroid'.format(f2)] = (
             constants['{}_fleece'.format(f2)] +
             constants['{}_goose'.format(f2)]) / 2
+
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel']
+)
+@Keywords(
+    required=['apices']
+)
+class BighamNormalizer(WattFabriciusNormalizer):
+    r"""
+    ..math::
+
+        F_i^\prime = \frac{F_i}{S(F_i)}
+
+    Where:
+
+    ..math::
+
+        S(F_i) = \frac{1}{|q|}\sum_{q\in Q}F_i
+
+    Where :math:`Q` is the set of vowels at the apices
+    of the speakers vowel quadrilateral.
+
+
+    """
+    def __init__(self, **kwargs):
+        super(BighamNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
+
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """
+        Calculate the speakers centroid.
+        """
+        constants = kwargs['constants']
+        formants = kwargs['formants']
+        vowel = kwargs['vowel']
+        apices = kwargs['apices']
+
+        for formant in formants:
+            for apice in apices:
+                constants['{}_{}'.format(formant, apice)] = (
+                    df[df[vowel] == apice][formant].mean())
+
+
+            constants['{}_centroid'.format(formant)] = (
+                sum(constants['{}_{}'.format(formant, apice)]
+                    for apice in apices) / 4.)
+
+    def norm(self, df, **kwargs):
+        formants = kwargs['formants']
+        df = super(BighamNormalizer, self).norm(df, **kwargs)
+        for formant in formants:
+            df[formant] *= 100
+        return df
+
+@DocString
+@Columns(
+    required=['speaker', 'vowel']
+)
+@Keywords(
+    required=['schwa']
+)
+class SchwaNormalizer(WattFabriciusNormalizer):
+    r"""
+    ..math::
+
+        F_i^\prime = \frac{F_i}{F_i[/ə/]} - 1
+
+    """
+    def __init__(self, **kwargs):
+        super(SchwaNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
+
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """
+        Calculate the speakers centroid.
+        """
+        constants = kwargs['constants']
+        formants = kwargs['formants']
+        vowel = kwargs['vowel']
+        schwa = kwargs['schwa']
+
+        for formant in formants:
+            constants['{}_centroid'.format(formant)] = (
+                df[df[vowel] == schwa][formant].mean())
+
+    def norm(self, df, **kwargs):
+        formants = kwargs['formants']
+        df = super(SchwaNormalizer, self).norm(df, **kwargs)
+        for formant in formants:
+            df[formant] =- 1
+        return df
