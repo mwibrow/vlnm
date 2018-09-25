@@ -250,10 +250,8 @@ class NordstromNormalizer(VowelNormalizer):
         self.actions.update(
             gender=self.calculate_f3_means)
 
-    def calculate_f3_means(
-            self,
-            df,
-            **kwargs):  # pylint: disable=no-self-use
+    @staticmethod
+    def calculate_f3_means(df, **kwargs):
         """
         Calculate the f3 means.
         """
@@ -269,7 +267,7 @@ class NordstromNormalizer(VowelNormalizer):
         constants['mu_male'] = df[
             (df[gender] == male) & (df['f1'] > 600)]['f3'].mean()
 
-    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+    def norm(self, df, **kwargs):
         constants = kwargs['constants']
         gender = kwargs['gender']
         formants = [column for column in df.columns
@@ -357,19 +355,16 @@ class LCENormalizer(VowelNormalizer):
         )
         self.groups = ['speaker']
 
-    def get_speaker_max(
-            self,
-            df,
-            formants=None,
-            constants=None,
-            **__):  # pylint: disable=no-self-use
+    @staticmethod
+    def get_speaker_max(df, **kwargs):
         """Maximum formant values for a speaker."""
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants', [])
         for formant in formants:
             key = '{}_max'.format(formant)
             constants[key] = df[formant].max()
 
-
-    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+    def norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
         if not constants or not formants:
@@ -399,13 +394,11 @@ class GerstmanNormalizer(VowelNormalizer):
         )
         self.groups = ['speaker']
 
-    def speaker_range(
-            self,
-            df,
-            formants=None,
-            constants=None,
-            **__):  # pylint: disable=no-self-use
+    @staticmethod
+    def speaker_range(df, **kwargs):
         """Maximum and minimum formant values for a speaker."""
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
         for formant in formants:
             constants['{}_max'.format(formant)] = df[formant].max()
             constants['{}_min'.format(formant)] = df[formant].min()
@@ -444,10 +437,8 @@ class LobanovNormalizer(VowelNormalizer):
         )
         self.groups = ['speaker']
 
-    def speaker_stats(
-            self,
-            df,
-            **kwargs):  # pylint: disable=no-self-use
+    @staticmethod
+    def speaker_stats(df, **kwargs):
         """Mean and and standard deviation formant values for a speaker."""
 
         constants = kwargs.get('constants')
@@ -458,7 +449,7 @@ class LobanovNormalizer(VowelNormalizer):
             constants['{}_sigma'.format(formant)] = df[formant].std() or 0.
 
 
-    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+    def norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
 
@@ -472,7 +463,7 @@ class LobanovNormalizer(VowelNormalizer):
 @DocString
 @Columns(
     required=['speaker'],
-    optional=['method', 'transform']
+    optional=['transform']
 )
 class NearyNormalizer(VowelNormalizer):
     r"""
@@ -496,25 +487,17 @@ class NearyNormalizer(VowelNormalizer):
         )
         self.groups = ['speaker']
 
-    def speaker_stats(
-            self,
-            df,
-            **kwargs):  # pylint: disable=no-self-use
+    @staticmethod
+    def speaker_stats(df, **kwargs):
         """Mean log for speaker formants."""
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
-        method = kwargs.get('method', 'intrinsic')
-        if 'extrinsic' in method.lower():
-            mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
-            for formant in formants:
-                constants['{}_mu_log'.format(formant)] = mu_log
-        else:
-            for formant in formants:
-                constants['{}_mu_log'.format(formant)] = (
-                    np.mean(np.log(df[formant].dropna())))
+        for formant in formants:
+            constants['{}_mu_log'.format(formant)] = (
+                np.mean(np.log(df[formant].dropna())))
         return df
 
-    def norm(self, df, **kwargs):  # pylint: disable=no-self-use
+    def norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
 
@@ -528,75 +511,39 @@ class NearyNormalizer(VowelNormalizer):
         return df
 
 
-class Neary1Normalizer(NearyNormalizer):
+@DocString
+@Columns(
+    required=['speaker'],
+    optional=['transform']
+)
+class NearyGMNormalizer(NearyNormalizer):
     r"""
 
     ..math::
 
-        F_i^\prime = \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
-
-    Where :math:`\mu_{x}` is the mean of :math:`x`
-
-    """
-
-    def __init__(self, **kwargs):
-        kwargs['method'] = 'intrinsic'
-        kwargs['transform'] = False
-        super(Neary1Normalizer, self).__init__(**kwargs)
-
-
-class Neary2Normalizer(NearyNormalizer):
-    r"""
-
-    ..math::
-
-        F_i^\prime = \log\left(F_i\right) - \frac{1}{N}
-            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
-
-    Where :math:`\mu_{x}` is the mean of :math:`x`
-
-    """
-
-    def __init__(self, **kwargs):
-        kwargs['method'] = 'extrinsic'
-        kwargs['transform'] = False
-        super(Neary2Normalizer, self).__init__(**kwargs)
-
-
-class Neary1ExpNormalizer(NearyNormalizer):
-    r"""
-
-    ..math::
-
-        F_i^\prime = \exp\left(
-            \log\left(F_i\right) - \mu_{\log\left(F_i\right)}
+        F_i^\prime = T\left(
+            \log\left(F_i\right) - \frac{1}{n - m+ 1}
+                \sum_{j=m}{n}\mu_{\log\left(F_j\right)}
         \right)
 
-    Where :math:`\mu_{x}` is the mean of :math:`x`
+    Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,
+    and `m` and `n` are the lowest and hights formant indexes, respectively.
 
     """
 
     def __init__(self, **kwargs):
-        kwargs['method'] = 'intrinsic'
-        kwargs['transform'] = True
-        super(Neary1ExpNormalizer, self).__init__(**kwargs)
+        super(NearyGMNormalizer, self).__init__(**kwargs)
+        self.actions.update(
+            speaker=self.speaker_stats
+        )
+        self.groups = ['speaker']
 
-
-class Neary2ExpNormalizer(NearyNormalizer):
-    r"""
-
-    ..math::
-
-        F_i^\prime = \exp\left(
-            \log\left(F_i\right) - \frac{1}{N}
-            \sum_{j=0}{N}\mu_{\log\left(F_j\right)}
-        \right)
-
-    Where :math:`\mu_{x}` is the mean of :math:`x`
-
-    """
-
-    def __init__(self, **kwargs):
-        kwargs['method'] = 'extrinsic'
-        kwargs['transform'] = True
-        super(Neary2ExpNormalizer, self).__init__(**kwargs)
+    @staticmethod
+    def speaker_stats(df, **kwargs):
+        """Mean log for speaker formants."""
+        constants = kwargs.get('constants')
+        formants = kwargs.get('formants')
+        mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
+        for formant in formants:
+            constants['{}_mu_log'.format(formant)] = mu_log
+        return df
