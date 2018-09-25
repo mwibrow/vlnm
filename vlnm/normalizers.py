@@ -835,5 +835,5 @@ class SchwaNormalizer(WattFabriciusNormalizer):
         formants = kwargs['formants']
         df = super(SchwaNormalizer, self).norm(df, **kwargs)
         for formant in formants:
-            df[formant] =- 1
+            df[formant] -= 1
         return df
