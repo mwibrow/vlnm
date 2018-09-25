@@ -22,6 +22,7 @@ from vlnm.normalizers import (
     Log10Normalizer,
     MelNormalizer,
     NearyNormalizer,
+    NearyGMNormalizer,
     NordstromNormalizer)
 from vlnm.validation import (
     ChoiceKeywordMissingError,
@@ -398,7 +399,7 @@ class TestNordstromNormalizer(unittest.TestCase):
         mu_female = df[(df['gender'] == 'F') & (df['f1'] > 600)]['f3'].mean()
 
         constants = {}
-        NordstromNormalizer().calculate_f3_means(
+        NordstromNormalizer.calculate_f3_means(
             df,
             constants=constants,
             gender='gender',
@@ -457,7 +458,7 @@ class TestLCENormalizer(unittest.TestCase):
             for formant in formants:
                 expected['{}_max'.format(formant)] = df[formant].max()
             actual = {}
-            LCENormalizer().get_speaker_max(
+            LCENormalizer.get_speaker_max(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -563,7 +564,7 @@ class TestGerstmanNormalizer(unittest.TestCase):
                 expected['{}_min'.format(formant)] = df[formant].min()
                 expected['{}_max'.format(formant)] = df[formant].max()
             actual = {}
-            GerstmanNormalizer().speaker_range(
+            GerstmanNormalizer.speaker_range(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -646,7 +647,7 @@ class TestLobanovNormalizer(unittest.TestCase):
                 expected['{}_mu'.format(formant)] = df[formant].mean()
                 expected['{}_sigma'.format(formant)] = df[formant].std() or 0.
             actual = {}
-            LobanovNormalizer().speaker_stats(
+            LobanovNormalizer.speaker_stats(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -729,26 +730,9 @@ class TestNearyNormalizer(unittest.TestCase):
                 expected['{}_mu_log'.format(formant)] = (
                     np.mean(np.log(df[formant].dropna())))
             actual = {}
-            NearyNormalizer().speaker_stats(
+            NearyNormalizer.speaker_stats(
                 df,
                 formants=self.kwargs['formants'],
-                constants=actual)
-            self.assertDictEqual(actual, expected)
-
-    def test_speaker_stats_extrinsic(self):
-        """Check speaker parameter values for all speakers."""
-        for speaker in self.df['speaker'].unique():
-            df = self.df[self.df['speaker'] == speaker]
-            formants = self.kwargs['formants']
-            expected = {}
-            for formant in formants:
-                expected['{}_mu_log'.format(formant)] = np.mean(
-                    np.mean(np.log(df[formants].dropna())))
-            actual = {}
-            NearyNormalizer().speaker_stats(
-                df,
-                formants=self.kwargs['formants'],
-                method='extrinsic',
                 constants=actual)
             self.assertDictEqual(actual, expected)
 
@@ -808,9 +792,73 @@ class TestNearyNormalizer(unittest.TestCase):
 
                 assert_series_equal(actual, expected)
 
-    def test_output_extrinsic(self):
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual = NearyNormalizer().normalize(
+            self.df, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+                    list(rename.format(f) for f in self.formants))
+        actual = NearyNormalizer().normalize(
+            self.df, rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+
+class TestNearyGMNormalizer(unittest.TestCase):
+    """Tests for the NearyGMNormalizer Class. """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(formants=self.formants)
+
+    def test_speaker_stats(self):
+        """Check speaker parameter values for all speakers."""
+        for speaker in self.df['speaker'].unique():
+            df = self.df[self.df['speaker'] == speaker]
+            formants = self.kwargs['formants']
+            expected = {}
+            for formant in formants:
+                expected['{}_mu_log'.format(formant)] = np.mean(
+                    np.mean(np.log(df[formants].dropna())))
+            actual = {}
+            NearyGMNormalizer.speaker_stats(
+                df,
+                formants=self.kwargs['formants'],
+                method='extrinsic',
+                constants=actual)
+            self.assertDictEqual(actual, expected)
+
+    def test_no_speaker(self):
+        """No speaker column raises error."""
+        df = self.df.copy().drop('speaker', axis=1)
+        with self.assertRaises(RequiredColumnMissingError):
+            NearyGMNormalizer().normalize(df, **self.kwargs)
+
+    def test_no_aliased_speaker(self):
+        """No alised speaker column raises error."""
+
+        df = self.df.copy()
+        with self.assertRaises(RequiredColumnAliasMissingError):
+            NearyGMNormalizer().normalize(
+                df,
+                speaker='participant',
+                **self.kwargs)
+
+    def test_output(self):
         """Check output for extrinsic normalizer."""
-        df = NearyNormalizer().normalize(
+        df = NearyGMNormalizer().normalize(
             self.df.copy(),
             method='extrinsic',
             **self.kwargs)
@@ -829,9 +877,9 @@ class TestNearyNormalizer(unittest.TestCase):
 
                 assert_series_equal(actual, expected)
 
-    def test_output_extrinsic_transform(self):
+    def test_output_transform(self):
         """Check output for extrinsic normalizer with exponential transform."""
-        df = NearyNormalizer().normalize(
+        df = NearyGMNormalizer().normalize(
             self.df.copy(),
             method='extrinsic',
             transform=True,
@@ -855,7 +903,7 @@ class TestNearyNormalizer(unittest.TestCase):
     def test_default_columns(self):
         """Check default columns returned."""
         expected = self.df.columns
-        actual = NearyNormalizer().normalize(
+        actual = NearyGMNormalizer().normalize(
             self.df, **self.kwargs).columns
 
         expected = sorted(expected)
@@ -867,7 +915,7 @@ class TestNearyNormalizer(unittest.TestCase):
         rename = '{}\''
         expected = (list(self.df.columns) +
                     list(rename.format(f) for f in self.formants))
-        actual = NearyNormalizer().normalize(
+        actual = NearyGMNormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
 
         expected = sorted(expected)
