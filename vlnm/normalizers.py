@@ -621,6 +621,9 @@ class WattFabriciusNormalizer(VowelNormalizer):
             df[formant] /= centroid
         return df
 
+WaltFabricious1Normalizer = WattFabriciusNormalizer
+
+
 @DocString
 @Columns(
     required=['speaker', 'vowel', 'f1', 'f2']
@@ -793,7 +796,7 @@ class BighamNormalizer(WattFabriciusNormalizer):
         formants = kwargs['formants']
         df = super(BighamNormalizer, self).norm(df, **kwargs)
         for formant in formants:
-            df[formant] *= 100
+            df[formant] *= 100.
         return df
 
 @DocString
