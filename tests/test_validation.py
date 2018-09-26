@@ -297,6 +297,7 @@ class TestKeywordValidationErrors(unittest.TestCase):
                 dict(gender_label=['female', 'male']),
                 dict())
 
+
 class TestValidateGroups(unittest.TestCase):
     """
     Check groups do not contain required or choice columns
