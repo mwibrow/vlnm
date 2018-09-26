@@ -113,9 +113,9 @@ class GroupsContainRequiredColumnError(Exception):
     """
 
 
-class GroupsContainOptionalColumnError(Exception):
+class GroupsContainChoiceColumnError(Exception):
     """
-    Exception raised when a required column is in the groups specification.
+    Exception raised when a choice column is in the groups specification.
     """
 
 def validate_columns(normalizer, df, columns, aliases, **kwargs):
@@ -227,22 +227,22 @@ def validate_choice_keywords(normalizer, choices, actual):
                     )), None)
     return True
 
-def validate_groups(columns, groups, aliases):
+def validate_groups(required, choice, groups, aliases):
     """
     Check required and choice columns are not in the groups.
     """
-    if columns.required:
-        for column in columns.required:
+    required = required or []
+    choice = choice or []
+    for column in required:
+        if aliases.get(column, column) in groups:
+            raise_from(GroupsContainRequiredColumnError(
+                'Required column {column} was specified as a '
+                'grouping column'.format(
+                    column=column)), None)
+    for choices in choice:
+        for column in choice[choices]:
             if aliases.get(column, column) in groups:
-                raise_from(GroupsContainRequiredColumnError(
-                    'Required column {column} was specified as a '
+                raise_from(GroupsContainChoiceColumnError(
+                    'Choice column {column} was specified as a '
                     'grouping column'.format(
                         column=column)), None)
-    if columns.choice:
-        for choices in columns.choice:
-            for column in choices:
-                if aliases.get(column, column) in groups:
-                    raise_from(GroupsContainRequiredColumnError(
-                        'Choice column {column} was specified as a '
-                        'grouping column'.format(
-                            column=column)), None)
