@@ -8,12 +8,13 @@ import unittest
 import pandas as pd
 
 from vlnm.base import VowelNormalizer
-
 from vlnm.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
     ChoiceKeywordMissingError,
     Columns,
+    GroupsContainChoiceColumnError,
+    GroupsContainRequiredColumnError,
     Keywords,
     Name,
     Parameters,
@@ -22,6 +23,7 @@ from vlnm.validation import (
     RequiredKeywordMissingError,
     validate_choice_columns,
     validate_choice_keywords,
+    validate_groups,
     validate_keywords,
     validate_required_columns,
     validate_required_keywords)
@@ -294,3 +296,53 @@ class TestKeywordValidationErrors(unittest.TestCase):
                 self.normalizer,
                 dict(gender_label=['female', 'male']),
                 dict())
+
+
+class TestValidateGroups(unittest.TestCase):
+    """
+    Check groups do not contain required or choice columns
+    """
+
+    def test_required_column_in_groups(self):
+        """
+        Required column in group raises error.
+        """
+        with self.assertRaises(GroupsContainRequiredColumnError):
+            validate_groups(
+                ['speaker'],
+                {},
+                ['age', 'speaker', 'vowel'],
+                {})
+
+    def test_required_column_alias_in_groups(self):
+        """
+        Required column alias in group raises error.
+        """
+        with self.assertRaises(GroupsContainRequiredColumnError):
+            validate_groups(
+                ['speaker'],
+                {},
+                ['age', 'participant', 'vowel'],
+                dict(speaker='participant'))
+
+    def test_choice_column_in_groups(self):
+        """
+        Choice column in group raises error.
+        """
+        with self.assertRaises(GroupsContainChoiceColumnError):
+            validate_groups(
+                [],
+                dict(formants=['f0', 'f2']),
+                ['age', 'f0', 'vowel'],
+                {})
+
+    def test_choice_column_alias_in_groups(self):
+        """
+        Required column alias in group raises error.
+        """
+        with self.assertRaises(GroupsContainChoiceColumnError):
+            validate_groups(
+                [],
+                dict(formants=['f0', 'f2']),
+                ['age', 'f0@50', 'vowel'],
+                dict(f0='f0@50'))

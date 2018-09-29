@@ -35,6 +35,20 @@ class VowelNormalizer:
         self.actions = {}
         self.groups = kwargs.pop('groups', [])
 
+    @classmethod
+    def get_columns(cls):
+        """
+        Return the column specification for this cass
+        """
+        return cls._columns
+
+    @classmethod
+    def get_keywords(cls):
+        """
+        Return the keywords specification for this cass
+        """
+        return cls._keywords
+
     def validate(self, df, aliases, **options):
         """
         Validate the arguments given to the normalize method.
@@ -80,14 +94,28 @@ class VowelNormalizer:
 
         self.validate(df, aliases, **options)
 
-        return self.partition(
-            df,
+        options.update(
             formants=formants,
             groups=groups,
             actions=actions,
             constants=constants,
-            aliases=aliases,
-            **options)
+            aliases=aliases
+        )
+        self.pre_partition(df, **options)
+        normed_df = self.partition(df, **options)
+        return self.post_partition(normed_df, **options)
+
+    def pre_partition(self, df, **_):  # pylint: disable=no-self-use
+        """
+        Process data prior to partitioning.
+        """
+        return df
+
+    def post_partition(self, df, **_):  # pylint: disable=no-self-use
+        """
+        Process data after partitioning.
+        """
+        return df
 
     def partition(self, df, **kwargs):
         """

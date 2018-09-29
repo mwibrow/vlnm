@@ -76,29 +76,46 @@ class RequiredColumnMissingError(Exception):
     Exception raised when a required column is missing.
     """
 
+
 class RequiredColumnAliasMissingError(Exception):
     """
     Exception raised when an aliased column is missing.
     """
+
 
 class ChoiceColumnMissingError(Exception):
     """
     Exception raised when a choice column is missing.
     """
 
+
 class ChoiceColumnAliasMissingError(Exception):
     """
-    Exception raises when a choice alised column is missing.
+    Exception raised when a choice alised column is missing.
     """
+
 
 class RequiredKeywordMissingError(Exception):
     """
-    Exception raise when a required keyword is missing.
+    Exception raisd when a required keyword is missing.
     """
+
 
 class ChoiceKeywordMissingError(Exception):
     """
-    Exception raise when a choice column is missing.
+    Exception raised when a choice keyword is missing.
+    """
+
+
+class GroupsContainRequiredColumnError(Exception):
+    """
+    Exception raised when a required column is in the groups specification.
+    """
+
+
+class GroupsContainChoiceColumnError(Exception):
+    """
+    Exception raised when a choice column is in the groups specification.
     """
 
 def validate_columns(normalizer, df, columns, aliases, **kwargs):
@@ -209,3 +226,23 @@ def validate_choice_keywords(normalizer, choices, actual):
                     keywords=nameify(keywords, junction='or', quote='\'')
                     )), None)
     return True
+
+def validate_groups(required, choice, groups, aliases):
+    """
+    Check required and choice columns are not in the groups.
+    """
+    required = required or []
+    choice = choice or []
+    for column in required:
+        if aliases.get(column, column) in groups:
+            raise_from(GroupsContainRequiredColumnError(
+                'Required column {column} was specified as a '
+                'grouping column'.format(
+                    column=column)), None)
+    for choices in choice:
+        for column in choice[choices]:
+            if aliases.get(column, column) in groups:
+                raise_from(GroupsContainChoiceColumnError(
+                    'Choice column {column} was specified as a '
+                    'grouping column'.format(
+                        column=column)), None)
