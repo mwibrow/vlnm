@@ -720,9 +720,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
         trap = kwargs.get('trap', 'trap')
         fleece = kwargs.get('fleece', 'fleece')
 
-        aliases = kwargs.get('aliases')
-        point_vowels = [aliases.get(point_vowel, point_vowel)
-                        for point_vowel in kwargs.get('point_vowel')]
+        point_vowels = kwargs.get('point_vowels')
 
         for formant in formants:
             constants['{}_fleece'.format(formant)] = (
@@ -733,7 +731,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
                 df[df[vowel].isin(point_vowels)].groupby(
                     vowel).apply(lambda x, i=formant: x[i].mean()).min()).min()
 
-            constants['{}_centroid'] = (
+            constants['{}_centroid'.format(formant)] = (
                 constants['{}_fleece'.format(formant)] +
                 constants['{}_trap'.format(formant)] +
                 constants['{}_goose'.format(formant)]) / 3
