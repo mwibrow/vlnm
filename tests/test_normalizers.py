@@ -5,6 +5,7 @@ Tests for the normalize module.
 import unittest
 
 import numpy as np
+import pandas as pd
 
 from vlnm.conversion import (
     hz_to_bark,
@@ -23,11 +24,13 @@ from vlnm.normalizers import (
     MelNormalizer,
     NearyNormalizer,
     NearyGMNormalizer,
-    NordstromNormalizer)
+    NordstromNormalizer,
+    WattFabriciusNormalizer)
 from vlnm.validation import (
     ChoiceKeywordMissingError,
     RequiredColumnMissingError,
-    RequiredColumnAliasMissingError
+    RequiredColumnAliasMissingError,
+    RequiredKeywordMissingError
 )
 from tests.helpers import (
     assert_frame_equal,
@@ -917,6 +920,123 @@ class TestNearyGMNormalizer(unittest.TestCase):
                     list(rename.format(f) for f in self.formants))
         actual = NearyGMNormalizer().normalize(
             self.df, rename=rename, **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+
+class TestWattFabriciusNormalizer(unittest.TestCase):
+    """Tests for the WattFabriciusNormalizer Class. """
+
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.kwargs = dict(formants=self.formants)
+
+    def test_missing_required_columns(self):
+        """Missing required columns raises error."""
+        normalizer = WattFabriciusNormalizer()
+        for column in normalizer.get_columns().required:
+
+            df = self.df.copy().drop(column, axis=1)
+            with self.assertRaises(RequiredColumnMissingError):
+                normalizer.normalize(df, **self.kwargs)
+
+    def test_missing_aliased_columns(self):
+        """Missing aliased speaker column raises error."""
+        normalizer = WattFabriciusNormalizer()
+        for column in normalizer.get_columns().required:
+            df = self.df.copy()
+            alias = '{}_alias'.format(column)
+            df = df.drop(column, axis=1)
+
+            kwargs = {}
+            kwargs.update(**self.kwargs)
+            kwargs[column] = alias
+
+            with self.assertRaises(RequiredColumnAliasMissingError):
+                normalizer.normalize(
+                    df,
+                    **kwargs)
+
+    def test_missing_keywords(self):
+        """Missing keywords raises error."""
+        normalizer = WattFabriciusNormalizer()
+        keywords = normalizer.get_keywords().required
+        for keyword in keywords:
+            df = self.df.copy()
+            kwargs = {}
+            kwargs.update(**self.kwargs)
+            kwargs[keyword] = keyword
+
+            with self.assertRaises(RequiredKeywordMissingError):
+                normalizer.normalize(
+                    df,
+                    **kwargs)
+
+    def test_speaker_stats(self):
+        """Check speaker parameter values for all speakers."""
+        df = pd.DataFrame(dict(
+            speaker=['s1', 's1'],
+            vowel=['fleece', 'trap'],
+            f1=[100., 250.],
+            f2=[400., 450.]
+        ))
+        constants = {}
+        formants = ['f1', 'f2']
+        WattFabriciusNormalizer.speaker_stats(
+            df,
+            formants=formants,
+            f1='f1',
+            f2='f2',
+            vowel='vowel',
+            fleece='fleece',
+            trap='trap',
+            constants=constants)
+
+        expected = dict(
+            f1_fleece=100.,
+            f2_fleece=400.,
+            f1_trap=250.,
+            f2_trap=450.,
+            f1_goose=100.,
+            f2_goose=100.,
+            f1_centroid=(100 + 250 + 100) / 3,
+            f2_centroid=(400 + 450 + 100) / 3)
+
+        self.assertDictEqual(
+            constants,
+            expected)
+
+    def test_default_columns(self):
+        """Check default columns returned."""
+        expected = self.df.columns
+        actual = WattFabriciusNormalizer().normalize(
+            self.df,
+            f1='f1',
+            f2='f2',
+            fleece='i',
+            trap='a',
+            **self.kwargs).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}\''
+        expected = (list(self.df.columns) +
+                    list(rename.format(f) for f in self.formants))
+        actual = WattFabriciusNormalizer().normalize(
+            self.df,
+            f1='f1',
+            f2='f2',
+            fleece='i',
+            trap='a',
+            rename=rename,
+            **self.kwargs).columns
 
         expected = sorted(expected)
         actual = sorted(actual)
