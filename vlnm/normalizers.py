@@ -717,8 +717,8 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
         formants = kwargs['formants']
         f2 = kwargs.get('f2', 'f2')
         vowel = kwargs.get('vowel', 'vowel')
-        trap = kwargs['trap']
-        fleece = kwargs['fleece']
+        trap = kwargs.get('trap', 'trap')
+        fleece = kwargs.get('fleece', 'fleece')
 
         aliases = kwargs.get('aliases')
         point_vowels = [aliases.get(point_vowel, point_vowel)
