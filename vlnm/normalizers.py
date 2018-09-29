@@ -665,7 +665,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
         super(WattFabricius2Normalizer).speaker_stats(df, **kwargs)
         constants = kwargs['constants']
 
-        f2 = kwargs['f2']
+        f2 = kwargs.get('f2', 'f2')
 
         constants['{}_centroid'.format(f2)] = (
             constants['{}_fleece'.format(f2)] +
@@ -713,8 +713,8 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
         """
         constants = kwargs['constants']
         formants = kwargs['formants']
-        f2 = kwargs['f2']
-        vowel = kwargs['vowel']
+        f2 = kwargs.get('f2', 'f2')
+        vowel = kwargs.get('vowel', 'vowel')
         trap = kwargs['trap']
         fleece = kwargs['fleece']
 
@@ -779,7 +779,7 @@ class BighamNormalizer(WattFabriciusNormalizer):
         """
         constants = kwargs['constants']
         formants = kwargs['formants']
-        vowel = kwargs['vowel']
+        vowel = kwargs.get('vowel', 'vowel')
         apices = kwargs['apices']
 
         for formant in formants:

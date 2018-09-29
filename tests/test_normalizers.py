@@ -1014,8 +1014,6 @@ class TestWattFabriciusNormalizer(unittest.TestCase):
         expected = self.df.columns
         actual = WattFabriciusNormalizer().normalize(
             self.df,
-            f1='f1',
-            f2='f2',
             fleece='i',
             trap='a',
             **self.kwargs).columns
@@ -1031,8 +1029,6 @@ class TestWattFabriciusNormalizer(unittest.TestCase):
                     list(rename.format(f) for f in self.formants))
         actual = WattFabriciusNormalizer().normalize(
             self.df,
-            f1='f1',
-            f2='f2',
             fleece='i',
             trap='a',
             rename=rename,
