@@ -790,7 +790,7 @@ class BighamNormalizer(WattFabriciusNormalizer):
 
             constants['{}_centroid'.format(formant)] = (
                 sum(constants['{}_{}'.format(formant, apice)]
-                    for apice in apices) / 4.)
+                    for apice in apices) / len(apices))
 
     def norm(self, df, **kwargs):
         formants = kwargs['formants']
@@ -827,7 +827,7 @@ class SchwaNormalizer(WattFabriciusNormalizer):
         """
         constants = kwargs['constants']
         formants = kwargs['formants']
-        vowel = kwargs['vowel']
+        vowel = kwargs.get('vowel', 'vowel')
         schwa = kwargs['schwa']
 
         for formant in formants:

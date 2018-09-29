@@ -9,6 +9,7 @@ import pandas as pd
 from vlnm.normalizers import (
     BighamNormalizer,
     VowelNormalizer,
+    SchwaNormalizer,
     WattFabriciusNormalizer,
     WattFabricius2Normalizer,
     WattFabricius3Normalizer)
@@ -259,6 +260,7 @@ class TestWattFabricius3Normalizer(BaseTestCases.TestCentroidNormalizer):
             constants,
             expected)
 
+
 class TestBighamNormalizer(BaseTestCases.TestCentroidNormalizer):
     """Tests for the BighamNormalizer Class. """
 
@@ -289,6 +291,35 @@ class TestBighamNormalizer(BaseTestCases.TestCentroidNormalizer):
                 speaker_df,
                 constants=actual,
                 apices=apices,
+                **self.kwargs)
+
+            self.assertDictEqual(actual, expected)
+
+
+class TestSchwaNormalizer(BaseTestCases.TestCentroidNormalizer):
+    """Tests for the SchwaNormalizer Class. """
+
+    normalizer = SchwaNormalizer
+    required_kwargs = dict(
+        schwa='e')
+
+    def test_speaker_stats(self):
+        """Check speaker parameter values for all speakers."""
+        schwa = 'e'
+        df = self.df.copy()
+        for speaker in df['speaker'].unique():
+            speaker_df = df[df['speaker'] == speaker]
+
+            actual = {}
+            expected = {}
+            for formant in self.formants:
+                expected['{}_centroid'.format(formant)] = (
+                    speaker_df[speaker_df['vowel'] == schwa][formant].mean())
+
+            SchwaNormalizer.speaker_stats(
+                speaker_df,
+                constants=actual,
+                schwa=schwa,
                 **self.kwargs)
 
             self.assertDictEqual(actual, expected)
