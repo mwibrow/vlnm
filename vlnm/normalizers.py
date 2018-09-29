@@ -662,7 +662,9 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
         """
         Calculate the speakers centroid.
         """
-        super(WattFabricius2Normalizer).speaker_stats(df, **kwargs)
+        super(
+            WattFabricius2Normalizer,
+            WattFabricius2Normalizer).speaker_stats(df, **kwargs)
         constants = kwargs['constants']
 
         f2 = kwargs.get('f2', 'f2')
