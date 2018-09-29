@@ -35,6 +35,20 @@ class VowelNormalizer:
         self.actions = {}
         self.groups = kwargs.pop('groups', [])
 
+    @classmethod
+    def get_columns(cls):
+        """
+        Return the column specification for this cass
+        """
+        return cls._columns
+
+    @classmethod
+    def get_keywords(cls):
+        """
+        Return the keywords specification for this cass
+        """
+        return cls._keywords
+
     def validate(self, df, aliases, **options):
         """
         Validate the arguments given to the normalize method.

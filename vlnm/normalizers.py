@@ -587,9 +587,9 @@ class WattFabriciusNormalizer(VowelNormalizer):
         """
         constants = kwargs['constants']
         formants = kwargs['formants']
-        f1 = kwargs['f1']
-        f2 = kwargs['f2']
-        vowel = kwargs['vowel']
+        f1 = kwargs.get('f1', 'f1')
+        f2 = kwargs.get('f2', 'f2')
+        vowel = kwargs.get('vowel', 'vowel')
         trap = kwargs['trap']
         fleece = kwargs['fleece']
 
@@ -607,7 +607,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
             constants['{}_fleece'.format(f1)])
 
         for formant in formants:
-            constants['{}_centroid'] = (
+            constants['{}_centroid'.format(formant)] = (
                 constants['{}_fleece'.format(formant)] +
                 constants['{}_trap'.format(formant)] +
                 constants['{}_goose'.format(formant)]) / 3
