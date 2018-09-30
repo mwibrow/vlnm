@@ -3,8 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to VLNM's documentation!
-================================
+VLNM
+====
+
+|build status| |coverage|
+
+**VLNM** is a Python package providing a comprehensive
+range of vowel normalization methods
+for phonetics researchers primarily working in
+developmental linguistics and
+sociolinguistics.
 
 .. toctree::
    :maxdepth: 2
@@ -20,3 +28,9 @@ Indices and tables
 * :ref:`search`
 
 .. include:: modules.rst
+
+.. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
+    :target: https://travis-ci.org/mwibrow/vlnm
+
+.. |coverage| image:: https://coveralls.io/repos/github/mwibrow/vlnm/badge.svg
+    :target: https://coveralls.io/github/mwibrow/vlnm
