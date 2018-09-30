@@ -10,9 +10,7 @@ from vlnm.normalizers.normalizers import (
     BladenNormalizer,
     NordstromNormalizer)
 from vlnm.normalizers.validation import (
-    ChoiceKeywordMissingError,
-    RequiredColumnMissingError,
-    RequiredColumnAliasMissingError)
+    ChoiceKeywordMissingError)
 from tests.helpers import (
     generate_data_frame,
     BaseTestCases)
