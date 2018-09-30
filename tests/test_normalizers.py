@@ -2,6 +2,8 @@
 Tests for the normalize module.
 """
 
+# pylint: disable=protected-access
+
 import unittest
 
 import numpy as np
@@ -93,7 +95,7 @@ class TestLCENormalizer(unittest.TestCase):
         """No constants in norm method returns data frame."""
         df = True  # Actual value doesn't matter
         expected = df
-        actual = LCENormalizer().norm(
+        actual = LCENormalizer()._norm(
             df, formants=['f0', 'f1', 'f2'], constants={})
         self.assertEqual(expected, actual)
 
@@ -101,7 +103,7 @@ class TestLCENormalizer(unittest.TestCase):
         """No formants in norm method returns data frame."""
         df = True  # Actual value doesn't matter
         expected = df
-        actual = LCENormalizer().norm(
+        actual = LCENormalizer()._norm(
             df, formants={}, constants=dict(mu=1.))
         self.assertEqual(expected, actual)
 

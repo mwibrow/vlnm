@@ -39,7 +39,7 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
     {{columns}}
     {{keywords}}
     """
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -67,7 +67,7 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -95,7 +95,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
        F_i^N = \log_{10}\left(F_i\right)
 
     """
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -120,7 +120,7 @@ class LogNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -145,11 +145,11 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     .. math::
 
-       F_i^N = 1127 \ln\left(1 + \displayfrac{F_i}{700}\right)
+       F_i^N = 1127 \ln\left(1 + \frac{F_i}{700}\right)
 
     {{columns}}
     """
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         """
         Transform formants.
         """
@@ -197,7 +197,7 @@ class BladenNormalizer(VowelNormalizer):
     speaker :math:`k` is identified/identifying as female and 0 otherwise.
     """
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         aliases = kwargs.get('aliases')
         gender = kwargs.get('gender') or aliases.get('gender') or 'gender'
         formants = [column for column in df.columns
@@ -228,15 +228,15 @@ class NordstromNormalizer(VowelNormalizer):
     r"""
     .. math::
 
-        F_i^\prime F_i \left(
+        F_i^\prime = F_i \left(
                 1 + I(F_i)\left(
-                    \displayfrac{
-                        \mu_{F_3}^{\mbox{male}}
+                    \frac{
+                        \mu_{F_3}^{\small{male}}
                     }{
-                        \mu_{F_3}^{\mbox{female}}
+                        \mu_{F_3}^{\small{female}}
                     }
                 \right)
-            \right
+            \right)
 
     Where :math:`\mu_{F_3}` is the mean :math:`F_3` across
     all vowels where :math:`F_1` is greater than 600Hz,
@@ -268,7 +268,7 @@ class NordstromNormalizer(VowelNormalizer):
         constants['mu_male'] = df[
             (df[gender] == male) & (df['f1'] > 600)]['f3'].mean()
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs['constants']
         gender = kwargs['gender']
         formants = [column for column in df.columns
@@ -314,7 +314,7 @@ class BarkDifferenceNormalizer(VowelNormalizer):
     depending on the context.
     """
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
 
         convert = kwargs.get('hz_to_bark', hz_to_bark)
 
@@ -345,7 +345,7 @@ class LCENormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime F_i \displayfrac{F_i}{\max{F_i}}
+        F_i^\prime = F_i \frac{F_i}{\max{F_i}}
 
     """
 
@@ -365,7 +365,7 @@ class LCENormalizer(VowelNormalizer):
             key = '{}_max'.format(formant)
             constants[key] = df[formant].max()
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
         if not constants or not formants:
@@ -384,7 +384,7 @@ class GerstmanNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^\prime = F_i \frac{F_i - \min{F_i}}{\max{F_i}}
 
     """
 
@@ -405,7 +405,7 @@ class GerstmanNormalizer(VowelNormalizer):
             constants['{}_min'.format(formant)] = df[formant].min()
 
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs.get('constants', [])
         formants = kwargs.get('formants', [])
 
@@ -424,7 +424,7 @@ class LobanovNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
+        F_i^\prime = F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
 
     Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
     mean and standard deviation (respectively) of the
@@ -450,7 +450,7 @@ class LobanovNormalizer(VowelNormalizer):
             constants['{}_sigma'.format(formant)] = df[formant].std() or 0.
 
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
 
@@ -497,7 +497,7 @@ class NearyNormalizer(VowelNormalizer):
             constants['{}_mu_log'.format(formant)] = (
                 np.mean(np.log(df[formant].dropna())))
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
 
@@ -565,7 +565,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
 
     .. math::
 
-        S(F_j) = \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
+        S(F_j) = \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
 
     and
 
@@ -613,7 +613,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
                 constants['{}_trap'.format(formant)] +
                 constants['{}_goose'.format(formant)]) / 3
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         constants = kwargs['constants']
         formants = kwargs['formants']
 
@@ -643,18 +643,18 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     .. math::
 
         S(F_j) = \begin{cases}
-            \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
+            \frac{1}{2}\left(F_j^{/i/} + F_j^{/u^\prime/}\right)
             & \text{when } j = 2
             \\
-            \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
-            & text{otherwise}
+            \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
+            & \text{otherwise}
         \end{cases}
 
     and
 
     .. math::
 
-        F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
+        F_1^{/u^\prime/} = F_2^{/u^\prime/} = F_1^{/i/}
 
     """
 
@@ -693,18 +693,18 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
     .. math::
 
         S(F_j) = \begin{cases}
-            \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
+            \frac{1}{2}\left(F_j^{/i/} + F_j^{/u^\prime/}\right)
             & \text{when } j = 2
             \\
-            \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
-            & text{otherwise}
+            \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
+            & \text{otherwise}
         \end{cases}
 
     and
 
     .. math::
 
-        F_j[/u^\prime/] = \text{argmin}_\rho \mu_{F_k[rho \in P]}
+        F_j^{/u^\prime/} = \underset{\rho}{\text{argmin}} \mu_{F_k^{/\rho \in P/}}
 
     where :math:`P` is the set of point vowels.
     """
@@ -796,9 +796,9 @@ class BighamNormalizer(WattFabriciusNormalizer):
                 sum(constants['{}_{}'.format(formant, apice)]
                     for apice in apices) / len(apices))
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         formants = kwargs['formants']
-        df = super(BighamNormalizer, self).norm(df, **kwargs)
+        df = super(BighamNormalizer, self)._norm(df, **kwargs)
         for formant in formants:
             df[formant] *= 100.
         return df
@@ -814,7 +814,7 @@ class SchwaNormalizer(WattFabriciusNormalizer):
     r"""
     .. math::
 
-        F_i^\prime = \frac{F_i}{F_i[/ə/]} - 1
+        F_i^\prime = \frac{F_i}{F_{i[/ə/]}} - 1
 
     """
     def __init__(self, **kwargs):
@@ -838,9 +838,9 @@ class SchwaNormalizer(WattFabriciusNormalizer):
             constants['{}_centroid'.format(formant)] = (
                 df[df[vowel] == schwa][formant].mean())
 
-    def norm(self, df, **kwargs):
+    def _norm(self, df, **kwargs):
         formants = kwargs['formants']
-        df = super(SchwaNormalizer, self).norm(df, **kwargs)
+        df = super(SchwaNormalizer, self)._norm(df, **kwargs)
         for formant in formants:
             df[formant] -= 1
         return df

@@ -179,7 +179,7 @@ class VowelNormalizer:
             formants + groups,
             aliases)
 
-        normed_df = self.norm(
+        normed_df = self._norm(
             group_df,
             formants=formants,
             constants=constants,
@@ -200,10 +200,7 @@ class VowelNormalizer:
         return df
 
 
-    def norm(self, df, **kwargs):  # pylint: disable=no-self-use,unused-argument
-        """
-        Default normalizer transform: do nothing.
-        """
+    def _norm(self, df, **_):  # pylint: disable=no-self-use,unused-argument
         return df
 
 
@@ -228,7 +225,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
 
         group_df = df.copy()
         group_df = prepare_df(group_df, formants, aliases)
-        normed_df = self.norm(group_df, **kwargs)
+        normed_df = self._norm(group_df, **kwargs)
 
         returns = self._returns or formants
         if rename:
@@ -242,7 +239,7 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
 
         return df
 
-    def norm(self, df, **_):  # pylint: disable=no-self-use
+    def _norm(self, df, **_):  # pylint: disable=no-self-use
         """
         Default transform for formant intrinsic normalizers
         """
