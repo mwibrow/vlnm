@@ -571,7 +571,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
+        F_1^{/u^\prime/} = F_2^{/u^\prime/} = F_1^{/i/}
 
     """
     def __init__(self, **kwargs):

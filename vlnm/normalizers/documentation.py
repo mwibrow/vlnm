@@ -37,9 +37,6 @@ def document_keywords(name, keywords):
     Generate keyword documentation.
     """
     docstring = '''
-    Keyword arguments
-    =================
-
-
-    '''
-    return docstring.strip()
+    {} {}
+    '''.format(name, keywords)
+    return docstring[-1:]
