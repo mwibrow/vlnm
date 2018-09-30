@@ -2,7 +2,7 @@
 Export normaliszers
 """
 
-from vlnm.normalizers import (
+from vlnm.normalizers.normalizers import (
     BarkDifferenceNormalizer,
     BarkNormalizer,
     BighamNormalizer,

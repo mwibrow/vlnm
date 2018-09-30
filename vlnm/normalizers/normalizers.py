@@ -7,7 +7,7 @@ from vlnm.normalizers.base import (
     FORMANTS,
     VowelNormalizer,
     FormantIntrinsicNormalizer)
-from vlnm.normalizers.conversion import (
+from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
