@@ -3,16 +3,16 @@ Normalizers
 """
 import numpy as np
 
-from vlnm.base import (
+from vlnm.normalizers.base import (
     FORMANTS,
     VowelNormalizer,
     FormantIntrinsicNormalizer)
-from vlnm.conversion import (
+from vlnm.normalizers.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from vlnm.documentation import DocString
-from vlnm.validation import (
+from vlnm.normalizers.documentation import DocString
+from vlnm.normalizers.validation import (
     Columns,
     Keywords)
 

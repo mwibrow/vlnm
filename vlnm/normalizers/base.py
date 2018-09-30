@@ -4,7 +4,7 @@ Vowel normalizer module
 
 import pandas as pd
 
-from vlnm.validation import (
+from vlnm.normalizers.validation import (
     Parameters,
     validate_columns,
     validate_keywords)

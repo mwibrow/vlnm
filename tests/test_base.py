@@ -4,7 +4,7 @@ Tests for normalizer base classes
 
 import unittest
 
-from vlnm.base import (
+from vlnm.normalizers.base import (
     FormantIntrinsicNormalizer,
     VowelNormalizer)
 

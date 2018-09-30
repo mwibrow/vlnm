@@ -6,14 +6,14 @@ import unittest
 
 import pandas as pd
 
-from vlnm.normalizers import (
+from vlnm.normalizers.normalizers import (
     BighamNormalizer,
     VowelNormalizer,
     SchwaNormalizer,
     WattFabriciusNormalizer,
     WattFabricius2Normalizer,
     WattFabricius3Normalizer)
-from vlnm.validation import (
+from vlnm.normalizers.validation import (
     RequiredColumnMissingError,
     RequiredColumnAliasMissingError,
     RequiredKeywordMissingError)

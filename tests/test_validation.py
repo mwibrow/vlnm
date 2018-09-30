@@ -7,8 +7,8 @@ import unittest
 
 import pandas as pd
 
-from vlnm.base import VowelNormalizer
-from vlnm.validation import (
+from vlnm.normalizers.base import VowelNormalizer
+from vlnm.normalizers.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
     ChoiceKeywordMissingError,

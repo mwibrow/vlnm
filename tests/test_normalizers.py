@@ -8,7 +8,7 @@ import numpy as np
 
 from vlnm.conversion import (
     hz_to_bark)
-from vlnm.normalizers import (
+from vlnm.normalizers.normalizers import (
     BarkDifferenceNormalizer,
     BladenNormalizer,
     GerstmanNormalizer,
@@ -17,7 +17,7 @@ from vlnm.normalizers import (
     NearyNormalizer,
     NearyGMNormalizer,
     NordstromNormalizer)
-from vlnm.validation import (
+from vlnm.normalizers.validation import (
     ChoiceKeywordMissingError,
     RequiredColumnMissingError,
     RequiredColumnAliasMissingError)
