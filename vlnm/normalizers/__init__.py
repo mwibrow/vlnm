@@ -1,5 +1,5 @@
-"""
-Export normaliszers
+r"""
+The  package contains the normalizers.
 """
 
 from vlnm.normalizers.normalizers import (

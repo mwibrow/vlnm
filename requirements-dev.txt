@@ -5,3 +5,4 @@ pylint==1.9.2
 pytest==3.8.0
 pytest-cov==2.6.0
 Sphinx==1.8.0
+sphinx-autobuild==0.7.1

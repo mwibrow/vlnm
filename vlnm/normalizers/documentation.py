@@ -11,13 +11,36 @@ def DocString(cls):
 
     cls.__doc__ = pystache.render(
         cls.__doc__,
-        dict(columns=document_columns(cls._columns)))
+        dict(
+            columns=document_columns(cls._columns),
+            keywords=document_keywords(cls.__name__, cls._keywords)))
     return cls
 
 def document_columns(columns):  ## pylint: disable=unused-argument
     """
     Generate
     """
-    docs = ''
+    docs = '''
 
-    return docs
+    Args:
+        foo (int): an integer
+    Keyword:
+        rename (string):
+            A string which will be used to format the output columns.
+
+    '''
+
+    return docs.strip()
+
+def document_keywords(name, keywords):
+    """
+    Generate keyword documentation.
+    """
+    print(name, keywords)
+    docstring = '''
+    Keyword arguments
+    =================
+
+
+    '''
+    return docstring.strip()

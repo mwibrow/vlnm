@@ -33,10 +33,11 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
     .. math::
 
         F_i^N =  26.81 \ln\left(
-            1 + \displayfrac{F_i}{\displayfrac{F_i} + 1960}
+            1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53
 
     {{columns}}
+    {{keywords}}
     """
     def norm(self, df, **kwargs):
         """
@@ -189,7 +190,7 @@ class BladenNormalizer(VowelNormalizer):
     .. math::
 
         F_{ik}^N = 26.81 \ln\left(
-            1 + \displayfrac{F_i}{\displayfrac{F_i} + 1960}
+            1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53 - I(s_k)
 
     Where :math:`I(s_k)` is an indicator function returning 1 if
@@ -225,7 +226,7 @@ class BladenNormalizer(VowelNormalizer):
 )
 class NordstromNormalizer(VowelNormalizer):
     r"""
-    ..math::
+    .. math::
 
         F_i^\prime F_i \left(
                 1 + I(F_i)\left(
@@ -342,7 +343,7 @@ class BarkDifferenceNormalizer(VowelNormalizer):
 class LCENormalizer(VowelNormalizer):
     r"""
 
-    ..math::
+    .. math::
 
         F_i^\prime F_i \displayfrac{F_i}{\max{F_i}}
 
@@ -381,7 +382,7 @@ class LCENormalizer(VowelNormalizer):
 class GerstmanNormalizer(VowelNormalizer):
     r"""
 
-    ..math::
+    .. math::
 
         F_i^\prime F_i \displayfrac{F_i - \min{F_i}}{\max{F_i}}
 
@@ -421,7 +422,7 @@ class GerstmanNormalizer(VowelNormalizer):
 class LobanovNormalizer(VowelNormalizer):
     r"""
 
-    ..math::
+    .. math::
 
         F_i^\prime F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
 
@@ -468,7 +469,7 @@ class LobanovNormalizer(VowelNormalizer):
 class NearyNormalizer(VowelNormalizer):
     r"""
 
-    ..math::
+    .. math::
 
         F_i^\prime = T\left(
             \log\left(F_i\right) - \frac{1}{n-m+1}
@@ -518,7 +519,7 @@ class NearyNormalizer(VowelNormalizer):
 class NearyGMNormalizer(NearyNormalizer):
     r"""
 
-    ..math::
+    .. math::
 
         F_i^\prime = T\left(
             \log\left(F_i\right) - \frac{1}{n - m+ 1}
@@ -556,19 +557,19 @@ class NearyGMNormalizer(NearyNormalizer):
 )
 class WattFabriciusNormalizer(VowelNormalizer):
     r"""
-    ..math::
+    .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
 
     Where:
 
-    ..math::
+    .. math::
 
         S(F_j) = \frac{1}{3}\left(F_j[/i/] + F_j[/a/] + F_j[/u^\prime/]\right)
 
     and
 
-    ..math::
+    .. math::
 
         F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
 
@@ -633,13 +634,13 @@ WaltFabricious1Normalizer = WattFabriciusNormalizer
 )
 class WattFabricius2Normalizer(WattFabriciusNormalizer):
     r"""
-    ..math::
+    .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
 
     Where:
 
-    ..math::
+    .. math::
 
         S(F_j) = \begin{cases}
             \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
@@ -651,7 +652,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
     and
 
-    ..math::
+    .. math::
 
         F_1[/u^\prime/] = F_2[/u^\prime/] = F_1[/i/]
 
@@ -683,13 +684,13 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 )
 class WattFabricius3Normalizer(WattFabricius2Normalizer):
     r"""
-    ..math::
+    .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
 
     Where:
 
-    ..math::
+    .. math::
 
         S(F_j) = \begin{cases}
             \frac{1}{2}\left(F_j[/i/] + F_j[/u^\prime/]\right)
@@ -701,7 +702,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
 
     and
 
-    ..math::
+    .. math::
 
         F_j[/u^\prime/] = \text{argmin}_\rho \mu_{F_k[rho \in P]}
 
@@ -750,13 +751,16 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
 )
 class BighamNormalizer(WattFabriciusNormalizer):
     r"""
-    ..math::
+
+    Normalise vowels according to Bigham 2006:
+
+    .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
 
     Where:
 
-    ..math::
+    .. math::
 
         S(F_i) = \frac{1}{|q|}\sum_{q\in Q}F_i
 
@@ -808,7 +812,7 @@ class BighamNormalizer(WattFabriciusNormalizer):
 )
 class SchwaNormalizer(WattFabriciusNormalizer):
     r"""
-    ..math::
+    .. math::
 
         F_i^\prime = \frac{F_i}{F_i[/ə/]} - 1
 
