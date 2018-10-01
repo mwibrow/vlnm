@@ -184,6 +184,6 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
-extensions = ['sphinx.ext.napoleon']
+extensions = ['sphinx.ext.napoleon', 'sphinxcontrib.bibtex']
 # Napoleon settings
 napoleon_google_docstring = True

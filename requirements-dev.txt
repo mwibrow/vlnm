@@ -2,7 +2,8 @@ astroid==1.6.1
 autopep8==1.4
 nox==2018.9.14
 pylint==1.9.2
-pytest==3.8.0
 pytest-cov==2.6.0
-Sphinx==1.8.0
+pytest==3.8.0
 sphinx-autobuild==0.7.1
+Sphinx==1.8.0
+sphinxcontrib-bibtex==0.4.0
