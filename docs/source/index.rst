@@ -30,6 +30,7 @@ Indices and tables
 .. include:: modules.rst
 
 .. bibliography:: bibliography.bib
+    :style: apastyle
 
 .. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
     :target: https://travis-ci.org/mwibrow/vlnm
