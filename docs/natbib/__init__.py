@@ -306,6 +306,16 @@ class ApaStyle:
 
     def __init__(self):
         self.publications = {
+            'article': [
+                'authors',
+                'year',
+                'title',
+                'journal',
+                'volume',
+                'number',
+                'pages',
+                'doi',
+            ],
             'inproceedings': [
                 'authors',
                 'year',
@@ -370,7 +380,7 @@ class ApaStyle:
     def get_pages(pages, **kwargs):
         node_list = []
         if pages:
-            node_list.append(nodes.inline('p', 'p'))
+            node_list.append(nodes.inline('pp', 'pp'))
             node_list.append(nodes.inline(pages, pages))
             node_list.append(nodes.inline('. ', '. '))
         return node_list
@@ -379,9 +389,23 @@ class ApaStyle:
     def get_volume(volume, **kwargs):
         """Get publication volume"""
         node_list = []
+        fields = kwargs.get('fields', {})
         if volume:
-            node_list.append(nodes.inline('vol. ', 'vol. '))
+            node_list.append(nodes.inline('Vol. ', 'Vol. '))
             node_list.append(nodes.inline(volume, volume))
+            if fields.get('number'):
+                node_list.append(nodes.inline(' ', ' '))
+            else:
+                node_list.append(nodes.inline('. ', '. '))
+        return node_list
+
+    @staticmethod
+    def get_number(number, **kwargs):
+        """Get publication number"""
+        node_list = []
+        if number:
+            node_list.append(nodes.inline('No. ', 'No. '))
+            node_list.append(nodes.inline(number, number))
             node_list.append(nodes.inline('. ', '. '))
         return node_list
 
@@ -404,22 +428,27 @@ class ApaStyle:
         return node_list
 
     @staticmethod
-    def get_booktitle(booktitle, fields=None, **kwargs):
+    def get_booktitle(booktitle, **kwargs):
         node_list = []
+        fields = kwargs.get('fields' or {})
         if booktitle:
             title = latex_decode(booktitle)
             node_list.append(nodes.emphasis(
                 title, title, classes=['publication']))
-            if 'volume' in (fields or []):
+            if fields.get('volume'):
                 node_list.append(nodes.inline(', ', ', '))
             else:
                 node_list.append(nodes.inline('. ', '. '))
         return node_list
 
+    @staticmethod
+    def get_journal(journal, **kwargs):
+        return ApaStyle.get_booktitle(journal, **kwargs)
+
     def get_nodes(self, ref):
         publication = self.publications[ref.type]
-        ref_node = nodes.inline('', '', classes=[ref.type, 'reference'])
-        ref_fields = ref.fields.keys()
+        ref_node = nodes.paragraph('', '', classes=[ref.type, 'reference'])
+        ref_fields = ref.fields
         for field in publication:
             if field == 'authors':
                 source = ref.persons.get('author', [])
@@ -591,4 +620,4 @@ class CitationDomain(Domain):
 def setup(app):
     app.add_config_value('natbib', DEFAULT_CONF, 'env')
     app.add_domain(CitationDomain)
-    app.add_directive('bibliography', CitationReferencesDirective)
+    app.add_stylesheet('css/style.css')

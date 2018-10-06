@@ -29,6 +29,8 @@ sociolinguistics. See thise
 
 :cite:t:`watt_fabricius_2002`
 
+:cite:p:`clopper_2009`
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
