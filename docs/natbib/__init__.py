@@ -312,6 +312,7 @@ class ApaStyle:
                 'title',
                 'editor',
                 'booktitle',
+                'publisher',
                 'volume',
                 'number',
                 'pages'
@@ -322,6 +323,7 @@ class ApaStyle:
                 'title',
                 'editor',
                 'booktitle',
+                'publisher',
                 'volume',
                 'number',
                 'pages'
@@ -329,7 +331,7 @@ class ApaStyle:
         }
 
     @staticmethod
-    def get_authors(authors):
+    def get_authors(authors, **kwargs):
         """
         Authors
         """
@@ -356,15 +358,35 @@ class ApaStyle:
         return author_nodes
 
     @staticmethod
-    def get_editor(editor):
+    def get_editor(editor, **kwargs):
         node_list = []
         if editor:
             node_list.append(nodes.inline('In ', 'In '))
-            node_list.append(nodes.inline(editor, editor))
-            node_list.append(nodes.inline(' (eds)'))
+            node_list.append(ApaStyle.get_authors(editor))
+            node_list.append(nodes.inline(' (eds), ', ' (eds), '))
         return node_list
+
     @staticmethod
-    def get_year(year):
+    def get_pages(pages, **kwargs):
+        node_list = []
+        if pages:
+            node_list.append(nodes.inline('p', 'p'))
+            node_list.append(nodes.inline(pages, pages))
+            node_list.append(nodes.inline('. ', '. '))
+        return node_list
+
+    @staticmethod
+    def get_volume(volume, **kwargs):
+        """Get publication volume"""
+        node_list = []
+        if volume:
+            node_list.append(nodes.inline('vol. ', 'vol. '))
+            node_list.append(nodes.inline(volume, volume))
+            node_list.append(nodes.inline('. ', '. '))
+        return node_list
+
+    @staticmethod
+    def get_year(year, **kwargs):
         node_list = []
         if year:
             year = latex_decode(year)
@@ -374,7 +396,7 @@ class ApaStyle:
         return node_list
 
     @staticmethod
-    def get_title(title):
+    def get_title(title, **kwargs):
         node_list = []
         if title:
             node_list.append(nodes.inline(title, title, classes=['title']))
@@ -382,26 +404,32 @@ class ApaStyle:
         return node_list
 
     @staticmethod
-    def get_booktitle(booktitle):
+    def get_booktitle(booktitle, fields=None, **kwargs):
         node_list = []
         if booktitle:
             title = latex_decode(booktitle)
             node_list.append(nodes.emphasis(
                 title, title, classes=['publication']))
-            node_list.append(nodes.inline('.', '.'))
+            if 'volume' in (fields or []):
+                node_list.append(nodes.inline(', ', ', '))
+            else:
+                node_list.append(nodes.inline('. ', '. '))
         return node_list
 
     def get_nodes(self, ref):
         publication = self.publications[ref.type]
-        ref_node = nodes.inline('','', classes=[ref.type, 'reference'])
+        ref_node = nodes.inline('', '', classes=[ref.type, 'reference'])
+        ref_fields = ref.fields.keys()
         for field in publication:
             if field == 'authors':
                 source = ref.persons.get('author', [])
+            elif field == 'editor':
+                source = ref.persons.get('editor', [])
             else:
                 source = ref.fields.get(field)
             getter = 'get_{}'.format(field)
             if hasattr(self, getter):
-                node_list = getattr(self, getter)(source)
+                node_list = getattr(self, getter)(source, fields=ref_fields)
                 for node in node_list:
                     ref_node += node
         return ref_node

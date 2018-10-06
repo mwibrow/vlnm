@@ -12,7 +12,7 @@ VLNM
 range of vowel normalization methods
 for phonetics researchers primarily working in
 developmental linguistics and
-sociolinguistics. See
+sociolinguistics. See thise
 
 
 :cite:t:`flynn_foulkes_2011` for more details
