@@ -139,7 +139,7 @@ class CitationTransform(object):
         if len(authors) > 2 and not all_authors:
             author = u'%s et al.' % authors[0].last()[0]
         else:
-            author = u"%s and %s" % (u', '.join([a.last()[0] for a in authors[:-1]]),
+            author = u"%s & %s" % (u', '.join([a.last()[0] for a in authors[:-1]]),
                                                                                     authors[-1].last()[0])
         return author
 
@@ -299,6 +299,113 @@ class CitationConfDirective(Directive):
 
         return []
 
+
+
+class ApaStyle:
+
+
+    def __init__(self):
+        self.publications = {
+            'inproceedings': [
+                'authors',
+                'year',
+                'title',
+                'editor',
+                'booktitle',
+                'volume',
+                'number',
+                'pages'
+            ],
+            'incollection': [
+                'authors',
+                'year',
+                'title',
+                'editor',
+                'booktitle',
+                'volume',
+                'number',
+                'pages'
+            ]
+        }
+
+    @staticmethod
+    def get_authors(authors):
+        """
+        Authors
+        """
+        author_nodes = []
+        for i, author in enumerate(authors):
+            text = ' '.join(latex_decode(name) for name in author.last())
+
+            if author.first() or author.middle():
+                names = [author.first(), author.middle()]
+                text += ', '
+                for name in names:
+                    parts = [part for part in name if part]
+                    text += ' '.join(
+                        '{}. '.format(latex_decode(part)[0].upper())
+                        for part in parts)
+
+            text = text.strip()
+            author_node = nodes.inline(text, text)
+            author_node['classes'].append('author')
+            author_nodes.append(author_node)
+
+            if len(authors) == 2 and i == 0:
+                author_nodes.append(nodes.inline(' & ', ' & '))
+        return author_nodes
+
+    @staticmethod
+    def get_editor(editor):
+        node_list = []
+        if editor:
+            node_list.append(nodes.inline('In ', 'In '))
+            node_list.append(nodes.inline(editor, editor))
+            node_list.append(nodes.inline(' (eds)'))
+        return node_list
+    @staticmethod
+    def get_year(year):
+        node_list = []
+        if year:
+            year = latex_decode(year)
+            node_list.append(
+                nodes.inline(year, ' ({})'.format(year), classes=['year']))
+            node_list.append(nodes.inline('. ', '. '))
+        return node_list
+
+    @staticmethod
+    def get_title(title):
+        node_list = []
+        if title:
+            node_list.append(nodes.inline(title, title, classes=['title']))
+            node_list.append(nodes.inline('.  ', '.  '))
+        return node_list
+
+    @staticmethod
+    def get_booktitle(booktitle):
+        node_list = []
+        if booktitle:
+            title = latex_decode(booktitle)
+            node_list.append(nodes.emphasis(
+                title, title, classes=['publication']))
+            node_list.append(nodes.inline('.', '.'))
+        return node_list
+
+    def get_nodes(self, ref):
+        publication = self.publications[ref.type]
+        ref_node = nodes.inline('','', classes=[ref.type, 'reference'])
+        for field in publication:
+            if field == 'authors':
+                source = ref.persons.get('author', [])
+            else:
+                source = ref.fields.get(field)
+            getter = 'get_{}'.format(field)
+            if hasattr(self, getter):
+                node_list = getattr(self, getter)(source)
+                for node in node_list:
+                    ref_node += node
+        return ref_node
+
 class CitationReferencesDirective(Directive):
     """
     Generates the actual reference list.
@@ -315,75 +422,49 @@ class CitationReferencesDirective(Directive):
     def get_reference_node(self, ref):
         node = nodes.inline('','', classes=[ref.type, 'reference'])
 
-        print(ref.type, ref)
-        # Authors
-        authors = ref.persons.get('author', [])
-        for i, author in enumerate(authors):
+        style = ApaStyle()
 
-            text = ' '.join(latex_decode(name) for name in author.last())
+        return style.get_nodes(ref)
+        # print(ref.type, ref)
+        # # Authors
 
-            if author.first() or author.middle():
-                names = [author.first(), author.middle()]
-                text += ', '
-                for name in names:
-                    if name:
-                        text += ' '.join(
-                            '{}. '.format(latex_decode(part)[0])
-                            for part in name)
-            # for part in names:
-            #     if part:
-            #         text += u'{}'.join(latex_decode(n) for n in part)
-            #         # text += u' '.join(n for n in part)
-            #         text += u' '
+        # node_list = get_authors(ref.persons.get('author', []))
+        # for item in node_list:
+        #     node += item
 
-            text = text.strip()
-            auth_node = nodes.inline(text, text)
-            auth_node['classes'].append('author')
-            node += auth_node
-            #node += nodes.inline(text, text, classes=['author'])
+        # node_list = get_year(ref.fields.get('year'))
+        # for item in node_list:
+        #     node += item
 
-            # if i+1 < len(authors):
-            #     node += nodes.inline(', ', ', ')
-            # else:
-            #     node += nodes.inline('.  ', '.  ')
-            if len(authors) == 2 and i == 0:
-                node += nodes.inline(' & ', ' & ')
+        # # Title
+        # node_list = get_title(ref.fields.get('title'))
+        # for item in node_list:
+        #     node += item
 
-        year = ref.fields.get('year')
-        if year:
-            year = latex_decode(year)
-            node += nodes.inline(year, ' ({})'.format(year), classes=['year'])
-            node += nodes.inline('. ', '. ')
 
-        # Title
-        title = latex_decode(ref.fields.get('title'))
-        if title:
-            node += nodes.inline(title, title, classes=['title'])
-            node += nodes.inline('.  ', '.  ')
+        # # Publication
+        # # TODO: handle other types of publications
+        # pub = ref.fields.get('journal') or ref.fields.get('booktitle')
+        # if pub:
+        #     pub = latex_decode(pub)
+        #     node += nodes.emphasis(pub, pub, classes=['publication'])
+        #     node += nodes.inline('.', '.')
 
-        # Publication
-        # TODO: handle other types of publications
-        pub = ref.fields.get('journal') or ref.fields.get('booktitle')
-        if pub:
-            pub = latex_decode(pub)
-            node += nodes.emphasis(pub, pub, classes=['publication'])
-            node += nodes.inline('.', '.')
+        # vol = ref.fields.get('volume')
+        # if vol:
+        #     vol = latex_decode(vol)
+        #     node += nodes.inline(vol, vol, classes=['volume'])
+        #     node += nodes.inline(':', ':')
 
-        vol = ref.fields.get('volume')
-        if vol:
-            vol = latex_decode(vol)
-            node += nodes.inline(vol, vol, classes=['volume'])
-            node += nodes.inline(':', ':')
-
-        pages = ref.fields.get('pages')
-        if pages:
-            pages = latex_decode(pages)
-            node += nodes.inline(pages, pages, classes=['pages'])
-            node += nodes.inline(', ', ', ')
+        # pages = ref.fields.get('pages')
+        # if pages:
+        #     pages = latex_decode(pages)
+        #     node += nodes.inline(pages, pages, classes=['pages'])
+        #     node += nodes.inline(', ', ', ')
 
 
 
-        return node
+        # return node
 
     def run(self):
         """

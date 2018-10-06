@@ -15,4 +15,4 @@ watch:
 
 nodemon:
 	(cd $(BLDDIR) && http-server) & \
-	nodemon --ext py,rst --ignore ./$(BLDDIR) --exec "make html" --verbose
+	nodemon --ext py,rst,bib --ignore ./$(BLDDIR) --exec "make html" --verbose
