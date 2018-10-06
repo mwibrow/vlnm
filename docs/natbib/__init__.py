@@ -97,6 +97,7 @@ class Citations(object):
         self.ref_map = {}
 
         file_name = self.conf.get('file')
+        #file_name = bib_file
         if file_name:
             self.file_name  = file_name
             self.parser = bibtex.Parser()
@@ -225,22 +226,29 @@ class CitationTransform(object):
 
 
 class CitationXRefRole(XRefRole):
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={},\
-                                content=[]):
+    def __call__(
+            self,
+            typ,
+            rawtext,
+            text,
+            lineno,
+            inliner,
+            options=None,
+            content=None):
         """
         When a ``cite`` role is encountered, we replace it with a
         ``docutils.nodes.pending`` node that uses a ``CitationTrasform`` for
         generating the proper citation reference representation during the
         resolve_xref phase.
         """
-        print('TYPE', typ)
-        rnodes = super(CitationXRefRole, self).__call__(typ, rawtext, text, lineno,
-                                        inliner, options, content)
-        rootnode = rnodes[0][0]
+        options = options or {}
+        content = content or []
+        root_nodes = super(CitationXRefRole, self).__call__(
+            typ, rawtext, text, lineno, inliner, options, content)
+        root_node = root_nodes[0][0]
 
         env = inliner.document.settings.env
-        print(env)
-        citations = env.domains['cite'].citations
+        # citations = env.domains['cite'].citations
 
         # Get the config at this point in the document
         config = {}
@@ -254,9 +262,9 @@ class CitationXRefRole(XRefRole):
         else:
             keys, pre, post = parse_keys(text)
             for key in keys:
-                if citations.get(key) is None:
-                    env.warn(env.docname, "cite-key `%s` not found in bibtex file" % key, lineno)
-                    continue
+                # if citations.get(key) is None:
+                #     env.warn(env.docname, "cite-key `%s` not found in bibtex file" % key, lineno)
+                #     continue
                 env.bibtex_keys.add(key)
 
         data = {
@@ -267,12 +275,15 @@ class CitationXRefRole(XRefRole):
             'global_keys': env.bibtex_keys,
             'config': config}
 
-        rootnode += nodes.pending(CitationTransform, data)
-        return [rootnode], []
+        root_node += nodes.pending(CitationTransform, data)
+        return [root_node], []
 
 
 
 class CiteP(CitationXRefRole):
+    """
+    \citep[pre][post](ref) -> :citep:`ref [pre][post]`
+    """
     def __call__(self, typ, *args, **kwargs):
         return super(CiteP, self).__call__('cite:p', *args, **kwargs)
 
@@ -287,6 +298,10 @@ class CiteT(CitationXRefRole):
 class CiteAlt(CitationXRefRole):
     def __call__(self, typ, *args, **kwargs):
         return super(CiteAlt, self).__call__('cite:alt', *args, **kwargs)
+
+class CiteText(CitationXRefRole):
+    def __call__(self, typ, *args, **kwargs):
+        return super(CiteText, self).__call__('cite:text', *args, **kwargs)
 
 class CitationConfDirective(Directive):
     """
@@ -493,7 +508,7 @@ class CitationReferencesDirective(Directive):
     Generates the actual reference list.
     """
     has_content = False
-    required_arguments = 0
+    required_arguments = 1
     optional_arguments = 0
 
     # TODO: Implement support for multiple bib files
@@ -556,7 +571,10 @@ class CitationReferencesDirective(Directive):
         keys = env.bibtex_keys
         env.domaindata['cite']['refdoc'] = env.docname
 
-        citations = env.domains['cite'].citations
+        print(self.arguments)
+        bibfile = self.arguments[0]
+        citations = Citations(env)
+        #citations = env.domains['cite'].citations
 
         # TODO: implement
         #env.domaindata['cite']['refdocs'][env.docname] = Citations(env, path)
@@ -588,6 +606,9 @@ class CitationReferencesDirective(Directive):
 
         return [node]
 
+class bibliography(nodes.General, nodes.Element):
+    pass
+
 class CitationDomain(Domain):
     name = "cite"
     label = "citation"
@@ -600,6 +621,7 @@ class CitationDomain(Domain):
         'conf': CitationConfDirective,
         'refs': CitationReferencesDirective
     }
+
     roles = dict([(r, CitationXRefRole()) for r in ROLES])
 
     initial_data = {
@@ -642,6 +664,24 @@ class CitationDomain(Domain):
 
         return node
 
+
+
+class BibliographyDirective(Directive):
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    object_spec = {}
+    def run(self):
+        """Process .bib files, set file dependencies, and create a
+        node that is to be transformed to the entries of the
+        bibliography.
+        """
+        env = self.state.document.settings.env
+
+        id_ = 'bibtex-bibliography-%s-%s' % (
+        env.docname, env.new_serialno('bibtex'))
+        return [nodes.inline('', ids=[id_])]
+
 def init_app(app):
     app.env.bibtex_keys =  OrderedSet()
 
@@ -654,4 +694,6 @@ def setup(app):
     app.add_role('citealt', CiteT())
     app.add_role('citep', CiteP())
     app.add_role('citet', CiteT())
+    app.add_directive('bibliography', BibliographyDirective)
+    app.add_node(bibliography)
     app.add_stylesheet('css/style.css')

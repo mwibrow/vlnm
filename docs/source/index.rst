@@ -46,8 +46,10 @@ Indices and tables
 
 .. include:: modules.rst
 
-.. cite:refs::
+.. cite:refs:: bibliograhy.bib
 .. :path: bibliograhy.bib
+
+.. bibliography:: bibliograhy.bib
 
 .. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
     :target: https://travis-ci.org/mwibrow/vlnm
