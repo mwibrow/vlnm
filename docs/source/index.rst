@@ -14,6 +14,7 @@ for phonetics researchers primarily working in
 developmental linguistics and
 sociolinguistics. See thise
 
+:citep:`flynn_foulkes_2011`
 
 :cite:t:`flynn_foulkes_2011` for more details
 
@@ -46,7 +47,7 @@ Indices and tables
 
 .. include:: modules.rst
 
-.. cite:refs:: bibliograhy.bib
+.. cite:refs:: /home/mwibrow/github/vlnm/docs/source/bibliography.bib
 .. :path: bibliograhy.bib
 
 .. bibliography:: bibliograhy.bib

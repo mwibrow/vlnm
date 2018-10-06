@@ -33,6 +33,7 @@ DEFAULT_CONF = {
 }
 
 ROLES = [
+    'xxx',
     'p', 'ps', 'alp', 'alps',
     't', 'ts', 'alt', 'alts',
     'author', 'authors', 'year', 'yearpar', 'text'
@@ -87,7 +88,7 @@ class Citations(object):
     """
     Citations docstring
     """
-    def __init__(self, env):
+    def __init__(self, env, bibfile):
         self.conf = DEFAULT_CONF.copy()
         # self.conf.update(env.config.natbib)
         print(env)
@@ -96,7 +97,7 @@ class Citations(object):
         self.data = None
         self.ref_map = {}
 
-        file_name = self.conf.get('file')
+        file_name = bibfile#self.conf.get('file')
         #file_name = bib_file
         if file_name:
             self.file_name  = file_name
@@ -151,6 +152,7 @@ class CitationTransform(object):
         Return a docutils Node consisting of properly formatted citations children
         nodes.
         """
+        print('transforming')
         bo, bc    = self.config['brackets']
         sep       = u'%s ' % self.config['separator']
         style     = self.config['style']
@@ -522,46 +524,6 @@ class CitationReferencesDirective(Directive):
         style = ApaStyle()
 
         return style.get_nodes(ref)
-        # print(ref.type, ref)
-        # # Authors
-
-        # node_list = get_authors(ref.persons.get('author', []))
-        # for item in node_list:
-        #     node += item
-
-        # node_list = get_year(ref.fields.get('year'))
-        # for item in node_list:
-        #     node += item
-
-        # # Title
-        # node_list = get_title(ref.fields.get('title'))
-        # for item in node_list:
-        #     node += item
-
-
-        # # Publication
-        # # TODO: handle other types of publications
-        # pub = ref.fields.get('journal') or ref.fields.get('booktitle')
-        # if pub:
-        #     pub = latex_decode(pub)
-        #     node += nodes.emphasis(pub, pub, classes=['publication'])
-        #     node += nodes.inline('.', '.')
-
-        # vol = ref.fields.get('volume')
-        # if vol:
-        #     vol = latex_decode(vol)
-        #     node += nodes.inline(vol, vol, classes=['volume'])
-        #     node += nodes.inline(':', ':')
-
-        # pages = ref.fields.get('pages')
-        # if pages:
-        #     pages = latex_decode(pages)
-        #     node += nodes.inline(pages, pages, classes=['pages'])
-        #     node += nodes.inline(', ', ', ')
-
-
-
-        # return node
 
     def run(self):
         """
@@ -573,8 +535,10 @@ class CitationReferencesDirective(Directive):
 
         print(self.arguments)
         bibfile = self.arguments[0]
-        citations = Citations(env)
-        #citations = env.domains['cite'].citations
+        print('GOT BIBFILE')
+        env.domains['cite'].citations = Citations(env, bibfile)
+
+        citations = env.domains['cite'].citations
 
         # TODO: implement
         #env.domaindata['cite']['refdocs'][env.docname] = Citations(env, path)
@@ -623,7 +587,6 @@ class CitationDomain(Domain):
     }
 
     roles = dict([(r, CitationXRefRole()) for r in ROLES])
-
     initial_data = {
         'keys':     OrderedSet(),  # Holds cite-keys in order of reference
         'conf':     DEFAULT_CONF,
@@ -638,11 +601,12 @@ class CitationDomain(Domain):
         #import sys
         #print(dir(env), file=sys.stderr, flush=True)
         # TODO: warn if citations can't parse bibtex file
-        self.citations = Citations(env)
-
+        #self.citations = Citations(env)
+        self.citations = {}
     def resolve_xref(self, env, fromdocname, builder,
                                              typ, target, node, contnode):
 
+        print('RESOLVING_REFS')
         refdoc = env.domaindata['cite'].get('refdoc')
         if not refdoc:
             env.warn(fromdocname  , 'no `refs` directive found; citations will have dead links', node.line)
@@ -664,8 +628,6 @@ class CitationDomain(Domain):
 
         return node
 
-
-
 class BibliographyDirective(Directive):
     required_arguments = 1
     optional_arguments = 0
@@ -685,9 +647,22 @@ class BibliographyDirective(Directive):
 def init_app(app):
     app.env.bibtex_keys =  OrderedSet()
 
+def process_citations(app, doctree, docname):
+    pass
+    # for node in doctree.traverse():
+    #     print(type(node))
+        # for child in node.children:
+        #     print(type(child))
+        #     pass
+
+def missing(app, env, node, contnode):
+    for child in node.children:
+       if isinstance(child, nodes.pending):
+           print(child.details)
 def setup(app):
     app.connect('builder-inited', init_app)
-
+    #app.connect('missing-reference', missing)
+    app.connect("doctree-resolved", process_citations)
     app.add_config_value('natbib', DEFAULT_CONF, 'env')
     app.add_domain(CitationDomain)
     app.add_role('citealp', CiteP())
