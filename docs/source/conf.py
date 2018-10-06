@@ -190,3 +190,7 @@ extensions = ['sphinx.ext.napoleon', 'natbib']
 napoleon_google_docstring = True
 
 exclude_patterns = ['_build']
+
+natbib = dict(
+    file='/home/mwibrow/github/vlnm/docs/source/bibliography.bib'
+)

@@ -232,6 +232,7 @@ class CitationXRefRole(XRefRole):
         rootnode = rnodes[0][0]
 
         env = inliner.document.settings.env
+        print(env)
         citations = env.domains['cite'].citations
 
         # Get the config at this point in the document
@@ -314,18 +315,26 @@ class CitationReferencesDirective(Directive):
     def get_reference_node(self, ref):
         node = nodes.inline('','', classes=[ref.type, 'reference'])
 
-        print(ref.type)
+        print(ref.type, ref)
         # Authors
         authors = ref.persons.get('author', [])
         for i, author in enumerate(authors):
-            names = [author.first(), author.middle(), author.last()]
-            text = u''
 
-            for part in names:
-                if part:
-                    text += u' '.join(latex_decode(n) for n in part)
-                    # text += u' '.join(n for n in part)
-                    text += u' '
+            text = ' '.join(latex_decode(name) for name in author.last())
+
+            if author.first() or author.middle():
+                names = [author.first(), author.middle()]
+                text += ', '
+                for name in names:
+                    if name:
+                        text += ' '.join(
+                            '{}. '.format(latex_decode(part)[0])
+                            for part in name)
+            # for part in names:
+            #     if part:
+            #         text += u'{}'.join(latex_decode(n) for n in part)
+            #         # text += u' '.join(n for n in part)
+            #         text += u' '
 
             text = text.strip()
             auth_node = nodes.inline(text, text)
@@ -333,10 +342,18 @@ class CitationReferencesDirective(Directive):
             node += auth_node
             #node += nodes.inline(text, text, classes=['author'])
 
-            if i+1 < len(authors):
-                node += nodes.inline(', ', ', ')
-            else:
-                node += nodes.inline('.  ', '.  ')
+            # if i+1 < len(authors):
+            #     node += nodes.inline(', ', ', ')
+            # else:
+            #     node += nodes.inline('.  ', '.  ')
+            if len(authors) == 2 and i == 0:
+                node += nodes.inline(' & ', ' & ')
+
+        year = ref.fields.get('year')
+        if year:
+            year = latex_decode(year)
+            node += nodes.inline(year, ' ({})'.format(year), classes=['year'])
+            node += nodes.inline('. ', '. ')
 
         # Title
         title = latex_decode(ref.fields.get('title'))
@@ -346,11 +363,11 @@ class CitationReferencesDirective(Directive):
 
         # Publication
         # TODO: handle other types of publications
-        pub = ref.fields.get('journal')
+        pub = ref.fields.get('journal') or ref.fields.get('booktitle')
         if pub:
             pub = latex_decode(pub)
             node += nodes.emphasis(pub, pub, classes=['publication'])
-            node += nodes.inline(', ', ', ')
+            node += nodes.inline('.', '.')
 
         vol = ref.fields.get('volume')
         if vol:
@@ -364,11 +381,7 @@ class CitationReferencesDirective(Directive):
             node += nodes.inline(pages, pages, classes=['pages'])
             node += nodes.inline(', ', ', ')
 
-        year = ref.fields.get('year')
-        if year:
-            year = latex_decode(year)
-            node += nodes.inline(year, year, classes=['year'])
-            node += nodes.inline('.', '.')
+
 
         return node
 
@@ -469,3 +482,4 @@ class CitationDomain(Domain):
 def setup(app):
     app.add_config_value('natbib', DEFAULT_CONF, 'env')
     app.add_domain(CitationDomain)
+    app.add_directive('bibliography', CitationReferencesDirective)
