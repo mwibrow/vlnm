@@ -12,7 +12,7 @@ VLNM
 range of vowel normalization methods
 for phonetics researchers primarily working in
 developmental linguistics and
-sociolinguistics. See :cite:`flynn_foulkes_2011` for more details
+sociolinguistics. See :cite:t:`flynn_foulkes_2011` for more details
 
 .. toctree::
    :maxdepth: 2
@@ -29,8 +29,8 @@ Indices and tables
 
 .. include:: modules.rst
 
-.. bibliography:: bibliography.bib
-    :style: apastyle
+.. cite:refs::
+.. :path: bibliograhy.bib
 
 .. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
     :target: https://travis-ci.org/mwibrow/vlnm

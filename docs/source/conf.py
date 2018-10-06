@@ -188,12 +188,25 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
-extensions = ['sphinx.ext.napoleon', 'sphinxcontrib.bibtex']
+extensions = ['sphinx.ext.napoleon', 'natbib']
 # Napoleon settings
 napoleon_google_docstring = True
 
 exclude_patterns = ['_build']
 
+natbib = {
+  "file": "bibliography.bib",
+  "brackets": "()",
+  "style": "authoryear"
+}
+
+config = dict(
+  natbib = {
+    "file": "bibliography.bib",
+    "brackets": "()",
+    "style": "authoryear"
+  }
+)
 
 class ApaLabelStyle(AlphaLabelStyle):
     def format_label(self, entry):
