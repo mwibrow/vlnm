@@ -23,12 +23,12 @@ from pybtex.database.input import bibtex
 from .utils import (KEY, PREV, NEXT, OrderedSet)
 
 DEFAULT_CONF = {
-    'file':           '/home/mwibrow/github/vlnm/docs/source/bibliography.bib',
-    'brackets':       '()',
-    'separator':      ';',
-    'style':          'authoryear', # 'numbers', 'super'
-    'sort':           False,
-    'sort_compress':  False,
+    'file': '/home/mwibrow/github/vlnm/docs/source/bibliography.bib',
+    'brackets': '()',
+    'separator': ';',
+    'style': 'authoryear', # 'numbers', 'super'
+    'sort': False,
+    'sort_compress': False,
     'entries': {}
 }
 
@@ -84,24 +84,30 @@ def parse_keys(rawtext):
 
 
 class Citations(object):
+    """
+    Citations docstring
+    """
     def __init__(self, env):
         self.conf = DEFAULT_CONF.copy()
-        print(self.conf)
         # self.conf.update(env.config.natbib)
-
+        print(env)
         self.file_name = None
         self.parser = None
         self.data = None
         self.ref_map = {}
 
-        file_name  = self.conf.get('file')
+        file_name = self.conf.get('file')
         if file_name:
             self.file_name  = file_name
-            self.parser     = bibtex.Parser()
-            self.data       = self.parser.parse_file(self.file_name)
+            self.parser = bibtex.Parser()
+            self.data = self.parser.parse_file(self.file_name)
+        else:
+            raise ValueError('No bibliography file given')
 
     def get(self, key):
-        return self.data.entries.get(key)
+        if self.data:
+            return self.data.entries.get(key)
+        return key
 
 class CitationTransform(object):
     """

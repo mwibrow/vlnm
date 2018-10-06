@@ -12,3 +12,6 @@ html:
 
 watch:
 	sphinx-autobuild $(WATCH) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+
+nodemon:
+	nodemon --ext py,rst --ignore ./$(BLDDIR) --exec "make html" --verbose
