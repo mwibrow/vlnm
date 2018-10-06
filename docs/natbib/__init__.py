@@ -136,7 +136,9 @@ class CitationTransform(object):
                 return i+1
 
     def get_author(self, authors, all_authors=False):
-        if len(authors) > 2 and not all_authors:
+        if len(authors) == 1:
+            author = '{}'.format(authors[0].last()[0])
+        elif len(authors) > 2 and not all_authors:
             author = u'%s et al.' % authors[0].last()[0]
         else:
             author = u"%s & %s" % (u', '.join([a.last()[0] for a in authors[:-1]]),
@@ -206,6 +208,10 @@ class CitationTransform(object):
                     node += refnode
 
                 if cmd.startswith('t') and style != 'super':
+                    if self.post:
+                        post = u", %s" % latex_decode(self.post)
+                        node += nodes.inline(post, post, classes=['post'])
+                        self.post = ''
                     node += nodes.inline(bc, bc)
 
         if self.post:
@@ -227,6 +233,7 @@ class CitationXRefRole(XRefRole):
         generating the proper citation reference representation during the
         resolve_xref phase.
         """
+        print('TYPE', typ)
         rnodes = super(CitationXRefRole, self).__call__(typ, rawtext, text, lineno,
                                         inliner, options, content)
         rootnode = rnodes[0][0]
@@ -250,18 +257,36 @@ class CitationXRefRole(XRefRole):
                 if citations.get(key) is None:
                     env.warn(env.docname, "cite-key `%s` not found in bibtex file" % key, lineno)
                     continue
-                env.domaindata['cite']['keys'].add(key)
+                env.bibtex_keys.add(key)
 
         data = {
             'keys': keys,
             'pre': pre,
             'post': post,
             'typ': typ,
-            'global_keys': env.domaindata['cite']['keys'],
+            'global_keys': env.bibtex_keys,
             'config': config}
 
         rootnode += nodes.pending(CitationTransform, data)
         return [rootnode], []
+
+
+
+class CiteP(CitationXRefRole):
+    def __call__(self, typ, *args, **kwargs):
+        return super(CiteP, self).__call__('cite:p', *args, **kwargs)
+
+class CiteAlp(CitationXRefRole):
+    def __call__(self, typ, *args, **kwargs):
+        return super(CiteAlp, self).__call__('cite:alp', *args, **kwargs)
+
+class CiteT(CitationXRefRole):
+    def __call__(self, typ, *args, **kwargs):
+        return super(CiteT, self).__call__('cite:t', *args, **kwargs)
+
+class CiteAlt(CitationXRefRole):
+    def __call__(self, typ, *args, **kwargs):
+        return super(CiteAlt, self).__call__('cite:alt', *args, **kwargs)
 
 class CitationConfDirective(Directive):
     """
@@ -528,7 +553,7 @@ class CitationReferencesDirective(Directive):
         Generate the definition list that displays the actual references.
         """
         env = self.state.document.settings.env
-        keys = env.domaindata['cite']['keys']
+        keys = env.bibtex_keys
         env.domaindata['cite']['refdoc'] = env.docname
 
         citations = env.domains['cite'].citations
@@ -617,7 +642,16 @@ class CitationDomain(Domain):
 
         return node
 
+def init_app(app):
+    app.env.bibtex_keys =  OrderedSet()
+
 def setup(app):
+    app.connect('builder-inited', init_app)
+
     app.add_config_value('natbib', DEFAULT_CONF, 'env')
     app.add_domain(CitationDomain)
+    app.add_role('citealp', CiteP())
+    app.add_role('citealt', CiteT())
+    app.add_role('citep', CiteP())
+    app.add_role('citet', CiteT())
     app.add_stylesheet('css/style.css')

@@ -19,17 +19,17 @@ sociolinguistics. See thise
 
 :cite:p:`flynn_foulkes_2011`
 
-:cite:p:`flynn_foulkes_2011 [p.2]`
+:citep:`flynn_foulkes_2011 [p.2]`
 
-:cite:p:`flynn_foulkes_2011 [see][p.2]`
+:citet:`flynn_foulkes_2011 [p.2]`
 
-:cite:ts:`flynn_foulkes_2011`
+:citealp:`flynn_foulkes_2011`
 
-:cite:ps:`flynn_foulkes_2011`
+:citealt:`flynn_foulkes_2011`
 
 :cite:t:`watt_fabricius_2002`
 
-:cite:p:`clopper_2009`
+:cite:alp:`clopper_2009`
 
 .. toctree::
    :maxdepth: 2
