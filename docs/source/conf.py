@@ -13,9 +13,6 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # pylint: disable=all
-from pybtex.style.formatting.unsrt import Style as UnsrtStyle
-from pybtex.style.labels.alpha import LabelStyle as AlphaLabelStyle
-from pybtex.plugin import register_plugin
 
 import os
 import sys
@@ -193,29 +190,3 @@ extensions = ['sphinx.ext.napoleon', 'natbib']
 napoleon_google_docstring = True
 
 exclude_patterns = ['_build']
-
-natbib = {
-  "file": "bibliography.bib",
-  "brackets": "()",
-  "style": "authoryear"
-}
-
-config = dict(
-  natbib = {
-    "file": "bibliography.bib",
-    "brackets": "()",
-    "style": "authoryear"
-  }
-)
-
-class ApaLabelStyle(AlphaLabelStyle):
-    def format_label(self, entry):
-        return "APA"
-
-
-class ApaStyle(UnsrtStyle):
-    default_label_style = 'apa'
-
-
-register_plugin('pybtex.style.labels', 'apa', ApaLabelStyle, True)
-register_plugin('pybtex.style.formatting', 'apastyle', ApaStyle, True)

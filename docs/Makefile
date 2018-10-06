@@ -1,7 +1,7 @@
 
 SRCDIR=source
 BLDDIR=build
-WATCH=-z ../vlnm
+WATCH=-z ../vlnm -z ./$(SRCDIR)
 CMDOPT=-E -a -d $(BLDDIR)/.doctrees
 
 clean:
