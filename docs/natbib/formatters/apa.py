@@ -125,6 +125,8 @@ class ApaFormatter(Formatter):
             nodes.append(docutils.nodes.inline(volume, volume))
             if fields.get('number'):
                 nodes.append(docutils.nodes.inline(' ', ' '))
+            elif fields.get('pages'):
+                nodes.append(docutils.nodes.inline(', ', ', '))
             else:
                 nodes.append(docutils.nodes.inline('. ', '. '))
         return nodes
@@ -133,11 +135,15 @@ class ApaFormatter(Formatter):
         """
         Get the number node for a bibliographic entry.
         """
+        fields = kwargs.get('fields', {})
         nodes = kwargs.get('nodes') or self.nodes or []
         if number:
             nodes.append(docutils.nodes.inline('No. ', 'No. '))
             nodes.append(docutils.nodes.inline(number, number))
-            nodes.append(docutils.nodes.inline('. ', '. '))
+            if fields.get('pages'):
+                nodes.append(docutils.nodes.inline(', ', ', '))
+            else:
+                nodes.append(docutils.nodes.inline('. ', '. '))
         return nodes
 
     def get_year(self, year, **kwargs):
