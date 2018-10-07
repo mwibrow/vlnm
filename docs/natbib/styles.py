@@ -223,7 +223,7 @@ class ApaStyle:
                         node += docutils.nodes.inline('; ', '; ')
             if post_text:
                 if post_text.startswith(','):
-                     text = post_text
+                    text = post_text
                 else:
                     text = ' {}'.format(post_text)
                 node += docutils.nodes.inline(text, text)
