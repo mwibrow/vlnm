@@ -220,10 +220,12 @@ class ApaStyle:
 
                 if len(keys) > 1:
                     if i < len(keys) - 1:
-                        node += docutils.nodes.inline(', ', ', ')
+                        node += docutils.nodes.inline('; ', '; ')
             if post_text:
-                node += docutils.nodes.inline(', ', ', ')
-                text = ' {}'.format(post_text)
+                if post_text.startswith(','):
+                     text = post_text
+                else:
+                    text = ' {}'.format(post_text)
                 node += docutils.nodes.inline(text, text)
             if typ != 'citealp':
                 node += docutils.nodes.inline(')', ')')
@@ -258,7 +260,10 @@ class ApaStyle:
                         classes=classes)
                     node += refnode
                     if post_text:
-                        text = ' {}'.format(post_text)
+                        if post_text.startswith(','):
+                            text = post_text
+                        else:
+                            text = ' {}'.format(post_text)
                         node += docutils.nodes.inline(text, text)
                     node += docutils.nodes.inline(')', ')')
 
