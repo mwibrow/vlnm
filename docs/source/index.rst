@@ -45,7 +45,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. include:: modules.rst
 
 .. cite:refs:: bibliography.bib
 .. :path: bibliograhy.bib
