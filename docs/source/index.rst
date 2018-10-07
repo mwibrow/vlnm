@@ -20,9 +20,9 @@ sociolinguistics. See thise
 
 :cite:p:`flynn_foulkes_2011`
 
-:citep:`flynn_foulkes_2011 [p.2]`
+:citep:`{% flynn_foulkes_2011 %} p.2`
 
-:citet:`flynn_foulkes_2011 [p.2]`
+:citet:`{% flynn_foulkes_2011 %} p.2`
 
 :citealp:`flynn_foulkes_2011`
 
@@ -47,10 +47,9 @@ Indices and tables
 
 .. include:: modules.rst
 
-.. cite:refs:: /home/mwibrow/github/vlnm/docs/source/bibliography.bib
+.. cite:refs:: bibliography.bib
 .. :path: bibliograhy.bib
 
-.. bibliography:: bibliograhy.bib
 
 .. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
     :target: https://travis-ci.org/mwibrow/vlnm

@@ -8,7 +8,8 @@ import collections
 import os
 import re
 
-from docutils import nodes, transforms
+import docutils.nodes
+from docutils import transforms
 from docutils.parsers.rst import Directive, directives
 
 import latexcodec
@@ -21,6 +22,8 @@ from sphinx.roles import XRefRole
 from pybtex.database.input import bibtex
 
 from .utils import (KEY, PREV, NEXT, OrderedSet)
+
+# pylint: disable=C0111,W0221
 
 DEFAULT_CONF = {
     'file': '/home/mwibrow/github/vlnm/docs/source/bibliography.bib',
@@ -47,42 +50,15 @@ def latex_decode(text):
 
 def parse_keys(rawtext):
     """
-    # Get the keys and any pre- and post-ciation text
-    # Spaces nor commas are allowed in cite keys, so we split on commas
-    # first.  This will give us a list of keys, however, the last item may have
-    # pre- and post-citation text (in brackets "[pre][post]")
-    #
-    # TODO: This isn't the best implementation and this should also
-    #       handle errors
+    Parse :rawtext: into reference and pre/post text
     """
-    pre = u''
-    post = u''
-    keys = []
-    for k in rawtext.split(','):
-        k = k.strip() # Remove leading and trailing whitespace
-        k = k.split(' ', 1) # Split on the first space in the key, if any
-        if len(k) > 1:
-            # We have some extra text here
-            k, text = k
-            bo, bc = 0, 0
-            for c in text.strip():
-                if c == "[" and bo == bc:
-                    bo += 1
-                elif c == "]" and bo == bc+1:
-                    bc += 1
-                else:
-                    if bc == 0:
-                        pre += c
-                    else:
-                        post += c
-            if bc == bo and bc == 1:
-                post = pre
-                pre = u''
-        else:
-            k = k[0]
-        keys.append(k)
-    return (keys, pre, post)
-
+    tokens = re.split(r'\s*\{%\s*(.*?)\s*%\}\s*', rawtext.strip())
+    if len(tokens) == 3:
+        pre, refs, post = tokens
+    else:
+        pre, refs, post = '', tokens[0], ''
+    keys = [ref.strip() for ref in refs.split(',')]
+    return keys, pre, post
 
 class Citations(object):
     """
@@ -90,17 +66,16 @@ class Citations(object):
     """
     def __init__(self, env, bibfile):
         self.conf = DEFAULT_CONF.copy()
-        # self.conf.update(env.config.natbib)
-        print(env)
         self.file_name = None
         self.parser = None
         self.data = None
         self.ref_map = {}
 
-        file_name = bibfile#self.conf.get('file')
-        #file_name = bib_file
+        bibfile = os.path.normpath(env.relfn2path(bibfile.strip())[1])
+
+        file_name = bibfile
         if file_name:
-            self.file_name  = file_name
+            self.file_name = file_name
             self.parser = bibtex.Parser()
             self.data = self.parser.parse_file(self.file_name)
         else:
@@ -143,16 +118,16 @@ class CitationTransform(object):
         elif len(authors) > 2 and not all_authors:
             author = u'%s et al.' % authors[0].last()[0]
         else:
-            author = u"%s & %s" % (u', '.join([a.last()[0] for a in authors[:-1]]),
-                                                                                    authors[-1].last()[0])
+            author = '{} & {}'.format(
+                ', '.join([a.last()[0] for a in authors[:-1]]),
+                authors[-1].last()[0])
         return author
 
     def cite(self, cmd, refuri):
         """
         Return a docutils Node consisting of properly formatted citations children
-        nodes.
+        docutils.nodes.
         """
-        print('transforming')
         bo, bc    = self.config['brackets']
         sep       = u'%s ' % self.config['separator']
         style     = self.config['style']
@@ -162,36 +137,36 @@ class CitationTransform(object):
                                 (style == 'citeyear'))
 
         if (cmd.startswith('p') or cmd == 'yearpar') and style != 'super':
-            node = nodes.inline(bo, bo, classes=['citation'])
+            node = docutils.nodes.inline(bo, bo, classes=['citation'])
         else:
-            node = nodes.inline('', '', classes=['citation'])
+            node = docutils.nodes.inline('', '', classes=['citation'])
 
         if self.pre:
             pre = u"%s " % latex_decode(self.pre)
-            node += nodes.inline(pre, pre, classes=['pre'])
+            node += docutils.nodes.inline(pre, pre, classes=['pre'])
 
         for i, ref in enumerate(self.refs):
             authors = ref.persons.get('author', [])
             author_text = latex_decode(self.get_author(authors, all_auths))
-            lrefuri = refuri + '#citation-' + nodes.make_id(ref.key)
+            lrefuri = refuri + '#citation-' + docutils.nodes.make_id(ref.key)
 
             if i > 0 and i < len(self.refs):
                 if style == "authoryear":
-                    node += nodes.inline(sep, sep)
+                    node += docutils.nodes.inline(sep, sep)
                 else:
                     if style == "super":
-                        node += nodes.superscript(', ', ', ')
+                        node += docutils.nodes.superscript(', ', ', ')
                     else:
-                        node += nodes.inline(', ', ', ')
+                        node += docutils.nodes.inline(', ', ', ')
 
             if (style == "authoryear" and (cmd.startswith('p') or cmd.startswith('alp'))) or \
                  (cmd.startswith('t') or cmd.startswith('alt') or cmd.startswith('author')):
-                node += nodes.reference(author_text, author_text, internal=True, refuri=lrefuri)
+                node += docutils.nodes.reference(author_text, author_text, internal=True, refuri=lrefuri)
 
                 if cmd.startswith('p') or cmd.startswith('alp'):
-                    node += nodes.inline(', ', ', ')
+                    node += docutils.nodes.inline(', ', ', ')
                 else:
-                    node += nodes.inline(' ', ' ')
+                    node += docutils.nodes.inline(' ', ' ')
 
             # Add in either the year or the citation number
             if not cmd.startswith('author'):
@@ -200,43 +175,39 @@ class CitationTransform(object):
                 else:
                     num = ref.fields.get('year')
 
-                refnode = nodes.reference(str(num), str(num), internal=True, refuri=lrefuri)
+                refnode = docutils.nodes.reference(str(num), str(num), internal=True, refuri=lrefuri)
 
                 if cmd.startswith('t') and style != 'super':
-                    node += nodes.inline(bo, bo)
+                    node += docutils.nodes.inline(bo, bo)
 
                 if style == 'super':
-                    node += nodes.superscript('', '', refnode)
+                    node += docutils.nodes.superscript('', '', refnode)
                 else:
                     node += refnode
 
                 if cmd.startswith('t') and style != 'super':
                     if self.post:
                         post = u", %s" % latex_decode(self.post)
-                        node += nodes.inline(post, post, classes=['post'])
+                        node += docutils.nodes.inline(post, post, classes=['post'])
                         self.post = ''
-                    node += nodes.inline(bc, bc)
+                    node += docutils.nodes.inline(bc, bc)
 
         if self.post:
             post = u", %s" % latex_decode(self.post)
-            node += nodes.inline(post, post, classes=['post'])
+            node += docutils.nodes.inline(post, post, classes=['post'])
 
         if (cmd.startswith('p') or cmd == 'yearpar') and style != 'super':
-            node += nodes.inline(bc, bc, classes=['citation'])
+            node += docutils.nodes.inline(bc, bc, classes=['citation'])
 
         return node
 
 
 class CitationXRefRole(XRefRole):
-    def __call__(
-            self,
-            typ,
-            rawtext,
-            text,
-            lineno,
-            inliner,
-            options=None,
-            content=None):
+    """
+    Citation Role docstring,
+    """
+    def __call__(self, typ, rawtext, text, lineno, inliner,
+                 options=None, content=None):
         """
         When a ``cite`` role is encountered, we replace it with a
         ``docutils.nodes.pending`` node that uses a ``CitationTrasform`` for
@@ -277,15 +248,16 @@ class CitationXRefRole(XRefRole):
             'global_keys': env.bibtex_keys,
             'config': config}
 
-        root_node += nodes.pending(CitationTransform, data)
+        root_node += docutils.nodes.pending(CitationTransform, data)
         return [root_node], []
+
+    def result_nodes(self, document, env, node, is_ref):
+
+        return [node], []
 
 
 
 class CiteP(CitationXRefRole):
-    """
-    \citep[pre][post](ref) -> :citep:`ref [pre][post]`
-    """
     def __call__(self, typ, *args, **kwargs):
         return super(CiteP, self).__call__('cite:p', *args, **kwargs)
 
@@ -401,30 +373,30 @@ class ApaStyle:
                         for part in parts)
 
             text = text.strip()
-            author_node = nodes.inline(text, text)
+            author_node = docutils.nodes.inline(text, text)
             author_node['classes'].append('author')
             author_nodes.append(author_node)
 
             if len(authors) == 2 and i == 0:
-                author_nodes.append(nodes.inline(' & ', ' & '))
+                author_nodes.append(docutils.nodes.inline(' & ', ' & '))
         return author_nodes
 
     @staticmethod
     def get_editor(editor, **kwargs):
         node_list = []
         if editor:
-            node_list.append(nodes.inline('In ', 'In '))
+            node_list.append(docutils.nodes.inline('In ', 'In '))
             node_list.append(ApaStyle.get_authors(editor))
-            node_list.append(nodes.inline(' (eds), ', ' (eds), '))
+            node_list.append(docutils.nodes.inline(' (eds), ', ' (eds), '))
         return node_list
 
     @staticmethod
     def get_pages(pages, **kwargs):
         node_list = []
         if pages:
-            node_list.append(nodes.inline('pp', 'pp'))
-            node_list.append(nodes.inline(pages, pages))
-            node_list.append(nodes.inline('. ', '. '))
+            node_list.append(docutils.nodes.inline('pp', 'pp'))
+            node_list.append(docutils.nodes.inline(pages, pages))
+            node_list.append(docutils.nodes.inline('. ', '. '))
         return node_list
 
     @staticmethod
@@ -433,12 +405,12 @@ class ApaStyle:
         node_list = []
         fields = kwargs.get('fields', {})
         if volume:
-            node_list.append(nodes.inline('Vol. ', 'Vol. '))
-            node_list.append(nodes.inline(volume, volume))
+            node_list.append(docutils.nodes.inline('Vol. ', 'Vol. '))
+            node_list.append(docutils.nodes.inline(volume, volume))
             if fields.get('number'):
-                node_list.append(nodes.inline(' ', ' '))
+                node_list.append(docutils.nodes.inline(' ', ' '))
             else:
-                node_list.append(nodes.inline('. ', '. '))
+                node_list.append(docutils.nodes.inline('. ', '. '))
         return node_list
 
     @staticmethod
@@ -446,9 +418,9 @@ class ApaStyle:
         """Get publication number"""
         node_list = []
         if number:
-            node_list.append(nodes.inline('No. ', 'No. '))
-            node_list.append(nodes.inline(number, number))
-            node_list.append(nodes.inline('. ', '. '))
+            node_list.append(docutils.nodes.inline('No. ', 'No. '))
+            node_list.append(docutils.nodes.inline(number, number))
+            node_list.append(docutils.nodes.inline('. ', '. '))
         return node_list
 
     @staticmethod
@@ -457,16 +429,16 @@ class ApaStyle:
         if year:
             year = latex_decode(year)
             node_list.append(
-                nodes.inline(year, ' ({})'.format(year), classes=['year']))
-            node_list.append(nodes.inline('. ', '. '))
+                docutils.nodes.inline(year, ' ({})'.format(year), classes=['year']))
+            node_list.append(docutils.nodes.inline('. ', '. '))
         return node_list
 
     @staticmethod
     def get_title(title, **kwargs):
         node_list = []
         if title:
-            node_list.append(nodes.inline(title, title, classes=['title']))
-            node_list.append(nodes.inline('.  ', '.  '))
+            node_list.append(docutils.nodes.inline(title, title, classes=['title']))
+            node_list.append(docutils.nodes.inline('.  ', '.  '))
         return node_list
 
     @staticmethod
@@ -475,12 +447,12 @@ class ApaStyle:
         fields = kwargs.get('fields' or {})
         if booktitle:
             title = latex_decode(booktitle)
-            node_list.append(nodes.emphasis(
+            node_list.append(docutils.nodes.emphasis(
                 title, title, classes=['publication']))
             if fields.get('volume'):
-                node_list.append(nodes.inline(', ', ', '))
+                node_list.append(docutils.nodes.inline(', ', ', '))
             else:
-                node_list.append(nodes.inline('. ', '. '))
+                node_list.append(docutils.nodes.inline('. ', '. '))
         return node_list
 
     @staticmethod
@@ -489,7 +461,7 @@ class ApaStyle:
 
     def get_nodes(self, ref):
         publication = self.publications[ref.type]
-        ref_node = nodes.paragraph('', '', classes=[ref.type, 'reference'])
+        ref_node = docutils.nodes.paragraph('', '', classes=[ref.type, 'reference'])
         ref_fields = ref.fields
         for field in publication:
             if field == 'authors':
@@ -519,7 +491,7 @@ class CitationReferencesDirective(Directive):
     }
 
     def get_reference_node(self, ref):
-        node = nodes.inline('','', classes=[ref.type, 'reference'])
+        node = docutils.nodes.inline('','', classes=[ref.type, 'reference'])
 
         style = ApaStyle()
 
@@ -533,9 +505,9 @@ class CitationReferencesDirective(Directive):
         keys = env.bibtex_keys
         env.domaindata['cite']['refdoc'] = env.docname
 
-        print(self.arguments)
+
         bibfile = self.arguments[0]
-        print('GOT BIBFILE')
+
         env.domains['cite'].citations = Citations(env, bibfile)
 
         citations = env.domains['cite'].citations
@@ -545,24 +517,24 @@ class CitationReferencesDirective(Directive):
 
         # Build the references list
         # TODO: Make this an enumerated_list or field_list maybe?
-        node = nodes.definition_list()
+        node = docutils.nodes.definition_list()
         node.document = self.state.document
         node['classes'].append('references')
 
         items = []
         for i, key in enumerate(keys):
-            term = nodes.term('', '')
+            term = docutils.nodes.term('', '')
 
             # TODO: Allow the format of the reference list be configurable
             # if env.domaindata['cite']['conf']['style'] == 'super':
-            #   term.children = [nodes.superscript('', i+1)]
+            #   term.children = [docutils.nodes.superscript('', i+1)]
             # else:
-            #   term.children = [nodes.inline('', "%s) " % (i+1))]
+            #   term.children = [docutils.nodes.inline('', "%s) " % (i+1))]
 
-            nid = "citation-%s" % nodes.make_id(key)
+            nid = "citation-%s" % docutils.nodes.make_id(key)
             definition = self.get_reference_node(citations.get(key))
 
-            li = nodes.definition_list_item('', term, definition)
+            li = docutils.nodes.definition_list_item('', term, definition)
             li[0]['ids'].append(nid)
             li[0]['names'].append(nid)
             items.append(li)
@@ -570,7 +542,7 @@ class CitationReferencesDirective(Directive):
 
         return [node]
 
-class bibliography(nodes.General, nodes.Element):
+class bibliography(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 class CitationDomain(Domain):
@@ -606,7 +578,7 @@ class CitationDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                                              typ, target, node, contnode):
 
-        print('RESOLVING_REFS')
+
         refdoc = env.domaindata['cite'].get('refdoc')
         if not refdoc:
             env.warn(fromdocname  , 'no `refs` directive found; citations will have dead links', node.line)
@@ -615,7 +587,7 @@ class CitationDomain(Domain):
             refuri = builder.get_relative_uri(fromdocname, refdoc)
 
         for nd in node.children:
-            if isinstance(nd, nodes.pending):
+            if isinstance(nd, docutils.nodes.pending):
                 nd.details['refs'] = []
                 for key in nd.details.pop('keys'):
                     ref = self.citations.get(key)
@@ -628,47 +600,18 @@ class CitationDomain(Domain):
 
         return node
 
-class BibliographyDirective(Directive):
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    object_spec = {}
-    def run(self):
-        """Process .bib files, set file dependencies, and create a
-        node that is to be transformed to the entries of the
-        bibliography.
-        """
-        env = self.state.document.settings.env
-
-        id_ = 'bibtex-bibliography-%s-%s' % (
-        env.docname, env.new_serialno('bibtex'))
-        return [nodes.inline('', ids=[id_])]
 
 def init_app(app):
     app.env.bibtex_keys =  OrderedSet()
 
-def process_citations(app, doctree, docname):
-    pass
-    # for node in doctree.traverse():
-    #     print(type(node))
-        # for child in node.children:
-        #     print(type(child))
-        #     pass
-
-def missing(app, env, node, contnode):
-    for child in node.children:
-       if isinstance(child, nodes.pending):
-           print(child.details)
 def setup(app):
     app.connect('builder-inited', init_app)
     #app.connect('missing-reference', missing)
-    app.connect("doctree-resolved", process_citations)
     app.add_config_value('natbib', DEFAULT_CONF, 'env')
     app.add_domain(CitationDomain)
     app.add_role('citealp', CiteP())
     app.add_role('citealt', CiteT())
     app.add_role('citep', CiteP())
     app.add_role('citet', CiteT())
-    app.add_directive('bibliography', BibliographyDirective)
-    app.add_node(bibliography)
+
     app.add_stylesheet('css/style.css')
