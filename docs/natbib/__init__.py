@@ -3,6 +3,7 @@ natbib module.
 
 Adapted from https://bitbucket.org/wnielson/sphinx-natbib
 """
+
 import codecs
 import collections
 import os
@@ -24,8 +25,6 @@ from sphinx.errors import SphinxError
 from pybtex.database.input import bibtex
 
 from .utils import (KEY, PREV, NEXT, OrderedSet)
-
-from .styles import latex_decode, ApaStyle
 
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
