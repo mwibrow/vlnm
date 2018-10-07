@@ -32,13 +32,11 @@ class BibliographyTransform(docutils.transforms.Transform):
         env = self.document.settings.env
         bibcache = env.bibcache.entries
 
-        formatter = AuthorYearFormatter()
-
-        for bibnode in self.document.traverse(CitationNode):
-            node = formatter.make_citation(bibnode, bibcache, make_refid)
-            bibnode.replace_self(node)
-
         for bibnode in self.document.traverse(BibliographyNode):
+            docname = bibnode.data['docname']
+
+            formatter = AuthorYearFormatter()
+
             node = docutils.nodes.paragraph()
             keys = formatter.sort_keys(env.bibkeys, bibcache)
             for key in keys:
@@ -47,3 +45,9 @@ class BibliographyTransform(docutils.transforms.Transform):
                 entry['ids'] = entry['names'] = [refid]
                 node += entry
             bibnode.replace_self(node)
+
+            for citenode in self.document.traverse(CitationNode):
+                if citenode.data['docname'] == docname:
+                    node = formatter.make_citation(
+                        citenode, bibcache, make_refid)
+                    citenode.replace_self(node)
