@@ -2,8 +2,10 @@
     New Formatters
     ~~~~~~~~~~~~~~
 """
+
 import docutils.nodes
 
+from .formatters import Formatter
 
 def latex_decode(text):
     """
@@ -11,11 +13,12 @@ def latex_decode(text):
     """
     return text.encode('ascii').decode('latex')
 
-class ApaFormatter:
+class ApaFormatter(Formatter):
     """
     Class for creating citations and bibliographic entries in the APA style.
     """
     def __init__(self):
+        super(ApaFormatter, self).__init__()
         self.nodes = []
         self.publications = {
             'article': [
@@ -51,6 +54,15 @@ class ApaFormatter:
                 'pages'
             ]
         }
+
+    @staticmethod
+    def sort_keys(keys, bibcache):
+        """
+        Return a sort key for sorting the bibliography
+        """
+        def _sort_key(key):
+            return bibcache[key].persons.get('author')[0].last()[0]
+        return sorted(keys, key=_sort_key)
 
     def get_authors(self, authors, **kwargs):
         """
