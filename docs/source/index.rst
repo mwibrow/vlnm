@@ -1,59 +1,29 @@
-.. VLNM documentation master file, created by
-   sphinx-quickstart on Sun Sep 30 12:48:41 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-VLNM
-====
-
-|build status| |coverage|
-
-**VLNM** is a Python package providing a comprehensive
-range of vowel normalization methods
-for phonetics researchers primarily working in
-developmental linguistics and
-sociolinguistics. See thise
 
 :citep:`flynn_foulkes_2011`
 
-:cite:t:`flynn_foulkes_2011` for more details
+:citep:`see {% flynn_foulkes_2011,clopper_2009 %} for more examples`
 
-:cite:p:`flynn_foulkes_2011`
+:citep:`see {% flynn_foulkes_2011 %}`
 
 :citep:`{% flynn_foulkes_2011 %} p.2`
 
+:citep:`see {% flynn_foulkes_2011 %} p.2`
+
+:citet:`flynn_foulkes_2011`
+
+:citet:`e.g., {% flynn_foulkes_2011 %}`
+
 :citet:`{% flynn_foulkes_2011 %} p.2`
 
-:citealp:`flynn_foulkes_2011`
+:citet:`e.g., {% flynn_foulkes_2011 %} p.2`
 
-:citealt:`flynn_foulkes_2011`
+:citealp:`clopper_2009`
 
-:cite:t:`watt_fabricius_2002`
+:citealp:`see {% clopper_2009 %}`
 
-:cite:alp:`clopper_2009`
+:citealp:`{% clopper_2009 %} p.2`
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+:citealp:`see {% clopper_2009 %} p.2`
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-.. cite:refs:: bibliography.bib
-.. :path: bibliograhy.bib
-
-
-.. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
-    :target: https://travis-ci.org/mwibrow/vlnm
-
-.. |coverage| image:: https://coveralls.io/repos/github/mwibrow/vlnm/badge.svg
-    :target: https://coveralls.io/github/mwibrow/vlnm
-
-
+.. bibliography:: bibliography.bib

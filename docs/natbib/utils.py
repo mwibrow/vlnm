@@ -1,3 +1,4 @@
+# pylint: disable=all
 import collections
 
 KEY, PREV, NEXT = range(3)
@@ -64,3 +65,10 @@ class OrderedSet(collections.MutableSet):
 
     def __del__(self):
         self.clear()                    # remove circular references
+
+
+def latex_decode(text):
+    """
+    Decode ascii text latex formant to UTF-8
+    """
+    return text.encode('ascii').decode('latex')

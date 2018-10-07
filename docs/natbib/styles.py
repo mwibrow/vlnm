@@ -7,7 +7,9 @@ def latex_decode(text):
     return text.encode('ascii').decode('latex')
 
 class ApaStyle:
-
+    """
+    Class for creating citations and bibliographic entries in the APA style.
+    """
     def __init__(self):
         self.nodes = []
         self.publications = {
@@ -176,3 +178,88 @@ class ApaStyle:
                 for node in nodes:
                     ref_node += node
         return ref_node
+
+    def make_citation(self, bibnode, bibcache, make_refid):
+        node = docutils.nodes.inline('', '')
+        classes = ['xref', 'cite']
+        typ = bibnode.data['typ']
+        keys = bibnode.data['keys']
+        pre_text = bibnode.data.get('pre_text')
+        post_text = bibnode.data.get('post_text')
+
+        if typ in ['citep', 'citealp']:
+            if typ != 'citealp':
+                node += docutils.nodes.inline('(', '(')
+            if pre_text:
+                text = '{} '.format(pre_text)
+                node += docutils.nodes.inline(text, text)
+            for i, key in enumerate(keys):
+                entry = bibcache[key]
+                refid = make_refid(entry, bibnode.data['docname'])
+
+                authors = entry.persons.get('author')
+                text = ''
+                if len(authors) == 1:
+                    text = authors[0].last()[0]
+                elif len(authors) == 2:
+                    names = [name.last()[0] for name in authors]
+                    text += ' & '.join(names)
+
+                refnode = docutils.nodes.reference(
+                    text, text, internal=True, refuri='#{}'.format(refid),
+                    classes=classes)
+                node += refnode
+
+                year = entry.fields.get('year')
+                if year:
+                    node += docutils.nodes.inline(', ', ', ')
+                    refnode = docutils.nodes.reference(
+                        year, year, internal=True, refuri='#{}'.format(refid),
+                        classes=classes)
+                    node += refnode
+
+                if len(keys) > 1:
+                    if i < len(keys) - 1:
+                        node += docutils.nodes.inline(', ', ', ')
+            if post_text:
+                node += docutils.nodes.inline(', ', ', ')
+                text = ' {}'.format(post_text)
+                node += docutils.nodes.inline(text, text)
+            if typ != 'citealp':
+                node += docutils.nodes.inline(')', ')')
+
+        if typ in ['citet']:
+            for key in keys:
+                entry = bibcache[key]
+                refid = make_refid(entry, bibnode.data['docname'])
+
+                authors = entry.persons.get('author')
+                text = ''
+                if len(authors) == 1:
+                    text = authors[0].last()[0]
+                elif len(authors) == 2:
+                    names = [name.last()[0] for name in authors]
+                    text += ' & '.join(names)
+
+                refnode = docutils.nodes.reference(
+                    text, text, internal=True, refuri='#{}'.format(refid),
+                    classes=classes)
+                node += refnode
+
+                year = entry.fields.get('year')
+                if year:
+                    node += docutils.nodes.inline(' (', ' (')
+                    if pre_text:
+                        text = '{} '.format(pre_text)
+                        node += docutils.nodes.inline(text, text)
+
+                    refnode = docutils.nodes.reference(
+                        year, year, internal=True, refuri='#{}'.format(refid),
+                        classes=classes)
+                    node += refnode
+                    if post_text:
+                        text = ' {}'.format(post_text)
+                        node += docutils.nodes.inline(text, text)
+                    node += docutils.nodes.inline(')', ')')
+
+        return node
