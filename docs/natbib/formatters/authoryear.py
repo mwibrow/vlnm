@@ -13,12 +13,12 @@ def latex_decode(text):
     """
     return text.encode('ascii').decode('latex')
 
-class ApaFormatter(Formatter):
+class AuthorYearFormatter(Formatter):
     """
     Class for creating citations and bibliographic entries in the APA style.
     """
     def __init__(self):
-        super(ApaFormatter, self).__init__()
+        super(AuthorYearFormatter, self).__init__()
         self.nodes = []
         self.publications = {
             'article': [
@@ -124,7 +124,7 @@ class ApaFormatter(Formatter):
             nodes.append(docutils.nodes.inline('Vol. ', 'Vol. '))
             nodes.append(docutils.nodes.inline(volume, volume))
             if fields.get('number'):
-                nodes.append(docutils.nodes.inline(' ', ' '))
+                nodes.append(docutils.nodes.inline(', ', ', '))
             elif fields.get('pages'):
                 nodes.append(docutils.nodes.inline(', ', ', '))
             else:

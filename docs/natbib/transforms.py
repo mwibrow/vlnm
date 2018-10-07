@@ -7,7 +7,7 @@ import docutils.transforms
 import docutils.nodes
 
 from .nodes import BibliographyNode, CitationNode
-from .formatters.apa import ApaFormatter
+from .formatters.authoryear import AuthorYearFormatter
 
 def make_refid(entry, docname):
     """
@@ -32,7 +32,7 @@ class BibliographyTransform(docutils.transforms.Transform):
         env = self.document.settings.env
         bibcache = env.bibcache.entries
 
-        formatter = ApaFormatter()
+        formatter = AuthorYearFormatter()
 
         for bibnode in self.document.traverse(CitationNode):
             key = bibnode.data['keys'][0]

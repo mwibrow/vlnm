@@ -28,3 +28,4 @@
 :citealp:`see {% clopper_2009 %} p.2`
 
 .. bibliography:: bibliography.bib
+    :style: author-year
