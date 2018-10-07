@@ -30,7 +30,7 @@ class BibliographyTransform(docutils.transforms.Transform):
         Apply the transform
         """
         env = self.document.settings.env
-        bibcache = env.bibcache.entries
+        bibcache = env.bibcache
 
         for bibnode in self.document.traverse(BibliographyNode):
             docname = bibnode.data['docname']

@@ -26,6 +26,7 @@ from pybtex.database.input import bibtex
 
 from .utils import (KEY, PREV, NEXT, OrderedSet)
 
+from .cache import BibliographyCache
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
 from .roles import CitationRole
@@ -36,7 +37,7 @@ def init_app(app):
     Initialise the app.
     """
     app.env.bibkeys = OrderedSet()
-    app.env.bibcache = None
+    app.env.bibcache = BibliographyCache()
 
 
 def setup(app):

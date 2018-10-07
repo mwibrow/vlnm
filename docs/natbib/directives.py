@@ -31,12 +31,11 @@ class BibliographyDirective(Directive):
         id_ = 'bibtex-bibliography-{}-{}'.format(
             env.docname, env.new_serialno('bibtex'))
         for bibfile in self.arguments[0].split():
-
             bibfile = os.path.normpath(env.relfn2path(bibfile.strip())[1])
             parser = bibtex.Parser()
-            bibcache = parser.parse_file(bibfile)
+            cache = parser.parse_file(bibfile)
+            env.bibcache.add_entries(cache.entries, env.docname)
 
-        env.bibcache = bibcache
         data = dict(
             docname=env.docname,
             style=self.options.get('style'))
