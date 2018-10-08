@@ -2,6 +2,44 @@
     Bibliography Cache
     ~~~~~~~~~~~~~~~~~~
 """
+from orderedset import OrderedSet
+
+class CitationCache:
+    """
+    Class for caching citation keys
+    """
+
+    def __init__(self):
+        self.cache = {}
+
+    def add_key(self, key, docname):
+        """
+        Add a key to the cache for a document.
+        """
+        cache = self.cache.get(docname, OrderedSet())
+        cache.add(key)
+        self.cache[docname] = cache
+
+    def add_keys(self, keys, docname):
+        """
+        Add a key to the cache for a document.
+        """
+        for key in keys:
+            self.add_key(key, docname)
+
+    def get_keys(self, docname=None):
+        """
+        Return the keys for a document.
+        """
+        if docname:
+            try:
+                return list(self.cache[docname])
+            except KeyError:
+                return []
+        keys = []
+        for doc in self.cache:
+            keys.extend(self.cache[doc])
+        return keys
 
 
 DOC_SEP = '~~~'

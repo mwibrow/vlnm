@@ -33,14 +33,13 @@ class BibliographyTransform(docutils.transforms.Transform):
         bibcache = env.bibcache
 
         for bibnode in self.document.traverse(BibliographyNode):
-            print(bibnode)
             docname = bibnode.data['docname']
-
+            keys = env.bibkeys.get_keys(docname)
             formatter = AuthorYearFormatter()
 
             node = docutils.nodes.paragraph()
-            keys = formatter.sort_keys(env.bibkeys, bibcache)
-            print(keys)
+            keys = formatter.sort_keys(keys, bibcache)
+
             for key in keys:
                 refid = make_refid(bibcache[key], bibnode.data['docname'])
                 entry = formatter.make_entry(bibcache[key])

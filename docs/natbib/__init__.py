@@ -3,30 +3,9 @@ natbib module.
 
 Adapted from https://bitbucket.org/wnielson/sphinx-natbib
 """
-
-import codecs
-import collections
-import os
-import re
-
-import docutils.nodes
-from docutils import transforms
-
-from docutils.parsers.rst import Directive, directives
-
 import latexcodec
 
-from sphinx import addnodes
-from sphinx.domains import Domain, ObjType
-from sphinx.locale import l_, _
-from sphinx.roles import XRefRole
-from sphinx.errors import SphinxError
-
-from pybtex.database.input import bibtex
-
-from .utils import (KEY, PREV, NEXT, OrderedSet)
-
-from .cache import BibliographyCache
+from .cache import CitationCache, BibliographyCache
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
 from .roles import CitationRole
@@ -36,7 +15,7 @@ def init_app(app):
     """
     Initialise the app.
     """
-    app.env.bibkeys = OrderedSet()
+    app.env.bibkeys = CitationCache()
     app.env.bibcache = BibliographyCache()
 
 

@@ -50,8 +50,7 @@ class CitationRole(object):
         classes = ['xref', domain, '%s-%s' % (domain, role)]
 
         pre_text, keys, post_text = extract_citation(text)
-        for key in keys:
-            env.bibkeys.add(key)
+        env.bibkeys.add_keys(keys, env.docname)
 
         node = CitationNode(data=dict(
             typ=typ,
