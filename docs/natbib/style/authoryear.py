@@ -1,7 +1,9 @@
+
+# pylint: disable=C0103,C0111,E1120,E1136,R0201,R0904,R1705,W0511,W0611,W0613
 import re
 
 from pybtex.style.formatting import BaseStyle, toplevel
-from pybtex.style.unsrt import Style as UnsrtStyle
+from pybtex.style.formatting.unsrt import Style as UnsrtStyle
 from pybtex.style.template import (
     join, words, together, field, optional, first_of,
     names, sentence, tag, optional_field, href
@@ -16,52 +18,52 @@ def dashify(text):
 
 pages = field('pages', apply_func=dashify)
 
-date = words [optional_field('month'), field('year')]
+date = words[optional_field('month'), field('year')]
 
 
-class Style(BaseStyle):
+class Style(UnsrtStyle):
 
     def format_names(self, role, as_sentence=True):
-        formatted_names = names(role, sep=', ', sep2 = ' and ', last_sep=', and ')
+        formatted_names = names(role, sep=', ', sep2=' and ', last_sep=', and ')
         if as_sentence:
-            return sentence [formatted_names]
+            return sentence[formatted_names]
         else:
             return formatted_names
 
     def format_author_year(self, e):
-        return sentence [
+        return sentence[
             self.format_names('author'),
-            join ['(', field('year'), ')']
+            join['(', field('year'), ')']
         ]
 
     def format_article(self, e):
-        volume_and_pages = first_of [
+        volume_and_pages = first_of[
             # volume and pages, with optional issue number
-            optional [
-                join [
+            optional[
+                join[
                     field('volume'),
-                    optional['(', field('number'),')'],
+                    optional['(', field('number'), ')'],
                     ':', pages
                 ],
             ],
             # pages only
-            words ['pages', pages],
+            words['pages', pages],
         ]
-        template = toplevel [
+        template = toplevel[
             self.format_author_year(e),
             self.format_title(e, 'title'),
-            sentence [
-                tag('em') [field('journal')],
-                optional[ volume_and_pages ],
+            sentence[
+                tag('em')[field('journal')],
+                optional[volume_and_pages],
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_author_or_editor(self, e):
-        return first_of [
-            optional[ self.format_names('author') ],
+        return first_of[
+            optional[self.format_names('author')],
             self.format_editor(e),
         ]
 
@@ -76,48 +78,48 @@ class Style(BaseStyle):
             word = 'editors'
         else:
             word = 'editor'
-        result = join(sep=', ') [editors, word]
+        result = join(sep=', ')[editors, word]
         if as_sentence:
-            return sentence [result]
+            return sentence[result]
         else:
             return result
 
     def format_volume_and_series(self, e, as_sentence=True):
-        volume_and_series = optional [
-            words [
-                together ['Volume' if as_sentence else 'volume', field('volume')], optional [
-                    words ['of', field('series')]
+        volume_and_series = optional[
+            words[
+                together['Volume' if as_sentence else 'volume', field('volume')], optional[
+                    words['of', field('series')]
                 ]
             ]
         ]
-        number_and_series = optional [
-            words [
-                join(sep=Symbol('nbsp')) ['Number' if as_sentence else 'number', field('number')],
-                optional [
-                    words ['in', field('series')]
+        number_and_series = optional[
+            words[
+                join(sep=Symbol('nbsp'))['Number' if as_sentence else 'number', field('number')],
+                optional[
+                    words['in', field('series')]
                 ]
             ]
         ]
         series = optional_field('series')
-        result = first_of [
+        result = first_of[
             volume_and_series,
             number_and_series,
             series,
         ]
         if as_sentence:
-            return sentence(capfirst=True) [result]
+            return sentence(capfirst=True)[result]
         else:
             return result
 
     def format_chapter_and_pages(self, e):
-        return join(sep=', ') [
-            optional [together ['chapter', field('chapter')]],
-            optional [together ['pages', pages]],
+        return join(sep=', ')[
+            optional[together['chapter', field('chapter')]],
+            optional[together['pages', pages]],
         ]
 
     def format_edition(self, e):
-        return optional [
-            words [
+        return optional[
+            words[
                 field('edition', apply_func=lambda x: x.lower()),
                 'edition',
             ]
@@ -128,19 +130,19 @@ class Style(BaseStyle):
             which_field, apply_func=lambda text: text.capitalize()
         )
         if as_sentence:
-            return sentence [ formatted_title ]
+            return sentence[formatted_title]
         else:
             return formatted_title
 
     def format_btitle(self, e, which_field, as_sentence=True):
-        formatted_title = tag('em') [ field(which_field) ]
+        formatted_title = tag('em')[field(which_field)]
         if as_sentence:
-            return sentence[ formatted_title ]
+            return sentence[formatted_title]
         else:
             return formatted_title
 
     def format_address_organization_publisher_date(
-        self, e, include_organization=True):
+            self, e, include_organization=True):
         """Format address, organization, publisher, and date.
         Everything is optional, except the date.
         """
@@ -153,8 +155,8 @@ class Style(BaseStyle):
             organization = None
         return first_of[
             # this will be rendered if there is an address
-            optional [
-                join(sep=' ') [
+            optional[
+                join(sep=' ')[
                     sentence[
                         field('address'),
                         date,
@@ -174,26 +176,26 @@ class Style(BaseStyle):
         ]
 
     def format_book(self, e):
-        template = toplevel [
+        template = toplevel[
             self.format_author_or_editor(e),
             self.format_btitle(e, 'title'),
             self.format_volume_and_series(e),
-            sentence [
+            sentence[
                 field('publisher'),
                 optional_field('address'),
                 self.format_edition(e)
             ],
-            optional[ sentence [ self.format_isbn(e) ] ],
-            sentence [ optional_field('note') ],
+            optional[sentence[self.format_isbn(e)]],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_booklet(self, e):
-        template = toplevel [
+        template = toplevel[
             self.format_author_or_editor(e),
             self.format_title(e, 'title'),
-            sentence [
+            sentence[
                 optional_field('howpublished'),
                 optional_field('address'),
                 optional_field('note'),
@@ -203,18 +205,18 @@ class Style(BaseStyle):
         return template.format_data(e)
 
     def format_inbook(self, e):
-        template = toplevel [
+        template = toplevel[
             self.format_author_or_editor(e),
-            sentence [
+            sentence[
                 self.format_btitle(e, 'title', as_sentence=False),
                 self.format_chapter_and_pages(e),
             ],
             self.format_volume_and_series(e),
-            sentence [
+            sentence[
                 field('publisher'),
                 optional_field('address'),
-                optional [
-                    words [field('edition'), 'edition']
+                optional[
+                    words[field('edition'), 'edition']
                 ],
                 date,
                 optional_field('note'),
@@ -224,19 +226,19 @@ class Style(BaseStyle):
         return template.format_data(e)
 
     def format_incollection(self, e):
-        template = toplevel [
-            sentence [self.format_names('author')],
+        template = toplevel[
+            sentence[self.format_names('author')],
             self.format_title(e, 'title'),
-            words [
+            words[
                 'In',
-                sentence [
-                    optional[ self.format_editor(e, as_sentence=False) ],
+                sentence[
+                    optional[self.format_editor(e, as_sentence=False)],
                     self.format_btitle(e, 'booktitle', as_sentence=False),
                     self.format_volume_and_series(e, as_sentence=False),
                     self.format_chapter_and_pages(e),
                 ],
             ],
-            sentence [
+            sentence[
                 optional_field('publisher'),
                 optional_field('address'),
                 self.format_edition(e),
@@ -247,20 +249,20 @@ class Style(BaseStyle):
         return template.format_data(e)
 
     def format_inproceedings(self, e):
-        template = toplevel [
+        template = toplevel[
             self.format_author_year(e),
             self.format_title(e, 'title'),
-            words [
+            words[
                 'In',
-                sentence [
-                    optional[ self.format_editor(e, as_sentence=False) ],
+                sentence[
+                    optional[self.format_editor(e, as_sentence=False)],
                     self.format_btitle(e, 'booktitle', as_sentence=False),
                     self.format_volume_and_series(e, as_sentence=False),
-                    optional[ pages ],
+                    optional[pages],
                 ],
                 self.format_address_organization_publisher_date(e),
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
@@ -268,22 +270,22 @@ class Style(BaseStyle):
     def format_manual(self, e):
         # TODO this only corresponds to the bst style if author is non-empty
         # for empty author we should put the organization first
-        template = toplevel [
-            optional [ sentence [ self.format_names('author') ] ],
+        template = toplevel[
+            optional[sentence[self.format_names('author')]],
             self.format_btitle(e, 'title'),
-            sentence [
+            sentence[
                 optional_field('organization'),
                 optional_field('address'),
                 self.format_edition(e),
-                optional[ date ],
+                optional[date],
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_mastersthesis(self, e):
-        template = toplevel [
+        template = toplevel[
             self.format_author_year(e),
             self.format_title(e, 'title'),
             sentence[
@@ -291,27 +293,27 @@ class Style(BaseStyle):
                 field('school'),
                 optional_field('address')
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_misc(self, e):
-        template = toplevel [
-            optional[ sentence [self.format_names('author')] ],
-            optional[ self.format_title(e, 'title') ],
+        template = toplevel[
+            optional[sentence[self.format_names('author')]],
+            optional[self.format_title(e, 'title')],
             sentence[
-                optional[ field('howpublished') ],
-                optional[ date ],
+                optional[field('howpublished')],
+                optional[date],
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_phdthesis(self, e):
-        template = toplevel [
-            sentence [self.format_names('author')],
+        template = toplevel[
+            sentence[self.format_names('author')],
             self.format_btitle(e, 'title'),
             sentence[
                 'PhD thesis',
@@ -319,19 +321,19 @@ class Style(BaseStyle):
                 optional_field('address'),
                 date,
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_proceedings(self, e):
-        template = toplevel [
-            first_of [
+        template = toplevel[
+            first_of[
                 # there are editors
-                optional [
+                optional[
                     join(' ')[
                         self.format_editor(e),
-                        sentence [
+                        sentence[
                             self.format_btitle(e, 'title', as_sentence=False),
                             self.format_volume_and_series(e, as_sentence=False),
                             self.format_address_organization_publisher_date(e),
@@ -340,25 +342,25 @@ class Style(BaseStyle):
                 ],
                 # there is no editor
                 optional_field('organization'),
-                sentence [
+                sentence[
                     self.format_btitle(e, 'title', as_sentence=False),
                     self.format_volume_and_series(e, as_sentence=False),
                     self.format_address_organization_publisher_date(
                         e, include_organization=False),
                 ],
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_techreport(self, e):
-        template = toplevel [
-            sentence [self.format_names('author')],
+        template = toplevel[
+            sentence[self.format_names('author')],
             self.format_title(e, 'title'),
-            sentence [
+            sentence[
                 words[
-                    first_of [
+                    first_of[
                         optional_field('type'),
                         'Technical Report',
                     ],
@@ -368,18 +370,18 @@ class Style(BaseStyle):
                 optional_field('address'),
                 date,
             ],
-            sentence [ optional_field('note') ],
+            sentence[optional_field('note')],
             self.format_web_refs(e),
         ]
         return template.format_data(e)
 
     def format_unpublished(self, e):
-        template = toplevel [
-            sentence [self.format_names('author')],
+        template = toplevel[
+            sentence[self.format_names('author')],
             self.format_title(e, 'title'),
-            sentence [
+            sentence[
                 field('note'),
-                optional[ date ]
+                optional[date]
             ],
             self.format_web_refs(e),
         ]
@@ -387,18 +389,18 @@ class Style(BaseStyle):
 
     def format_web_refs(self, e):
         # based on urlbst output.web.refs
-        return sentence [
-            optional [ self.format_url(e) ],
-            optional [ self.format_eprint(e) ],
-            optional [ self.format_pubmed(e) ],
-            optional [ self.format_doi(e) ],
+        return sentence[
+            optional[self.format_url(e)],
+            optional[self.format_eprint(e)],
+            optional[self.format_pubmed(e)],
+            optional[self.format_doi(e)],
             ]
 
     def format_url(self, e):
         # based on urlbst format.url
-        return words [
+        return words[
             'URL:',
-            href [
+            href[
                 field('url', raw=True),
                 field('url', raw=True)
                 ]
@@ -406,12 +408,12 @@ class Style(BaseStyle):
 
     def format_pubmed(self, e):
         # based on urlbst format.pubmed
-        return href [
-            join [
+        return href[
+            join[
                 'https://www.ncbi.nlm.nih.gov/pubmed/',
                 field('pubmed', raw=True)
                 ],
-            join [
+            join[
                 'PMID:',
                 field('pubmed', raw=True)
                 ]
@@ -419,12 +421,12 @@ class Style(BaseStyle):
 
     def format_doi(self, e):
         # based on urlbst format.doi
-        return href [
-            join [
+        return href[
+            join[
                 'https://doi.org/',
                 field('doi', raw=True)
                 ],
-            join [
+            join[
                 'doi:',
                 field('doi', raw=True)
                 ]
@@ -432,16 +434,16 @@ class Style(BaseStyle):
 
     def format_eprint(self, e):
         # based on urlbst format.eprint
-        return href [
-            join [
+        return href[
+            join[
                 'https://arxiv.org/abs/',
                 field('eprint', raw=True)
                 ],
-            join [
+            join[
                 'arXiv:',
                 field('eprint', raw=True)
                 ]
             ]
 
     def format_isbn(self, e):
-        return join(sep=' ') [ 'ISBN', field('isbn') ]
+        return join(sep=' ')['ISBN', field('isbn')]
