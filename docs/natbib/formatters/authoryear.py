@@ -6,6 +6,7 @@
 import docutils.nodes
 
 from .formatters import Formatter
+from .nodes import Context, toplevel, field, join, optional, words
 
 def latex_decode(text):
     """
@@ -195,6 +196,12 @@ class AuthorYearFormatter(Formatter):
         """
         Make a bibliographic entry.
         """
+        context = Context()
+        context.update(
+            author=ref.persons.get('author', []),
+            editor=ref.persons.get('author', []),
+            fields=ref.fields)
+
         publication = self.publications[ref.type]
         self.nodes = []
         ref_node = docutils.nodes.paragraph(
