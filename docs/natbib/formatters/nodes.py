@@ -1,22 +1,22 @@
 """
-    Module defining a small template language for creating styles.
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Template language based on pybtex
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+# pylint: disable=C0103,W0621
 
 import docutils.nodes
 
 class Context:
-    """
-    Singleton context.
-    """
+    """Singleton context."""
+
     _instance = None
+    context = {}
 
     def __new__(cls):
-        Context._instance = Context._instance or object.__new__(cls)
-        return Context._instance
-
-    def __init__(self):
-        self.context = {}
+        if cls._instance:
+            return cls._instance
+        cls._instance = object.__new__(cls)
+        return cls._instance
 
     def __getitem__(self, item):
         return self.context.get(item)
@@ -26,48 +26,51 @@ class Context:
         self.context.update(kwargs)
 
     def get(self, key, default):
-        """Return a key from the context."""
+        """Return an item from the context."""
         if key in self.context:
             return self.context[key]
         return default
 
-class Node:
-    """
-    Template node class.
+    def clear(self):
+        """Clear the context."""
+        self.context = {}
 
-    Based on pybtex but without the tiresome decorators.
-    """
-    def __init__(self, node='', **kwargs):
+class Node:
+    """Base node class."""
+
+    def __init__(self, text='', **kwargs):
         self.context = Context()
-        if isinstance(node, Node):
-            self.node = node.node
-            self.children = node.children
-            self.kwargs = node.kwargs
+        if isinstance(text, Node):
+            self.text = text.text
+            self.children = text.children
+            self.kwargs = text.kwargs
         else:
-            self.node = node
+            self.text = text
             self.children = []
             self.kwargs = {}
         self.kwargs.update(kwargs)
         self.context.update(**kwargs.get('context', {}))
 
     def clone(self):
-        """Clone this node."""
+        """Clone this node instance."""
         obj = object.__new__(self.__class__)
-        obj.node = self.node
+        obj.text = self.text
         obj.children = []
         obj.kwargs = self.kwargs
-        obj.context = self.context
+        obj.context = Context()
         return obj
 
     def append(self, nodes):
-        """Append a node to this node's children."""
+        """Append a child to this node."""
         for node in nodes:
             if node:
                 self.children.append(node)
         return self
 
-    def transform(self, _nodes):
-        """Transform a node."""
+    def transform(self, nodes):
+        """Transform this node."""
+        nodes = [Node(node) for node in nodes if node]
+        self.children.extend(nodes)
         return self
 
     def __getitem__(self, nodes):
@@ -78,7 +81,7 @@ class Node:
         self.append([node])
 
     def __bool__(self):
-        if self.node or self.children:
+        if self.text or self.children:
             return True
         return False
 
@@ -88,17 +91,17 @@ class Node:
         return self
 
     def __repr__(self):
-        children = ''.join(str(child) for child in self.children)
+        children = ''.join(child.__repr__() for child in self.children)
         if children:
             return '{}'.format(children)
-        if self.node:
-            return '{}'.format(self.node)
+        if self.text:
+            return '{}'.format(self.text)
         return ''
 
     def format(self):
         """Format to docutils nodes."""
-        if self.node:
-            node = docutils.nodes.inline(self.node, self.node)
+        if self.text:
+            node = docutils.nodes.inline(self.text, self.text)
         else:
             node = docutils.nodes.inline('', '')
         if self.children:
@@ -107,24 +110,29 @@ class Node:
         return node
 
 class TopLevel(Node):
-    """Top level node expected to have one child."""
-    def transform(self, node):
-        self.children.append(node)
+    """Top level node with only one child."""
+
+    def transform(self, nodes):
+        """Add the nodes to this nodes' children."""
+        self.children.append(nodes)
         return self
 
 class Field(Node):
-    """Node for obtaining fields from the context."""
-    def transform(self, node):
-        item = self.context.get('fields', {}).get(node)
-        self.node = item
+    """Node for getting fields from the context."""
+
+    def transform(self, nodes):
+        """Get the field from the context."""
+        item = self.context.get('fields', {}).get(nodes)
+        self.text = item
         return self
 
 class Join(Node):
-    """Node for joining other nodes."""
-    def __init__(self, sep=', '):
+    """Node for joining nodes together."""
+    def __init__(self, sep=''):
         super(Join, self).__init__(sep=sep)
 
     def transform(self, nodes):
+        """Join nodes together."""
         nodes = [Node(node) for node in nodes if node]
         for node in nodes[:-1]:
             self.children.append(node)
@@ -133,20 +141,26 @@ class Join(Node):
         return self
 
 class Optional(Node):
-    """Node for adding optional content."""
+    """Optionally transform node."""
+
     def transform(self, nodes):
+        """If first node is truthy, append the rest of the nodes."""
         condition = nodes[0]
-        rest = nodes = [Node(node) for node in nodes[1:] if node]
+        rest = [Node(node) for node in nodes[1:] if node]
         if condition:
             self.children.extend(rest)
         return self
 
 class Text(Node):
-    """Add a simple text node."""
+    """Simple text node."""
     def transform(self, nodes):
-        self.node = nodes
+        self.text = nodes
         return self
 
-    def format(self):
-        """Format to docutils nodes."""
-        return docutils.nodes.Text(self.node)
+
+toplevel = TopLevel()
+field = Field()
+join = Join()
+words = Join(sep=' ')
+optional = Optional()
+text = Text()
