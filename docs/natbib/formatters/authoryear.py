@@ -4,6 +4,7 @@
 """
 
 import docutils.nodes
+from docutils.nodes import inline, reference
 
 from .formatters import Formatter
 
@@ -82,12 +83,12 @@ class AuthorYearFormatter(Formatter):
                         for part in parts)
 
             text = text.strip()
-            author_node = docutils.nodes.inline(text, text)
+            author_node = inline(text, text)
             author_node['classes'].append('author')
             nodes.append(author_node)
 
             if len(authors) == 2 and i == 0:
-                nodes.append(docutils.nodes.inline(' & ', ' & '))
+                nodes.append(inline(' & ', ' & '))
         return nodes
 
     def get_editor(self, editor, **kwargs):
@@ -96,9 +97,9 @@ class AuthorYearFormatter(Formatter):
         """
         nodes = kwargs.get('nodes') or self.nodes or []
         if editor:
-            nodes.append(docutils.nodes.inline('In ', 'In '))
+            nodes.append(inline('In ', 'In '))
             self.get_authors(editor, nodes=nodes)
-            nodes.append(docutils.nodes.inline(' (eds), ', ' (eds), '))
+            nodes.append(inline(' (eds), ', ' (eds), '))
         return nodes
 
 
@@ -109,9 +110,9 @@ class AuthorYearFormatter(Formatter):
         nodes = kwargs.get('nodes') or self.nodes or []
         if pages:
             nodes.extend([
-                docutils.nodes.inline('pp', 'pp'),
-                docutils.nodes.inline(pages, pages),
-                docutils.nodes.inline('. ', '. ')])
+                inline('pp', 'pp'),
+                inline(pages, pages),
+                inline('. ', '. ')])
         return nodes
 
     def get_volume(self, volume, **kwargs):
@@ -121,14 +122,14 @@ class AuthorYearFormatter(Formatter):
         nodes = kwargs.get('nodes') or self.nodes or []
         fields = kwargs.get('fields', {})
         if volume:
-            nodes.append(docutils.nodes.inline('Vol. ', 'Vol. '))
-            nodes.append(docutils.nodes.inline(volume, volume))
+            nodes.append(inline('Vol. ', 'Vol. '))
+            nodes.append(inline(volume, volume))
             if fields.get('number'):
-                nodes.append(docutils.nodes.inline(', ', ', '))
+                nodes.append(inline(', ', ', '))
             elif fields.get('pages'):
-                nodes.append(docutils.nodes.inline(', ', ', '))
+                nodes.append(inline(', ', ', '))
             else:
-                nodes.append(docutils.nodes.inline('. ', '. '))
+                nodes.append(inline('. ', '. '))
         return nodes
 
     def get_number(self, number, **kwargs):
@@ -138,12 +139,12 @@ class AuthorYearFormatter(Formatter):
         fields = kwargs.get('fields', {})
         nodes = kwargs.get('nodes') or self.nodes or []
         if number:
-            nodes.append(docutils.nodes.inline('No. ', 'No. '))
-            nodes.append(docutils.nodes.inline(number, number))
+            nodes.append(inline('No. ', 'No. '))
+            nodes.append(inline(number, number))
             if fields.get('pages'):
-                nodes.append(docutils.nodes.inline(', ', ', '))
+                nodes.append(inline(', ', ', '))
             else:
-                nodes.append(docutils.nodes.inline('. ', '. '))
+                nodes.append(inline('. ', '. '))
         return nodes
 
     def get_year(self, year, **kwargs):
@@ -154,9 +155,9 @@ class AuthorYearFormatter(Formatter):
         if year:
             year = latex_decode(year)
             nodes.append(
-                docutils.nodes.inline(
+                inline(
                     year, ' ({})'.format(year), classes=['year']))
-            nodes.append(docutils.nodes.inline('. ', '. '))
+            nodes.append(inline('. ', '. '))
         return nodes
 
     def get_title(self, title, **kwargs):
@@ -165,8 +166,8 @@ class AuthorYearFormatter(Formatter):
         """
         nodes = kwargs.get('nodes') or self.nodes or []
         if title:
-            nodes.append(docutils.nodes.inline(title, title, classes=['title']))
-            nodes.append(docutils.nodes.inline('.  ', '.  '))
+            nodes.append(inline(title, title, classes=['title']))
+            nodes.append(inline('.  ', '.  '))
         return nodes
 
     def get_booktitle(self, booktitle, **kwargs):
@@ -180,9 +181,9 @@ class AuthorYearFormatter(Formatter):
             nodes.append(docutils.nodes.emphasis(
                 title, title, classes=['publication']))
             if fields.get('volume'):
-                nodes.append(docutils.nodes.inline(', ', ', '))
+                nodes.append(inline(', ', ', '))
             else:
-                nodes.append(docutils.nodes.inline('. ', '. '))
+                nodes.append(inline('. ', '. '))
         return nodes
 
     def get_journal(self, journal, **kwargs):
@@ -230,17 +231,17 @@ def make_citep(bibnode, bibcache, make_refid):
     """
     Make the citation text for :rst:role:citep: and :rst:role:citealp: roles.
     """
-    node = docutils.nodes.inline('', '')
+    node = inline('', '')
     classes = ['xref', 'cite']
     typ = bibnode.data['typ']
     keys = bibnode.data['keys']
     pre_text = bibnode.data.get('pre_text')
     post_text = bibnode.data.get('post_text')
     if typ != 'citealp':
-        node += docutils.nodes.inline('(', '(')
+        node += inline('(', '(')
     if pre_text:
         text = '{} '.format(pre_text)
-        node += docutils.nodes.inline(text, text)
+        node += inline(text, text)
     for i, key in enumerate(keys):
         entry = bibcache[key]
         refid = make_refid(entry, bibnode.data['docname'])
@@ -248,30 +249,30 @@ def make_citep(bibnode, bibcache, make_refid):
         authors = entry.persons.get('author')
         text = get_citation_author_text(authors)
 
-        refnode = docutils.nodes.reference(
+        refnode = reference(
             text, text, internal=True, refuri='#{}'.format(refid),
             classes=classes)
         node += refnode
 
         year = entry.fields.get('year')
         if year:
-            node += docutils.nodes.inline(', ', ', ')
-            refnode = docutils.nodes.reference(
+            node += inline(', ', ', ')
+            refnode = reference(
                 year, year, internal=True, refuri='#{}'.format(refid),
                 classes=classes)
             node += refnode
 
         if len(keys) > 1:
             if i < len(keys) - 1:
-                node += docutils.nodes.inline('; ', '; ')
+                node += inline('; ', '; ')
     if post_text:
         if post_text.startswith(','):
             text = post_text
         else:
             text = ' {}'.format(post_text)
-        node += docutils.nodes.inline(text, text)
+        node += inline(text, text)
     if typ != 'citealp':
-        node += docutils.nodes.inline(')', ')')
+        node += inline(')', ')')
 
     return node
 
@@ -294,7 +295,7 @@ def make_citet(bibnode, bibcache, make_refid):
     """
     Make the citation text for a :rst:role:citet: role.
     """
-    node = docutils.nodes.inline('', '')
+    node = inline('', '')
     classes = ['xref', 'cite']
     typ = bibnode.data['typ']
     keys = bibnode.data['keys']
@@ -315,10 +316,10 @@ def make_citet(bibnode, bibcache, make_refid):
 
             year = entry.fields.get('year')
             if year:
-                node += docutils.nodes.inline(' (', ' (')
+                node += inline(' (', ' (')
                 if pre_text:
                     text = '{} '.format(pre_text)
-                    node += docutils.nodes.inline(text, text)
+                    node += inline(text, text)
 
                 refnode = docutils.nodes.reference(
                     year, year, internal=True, refuri='#{}'.format(refid),
@@ -329,7 +330,7 @@ def make_citet(bibnode, bibcache, make_refid):
                         text = post_text
                     else:
                         text = ' {}'.format(post_text)
-                    node += docutils.nodes.inline(text, text)
-                node += docutils.nodes.inline(')', ')')
+                    node += inline(text, text)
+                node += inline(')', ')')
 
     return node
