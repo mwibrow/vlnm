@@ -9,6 +9,9 @@ from docutils.nodes import emphasis, inline, reference
 
 from .formatters import Formatter
 
+def text(content):
+    return inline(content, content)
+
 def latex_decode(text):
     """
     Decode ascii text latex formant to UTF-8
@@ -27,6 +30,7 @@ class AuthorYearFormatter(Formatter):
     def __init__(self):
         super(AuthorYearFormatter, self).__init__()
         self.nodes = []
+        self.entry = None
         self.publications = {
             'article': [
                 'authors',
@@ -236,10 +240,81 @@ class AuthorYearFormatter(Formatter):
         ])
         return nodes
 
+    def format_person(self, person, person_type='author'):
+        node = inline('', '', classes=[person_type])
+        for part in name_part(person.rich_prelast_names, after=' ', sep=' ', abbr=False):
+            node += part
+        for part in name_part(person.rich_last_names, abbr=False):
+            node += part
+        for part in name_part(person.rich_first_names, before=', ', sep=' ', abbr=True):
+            node += part
+        return node
+
+    def format_authors(self, entry, parent):
+        authors = entry.persons['author']
+        node = inline('', '', classes=['authors'])
+        for i, author in enumerate(authors):
+            node += self.format_person(author)
+            if len(authors) > 1:
+                if i == len(authors) - 2:
+                    node += text(' and ')
+                elif i < len(authors) - 1:
+                    node += text(', ')
+        return node
+
+    def format_year(self, entry):
+        node = inline('', classes=['year'])
+        node += text('(') + text(entry.fields['year']) + text(')')
+        return node
+
+    def format_title(self, entry):
+        node = inline('', classes=['title'])
+        node += text(entry.fields['title']) + text('. ')
+        return node
+
+    def format_journal(self, entry):
+        node = inline('', classes=['journal'])
+        node += emphasis(entry.fields['journal'], entry.fields['journal'])
+        return node
+
+    def format_volume_and_number(self, entry):
+        node = inline('', classes=['volume'])
+        volume = entry.fields.get('volume')
+        number = entry.fields.get('number')
+        node += text(volume)
+        if number:
+            node += text('(') + text(number) + text(')')
+        return node
+
+    def format_pages(self, entry):
+        node = inline('', classes=['pages'])
+        node += text(dashify(entry.fields.get('pages')))
+        return node
+
+    def format_article(self, entry, parent):
+        """Format article entry."""
+        parent += self.format_authors(entry, parent)
+        parent += text(' ')
+        parent += self.format_year(entry) + text('. ')
+        parent += self.format_title(entry)
+        parent += self.format_journal(entry)
+        parent += text(', ') + self.format_volume_and_number(entry)
+        parent += text(', ') + self.format_pages(entry) + text('.')
+
     def make_entry(self, ref):
         """
         Make a bibliographic entry.
         """
+        self.entry = ref
+        getter = 'format_{}'.format(ref.type)
+        if hasattr(self, getter):
+            ref_node = docutils.nodes.paragraph(
+                '', '', classes=[ref.type, 'reference'])
+            node = getattr(self, getter)(ref, ref_node)
+            if node:
+                ref_node += node
+            return ref_node
+
         publication = self.publications[ref.type]
         self.nodes = []
         ref_node = docutils.nodes.paragraph(
@@ -273,6 +348,21 @@ class AuthorYearFormatter(Formatter):
             return make_citet(bibnode, bibcache, make_refid)
 
         return bibnode
+
+def name_part(part, before=None, after=None, sep=None, abbr=False):
+    if part:
+        if before:
+            yield text(before)
+        for i, subpart in enumerate(part):
+            if abbr:
+                yield text(subpart.abbreviate().render_as('text'))
+            else:
+                yield text(subpart.render_as('text'))
+            if i < len(part) - 1 and sep:
+                yield text(sep)
+        if after:
+            yield text(after)
+
 
 def make_citep(bibnode, bibcache, make_refid):
     """
