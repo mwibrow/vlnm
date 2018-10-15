@@ -2,6 +2,7 @@
     New Formatters
     ~~~~~~~~~~~~~~
 """
+import re
 
 import docutils.nodes
 from docutils.nodes import inline, reference
@@ -13,6 +14,10 @@ def latex_decode(text):
     Decode ascii text latex formant to UTF-8
     """
     return text.encode('ascii').decode('latex')
+
+def dashify(text, dash='–'):
+    """Replace dashes with unicode dash."""
+    return re.sub(r'-+', dash, text)
 
 class AuthorYearFormatter(Formatter):
     """
@@ -53,6 +58,13 @@ class AuthorYearFormatter(Formatter):
                 'volume',
                 'number',
                 'pages'
+            ],
+            'phdthesis': [
+                'authors',
+                'year',
+                'title',
+                inline('PhD Dissertation. ', 'PhD Dissertation. '),
+                'school'
             ]
         }
 
@@ -87,8 +99,13 @@ class AuthorYearFormatter(Formatter):
             author_node['classes'].append('author')
             nodes.append(author_node)
 
-            if len(authors) == 2 and i == 0:
-                nodes.append(inline(' & ', ' & '))
+            if len(authors) > 1 and i < len(authors) - 1:
+                if i == len(authors) - 2:
+                    nodes.append(inline(' & ', ' & '))
+                else:
+                    nodes.append(inline(', ', ', '))
+
+
         return nodes
 
     def get_editor(self, editor, **kwargs):
@@ -109,8 +126,8 @@ class AuthorYearFormatter(Formatter):
         """
         nodes = kwargs.get('nodes') or self.nodes or []
         if pages:
+            pages = dashify(pages)
             nodes.extend([
-                inline('pp', 'pp'),
                 inline(pages, pages),
                 inline('. ', '. ')])
         return nodes
@@ -122,10 +139,9 @@ class AuthorYearFormatter(Formatter):
         nodes = kwargs.get('nodes') or self.nodes or []
         fields = kwargs.get('fields', {})
         if volume:
-            nodes.append(inline('Vol. ', 'Vol. '))
             nodes.append(inline(volume, volume))
             if fields.get('number'):
-                nodes.append(inline(', ', ', '))
+                pass
             elif fields.get('pages'):
                 nodes.append(inline(', ', ', '))
             else:
@@ -139,8 +155,10 @@ class AuthorYearFormatter(Formatter):
         fields = kwargs.get('fields', {})
         nodes = kwargs.get('nodes') or self.nodes or []
         if number:
-            nodes.append(inline('No. ', 'No. '))
-            nodes.append(inline(number, number))
+            nodes.extend([
+                inline('(', '('),
+                inline(number, number),
+                inline(')', ')')])
             if fields.get('pages'):
                 nodes.append(inline(', ', ', '))
             else:
@@ -192,6 +210,28 @@ class AuthorYearFormatter(Formatter):
         """
         return self.get_booktitle(journal, **kwargs)
 
+    def get_school(self, school, **kwargs):
+        """
+        Get the journal node for a bibliographic entry.
+        """
+        nodes = kwargs.get('nodes') or self.nodes or []
+        nodes.extend([
+            inline(school, school),
+            inline('.', '.')
+        ])
+        return nodes
+
+    def get_doi(self, doi, **kwargs):
+        """Get the doi."""
+        nodes = kwargs.get('nodes') or self.nodes or []
+        if not doi:
+            return []
+        doi_text = 'doi: {}'.format(doi)
+        nodes.extend([
+            reference(doi_text, doi_text, internal=False, refuri='https://doi.org/{}'.format(doi))
+        ])
+        return nodes
+
     def make_entry(self, ref):
         """
         Make a bibliographic entry.
@@ -202,17 +242,20 @@ class AuthorYearFormatter(Formatter):
             '', '', classes=[ref.type, 'reference'])
         ref_fields = ref.fields
         for field in publication:
-            if field == 'authors':
-                source = ref.persons.get('author', [])
-            elif field == 'editor':
-                source = ref.persons.get('editor', [])
-            else:
-                source = ref.fields.get(field)
-            getter = 'get_{}'.format(field)
-            if hasattr(self, getter):
-                nodes = getattr(self, getter)(source, fields=ref_fields)
-                for node in nodes:
-                    ref_node += node
+            try:
+                if field == 'authors':
+                    source = ref.persons.get('author', [])
+                elif field == 'editor':
+                    source = ref.persons.get('editor', [])
+                else:
+                    source = ref.fields.get(field)
+                getter = 'get_{}'.format(field)
+                if hasattr(self, getter):
+                    nodes = getattr(self, getter)(source, fields=ref_fields)
+                    for node in nodes:
+                        ref_node += node
+            except AttributeError:
+                ref_node += field
         return ref_node
 
     def make_citation(self, bibnode, bibcache, make_refid):  # pylint: disable=R0201
