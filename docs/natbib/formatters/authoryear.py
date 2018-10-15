@@ -5,7 +5,7 @@
 import re
 
 import docutils.nodes
-from docutils.nodes import inline, reference
+from docutils.nodes import emphasis, inline, reference
 
 from .formatters import Formatter
 
@@ -13,7 +13,8 @@ def latex_decode(text):
     """
     Decode ascii text latex formant to UTF-8
     """
-    return text.encode('ascii').decode('latex')
+    return text.encode('ascii').decode('latex').replace(
+        '\\:{o}', 'ö')
 
 def dashify(text, dash='–'):
     """Replace dashes with unicode dash."""
@@ -183,8 +184,11 @@ class AuthorYearFormatter(Formatter):
         Get the title node for a bibliographic entry.
         """
         nodes = kwargs.get('nodes') or self.nodes or []
+        ref_type = kwargs.get('type')
         if title:
-            nodes.append(inline(title, title, classes=['title']))
+            node = emphasis if ref_type == 'phdthesis' else inline
+            print(ref_type)
+            nodes.append(node(title, title, classes=['title']))
             nodes.append(inline('.  ', '.  '))
         return nodes
 
@@ -196,7 +200,7 @@ class AuthorYearFormatter(Formatter):
         fields = kwargs.get('fields' or {})
         if booktitle:
             title = latex_decode(booktitle)
-            nodes.append(docutils.nodes.emphasis(
+            nodes.append(emphasis(
                 title, title, classes=['publication']))
             if fields.get('volume'):
                 nodes.append(inline(', ', ', '))
@@ -251,7 +255,7 @@ class AuthorYearFormatter(Formatter):
                     source = ref.fields.get(field)
                 getter = 'get_{}'.format(field)
                 if hasattr(self, getter):
-                    nodes = getattr(self, getter)(source, fields=ref_fields)
+                    nodes = getattr(self, getter)(source, fields=ref_fields, type=ref.type)
                     for node in nodes:
                         ref_node += node
             except AttributeError:

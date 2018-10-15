@@ -28,6 +28,10 @@
 :citealp:`see {% adank_etal_2004 %} p.2`
 
 :citet:`bladon_etal_1984`
+:citet:`gerstman_1968`
+:citet:`lobanov_1971`
+:citet:`neary_1978`
+:citet:`nordstrom_1977`
 
 .. toctree::
    :maxdepth: 4
