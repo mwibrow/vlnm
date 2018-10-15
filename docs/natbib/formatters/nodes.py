@@ -21,6 +21,7 @@ class Node:
             self.kwargs = kwargs
 
     def add_child(self, child):
+        """Add a child to this node."""
         self.children.append(child)
 
     def clone(self):
@@ -29,16 +30,29 @@ class Node:
         node.content = self.content
         node.children = []
         node.classes = self.classes
-        node.kwargs = kwargs
+        node.kwargs = self.kwargs
         return node
 
-    def transform(self, items):
+    def transform(self, _items):
         """Transform this node."""
         return self
+
+    def format(self, **kwargs):
+        """Format this node to a docutils node."""
+        self.kwargs.update(**kwargs)
+        return docutils.nodes.inline(
+            self.content,
+            self.content,
+            classes=self.classes)
 
     def __add__(self, child):
         self.add_child(Node(child))
         return self
+
+    def __bool__(self):
+        if self.content or self.children:
+            return True
+        return False
 
     def __call__(self, **kwargs):
         self.kwargs.update(kwargs)
@@ -51,15 +65,60 @@ class Node:
 
     def __repr__(self):
         node = '{}{}'.format(
-            self.__class__.__name,
+            self.__class__.__name__,
             '(\'{}\')'.format(self.content) if self.content else '')
-        children = ', '.join(child.__repr__() for child in self children)
+        children = ', '.join(child.__repr__() for child in self.children)
         if children:
             children = '[{}]'.format(children)
         return '{}{}'.format(node, children)
 
 
 class Text(Node):
+    """Text node."""
+    def transform(self, items):
+        """Transform this node instance."""
+        self.content = items[0]
+        return self
 
-    def transform(self):
-        return docutils.inline()
+class Emph(Text):
+    """Text node with emphasis."""
+    def format(self, **kwargs):
+        """Format this node to a docutils node."""
+        self.kwargs.update(kwargs)
+        return docutils.nodes.emphasis(
+            self.content,
+            self.content,
+            classes=self.classes)
+
+class Field(Node):
+    """Node class for obtaining fields."""
+    def transform(self, items):
+        """Transform this node instance."""
+        self.content = items[0]
+        return self
+
+    def format(self, **kwargs):
+        try:
+            value = kwargs.get('entry').fields[self.content]
+            return value
+        except (AttributeError, KeyError):
+            return None
+
+class Join(Node):
+    """Node class for joining nodes."""
+    def transform(self, items):
+        """Transform this node instance."""
+        for item in items:
+            if item:
+                self.add_child(item)
+
+    def format(self, **kwargs):
+        return
+
+
+field = Field()
+emph = Emph()
+join = Join()
+text = Text()
+
+join[ '(', field['year']]
