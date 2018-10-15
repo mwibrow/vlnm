@@ -59,9 +59,10 @@ class Node:
         return self
 
     def __getitem__(self, items):
+        node = self.clone()
         if not isinstance(items, tuple):
             items = (items,)
-        self.transform(items)
+        return node.transform(items)
 
     def __repr__(self):
         node = '{}{}'.format(
@@ -110,15 +111,56 @@ class Join(Node):
         """Transform this node instance."""
         for item in items:
             if item:
+                if isinstance(item, str):
+                    item = Text(item)
                 self.add_child(item)
+        return self
 
     def format(self, **kwargs):
-        return
+        """Format this node."""
+        parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+        sep = self.kwargs.get('sep')
+        children = []
+        for child in self.children:
+            child = child.format(**kwargs)
+            if child:
+                children.append(child)
+        for child in children[:-1]:
+            parent += child
+            if sep:
+                parent += docutils.nodes.inline(sep, sep)
+        parent += children[-1]
+        return parent
 
 
+class Optional(Node):
+    """Node class for optional nodes."""
+    def transform(self, items):
+        """Transform this node instance."""
+        for item in items:
+            if item:
+                if isinstance(item, str):
+                    item = Text(item)
+                self.add_child(item)
+        return self
+
+    def format(self, **kwargs):
+        """Format this node."""
+        condition = self.children[0].format(**kwargs)
+        if condition:
+            parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+            for child in self.children[1:]:
+                child = child.format(**kwargs)
+                if child:
+                    parent += child
+            return parent
+        return None
+
+
+
+# pylint: disable=C0103
 field = Field()
 emph = Emph()
 join = Join()
+optional = Optional()
 text = Text()
-
-join[ '(', field['year']]
