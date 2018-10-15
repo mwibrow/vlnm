@@ -23,10 +23,15 @@
 
 :citealp:`see {% clopper_2009 %}`
 
-:citealp:`{% clopper_2009 %} p.2`
+:citealp:`{% bigham_2008 %} p.2`
 
-:citealp:`see {% clopper_2009 %} p.2`
+:citealp:`see {% adank_etal_2004 %} p.2`
 
+:citet:`bladon_etal_1984`
+:citet:`gerstman_1968`
+:citet:`lobanov_1971`
+:citet:`neary_1978`
+:citet:`nordstrom_1977`
 
 .. toctree::
    :maxdepth: 4
