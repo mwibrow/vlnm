@@ -73,6 +73,15 @@ class Node:
             children = '[{}]'.format(children)
         return '{}{}'.format(node, children)
 
+    def __iter__(self):
+        yield self
+
+def format_node(node, **kwargs):
+    """Helper for formatting nodes."""
+    try:
+        return node.format(**kwargs)
+    except AttributeError:
+        return node(**kwargs)
 
 class Text(Node):
     """Text node."""
@@ -122,7 +131,7 @@ class Join(Node):
         sep = self.kwargs.get('sep')
         children = []
         for child in self.children:
-            child = child.format(**kwargs)
+            child = format_node(child, **kwargs)
             if child:
                 children.append(child)
         for child in children[:-1]:
@@ -150,17 +159,28 @@ class Optional(Node):
         if condition:
             parent = kwargs.get('parent') or docutils.nodes.inline('', '')
             for child in self.children[1:]:
-                child = child.format(**kwargs)
+                child = format_node(child, **kwargs)
                 if child:
                     parent += child
             return parent
         return None
 
+class Call(Node):
+    """Node class for wrapping functions."""
+    def transform(self, items):
+        """Transform this node instance."""
+        self.children = items
 
+    def format(self, **kwargs):
+        """Format this node."""
+        func = self.children[0]
+        args = [format_node(child, **kwargs) for child in self.children[1:]]
+        return func(**args)
 
 # pylint: disable=C0103
-field = Field()
+call = Call()
 emph = Emph()
+field = Field()
 join = Join()
 optional = Optional()
 text = Text()

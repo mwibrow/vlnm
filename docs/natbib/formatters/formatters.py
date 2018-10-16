@@ -4,6 +4,11 @@
 """
 
 # pylint: disable=no-self-use,unused-argument
+import re
+
+from .nodes import (
+    call, emph, field, join, optional, text)
+
 
 class Formatter:
     """
@@ -34,3 +39,12 @@ class Formatter:
         """
 
         return bibnode
+
+
+
+def dashify(string, dash='–'):
+    """Replace dashes with unicode dash."""
+    return re.sub(r'-+', dash, string)
+
+year = join['(', field['year'], ')']
+pages = call[dashify, field['pages']]
