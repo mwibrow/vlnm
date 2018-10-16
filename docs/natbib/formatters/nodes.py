@@ -135,15 +135,21 @@ class Join(Node):
         """Format this node."""
         parent = kwargs.get('parent') or docutils.nodes.inline('', '')
         sep = self.kwargs.get('sep')
+        last_sep = self.kwargs.get('last_sep')
         children = []
         for child in self.children:
-            child = format_node(child, **kwargs)
-            if child:
-                children.append(child)
-        for child in children[:-1]:
+            for element in child:
+                element = format_node(element, **kwargs)
+                if element:
+                    children.append(element)
+        for i, child in enumerate(children[:-1]):
             parent += child
-            if sep:
-                parent += docutils.nodes.inline(sep, sep)
+            if i < len(children) - 2:
+                if sep:
+                    parent += docutils.nodes.inline(sep, sep)
+            else:
+                if last_sep:
+                    parent += docutils.nodes.inline(last_sep, last_sep)
         parent += children[-1]
         return parent
 
@@ -164,6 +170,9 @@ class Optional(Node):
         condition = self.children[0].format(**kwargs)
         if condition:
             parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+            if len(self.children) == 1:
+                parent += condition
+                return parent
             for child in self.children[1:]:
                 child = format_node(child, **kwargs)
                 if child:
@@ -186,6 +195,16 @@ class Call(Node):
         output = func(*args)
         return docutils.nodes.inline(output, output)
 
+class Boolean(Node):
+    def transform(self, items):
+        """Transform this node instance."""
+        self.content = items
+        return self
+
+    def format(self, **kwargs):
+        if self.content[0]:
+            return True
+        return False
 
 # pylint: disable=C0103
 call = Call()
@@ -194,3 +213,4 @@ field = Field()
 join = Join()
 optional = Optional()
 text = Text()
+boolean = Boolean()
