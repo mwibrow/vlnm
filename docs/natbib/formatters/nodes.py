@@ -87,6 +87,7 @@ class Node:
         yield self
 
 def to_repr(obj):
+    """Convert to string representation."""
     if inspect.isfunction(obj):
         return '{}()'.format(obj.__name__)
     return obj.__repr__()
