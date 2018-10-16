@@ -2,6 +2,7 @@
     Template language based on pybtex
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+import inspect
 import docutils.nodes
 
 class Node:
@@ -68,13 +69,18 @@ class Node:
         node = '{}{}'.format(
             self.__class__.__name__,
             '(\'{}\')'.format(self.content) if self.content else '')
-        children = ', '.join(child.__repr__() for child in self.children)
+        children = ', '.join(to_repr(child) for child in self.children)
         if children:
             children = '[{}]'.format(children)
         return '{}{}'.format(node, children)
 
     def __iter__(self):
         yield self
+
+def to_repr(obj):
+    if inspect.isfunction(obj):
+        return '{}()'.format(obj.__name__)
+    return obj.__repr__()
 
 def format_node(node, **kwargs):
     """Helper for formatting nodes."""
@@ -110,7 +116,7 @@ class Field(Node):
     def format(self, **kwargs):
         try:
             value = kwargs.get('entry').fields[self.content]
-            return value
+            return docutils.nodes.inline(value, value, classes=[self.content])
         except (AttributeError, KeyError):
             return None
 
@@ -167,15 +173,19 @@ class Optional(Node):
 
 class Call(Node):
     """Node class for wrapping functions."""
+
     def transform(self, items):
         """Transform this node instance."""
         self.children = items
+        return self
 
     def format(self, **kwargs):
         """Format this node."""
         func = self.children[0]
         args = [format_node(child, **kwargs) for child in self.children[1:]]
-        return func(**args)
+        output = func(*args)
+        return docutils.nodes.inline(output, output)
+
 
 # pylint: disable=C0103
 call = Call()

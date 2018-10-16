@@ -8,7 +8,6 @@ import docutils.nodes
 from docutils.nodes import emphasis, inline, reference
 
 from .formatters import Formatter
-from .nodes import Context, toplevel, field, join, optional, words
 
 def text(content):
     return inline(content, content)
@@ -311,23 +310,6 @@ class AuthorYearFormatter(Formatter):
         """
         Make a bibliographic entry.
         """
-<<<<<<< HEAD
-        context = Context()
-        context.update(
-            author=ref.persons.get('author', []),
-            editor=ref.persons.get('author', []),
-            fields=ref.fields)
-=======
-        self.entry = ref
-        getter = 'format_{}'.format(ref.type)
-        if hasattr(self, getter):
-            ref_node = docutils.nodes.paragraph(
-                '', '', classes=[ref.type, 'reference'])
-            node = getattr(self, getter)(ref, ref_node)
-            if node:
-                ref_node += node
-            return ref_node
->>>>>>> 6a6c5fd48a8e96918fed4a3f7de162a0851cbb0e
 
         publication = self.publications[ref.type]
         self.nodes = []

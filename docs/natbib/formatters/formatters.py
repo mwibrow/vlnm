@@ -46,5 +46,6 @@ def dashify(string, dash='–'):
     """Replace dashes with unicode dash."""
     return re.sub(r'-+', dash, string)
 
+# pylint: disable=C0103
 year = join['(', field['year'], ')']
 pages = call[dashify, field['pages']]
