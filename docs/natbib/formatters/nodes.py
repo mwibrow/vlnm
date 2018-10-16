@@ -20,6 +20,7 @@ class Node:
             self.children = children or []
             self.classes = classes or []
             self.kwargs = kwargs
+        self._called = False
 
     def add_child(self, child):
         """Add a child to this node."""
@@ -31,7 +32,10 @@ class Node:
         node.content = self.content
         node.children = []
         node.classes = self.classes
-        node.kwargs = self.kwargs
+        if self._called:
+            node.kwargs = self.kwargs
+        else:
+            node.kwargs = {}
         return node
 
     def transform(self, _items):
@@ -56,11 +60,16 @@ class Node:
         return False
 
     def __call__(self, **kwargs):
-        self.kwargs.update(kwargs)
-        return self
+        node = self.clone()
+        node.kwargs.update(kwargs)
+        node._called = True  # pylint: disable=protected-access
+        return node
 
     def __getitem__(self, items):
-        node = self.clone()
+        if self._called:
+            node = self
+        else:
+            node = self.clone()
         if not isinstance(items, tuple):
             items = (items,)
         return node.transform(items)
@@ -122,13 +131,17 @@ class Field(Node):
 
 class Join(Node):
     """Node class for joining nodes."""
+
     def transform(self, items):
         """Transform this node instance."""
         for item in items:
             if item:
-                if isinstance(item, str):
-                    item = Text(item)
-                self.add_child(item)
+                if isinstance(item, list):
+                    self.transform(item)
+                else:
+                    if isinstance(item, str):
+                        item = Text(item)
+                    self.add_child(item)
         return self
 
     def format(self, **kwargs):
@@ -148,8 +161,9 @@ class Join(Node):
                 if sep:
                     parent += docutils.nodes.inline(sep, sep)
             else:
-                if last_sep:
-                    parent += docutils.nodes.inline(last_sep, last_sep)
+                current_sep = sep or last_sep
+                if current_sep:
+                    parent += docutils.nodes.inline(current_sep, current_sep)
         parent += children[-1]
         return parent
 
@@ -191,7 +205,7 @@ class Call(Node):
     def format(self, **kwargs):
         """Format this node."""
         func = self.children[0]
-        args = [format_node(child, **kwargs) for child in self.children[1:]]
+        args = [child for child in self.children[1:]]
         output = func(*args)
         return docutils.nodes.inline(output, output)
 
@@ -206,6 +220,33 @@ class Boolean(Node):
             return True
         return False
 
+class Sentence(Node):
+    def transform(self, items):
+        """Transfor this node instance."""
+        self.children = items
+        return self
+
+    def format(self, **kwargs):
+        """Format this node instance."""
+        nodes = join[self.children, '. '].format(**kwargs)
+        original = nodes.traverse(condition=docutils.nodes.Text)[0]
+        replacement = docutils.nodes.inline(
+            original.capitalize(),
+            original.capitalize())
+        original.parent.replace_self(replacement)
+        return nodes
+
+class Words(Node):
+    """Word node class."""
+    def transform(self, items):
+        """Transfor this node instance."""
+        self.children = items
+        return self
+
+    def format(self, **kwargs):
+        """Format this node instance."""
+        return join(sep=' ')[self.children].format(**kwargs)
+
 # pylint: disable=C0103
 call = Call()
 emph = Emph()
@@ -214,3 +255,5 @@ join = Join()
 optional = Optional()
 text = Text()
 boolean = Boolean()
+sentence = Sentence()
+words = Words()
