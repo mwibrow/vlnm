@@ -42,13 +42,12 @@ class Node:
         """Transform this node."""
         return self
 
-    def format(self, **kwargs):
+    def format(self, **_kwargs):
         """Format this node to a docutils node."""
-        self.kwargs.update(**kwargs)
-        return docutils.nodes.inline(
+        return formatted_node(
+            docutils.nodes.inline,
             self.content,
-            self.content,
-            classes=self.classes)
+            classes=self.kwargs.get('classes', []))
 
     def __add__(self, child):
         self.add_child(Node(child))
@@ -86,8 +85,16 @@ class Node:
     def __iter__(self):
         yield self
 
+def formatted_node(klass, content, rawsource=None, classes=None, **kwargs):
+    """Create a formatted node."""
+    klass = kwargs.get('klass', klass)
+    if classes:
+        klass(content, rawsource or content, classes=classes)
+    else:
+        return klass(content, rawsource or content)
+
 def to_repr(obj):
-    """Convert to string representation."""
+    """Convert to representation."""
     if inspect.isfunction(obj):
         return '{}()'.format(obj.__name__)
     return obj.__repr__()
@@ -126,7 +133,10 @@ class Field(Node):
     def format(self, **kwargs):
         try:
             value = kwargs.get('entry').fields[self.content]
-            return docutils.nodes.inline(value, value, classes=[self.content])
+            return formatted_node(
+                docutils.nodes.inline,
+                value,
+                classes=[self.content])
         except (AttributeError, KeyError):
             return None
 
@@ -162,7 +172,7 @@ class Join(Node):
                 if sep:
                     parent += docutils.nodes.inline(sep, sep)
             else:
-                current_sep = sep or last_sep
+                current_sep = last_sep or sep
                 if current_sep:
                     parent += docutils.nodes.inline(current_sep, current_sep)
         parent += children[-1]
@@ -203,7 +213,7 @@ class Call(Node):
         self.children = items
         return self
 
-    def format(self, **kwargs):
+    def format(self, **_kwargs):
         """Format this node."""
         func = self.children[0]
         args = [child for child in self.children[1:]]
@@ -211,31 +221,50 @@ class Call(Node):
         return docutils.nodes.inline(output, output)
 
 class Boolean(Node):
+    """Boolean node."""
     def transform(self, items):
         """Transform this node instance."""
         self.content = items
         return self
 
-    def format(self, **kwargs):
+    def format(self, **_kwargs):
         if self.content[0]:
             return True
         return False
 
 class Sentence(Node):
+    """Sentence node."""
     def transform(self, items):
-        """Transfor this node instance."""
-        self.children = items
+        """Transform this node instance."""
+        for item in items:
+            if item:
+                if isinstance(item, list):
+                    self.transform(item)
+                else:
+                    if isinstance(item, str):
+                        item = Text(item)
+                    self.add_child(item)
+        self.add_child(Text('.'))
         return self
 
     def format(self, **kwargs):
         """Format this node instance."""
-        nodes = join[self.children, '. '].format(**kwargs)
-        original = nodes.traverse(condition=docutils.nodes.Text)[0]
-        replacement = docutils.nodes.inline(
-            original.capitalize(),
-            original.capitalize())
-        original.parent.replace_self(replacement)
-        return nodes
+        self.kwargs.update(sep=' ', last_sep=' ')
+        parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+        sep = ' '
+        children = []
+        for child in self.children:
+            for element in child:
+                element = format_node(element, **kwargs)
+                if element:
+                    children.append(element)
+        for i, child in enumerate(children[:-1]):
+            parent += child
+            if i < len(children) - 2:
+                if sep:
+                    parent += docutils.nodes.inline(sep, sep)
+        parent += children[-1]
+        return parent
 
 class Words(Node):
     """Word node class."""

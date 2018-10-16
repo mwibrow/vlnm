@@ -6,8 +6,12 @@
 # pylint: disable=no-self-use,unused-argument
 import re
 
+import docutils.nodes
+
 from .nodes import (
-    call, emph, field, join, optional, text)
+    boolean, call, field,
+    formatted_node, join, optional, sentence, words,
+    Node)
 
 
 class Formatter:
@@ -40,12 +44,62 @@ class Formatter:
 
         return bibnode
 
+class Authors(Node):
+    def format(self, **kwargs):
+        authors = kwargs.get('entry').persons['author']
+        node = formatted_node(
+            docutils.nodes.inline,
+            '',
+            classes=['authors'])
+        node += join(sep=', ', last_sep=' and ')[
+            [get_author(author) for author in authors]
+        ].format()
+        return node
 
+    def __bool__(self):
+        return True
+
+def get_author(author):
+    """Get an author template."""
+    prelast_names = [
+        name.render_as('text')
+        for name in author.rich_prelast_names]
+    last_names = [
+        name.render_as('text')
+        for name in author.rich_last_names]
+    first_names = [
+        name.abbreviate().render_as('text')
+        for name in author.rich_first_names]
+    middle_names = [
+        name.abbreviate().render_as('text')
+        for name in author.rich_middle_names]
+    return join[
+        optional[
+            boolean[prelast_names],
+            words[prelast_names],
+            ' '
+        ],
+        words[last_names],
+        ', ',
+        words[first_names],
+        optional[
+            boolean[middle_names],
+            ' ',
+            words[middle_names]
+        ],
+    ]
 
 def dashify(string, dash='–'):
     """Replace dashes with unicode dash."""
-    return re.sub(r'-+', dash, string)
-
+    try:
+        try:
+            return re.sub(r'-+', dash, string)
+        except TypeError:
+            return re.sub(r'-+', dash, string.content)
+    except AttributeError:
+        return re.sub(r'-+', dash, string.astext())
 # pylint: disable=C0103
+
 year = join['(', field['year'], ')']
 pages = call[dashify, field['pages']]
+title = sentence[field['title']]
