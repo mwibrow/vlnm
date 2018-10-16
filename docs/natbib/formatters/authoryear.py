@@ -293,13 +293,18 @@ class AuthorYearFormatter(Formatter):
 
     def format_article(self, entry, parent):
         """Format article entry."""
-        parent += self.format_authors(entry, parent)
-        parent += text(' ')
-        parent += self.format_year(entry) + text('. ')
-        parent += self.format_title(entry)
-        parent += self.format_journal(entry)
-        parent += text(', ') + self.format_volume_and_number(entry)
-        parent += text(', ') + self.format_pages(entry) + text('.')
+        parent += join([
+            self.format_authors(entry, parent),
+            text(' '),
+            self.format_year(entry),
+            text('. '),
+            self.format_title(entry),
+            self.format_journal(entry),
+            text(', '),
+            self.format_volume_and_number(entry),
+            text(', '),
+            self.format_pages(entry) + text('.')
+        ])
 
     def make_entry(self, ref):
         """
@@ -348,6 +353,15 @@ class AuthorYearFormatter(Formatter):
             return make_citet(bibnode, bibcache, make_refid)
 
         return bibnode
+
+def join(nodes):
+    first = None
+    for node in nodes:
+        if node and not first:
+            first = node
+        else:
+            first += node
+    return first
 
 def name_part(part, before=None, after=None, sep=None, abbr=False):
     if part:
