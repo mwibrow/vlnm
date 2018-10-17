@@ -9,7 +9,7 @@ import re
 import docutils.nodes
 
 from .nodes import (
-    boolean, call, field,
+    boolean, call, emph, field,
     formatted_node, join, optional, sentence, words,
     Node)
 
@@ -100,6 +100,28 @@ def dashify(string, dash='–'):
         return re.sub(r'-+', dash, string.astext())
 # pylint: disable=C0103
 
+
 year = join['(', field['year'], ')']
 pages = call[dashify, field['pages']]
 title = sentence[field['title']]
+journal = emph[field['journal']]
+authors = Authors()
+volume = join[
+    field['volume'],
+    optional[
+        field['number'],
+        '(', field['number'], ')'
+    ]
+]
+
+article = join(sep=' ')[
+    sentence[join[Authors(), ', ', year]],
+    title,
+    join[journal, ', ', volume, ' ', pages, '.']
+]
+
+phdthesis = join(sep=' ')[
+    sentence[join[Authors(), ', ', year]],
+    emph[title],
+    sentence[field['school']]
+]
