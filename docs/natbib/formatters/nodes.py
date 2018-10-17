@@ -20,7 +20,7 @@ class Node:
             self.children = children or []
             self.classes = classes or []
             self.kwargs = kwargs
-        self._called = False
+        self.called = False
 
     def add_child(self, child):
         """Add a child to this node."""
@@ -32,14 +32,15 @@ class Node:
         node.content = self.content
         node.children = []
         node.classes = self.classes
-        if self._called:
+        if self.called:
             node.kwargs = self.kwargs
         else:
             node.kwargs = {}
         return node
 
-    def transform(self, _items):
+    def template(self, items):
         """Transform this node."""
+        self.children = items
         return self
 
     def format(self, **_kwargs):
@@ -61,17 +62,17 @@ class Node:
     def __call__(self, **kwargs):
         node = self.clone()
         node.kwargs.update(kwargs)
-        node._called = True  # pylint: disable=protected-access
+        node.called = True  # pylint: disable=protected-access
         return node
 
     def __getitem__(self, items):
-        if self._called:
+        if self.called:
             node = self
         else:
             node = self.clone()
         if not isinstance(items, tuple):
             items = (items,)
-        return node.transform(items)
+        return node.template(items)
 
     def __repr__(self):
         node = '{}{}'.format(
@@ -89,9 +90,8 @@ def formatted_node(klass, content, rawsource=None, classes=None, **kwargs):
     """Create a formatted node."""
     klass = kwargs.get('klass', klass)
     if classes:
-        klass(content, rawsource or content, classes=classes)
-    else:
-        return klass(content, rawsource or content)
+        return klass(content, rawsource or content, classes=classes)
+    return klass(content, rawsource or content)
 
 def to_repr(obj):
     """Convert to representation."""
@@ -101,31 +101,62 @@ def to_repr(obj):
 
 def format_node(node, **kwargs):
     """Helper for formatting nodes."""
+    if isinstance(node, str):
+        return Text()[node].format()
     try:
-        return node.format(**kwargs)
+        value = node.format(**kwargs)
+        if isinstance(value, str):
+            value = format_node(value)
     except AttributeError:
-        return node(**kwargs)
+        value = node(**kwargs)
+    return value
+
+
+def child_iterator(children):
+    """Iterate over children, replacing strings with nodes."""
+    for child in children:
+        if isinstance(child, str):
+            yield Text()[child]
+        elif isinstance(child, list):
+            for grandchild in child_iterator(child):
+                yield grandchild
+        else:
+            yield child
 
 class Text(Node):
     """Text node."""
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         self.content = items[0]
         return self
 
-class Emph(Text):
-    """Text node with emphasis."""
+    def format(self, **_kwargs):
+        """Format this node."""
+        return formatted_node(
+            docutils.nodes.Text,
+            self.content)
+
+class InLine(Node):
     def format(self, **kwargs):
-        """Format this node to a docutils node."""
-        self.kwargs.update(kwargs)
-        return docutils.nodes.emphasis(
-            self.content,
-            self.content,
-            classes=self.classes)
+        node = formatted_node(docutils.nodes.inline, '', classes=self.kwargs.get('classes'))
+        for child in child_iterator(self.children):
+            child = format_node(child, **kwargs)
+            if child:
+                node += child
+        return node
+
+class Emph(Node):
+    def format(self, **kwargs):
+        node = formatted_node(docutils.nodes.emphasis, '', classes=self.kwargs.get('classes'))
+        for child in child_iterator(self.children):
+            child = format_node(child, **kwargs)
+            if child:
+                node += child
+        return node
 
 class Field(Node):
     """Node class for obtaining fields."""
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         self.content = items[0]
         return self
@@ -133,22 +164,19 @@ class Field(Node):
     def format(self, **kwargs):
         try:
             value = kwargs.get('entry').fields[self.content]
-            return formatted_node(
-                docutils.nodes.inline,
-                value,
-                classes=[self.content])
+            return value
         except (AttributeError, KeyError):
             return None
 
 class Join(Node):
     """Node class for joining nodes."""
 
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         for item in items:
             if item:
                 if isinstance(item, list):
-                    self.transform(item)
+                    self.template(item)
                 else:
                     if isinstance(item, str):
                         item = Text(item)
@@ -181,7 +209,7 @@ class Join(Node):
 
 class Optional(Node):
     """Node class for optional nodes."""
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         for item in items:
             if item:
@@ -208,21 +236,21 @@ class Optional(Node):
 class Call(Node):
     """Node class for wrapping functions."""
 
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         self.children = items
         return self
 
-    def format(self, **_kwargs):
+    def format(self, **kwargs):
         """Format this node."""
         func = self.children[0]
-        args = [child for child in self.children[1:]]
+        args = [child.format(**kwargs) for child in self.children[1:]]
         output = func(*args)
         return docutils.nodes.inline(output, output)
 
 class Boolean(Node):
     """Boolean node."""
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         self.content = items
         return self
@@ -234,17 +262,17 @@ class Boolean(Node):
 
 class Sentence(Node):
     """Sentence node."""
-    def transform(self, items):
+    def template(self, items):
         """Transform this node instance."""
         for item in items:
             if item:
                 if isinstance(item, list):
-                    self.transform(item)
+                    self.template(item)
                 else:
                     if isinstance(item, str):
                         item = Text(item)
                     self.add_child(item)
-        self.add_child(Text('.'))
+        self.add_child(InLine()['.'])
         return self
 
     def format(self, **kwargs):
@@ -268,7 +296,7 @@ class Sentence(Node):
 
 class Words(Node):
     """Word node class."""
-    def transform(self, items):
+    def template(self, items):
         """Transfor this node instance."""
         self.children = items
         return self
