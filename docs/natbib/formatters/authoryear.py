@@ -7,26 +7,42 @@ import re
 import docutils.nodes
 from docutils.nodes import emphasis, inline, reference
 
-from .formatters import Formatter
+from .nodes import (
+    join, emph, optional, sentence
+)
 
-def text(content):
-    return inline(content, content)
+from .formatters import (
+    Formatter,
+    dashify,
+    latex_decode,
+    authors, field, journal, pages, sentence, title, volume, year)
 
-def latex_decode(text):
-    """
-    Decode ascii text latex formant to UTF-8
-    """
-    return text.encode('ascii').decode('latex').replace(
-        '\\:{o}', 'ö')
-
-def dashify(text, dash='–'):
-    """Replace dashes with unicode dash."""
-    return re.sub(r'-+', dash, text)
+def text(arg):
+    return docutils.nodes.inline(arg, arg)
 
 class AuthorYearFormatter(Formatter):
     """
     Class for creating citations and bibliographic entries in the APA style.
     """
+
+    @staticmethod
+    def article_template():
+        """Template for an article."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', year]],
+            title,
+            join[journal, ', ', volume, ' ', pages, '.']
+        ]
+
+    @staticmethod
+    def phdthesis_template():
+        """Template for a PhD thesis."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', year]],
+            emph[title],
+            sentence[field['school']]
+        ]
+
     def __init__(self):
         super(AuthorYearFormatter, self).__init__()
         self.nodes = []
@@ -293,7 +309,7 @@ class AuthorYearFormatter(Formatter):
 
     def format_article(self, entry, parent):
         """Format article entry."""
-        parent += join([
+        parent += cat([
             self.format_authors(entry, parent),
             text(' '),
             self.format_year(entry),
@@ -345,7 +361,7 @@ class AuthorYearFormatter(Formatter):
 
         return bibnode
 
-def join(nodes):
+def cat(nodes):
     first = None
     for node in nodes:
         if node and not first:

@@ -13,6 +13,11 @@ from .nodes import (
     formatted_node, join, optional, sentence, words,
     Node)
 
+def latex_decode(text):
+    """
+    Decode ascii text latex formant to UTF-8
+    """
+    return text.encode('ascii').decode('latex')
 
 class Formatter:
     """
@@ -112,16 +117,4 @@ volume = join[
         field['number'],
         '(', field['number'], ')'
     ]
-]
-
-article = join(sep=' ')[
-    sentence[join[Authors(), ', ', year]],
-    title,
-    join[journal, ', ', volume, ' ', pages, '.']
-]
-
-phdthesis = join(sep=' ')[
-    sentence[join[Authors(), ', ', year]],
-    emph[title],
-    sentence[field['school']]
 ]
