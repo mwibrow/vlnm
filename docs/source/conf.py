@@ -19,6 +19,8 @@ import sys
 sys.path.insert(0,
     os.path.abspath(os.path.join('..')))
 sys.path.insert(0,
+    os.path.abspath(os.path.join('..', 'extensions')))
+sys.path.insert(0,
     os.path.abspath(os.path.join('..', '..')))
 sys.path.insert(0,
     os.path.abspath(os.path.join('..', '..', 'vlnm')))
@@ -49,7 +51,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'natbib'
+    'natbib',
+    'plots'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

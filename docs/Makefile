@@ -1,7 +1,7 @@
 
 SRCDIR=source
 BLDDIR=build
-WATCH=-z ../vlnm -z ./$(SRCDIR) -z ./natbib
+WATCH=-z ../vlnm -z ./$(SRCDIR) -z ./extensions/plots -z ./extensions/natbib
 CMDOPT=-E -a -d $(BLDDIR)/.doctrees
 
 clean:
