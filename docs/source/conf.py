@@ -26,8 +26,8 @@ sys.path.insert(0,
 
 # -- Project information -----------------------------------------------------
 
-project = 'VLNM'
-copyright = '2018, Mark Wibrow'
+project = u'VLNM'
+copyright = u'2018-present, Mark Wibrow'
 author = 'Mark Wibrow'
 
 # The short X.Y version
@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'natbib'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -165,7 +166,6 @@ texinfo_documents = [
 ]
 
 
-# -- Options for Epub output -------------------------------------------------
 
 # Bibliographic Dublin Core info.
 epub_title = project
@@ -185,12 +185,3 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
-extensions = ['sphinx.ext.napoleon', 'natbib']
-# Napoleon settings
-napoleon_google_docstring = True
-
-exclude_patterns = ['_build']
-
-natbib = dict(
-    file='/home/mwibrow/github/vlnm/docs/source/bibliography.bib'
-)

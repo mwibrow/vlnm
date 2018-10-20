@@ -1,44 +1,28 @@
+Welcome to VLNM's documentation!
+================================================
 
+:Release: |release|
+:Date:    |today|
 
+|build status| |coverage|
 
-:citep:`flynn_foulkes_2011`
-
-:citep:`see {% flynn_foulkes_2011,clopper_2009 %} for more examples`
-
-:citep:`see {% flynn_foulkes_2011 %}`
-
-:citep:`{% flynn_foulkes_2011 %} p.2`
-
-:citep:`see {% flynn_foulkes_2011 %} p.2`
-
-:citet:`flynn_foulkes_2011`
-
-:citet:`e.g., {% flynn_foulkes_2011 %}`
-
-:citet:`{% flynn_foulkes_2011 %} p.2`
-
-:citet:`e.g., {% flynn_foulkes_2011 %} p.2`
-
-:citealp:`clopper_2009`
-
-:citealp:`see {% clopper_2009 %}`
-
-:citealp:`{% bigham_2008 %} p.2`
-
-:citealp:`see {% adank_etal_2004 %} p.2`
-
-:citet:`bladon_etal_1984`
-:citet:`gerstman_1968`
-:citet:`lobanov_1971`
-:citet:`neary_1978`
-:citet:`nordstrom_1977`
-
-:citet:`watt_fabricius_2002`
+Vowel normalization in python.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
+   :caption: Contents
 
-   file
+   quickstart
 
-.. bibliography:: bibliography.bib
-    :style: author-year
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+.. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
+    :target: https://travis-ci.org/mwibrow/vlnm
+
+.. |coverage| image:: https://coveralls.io/repos/github/mwibrow/vlnm/badge.svg
+    :target: https://coveralls.io/github/mwibrow/vlnm
