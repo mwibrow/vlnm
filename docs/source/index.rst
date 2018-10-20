@@ -33,6 +33,8 @@
 :citet:`neary_1978`
 :citet:`nordstrom_1977`
 
+:citet:`watt_fabricius_2002`
+
 .. toctree::
    :maxdepth: 4
 

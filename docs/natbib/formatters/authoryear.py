@@ -2,23 +2,19 @@
     New Formatters
     ~~~~~~~~~~~~~~
 """
-import re
+# pylint: disable=W0621
 
 import docutils.nodes
-from docutils.nodes import emphasis, inline, reference
+from docutils.nodes import inline, reference
 
 from .nodes import (
-    join, emph, optional, sentence
+    join, emph, sentence
 )
 
 from .formatters import (
     Formatter,
-    dashify,
     latex_decode,
-    authors, field, journal, pages, sentence, title, volume, year)
-
-def text(arg):
-    return docutils.nodes.inline(arg, arg)
+    authors, editors, field, journal, pages, title, volume, year)
 
 class AuthorYearFormatter(Formatter):
     """
@@ -43,51 +39,32 @@ class AuthorYearFormatter(Formatter):
             sentence[field['school']]
         ]
 
-    def __init__(self):
-        super(AuthorYearFormatter, self).__init__()
-        self.nodes = []
-        self.entry = None
-        self.publications = {
-            'article': [
-                'authors',
-                'year',
-                'title',
-                'journal',
-                'volume',
-                'number',
-                'pages',
-                'doi',
-            ],
-            'inproceedings': [
-                'authors',
-                'year',
-                'title',
-                'editor',
-                'booktitle',
-                'publisher',
-                'volume',
-                'number',
-                'pages'
-            ],
-            'incollection': [
-                'authors',
-                'year',
-                'title',
-                'editor',
-                'booktitle',
-                'publisher',
-                'volume',
-                'number',
-                'pages'
-            ],
-            'phdthesis': [
-                'authors',
-                'year',
-                'title',
-                inline('PhD Dissertation. ', 'PhD Dissertation. '),
-                'school'
+    @staticmethod
+    def inproceedings_template():
+        """Template for inproceedings entry."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', year]],
+            emph[title],
+            sentence[field['booktitle']]
+        ]
+
+    @staticmethod
+    def incollection_template():
+        """Template for incollection entry."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', year]],
+            emph[title],
+            sentence[
+                'In',
+                editors,
+                join[
+                    field['booktitle'],
+                    ','
+                ],
+                volume,
+                pages
             ]
-        }
+        ]
 
     @staticmethod
     def sort_keys(keys, bibcache):
@@ -98,255 +75,20 @@ class AuthorYearFormatter(Formatter):
             return bibcache[key].persons.get('author')[0].last()[0]
         return sorted(keys, key=_sort_key)
 
-    def get_authors(self, authors, **kwargs):
-        """
-        Get the author node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        for i, author in enumerate(authors):
-            text = ' '.join(latex_decode(name) for name in author.last())
-
-            if author.first() or author.middle():
-                names = [author.first(), author.middle()]
-                text += ', '
-                for name in names:
-                    parts = [part for part in name if part]
-                    text += ' '.join(
-                        '{}. '.format(latex_decode(part)[0].upper())
-                        for part in parts)
-
-            text = text.strip()
-            author_node = inline(text, text)
-            author_node['classes'].append('author')
-            nodes.append(author_node)
-
-            if len(authors) > 1 and i < len(authors) - 1:
-                if i == len(authors) - 2:
-                    nodes.append(inline(' & ', ' & '))
-                else:
-                    nodes.append(inline(', ', ', '))
-
-
-        return nodes
-
-    def get_editor(self, editor, **kwargs):
-        """
-        Get the editor node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        if editor:
-            nodes.append(inline('In ', 'In '))
-            self.get_authors(editor, nodes=nodes)
-            nodes.append(inline(' (eds), ', ' (eds), '))
-        return nodes
-
-
-    def get_pages(self, pages, **kwargs):
-        """
-        Get the pages node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        if pages:
-            pages = dashify(pages)
-            nodes.extend([
-                inline(pages, pages),
-                inline('. ', '. ')])
-        return nodes
-
-    def get_volume(self, volume, **kwargs):
-        """
-        Get the volume node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        fields = kwargs.get('fields', {})
-        if volume:
-            nodes.append(inline(volume, volume))
-            if fields.get('number'):
-                pass
-            elif fields.get('pages'):
-                nodes.append(inline(', ', ', '))
-            else:
-                nodes.append(inline('. ', '. '))
-        return nodes
-
-    def get_number(self, number, **kwargs):
-        """
-        Get the number node for a bibliographic entry.
-        """
-        fields = kwargs.get('fields', {})
-        nodes = kwargs.get('nodes') or self.nodes or []
-        if number:
-            nodes.extend([
-                inline('(', '('),
-                inline(number, number),
-                inline(')', ')')])
-            if fields.get('pages'):
-                nodes.append(inline(', ', ', '))
-            else:
-                nodes.append(inline('. ', '. '))
-        return nodes
-
-    def get_year(self, year, **kwargs):
-        """
-        Get the year node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        if year:
-            year = latex_decode(year)
-            nodes.append(
-                inline(
-                    year, ' ({})'.format(year), classes=['year']))
-            nodes.append(inline('. ', '. '))
-        return nodes
-
-    def get_title(self, title, **kwargs):
-        """
-        Get the title node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        ref_type = kwargs.get('type')
-        if title:
-            node = emphasis if ref_type == 'phdthesis' else inline
-            print(ref_type)
-            nodes.append(node(title, title, classes=['title']))
-            nodes.append(inline('.  ', '.  '))
-        return nodes
-
-    def get_booktitle(self, booktitle, **kwargs):
-        """
-        Get the booktitle node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        fields = kwargs.get('fields' or {})
-        if booktitle:
-            title = latex_decode(booktitle)
-            nodes.append(emphasis(
-                title, title, classes=['publication']))
-            if fields.get('volume'):
-                nodes.append(inline(', ', ', '))
-            else:
-                nodes.append(inline('. ', '. '))
-        return nodes
-
-    def get_journal(self, journal, **kwargs):
-        """
-        Get the journal node for a bibliographic entry.
-        """
-        return self.get_booktitle(journal, **kwargs)
-
-    def get_school(self, school, **kwargs):
-        """
-        Get the journal node for a bibliographic entry.
-        """
-        nodes = kwargs.get('nodes') or self.nodes or []
-        nodes.extend([
-            inline(school, school),
-            inline('.', '.')
-        ])
-        return nodes
-
-    def get_doi(self, doi, **kwargs):
-        """Get the doi."""
-        nodes = kwargs.get('nodes') or self.nodes or []
-        if not doi:
-            return []
-        doi_text = 'doi: {}'.format(doi)
-        nodes.extend([
-            reference(doi_text, doi_text, internal=False, refuri='https://doi.org/{}'.format(doi))
-        ])
-        return nodes
-
-    def format_person(self, person, person_type='author'):
-        node = inline('', '', classes=[person_type])
-        for part in name_part(person.rich_prelast_names, after=' ', sep=' ', abbr=False):
-            node += part
-        for part in name_part(person.rich_last_names, abbr=False):
-            node += part
-        for part in name_part(person.rich_first_names, before=', ', sep=' ', abbr=True):
-            node += part
-        return node
-
-    def format_authors(self, entry, parent):
-        authors = entry.persons['author']
-        node = inline('', '', classes=['authors'])
-        for i, author in enumerate(authors):
-            node += self.format_person(author)
-            if len(authors) > 1:
-                if i == len(authors) - 2:
-                    node += text(' and ')
-                elif i < len(authors) - 1:
-                    node += text(', ')
-        return node
-
-    def format_year(self, entry):
-        node = inline('', classes=['year'])
-        node += text('(') + text(entry.fields['year']) + text(')')
-        return node
-
-    def format_title(self, entry):
-        node = inline('', classes=['title'])
-        node += text(entry.fields['title']) + text('. ')
-        return node
-
-    def format_journal(self, entry):
-        node = inline('', classes=['journal'])
-        node += emphasis(entry.fields['journal'], entry.fields['journal'])
-        return node
-
-    def format_volume_and_number(self, entry):
-        node = inline('', classes=['volume'])
-        volume = entry.fields.get('volume')
-        number = entry.fields.get('number')
-        node += text(volume)
-        if number:
-            node += text('(') + text(number) + text(')')
-        return node
-
-    def format_pages(self, entry):
-        node = inline('', classes=['pages'])
-        node += text(dashify(entry.fields.get('pages')))
-        return node
-
-    def format_article(self, entry, parent):
-        """Format article entry."""
-        parent += cat([
-            self.format_authors(entry, parent),
-            text(' '),
-            self.format_year(entry),
-            text('. '),
-            self.format_title(entry),
-            self.format_journal(entry),
-            text(', '),
-            self.format_volume_and_number(entry),
-            text(', '),
-            self.format_pages(entry) + text('.')
-        ])
-
     def make_entry(self, ref):
         """
         Make a bibliographic entry.
         """
-
-        publication = self.publications[ref.type]
-        self.nodes = []
         ref_node = docutils.nodes.paragraph(
             '', '', classes=[ref.type, 'reference'])
-        ref_fields = ref.fields
-        for field in publication:
-            try:
-                if field == 'authors':
-                    source = ref.persons.get('author', [])
-                elif field == 'editor':
-                    source = ref.persons.get('editor', [])
-                else:
-                    source = ref.fields.get(field)
-                getter = 'get_{}'.format(field)
-                if hasattr(self, getter):
-                    nodes = getattr(self, getter)(source, fields=ref_fields, type=ref.type)
-                    for node in nodes:
-                        ref_node += node
-            except AttributeError:
-                ref_node += field
+
+        method = '{}_template'.format(ref.type)
+        if hasattr(self, method):
+            template = getattr(self, method)
+            nodes = template().format(entry=ref)
+            ref_node += nodes
+        else:
+            print(method)
         return ref_node
 
     def make_citation(self, bibnode, bibcache, make_refid):  # pylint: disable=R0201
@@ -360,29 +102,6 @@ class AuthorYearFormatter(Formatter):
             return make_citet(bibnode, bibcache, make_refid)
 
         return bibnode
-
-def cat(nodes):
-    first = None
-    for node in nodes:
-        if node and not first:
-            first = node
-        else:
-            first += node
-    return first
-
-def name_part(part, before=None, after=None, sep=None, abbr=False):
-    if part:
-        if before:
-            yield text(before)
-        for i, subpart in enumerate(part):
-            if abbr:
-                yield text(subpart.abbreviate().render_as('text'))
-            else:
-                yield text(subpart.render_as('text'))
-            if i < len(part) - 1 and sep:
-                yield text(sep)
-        if after:
-            yield text(after)
 
 
 def make_citep(bibnode, bibcache, make_refid):

@@ -137,8 +137,12 @@ class Text(Node):
             self.content)
 
 class InLine(Node):
+    """Inline node."""
     def format(self, **kwargs):
-        node = formatted_node(docutils.nodes.inline, '', classes=self.kwargs.get('classes'))
+        node = formatted_node(
+            docutils.nodes.inline,
+            '',
+            classes=self.kwargs.get('classes'))
         for child in child_iterator(self.children):
             child = format_node(child, **kwargs)
             if child:
@@ -146,8 +150,12 @@ class InLine(Node):
         return node
 
 class Emph(Node):
+    """Node class for adding emphases"""
     def format(self, **kwargs):
-        node = formatted_node(docutils.nodes.emphasis, '', classes=self.kwargs.get('classes'))
+        node = formatted_node(
+            docutils.nodes.emphasis,
+            '',
+            classes=self.kwargs.get('classes'))
         for child in child_iterator(self.children):
             child = format_node(child, **kwargs)
             if child:
@@ -203,7 +211,8 @@ class Join(Node):
                 current_sep = last_sep or sep
                 if current_sep:
                     parent += docutils.nodes.inline(current_sep, current_sep)
-        parent += children[-1]
+        if children:
+            parent += children[-1]
         return parent
 
 
@@ -309,6 +318,7 @@ class Words(Node):
 call = Call()
 emph = Emph()
 field = Field()
+inline = InLine()
 join = Join()
 concat = Join()
 optional = Optional()

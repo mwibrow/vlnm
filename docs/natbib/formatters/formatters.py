@@ -50,15 +50,41 @@ class Formatter:
         return bibnode
 
 class Authors(Node):
+    """Authors node."""
     def format(self, **kwargs):
-        authors = kwargs.get('entry').persons['author']
+        author_list = kwargs.get('entry').persons['author']
         node = formatted_node(
             docutils.nodes.inline,
             '',
             classes=['authors'])
         node += join(sep=', ', last_sep=' and ')[
-            [get_author(author) for author in authors]
+            [get_author(author) for author in author_list]
         ].format()
+        return node
+
+    def __bool__(self):
+        return True
+
+
+class Editors(Node):
+    """Edtiors node."""
+    def format(self, **kwargs):
+        author_list = kwargs.get('entry').persons['editor']
+        node = formatted_node(
+            docutils.nodes.inline,
+            '',
+            classes=['editors'])
+        node += join(sep=', ', last_sep=' and ')[
+            [get_author(author) for author in author_list]
+        ].format()
+        if len(author_list) > 1:
+            node += formatted_node(
+                docutils.nodes.inline,
+                ' (Eds),')
+        else:
+            node += formatted_node(
+                docutils.nodes.inline,
+                ' (Ed),')
         return node
 
     def __bool__(self):
@@ -111,6 +137,7 @@ pages = call[dashify, field['pages']]
 title = sentence[field['title']]
 journal = emph[field['journal']]
 authors = Authors()
+editors = Editors()
 volume = join[
     field['volume'],
     optional[
