@@ -25,7 +25,7 @@ class AuthorYearFormatter(Formatter):
     def article_template():
         """Template for an article."""
         return join(sep=' ')[
-            sentence[join[authors, ', ', year]],
+            sentence[join[authors, ', ', join['(', year, ')']]],
             title,
             join[journal, ', ', volume, ' ', pages, '.']
         ]
@@ -34,7 +34,7 @@ class AuthorYearFormatter(Formatter):
     def phdthesis_template():
         """Template for a PhD thesis."""
         return join(sep=' ')[
-            sentence[join[authors, ', ', year]],
+            sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
             sentence[field['school']]
         ]
@@ -43,7 +43,7 @@ class AuthorYearFormatter(Formatter):
     def inproceedings_template():
         """Template for inproceedings entry."""
         return join(sep=' ')[
-            sentence[join[authors, ', ', year]],
+            sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
             sentence[field['booktitle']]
         ]
@@ -52,7 +52,7 @@ class AuthorYearFormatter(Formatter):
     def incollection_template():
         """Template for incollection entry."""
         return join(sep=' ')[
-            sentence[join[authors, ', ', year]],
+            sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
             sentence[
                 'In',
@@ -67,13 +67,43 @@ class AuthorYearFormatter(Formatter):
         ]
 
     @staticmethod
+    def sort_key():
+        """Template for the key used to sort bibliography entries."""
+        return join[authors, year, title]
+
+    @staticmethod
     def sort_keys(keys, bibcache):
         """
         Return a sort key for sorting the bibliography
         """
         def _sort_key(key):
-            return bibcache[key].persons.get('author')[0].last()[0]
+            entry = bibcache[key]
+            return AuthorYearFormatter.sort_key().format(entry=entry).astext()
         return sorted(keys, key=_sort_key)
+
+    @staticmethod
+    def resolve_ties(keys, bibcache):
+        """Creat year suffixes from a sorted list of keys."""
+        suffix_ord = 97  # a
+        sort_key = lambda k: join[authors, year].format(
+            entry=bibcache[keys[k]]).astext()
+        i = 0
+        j = 1
+        years = {}
+        while i < len(keys) and j < len(keys):
+            sort_key_i = sort_key(i)
+            sort_key_j = sort_key(j)
+            year_i = field['year'].format(entry=bibcache[keys[i]])
+            if sort_key_i == sort_key_j:
+                years[keys[i]] = '{}{}'.format(year_i, chr(suffix_ord))
+                while sort_key_i == sort_key_j and j < len(keys):
+                    suffix_ord += 1
+                    years[keys[j]] = '{}{}'.format(year_i, chr(suffix_ord))
+                    j += 1
+                    if j < len(keys):
+                        sort_key_j = sort_key(j)
+            j = j
+        return years
 
     def make_entry(self, ref):
         """
@@ -85,7 +115,7 @@ class AuthorYearFormatter(Formatter):
         method = '{}_template'.format(ref.type)
         if hasattr(self, method):
             template = getattr(self, method)
-            nodes = template().format(entry=ref)
+            nodes = template().format(entry=ref, year=year)
             ref_node += nodes
         else:
             print(method)
@@ -182,7 +212,6 @@ def make_citet(bibnode, bibcache, make_refid):
         for key in keys:
             entry = bibcache[key]
             refid = make_refid(entry, bibnode.data['docname'])
-
             authors = entry.persons.get('author')
             text = get_citation_author_text(authors)
 

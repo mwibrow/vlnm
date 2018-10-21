@@ -10,7 +10,7 @@ import docutils.nodes
 
 from .nodes import (
     boolean, call, emph, field,
-    formatted_node, join, optional, sentence, words,
+    formatted_node, ifelse, join, optional, sentence, words,
     Node)
 
 def latex_decode(text):
@@ -139,7 +139,7 @@ def dashify(string, dash='–'):
 # pylint: disable=C0103
 
 
-year = join['(', field['year'], ')']
+year = ifelse[field['year_alias'], field['year_alias'], field['year']]
 pages = call[dashify, field['pages']]
 title = sentence[field['title']]
 journal = emph[field['journal']]
