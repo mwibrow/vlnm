@@ -8,7 +8,7 @@ import docutils.nodes
 from docutils.nodes import inline, reference
 
 from .nodes import (
-    join, emph, sentence
+    boolean, join, emph, optional, ref, sentence
 )
 
 from .formatters import (
@@ -203,40 +203,51 @@ def make_citet(bibnode, bibcache, make_refid):
     Make the citation text for a :rst:role:citet: role.
     """
     node = inline('', '')
-    classes = ['xref', 'cite']
     typ = bibnode.data['typ']
     keys = bibnode.data['keys']
-    pre_text = bibnode.data.get('pre_text')
-    post_text = bibnode.data.get('post_text')
+    pre_text = bibnode.data.get('pre_text') if len(keys) == 1 else ''
+    post_text = bibnode.data.get('post_text') if len(keys) == 1 else ''
     if typ in ['citet']:
         for key in keys:
             entry = bibcache[key]
             refid = make_refid(entry, bibnode.data['docname'])
-            authors = entry.persons.get('author')
-            text = get_citation_author_text(authors)
+            # authors = entry.persons.get('author')
 
-            refnode = docutils.nodes.reference(
-                text, text, internal=True, refuri='#{}'.format(refid),
-                classes=classes)
-            node += refnode
+            ref_kwargs = dict(
+                internal=True,
+                refuri='#{}'.format(refid)
+            )
+            author_ref = ref(**ref_kwargs)[
+                authors(
+                    last_names_only=True,
+                    last_sep=' & ',
+                    et_al=True)]
 
-            year = entry.fields.get('year')
-            if year:
-                node += inline(' (', ' (')
-                if pre_text:
-                    text = '{} '.format(pre_text)
-                    node += inline(text, text)
+            year_ref = ref(**ref_kwargs)[
+                year]
 
-                refnode = docutils.nodes.reference(
-                    year, year, internal=True, refuri='#{}'.format(refid),
-                    classes=classes)
-                node += refnode
-                if post_text:
-                    if post_text.startswith(','):
-                        text = post_text
-                    else:
-                        text = ' {}'.format(post_text)
-                    node += inline(text, text)
-                node += inline(')', ')')
+            cite = join[
+                author_ref,
+                ' (',
+                optional[boolean[pre_text], join[pre_text, ' ']],
+                year_ref,
+                optional[boolean[post_text], join[', ', post_text]],
+                ')'].format(entry=entry)
+
+            node += cite
+
+            # node += inline(' (', ' (')
+            # if pre_text:
+            #     text = '{} '.format(pre_text)
+            #     node += inline(text, text)
+
+            # node +=
+            # if post_text:
+            #     if post_text.startswith(','):
+            #         text = post_text
+            #     else:
+            #         text = ' {}'.format(post_text)
+            #     node += inline(text, text)
+            # node += inline(')', ')')
 
     return node

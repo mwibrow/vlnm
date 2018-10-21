@@ -17,21 +17,10 @@ Vowel normalization in python.
 
 :citet:`flynn_foulkes_2011`
 
+:citet:`adank_etal_2004`
+
 .. bibliography:: bibliography.bib
     :style: author-year
-
-.. plot::
-
-   import matplotlib
-   import matplotlib.pyplot as plt
-   import numpy as np
-
-   # Data for plotting
-   t = np.arange(0.0, 2.0, 0.01)
-   s = 1 + np.sin(2 * np.pi * t)
-
-   plt.plot(t, s)
-   plt.plot(t, s / 2)
 
 
 

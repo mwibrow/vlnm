@@ -328,6 +328,15 @@ class Words(Node):
         """Format this node instance."""
         return join(sep=' ')[self.children].format(**kwargs)
 
+class Reference(Node):
+    """Reference node class."""
+
+    def format(self, **kwargs):
+        """Format this node instance."""
+        ref_node = docutils.nodes.reference('', '', classes=['xref cite'], **self.kwargs)
+        ref_node += join[self.children].format(**kwargs)
+        return ref_node
+
 # pylint: disable=C0103
 boolean = Boolean()
 call = Call()
@@ -338,6 +347,7 @@ ifelse = IfElse()
 inline = InLine()
 join = Join()
 optional = Optional()
+ref = Reference()
 sentence = Sentence()
 text = Text()
 words = Words()

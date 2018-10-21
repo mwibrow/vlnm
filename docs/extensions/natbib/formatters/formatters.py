@@ -60,10 +60,17 @@ class Authors(Node):
         sep = self.kwargs.get('sep', ', ')
         last_sep = self.kwargs.get('last_sep', ' and ')
         last_names_only = self.kwargs.get('last_names_only')
-        node += join(sep=sep, last_sep=last_sep)[
-            [get_author(author, last_names_only=last_names_only)
-             for author in author_list]
-        ].format()
+        et_al = self.kwargs.get('et_al')
+        if len(author_list) > 2 and et_al:
+            node += join[
+                get_author(author_list[0], last_names_only=last_names_only),
+                ' ',
+                emph['et al']].format()
+        else:
+            node += join(sep=sep, last_sep=last_sep)[
+                [get_author(author, last_names_only=last_names_only)
+                 for author in author_list]
+            ].format()
         return node
 
     def __bool__(self):
