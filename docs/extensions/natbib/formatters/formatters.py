@@ -57,8 +57,12 @@ class Authors(Node):
             docutils.nodes.inline,
             '',
             classes=['authors'])
-        node += join(sep=', ', last_sep=' and ')[
-            [get_author(author) for author in author_list]
+        sep = self.kwargs.get('sep', ', ')
+        last_sep = self.kwargs.get('last_sep', ' and ')
+        last_names_only = self.kwargs.get('last_names_only')
+        node += join(sep=sep, last_sep=last_sep)[
+            [get_author(author, last_names_only=last_names_only)
+             for author in author_list]
         ].format()
         return node
 
@@ -90,7 +94,7 @@ class Editors(Node):
     def __bool__(self):
         return True
 
-def get_author(author):
+def get_author(author, last_names_only=False):
     """Get an author template."""
     prelast_names = [
         name.render_as('text')
@@ -111,13 +115,16 @@ def get_author(author):
             ' '
         ],
         words[last_names],
-        ', ',
-        words[first_names],
         optional[
-            boolean[middle_names],
-            ' ',
-            words[middle_names]
-        ],
+            boolean[not last_names_only],
+            ', ',
+            words[first_names],
+            optional[
+                boolean[middle_names],
+                ' ',
+                words[middle_names]
+            ]
+        ]
     ]
 
 def dashify(string, dash='–'):

@@ -15,6 +15,11 @@ Vowel normalization in python.
    quickstart
 
 
+:citet:`flynn_foulkes_2011`
+
+.. bibliography:: bibliography.bib
+    :style: author-year
+
 .. plot::
 
    import matplotlib

@@ -5,6 +5,7 @@ Adapted from https://bitbucket.org/wnielson/sphinx-natbib
 """
 from io import BytesIO, StringIO
 import base64
+import sys
 
 import docutils.nodes
 from docutils.parsers.rst import directives, Directive

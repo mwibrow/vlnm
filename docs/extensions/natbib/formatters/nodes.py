@@ -269,6 +269,20 @@ class Boolean(Node):
             return True
         return False
 
+class IfElse(Node):
+    """If-else node."""
+    def template(self, items):
+        """Transform this node instance."""
+        self.children = items
+        return self
+
+    def format(self, **kwargs):
+        if self.children[0].format(**kwargs):
+            return self.children[1].format(**kwargs)
+        if len(self.children) > 2:
+            return self.children[2].format(**kwargs)
+        return None
+
 class Sentence(Node):
     """Sentence node."""
     def template(self, items):
@@ -315,14 +329,15 @@ class Words(Node):
         return join(sep=' ')[self.children].format(**kwargs)
 
 # pylint: disable=C0103
+boolean = Boolean()
 call = Call()
+concat = Join()
 emph = Emph()
 field = Field()
+ifelse = IfElse()
 inline = InLine()
 join = Join()
-concat = Join()
 optional = Optional()
-text = Text()
-boolean = Boolean()
 sentence = Sentence()
+text = Text()
 words = Words()
