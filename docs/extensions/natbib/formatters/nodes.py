@@ -271,6 +271,7 @@ class Boolean(Node):
 
 class IfElse(Node):
     """If-else node."""
+
     def template(self, items):
         """Transform this node instance."""
         self.children = items
@@ -282,6 +283,13 @@ class IfElse(Node):
         if len(self.children) > 2:
             return self.children[2].format(**kwargs)
         return None
+
+class Apply(Node):
+    """Apply node."""
+
+    def format(self, **kwargs):
+        template = self.children[0]
+        return [template[child].format(**kwargs) for child in self.children[1:]]
 
 class Sentence(Node):
     """Sentence node."""

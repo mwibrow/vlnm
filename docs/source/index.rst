@@ -19,6 +19,10 @@ Vowel normalization in python.
 
 :citet:`adank_etal_2004`
 
+:cite:`including {% flynn_foulkes_2011, adank_etal_2004 %} amoung others`
+
+:cite:`{% flynn_foulkes_2011, adank_etal_2004 %} amoung others`
+
 .. bibliography:: bibliography.bib
     :style: author-year
 

@@ -130,7 +130,8 @@ class AuthorYearFormatter(Formatter):
             return make_citep(bibnode, bibcache, make_refid)
         if typ in ['citet']:
             return make_citet(bibnode, bibcache, make_refid)
-
+        if typ in ['cite']:
+            return make_cite(bibnode, bibcache, make_refid)
         return bibnode
 
 
@@ -251,3 +252,16 @@ def make_citet(bibnode, bibcache, make_refid):
             # node += inline(')', ')')
 
     return node
+
+def make_cite(citenode, bibcache, make_refid):
+
+    tokens = re.split(r'\{%\s*(.*?)\s*%\}', citenode.data['text'])
+    print(tokens)
+
+    template = join[
+        [join(sep='|')[
+            [ref.strip() for ref in token.split(',') if ref.strip()]
+            ] if i % 2
+         else token for i, token in enumerate(tokens) if token.strip()]
+    ]
+    return docutils.nodes.inline('', '') + template.format()
