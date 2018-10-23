@@ -49,6 +49,11 @@ class CitationRole(object):
             domain, role = typ.split(':', 1)
         classes = ['xref', domain, '%s-%s' % (domain, role)]
 
+        tokens = re.split(r'{%\s*(.*?)\s*%}', text)
+        for i in range(1, len(tokens), 2):
+            tokens[i] = [token.strip() for token in tokens[i].split(',')]
+            env.bibkeys.add_keys(tokens[i], env.docname)
+
         pre_text, keys, post_text = extract_citation(text)
         env.bibkeys.add_keys(keys, env.docname)
 
@@ -59,6 +64,7 @@ class CitationRole(object):
             classes=classes,
             text=text,
             rawtext=rawtext,
+            tokens=tokens,
             pre_text=pre_text,
             keys=keys,
             post_text=post_text

@@ -5,10 +5,9 @@
 # pylint: disable=W0621
 
 import docutils.nodes
-from docutils.nodes import inline, reference
 
 from .nodes import (
-    boolean, join, emph, optional, ref, sentence
+    boolean, inline, join, emph, optional, ref, sentence
 )
 
 from .formatters import (
@@ -114,7 +113,7 @@ class AuthorYearFormatter(Formatter):
         method = '{}_template'.format(ref.type)
         if hasattr(self, method):
             template = getattr(self, method)
-            nodes = template().format(entry=ref, year=year)
+            nodes = template().format(entry=ref)
             ref_node += nodes
         else:
             print(method)
@@ -125,30 +124,32 @@ class AuthorYearFormatter(Formatter):
         Create a reference for a citation.
         """
         typ = bibnode.data['typ']
+
         if typ in ['citep', 'citealp']:
             return make_citep(bibnode, bibcache, make_refid)
         if typ in ['citet']:
             return make_citet(bibnode, bibcache, make_refid)
         if typ in ['cite']:
-            return emph['cite'].format()
+            return make_cite(bibnode, bibcache, make_refid)
         return bibnode
+
 
 
 def make_citep(bibnode, bibcache, make_refid):
     """
     Make the citation text for :rst:role:citep: and :rst:role:citealp: roles.
     """
-    node = inline('', '')
+    node = docutils.nodes.inline('', '')
     classes = ['xref', 'cite']
     typ = bibnode.data['typ']
     keys = bibnode.data['keys']
     pre_text = bibnode.data.get('pre_text')
     post_text = bibnode.data.get('post_text')
     if typ != 'citealp':
-        node += inline('(', '(')
+        node += docutils.nodes.inline('(', '(')
     if pre_text:
         text = '{} '.format(pre_text)
-        node += inline(text, text)
+        node += docutils.nodes.inline(text, text)
     for i, key in enumerate(keys):
         entry = bibcache[key]
         refid = make_refid(entry, bibnode.data['docname'])
@@ -156,30 +157,30 @@ def make_citep(bibnode, bibcache, make_refid):
         authors = entry.persons.get('author')
         text = get_citation_author_text(authors)
 
-        refnode = reference(
+        refnode = docutils.nodes.reference(
             text, text, internal=True, refuri='#{}'.format(refid),
             classes=classes)
         node += refnode
 
         year = entry.fields.get('year')
         if year:
-            node += inline(', ', ', ')
-            refnode = reference(
+            node += docutils.nodes.inline(', ', ', ')
+            refnode = docutils.nodes.reference(
                 year, year, internal=True, refuri='#{}'.format(refid),
                 classes=classes)
             node += refnode
 
         if len(keys) > 1:
             if i < len(keys) - 1:
-                node += inline('; ', '; ')
+                node += docutils.nodes.inline('; ', '; ')
     if post_text:
         if post_text.startswith(','):
             text = post_text
         else:
             text = ' {}'.format(post_text)
-        node += inline(text, text)
+        node += docutils.nodes.inline(text, text)
     if typ != 'citealp':
-        node += inline(')', ')')
+        node += docutils.nodes.inline(')', ')')
 
     return node
 
@@ -202,7 +203,7 @@ def make_citet(citenode, bibcache, make_refid):
     """
     Make the citation text for a :rst:role:citet: role.
     """
-    node = inline('', '')
+    node = docutils.nodes.inline('', '')
     typ = citenode.data['typ']
     keys = citenode.data['keys']
     pre_text = citenode.data.get('pre_text') if len(keys) == 1 else ''
@@ -238,15 +239,21 @@ def make_citet(citenode, bibcache, make_refid):
 
     return node
 
-# def make_cite(citenode, bibcache, make_refid):
 
-#     tokens = re.split(r'\{%\s*(.*?)\s*%\}', citenode.data['text'])
-#     print(tokens)
 
-#     template = join[
-#         [join(sep='|')[
-#             [ref.strip() for ref in token.split(',') if ref.strip()]
-#             ] if i % 2
-#          else token for i, token in enumerate(tokens) if token.strip()]
-#     ]
-#     return docutils.nodes.inline('', '') + template.format()
+
+def make_cite(citenode, bibcache, make_refid):
+
+    tokens = citenode.data['tokens']
+
+    cite_template = inline[join[
+        authors(last_names_only=True, last_sep=' & ', et_al=True),
+        ' ',
+        year]]
+    template = join[
+        [join(sep=', ', last_sep=' and ')[
+            [cite_template.format(entry=bibcache[ref]) for ref in token]
+            ] if i % 2
+         else token for i, token in enumerate(tokens) if token]
+    ]
+    return docutils.nodes.inline('', '') + template.format()

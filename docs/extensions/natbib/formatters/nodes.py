@@ -108,7 +108,10 @@ def format_node(node, **kwargs):
         if isinstance(value, str):
             value = format_node(value)
     except AttributeError:
-        value = node(**kwargs)
+        try:
+            value = node(**kwargs)
+        except TypeError:
+            return node
     return value
 
 
