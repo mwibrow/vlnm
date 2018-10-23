@@ -15,13 +15,15 @@ Vowel normalization in python.
    quickstart
 
 
-:citet:`flynn_foulkes_2011`
+:citet:`flynn_foulkes_2011a`
+
+:citet:`flynn_foulkes_2011b`
 
 :citet:`adank_etal_2004`
 
-:cite:`including {% flynn_foulkes_2011, adank_etal_2004 %} amoung others`
+:cite:`including {% flynn_foulkes_2011a, adank_etal_2004 %} amoung others`
 
-:cite:`{% flynn_foulkes_2011, adank_etal_2004 %} amoung others`
+:cite:`{% flynn_foulkes_2011b, adank_etal_2004 %} amoung others`
 
 .. bibliography:: bibliography.bib
     :style: author-year

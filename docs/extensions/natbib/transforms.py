@@ -40,9 +40,10 @@ class BibliographyTransform(docutils.transforms.Transform):
             node = docutils.nodes.paragraph()
             keys = formatter.sort_keys(keys, bibcache)
 
-            # years = formatter.resolve_ties(keys, bibcache)
-            # for key in years:
-            #     bibcache[key].fields['year_alias'] = years[key]
+            year_suffixes = formatter.resolve_ties(keys, bibcache)
+            for key in year_suffixes:
+                bibcache[key].fields['year_suffix'] = year_suffixes[key]
+
             for key in keys:
                 refid = make_refid(bibcache[key], bibnode.data['docname'])
                 entry = formatter.make_entry(bibcache[key])
@@ -55,3 +56,6 @@ class BibliographyTransform(docutils.transforms.Transform):
                     node = formatter.make_citation(
                         citenode, bibcache, make_refid)
                     citenode.replace_self(node)
+
+            for key in year_suffixes:
+                bibcache[key].fields['year_suffix'] = ''

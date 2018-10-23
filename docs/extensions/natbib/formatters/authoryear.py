@@ -84,26 +84,25 @@ class AuthorYearFormatter(Formatter):
     @staticmethod
     def resolve_ties(keys, bibcache):
         """Creat year suffixes from a sorted list of keys."""
-        suffix_ord = 97  # a
+
+        if len(keys) < 2:
+            return {}
+
         sort_key = lambda k: join[authors, year].format(
             entry=bibcache[keys[k]]).astext()
-        i = 0
-        j = 1
-        years = {}
-        while i < len(keys) and j < len(keys):
-            sort_key_i = sort_key(i)
+
+        sort_key_j = sort_key(0)
+        suffixes = {}
+        for i in range(0, len(keys) - 1):
+            j = i + 1
+            sort_key_i = sort_key_j
             sort_key_j = sort_key(j)
-            year_i = field['year'].format(entry=bibcache[keys[i]])
             if sort_key_i == sort_key_j:
-                years[keys[i]] = '{}{}'.format(year_i, chr(suffix_ord))
-                while sort_key_i == sort_key_j and j < len(keys):
-                    suffix_ord += 1
-                    years[keys[j]] = '{}{}'.format(year_i, chr(suffix_ord))
-                    j += 1
-                    if j < len(keys):
-                        sort_key_j = sort_key(j)
-            j = j
-        return years
+                if keys[i] not in suffixes:
+                    suffixes[keys[i]] = 'a'
+                suffixes[keys[j]] = chr(ord(suffixes[keys[i]]) + 1)
+
+        return suffixes
 
     def make_entry(self, ref):
         """
@@ -131,7 +130,7 @@ class AuthorYearFormatter(Formatter):
         if typ in ['citet']:
             return make_citet(bibnode, bibcache, make_refid)
         if typ in ['cite']:
-            return make_cite(bibnode, bibcache, make_refid)
+            return emph['cite'].format()
         return bibnode
 
 
@@ -199,19 +198,19 @@ def get_citation_author_text(authors):
         text = '{} et al.'.format(name)
     return text
 
-def make_citet(bibnode, bibcache, make_refid):
+def make_citet(citenode, bibcache, make_refid):
     """
     Make the citation text for a :rst:role:citet: role.
     """
     node = inline('', '')
-    typ = bibnode.data['typ']
-    keys = bibnode.data['keys']
-    pre_text = bibnode.data.get('pre_text') if len(keys) == 1 else ''
-    post_text = bibnode.data.get('post_text') if len(keys) == 1 else ''
+    typ = citenode.data['typ']
+    keys = citenode.data['keys']
+    pre_text = citenode.data.get('pre_text') if len(keys) == 1 else ''
+    post_text = citenode.data.get('post_text') if len(keys) == 1 else ''
     if typ in ['citet']:
         for key in keys:
             entry = bibcache[key]
-            refid = make_refid(entry, bibnode.data['docname'])
+            refid = make_refid(entry, citenode.data['docname'])
             # authors = entry.persons.get('author')
 
             ref_kwargs = dict(
@@ -237,31 +236,17 @@ def make_citet(bibnode, bibcache, make_refid):
 
             node += cite
 
-            # node += inline(' (', ' (')
-            # if pre_text:
-            #     text = '{} '.format(pre_text)
-            #     node += inline(text, text)
-
-            # node +=
-            # if post_text:
-            #     if post_text.startswith(','):
-            #         text = post_text
-            #     else:
-            #         text = ' {}'.format(post_text)
-            #     node += inline(text, text)
-            # node += inline(')', ')')
-
     return node
 
-def make_cite(citenode, bibcache, make_refid):
+# def make_cite(citenode, bibcache, make_refid):
 
-    tokens = re.split(r'\{%\s*(.*?)\s*%\}', citenode.data['text'])
-    print(tokens)
+#     tokens = re.split(r'\{%\s*(.*?)\s*%\}', citenode.data['text'])
+#     print(tokens)
 
-    template = join[
-        [join(sep='|')[
-            [ref.strip() for ref in token.split(',') if ref.strip()]
-            ] if i % 2
-         else token for i, token in enumerate(tokens) if token.strip()]
-    ]
-    return docutils.nodes.inline('', '') + template.format()
+#     template = join[
+#         [join(sep='|')[
+#             [ref.strip() for ref in token.split(',') if ref.strip()]
+#             ] if i % 2
+#          else token for i, token in enumerate(tokens) if token.strip()]
+#     ]
+#     return docutils.nodes.inline('', '') + template.format()
