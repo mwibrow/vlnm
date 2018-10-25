@@ -131,9 +131,9 @@ class AuthorYearFormatter(Formatter):
         """
         typ = citenode.data['typ']
 
-        if typ in ['citep', 'citealp']:
+        if typ in ['citep', 'citeps', 'citealp']:
             return self.citep(citenode, docname, bibcache)
-        if typ in ['citet', 'citealt']:
+        if typ in ['citet', 'citets', 'citealt']:
             return self.citet(citenode, docname, bibcache)
         return citenode
 
@@ -141,18 +141,20 @@ class AuthorYearFormatter(Formatter):
     def citet(citenode, docname, bibcache):
         """Textual citation."""
         typ = citenode.data['typ']
+        starred = typ.endswith('s')
+        parenthesis = typ != 'citealt'
         tokens = citenode.data['tokens']
         pre_text, keys, post_text = tokens[:3]
-        if len(keys) > 1:
+        if len(keys) > 1 or starred:
             pre_text = post_text = ''
         cite_template = join[
-            ref[authors(inline=True)],
+            ref[authors(last_names_only=True, et_al=not starred)],
             ' ',
-            optional[boolean[typ == 'citet'], '('],
+            optional[boolean[parenthesis], '('],
             optional[pre_text],
             ref[year],
             optional[post_text],
-            optional[boolean[typ == 'citet'], ')']
+            optional[boolean[parenthesis], ')']
         ]
         return join(sep='; ')[[
             join[
@@ -164,16 +166,30 @@ class AuthorYearFormatter(Formatter):
     def citep(citenode, docname, bibcache):
         """Parenthetical citation."""
         typ = citenode.data['typ']
+        starred = typ.endswith('s')
+        parenthesis = not typ.endswith('alp')
         tokens = citenode.data['tokens']
         pre_text, keys, post_text = tokens[:3]
-        cite_template = join(sep=', ')[ref[authors(inline=True)], ref[year]]
+        if len(keys) > 1 and starred:
+            pre_text = post_text = ''
+
+        cite_template = join(sep=', ')[
+            ref[authors(
+                last_names_only=True,
+                last_sep=' and ' if starred else ' & ',
+                et_al=not starred)],
+            ref[year]
+        ]
         return join[
-            optional[boolean[typ == 'citep'], '('],
+            optional[boolean[parenthesis], '('],
             optional[pre_text],
-            join(sep=', ', last_sep=' and ')[[
+            join(
+                sep='; ' if starred else ', ',
+                last_sep='; ' if starred else ' and '
+            )[[
                 join[
                     cite_template.format(entry=bibcache[key], docname=docname)
                 ] for key in keys
             ]],
             optional[post_text],
-            optional[boolean[typ == 'citep'], ')']].format()
+            optional[boolean[parenthesis], ')']].format()

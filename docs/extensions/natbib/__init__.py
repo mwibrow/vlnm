@@ -25,8 +25,10 @@ def setup(app):
     """
     app.connect('builder-inited', init_app)
     app.add_role('citep', CitationRole())
+    app.add_role('citeps', CitationRole())
     app.add_role('citealp', CitationRole())
     app.add_role('citet', CitationRole())
+    app.add_role('citets', CitationRole())
     app.add_role('citealt', CitationRole())
     app.add_role('cite', CitationRole())
     app.add_transform(BibliographyTransform)
