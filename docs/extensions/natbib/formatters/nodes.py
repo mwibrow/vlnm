@@ -344,7 +344,16 @@ class Reference(Node):
 
     def format(self, **kwargs):
         """Format this node instance."""
-        ref_node = docutils.nodes.reference('', '', classes=['xref cite'], **self.kwargs)
+        entry = kwargs.get('entry')
+        docname = kwargs.get('docname')
+        if entry and docname:
+            refuri = '{}#{}'.format(docname, entry.key)
+            ref_node = docutils.nodes.reference(
+                '', '', classes=['xref cite'], internal=True, refuri=refuri)
+        else:
+            ref_node = docutils.nodes.reference(
+                '', '', classes=['xref cite'], **self.kwargs)
+
         ref_node += join[self.children].format(**kwargs)
         return ref_node
 

@@ -119,19 +119,60 @@ class AuthorYearFormatter(Formatter):
             print(method)
         return ref_node
 
-    def make_citation(self, bibnode, bibcache, make_refid):  # pylint: disable=R0201
+    def make_citation(self, bibnode, bibcache, docname, make_refid):  # pylint: disable=R0201
         """
         Create a reference for a citation.
         """
         typ = bibnode.data['typ']
 
         if typ in ['citep', 'citealp']:
-            return make_citep(bibnode, bibcache, make_refid)
+            return self.citep(bibnode, docname, bibcache)
         if typ in ['citet']:
-            return make_citet(bibnode, bibcache, make_refid)
+            return self.citet(bibnode, docname, bibcache)
         if typ in ['cite']:
-            return make_cite(bibnode, bibcache, make_refid)
+            return make_cite(bibnode, bibcache, docname, make_refid)
         return bibnode
+
+    @staticmethod
+    def citet(citenode, docname, bibcache):
+        """Textual citation."""
+        tokens = citenode.data['tokens']
+        pre_text, keys, post_text = tokens[:3]
+        if len(keys) > 1:
+            pre_text = post_text = ''
+        cite_template = join[
+            ref[authors(inline=True)],
+            ' (',
+            optional[pre_text],
+            ref[year],
+            optional[post_text],
+            ')'
+        ]
+        return join(sep='; ')[[
+            join[
+                cite_template.format(entry=bibcache[key], docname=docname)
+            ] for key in keys
+        ]].format()
+
+    @staticmethod
+    def citep(citenode, docname, bibcache):
+        """Parenthetical citation."""
+        tokens = citenode.data['tokens']
+        pre_text, keys, post_text = tokens[:3]
+        cite_template = join(sep=', ')[ref[authors(inline=True)], ref[year]]
+        return join[
+            '(',
+            optional[pre_text],
+            join(sep=', ', last_sep=' and ')[[
+                join[
+                    cite_template.format(entry=bibcache[key], docname=docname)
+                ] for key in keys
+            ]],
+            optional[post_text],
+            ')'].format()
+
+
+
 
 
 
@@ -241,19 +282,20 @@ def make_citet(citenode, bibcache, make_refid):
 
 
 
+def make_cite(citenode, bibcache, docname, make_refid=None):
 
-def make_cite(citenode, bibcache, make_refid):
-
+    # tokens is an alternating sequence of text and list of references.
     tokens = citenode.data['tokens']
 
-    cite_template = inline[join[
+    citation = inline[join[
         authors(last_names_only=True, last_sep=' & ', et_al=True),
         ' ',
         year]]
     template = join[
         [join(sep=', ', last_sep=' and ')[
-            [cite_template.format(entry=bibcache[ref]) for ref in token]
-            ] if i % 2
+            [citation.format(entry=bibcache[ref]) for ref in token if ref]
+            ] if isinstance(token, list)
          else token for i, token in enumerate(tokens) if token]
     ]
     return docutils.nodes.inline('', '') + template.format()
+

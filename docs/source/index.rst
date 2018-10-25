@@ -17,13 +17,23 @@ Vowel normalization in python.
 
 :citet:`flynn_foulkes_2011a`
 
-:citet:`flynn_foulkes_2011b`
+:citet:`e.g., {% flynn_foulkes_2011a %}`
 
-:citet:`adank_etal_2004`
+:citet:`{% flynn_foulkes_2011a %}, chap.2`
 
-:cite:`including {% flynn_foulkes_2011a, adank_etal_2004 %} amoung others`
+:citet:`e.g., {% flynn_foulkes_2011a %}, chap.2`
 
-:cite:`{% flynn_foulkes_2011b, adank_etal_2004 %} amoung others`
+:citet:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
+
+:citep:`flynn_foulkes_2011a`
+
+:citep:`e.g., {% flynn_foulkes_2011a %}`
+
+:citep:`{% flynn_foulkes_2011a %}, chap.2`
+
+:citep:`e.g., {% flynn_foulkes_2011a %}, chap.2`
+
+:citep:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
 
 .. bibliography:: bibliography.bib
     :style: author-year

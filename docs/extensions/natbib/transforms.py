@@ -54,7 +54,7 @@ class BibliographyTransform(docutils.transforms.Transform):
             for citenode in self.document.traverse(CitationNode):
                 if citenode.data['docname'] == docname:
                     node = formatter.make_citation(
-                        citenode, bibcache, make_refid)
+                        citenode, bibcache, docname, make_refid=make_refid)
                     citenode.replace_self(node)
 
             for key in year_suffixes:

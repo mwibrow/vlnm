@@ -61,11 +61,16 @@ class Authors(Node):
         last_sep = self.kwargs.get('last_sep', ' and ')
         last_names_only = self.kwargs.get('last_names_only')
         et_al = self.kwargs.get('et_al')
+        cite_inline = self.kwargs.get('inline')
+        if cite_inline:
+            last_names_only = True
+            last_sep = ' & '
+            et_al = True
         if len(author_list) > 2 and et_al:
             node += join[
                 get_author(author_list[0], last_names_only=last_names_only),
                 ' ',
-                emph['et al']].format()
+                emph['et al.']].format()
         else:
             node += join(sep=sep, last_sep=last_sep)[
                 [get_author(author, last_names_only=last_names_only)
