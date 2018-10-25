@@ -27,6 +27,7 @@ def setup(app):
     app.add_role('citep', CitationRole())
     app.add_role('citealp', CitationRole())
     app.add_role('citet', CitationRole())
+    app.add_role('citealt', CitationRole())
     app.add_role('cite', CitationRole())
     app.add_transform(BibliographyTransform)
     app.add_stylesheet('css/style.css')

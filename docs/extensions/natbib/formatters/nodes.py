@@ -347,7 +347,8 @@ class Reference(Node):
         entry = kwargs.get('entry')
         docname = kwargs.get('docname')
         if entry and docname:
-            refuri = '{}#{}'.format(docname, entry.key)
+            refuri = '{}#{}'.format(
+                '' if docname == 'index' else docname, entry.key)
             ref_node = docutils.nodes.reference(
                 '', '', classes=['xref cite'], internal=True, refuri=refuri)
         else:

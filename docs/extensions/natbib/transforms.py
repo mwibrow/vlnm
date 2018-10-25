@@ -9,14 +9,6 @@ import docutils.nodes
 from .nodes import BibliographyNode, CitationNode
 from .formatters.authoryear import AuthorYearFormatter
 
-def make_refid(entry, docname):
-    """
-    Make an id for a uri.
-    """
-    if docname:
-        return '{}-{}'.format(entry.key, docname)
-    return entry.key
-
 
 class BibliographyTransform(docutils.transforms.Transform):
     """
@@ -45,7 +37,7 @@ class BibliographyTransform(docutils.transforms.Transform):
                 bibcache[key].fields['year_suffix'] = year_suffixes[key]
 
             for key in keys:
-                refid = make_refid(bibcache[key], bibnode.data['docname'])
+                refid = '{}'.format(key)
                 entry = formatter.make_entry(bibcache[key])
                 entry['ids'] = entry['names'] = [refid]
                 node += entry
@@ -54,7 +46,7 @@ class BibliographyTransform(docutils.transforms.Transform):
             for citenode in self.document.traverse(CitationNode):
                 if citenode.data['docname'] == docname:
                     node = formatter.make_citation(
-                        citenode, bibcache, docname, make_refid=make_refid)
+                        citenode, bibcache, docname)
                     citenode.replace_self(node)
 
             for key in year_suffixes:

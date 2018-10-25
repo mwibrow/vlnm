@@ -42,12 +42,11 @@ class Formatter:
         """
         return ref
 
-    def make_citation(self, bibnode, bibcache, make_refid):
+    def make_citation(self, citenode, bibcache, docname):
         """
         Create a reference for a citation.
         """
-
-        return bibnode
+        return citenode
 
 class Authors(Node):
     """Authors node."""

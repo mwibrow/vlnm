@@ -35,6 +35,28 @@ Vowel normalization in python.
 
 :citep:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
 
+
+:citealt:`flynn_foulkes_2011a`
+
+:citealt:`e.g., {% flynn_foulkes_2011a %}`
+
+:citealt:`{% flynn_foulkes_2011a %}, chap.2`
+
+:citealt:`e.g., {% flynn_foulkes_2011a %}, chap.2`
+
+:citealt:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
+
+
+:citealp:`flynn_foulkes_2011a`
+
+:citealp:`e.g., {% flynn_foulkes_2011a %}`
+
+:citealp:`{% flynn_foulkes_2011a %}, chap.2`
+
+:citealp:`e.g., {% flynn_foulkes_2011a %}, chap.2`
+
+:citealp:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
+
 .. bibliography:: bibliography.bib
     :style: author-year
 
