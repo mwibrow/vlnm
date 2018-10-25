@@ -102,6 +102,13 @@ class AuthorYearFormatter(Formatter):
 
         return suffixes
 
+    @staticmethod
+    def make_refid(entry, docname):
+        """Make a reference id."""
+        if docname == AuthorYearFormatter.env.config.master_doc:
+            docname = ''
+        return '{}#{}'.format(docname, entry.key)
+
     def make_entry(self, ref):
         """
         Make a bibliographic entry.

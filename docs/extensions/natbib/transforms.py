@@ -22,12 +22,13 @@ class BibliographyTransform(docutils.transforms.Transform):
         Apply the transform
         """
         env = self.document.settings.env
+        # print(env.config.master_doc)
         bibcache = env.bibcache
 
         for bibnode in self.document.traverse(BibliographyNode):
             docname = bibnode.data['docname']
             keys = env.bibkeys.get_keys(docname)
-            formatter = AuthorYearFormatter()
+            formatter = AuthorYearFormatter(env)
 
             node = docutils.nodes.paragraph()
             keys = formatter.sort_keys(keys, bibcache)

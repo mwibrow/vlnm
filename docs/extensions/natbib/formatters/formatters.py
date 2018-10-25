@@ -23,9 +23,8 @@ class Formatter:
     """
     Class for creating citations and bibliographic entries in the APA style.
     """
-    def __init__(self):
-        self.nodes = []
-        self.publications = {}
+    def __init__(self, env):
+        Formatter.env = env
 
     @staticmethod
     def sort_keys(keys, bibcache):
