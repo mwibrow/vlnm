@@ -14,6 +14,11 @@ Vowel normalization in python.
 
    quickstart
 
+cite
+----
+
+:cite:`flynn_foulkes_2011a,flynn_foulkes_2011b`
+
 citet
 -----
 
@@ -51,6 +56,10 @@ citep
 :citep:`e.g., {% flynn_foulkes_2011a %}, chap.2`
 
 :citep:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
+
+:citep:`e.g., {% flynn_foulkes_2011a, flynn_foulkes_2011b, adank_etal_2004 %}, chap.2`
+
+:citep:`e.g., {% flynn_foulkes_2011a, adank_etal_2004, flynn_foulkes_2011b %}, chap.2`
 
 citeps
 ------

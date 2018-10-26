@@ -9,6 +9,7 @@ class Node:
     """Based node class."""
 
     def __init__(self, content=None, children=None, classes=None, **kwargs):
+        self.called = False
         if isinstance(content, Node):
             node = content
             self.content = node.content
@@ -20,7 +21,6 @@ class Node:
             self.children = children or []
             self.classes = classes or []
             self.kwargs = kwargs
-        self.called = False
 
     def add_child(self, child):
         """Add a child to this node."""
@@ -32,6 +32,7 @@ class Node:
         node.content = self.content
         node.children = []
         node.classes = self.classes
+        node.called = self.called
         if self.called:
             node.kwargs = self.kwargs
         else:
@@ -358,12 +359,24 @@ class Reference(Node):
         ref_node += join[self.children].format(**kwargs)
         return ref_node
 
+class Idempotent(Node):
+    """Idempotent Node for a single childe."""
+    def template(self, items):
+        """Transform this node instance."""
+        self.children = items
+        return self
+
+    def format(self, **_kwargs):
+        """Format this node instance."""
+        return self.children[0]
+
 # pylint: disable=C0103
 boolean = Boolean()
 call = Call()
 concat = Join()
 emph = Emph()
 field = Field()
+idem = Idempotent()
 ifelse = IfElse()
 inline = InLine()
 join = Join()

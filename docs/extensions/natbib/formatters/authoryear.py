@@ -3,11 +3,12 @@
     ~~~~~~~~~~~~~~
 """
 # pylint: disable=W0621
+from collections import OrderedDict
 
 import docutils.nodes
 
 from .nodes import (
-    boolean, join, emph, optional, ref, sentence
+    boolean, ifelse, idem, join, emph, optional, ref, sentence
 )
 
 from .formatters import (
@@ -135,6 +136,8 @@ class AuthorYearFormatter(Formatter):
             return self.citep(citenode, docname, bibcache)
         if typ in ['citet', 'citets', 'citealt']:
             return self.citet(citenode, docname, bibcache)
+        if typ in ['cite']:
+            return self.cite(citenode, docname, bibcache)
         return citenode
 
     @staticmethod
@@ -180,6 +183,7 @@ class AuthorYearFormatter(Formatter):
                 et_al=not starred)],
             ref[year]
         ]
+
         return join[
             optional[boolean[parenthesis], '('],
             optional[pre_text],
@@ -188,8 +192,76 @@ class AuthorYearFormatter(Formatter):
                 last_sep='; ' if starred else ' and '
             )[[
                 join[
-                    cite_template.format(entry=bibcache[key], docname=docname)
-                ] for key in keys
+                    citation_group(keys, bibcache, cite_template, docname)
+                ]
             ]],
             optional[post_text],
             optional[boolean[parenthesis], ')']].format()
+
+    @staticmethod
+    def cite(citenode, docname, bibcache):
+        """Cite method for testing."""
+        tokens = citenode.data['tokens']
+        _, keys, _ = tokens[:3]
+        cite_template = join(sep=', ')[
+            ref[authors(
+                last_names_only=True,
+                last_sep=' & ',
+                et_al=True)],
+            ref[year]
+        ]
+
+        output = join[
+            citation_group(keys, bibcache, cite_template, docname)
+        ]
+
+        return output.format()
+
+
+def citation_group(keys, bibcache, cite_template, docname):
+    """Create citations for a group of keys."""
+    contractions = get_contractions(keys, bibcache)
+    keys = list(contractions.keys())
+    i = 0
+    key = keys[i]
+    template = [join[
+        optional[
+            boolean[i > 0],
+            ifelse[boolean[contractions[key]], ', ', '; '],
+        ],
+        ifelse[
+            boolean[contractions[key]],
+            idem[
+                ref[field['year_suffix']].format(
+                    entry=bibcache[key], docname=docname)
+            ],
+            idem[
+                cite_template.format(
+                    entry=bibcache[key], docname=docname)
+            ]
+        ]
+    ] for i, key in enumerate(keys)]
+    return template
+
+def get_contractions(keys, bibcache):
+    """Identify citation contractions if necessary.
+
+    This faciliates, for example:
+
+        Smith 2008a, Smith 2008b -> Smith 2008a,b
+    """
+    sort_template = join[authors, field['year']]
+    key_contractions = OrderedDict()
+    for key in keys:
+        entry = bibcache[key]
+        sort_key = sort_template.format(entry=entry).astext()
+        key_contractions[sort_key] = key_contractions.get(
+            sort_key, OrderedDict())
+        key_contractions[sort_key][key] = bool(key_contractions[sort_key])
+
+    contractions = OrderedDict()
+    for sort_key in key_contractions:
+        for key in key_contractions[sort_key]:
+            contractions[key] = key_contractions[sort_key][key]
+
+    return contractions
