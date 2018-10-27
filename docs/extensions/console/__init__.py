@@ -17,15 +17,17 @@ class ConsoleDirective(CodeBlock):
 
     def run(self):
         """Run directive"""
-        code = u'\n'.join(self.content)
 
         statements = []
-
         console = InteractiveConsole()
         session = StringIO()
-        for line in code.strip().split('\n') + ['\n']:
+        hidden = False
+        content = [line for line in self.content]
+        for line in content:
             line = line or '\n'
-            if line.strip():
+            if line == '###':
+                hidden = not hidden
+            if line.strip() and not hidden and line != '###':
                 statements.append(line)
             output = StringIO()
             with redirect_stdout(output):
@@ -42,7 +44,6 @@ class ConsoleDirective(CodeBlock):
                 statements = []
 
         self.content = session.getvalue().strip().split('\n')
-        print(self.content)
         session.close()
         return super(ConsoleDirective, self).run()
 
