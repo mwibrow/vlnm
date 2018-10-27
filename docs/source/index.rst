@@ -32,6 +32,10 @@ citet
 
 :citet:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
 
+:citet:`e.g., {% flynn_foulkes_2011a, flynn_foulkes_2011b, adank_etal_2004 %}, chap.2`
+
+:citet:`e.g., {% flynn_foulkes_2011a, adank_etal_2004, flynn_foulkes_2011b %}, chap.2`
+
 citets
 ------
 :citets:`flynn_foulkes_2011a`

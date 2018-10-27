@@ -150,19 +150,31 @@ class AuthorYearFormatter(Formatter):
         pre_text, keys, post_text = tokens[:3]
         if len(keys) > 1 or starred:
             pre_text = post_text = ''
-        cite_template = join[
-            ref[authors(last_names_only=True, et_al=not starred)],
-            ' ',
-            optional[boolean[parenthesis], '('],
-            optional[pre_text],
-            ref[year],
-            optional[post_text],
-            optional[boolean[parenthesis], ')']
-        ]
+        groups = get_key_groups(keys, bibcache)
         return join(sep='; ')[[
             join[
-                cite_template.format(entry=bibcache[key], docname=docname)
-            ] for key in keys
+                ref[
+                    authors(
+                        last_names_only=True,
+                        last_sep=' and ' if starred else ' & ',
+                        et_al=not starred)
+                ].format(entry=bibcache[group[0]], docname=docname),
+                ' ',
+                optional[boolean[parenthesis], '('],
+                optional[pre_text],
+                join(sep=', ')[[
+                    ifelse[
+                        boolean[i > 0],
+                        ref[field['year_suffix']].format(
+                            entry=bibcache[key], docname=docname),
+                        ref[year].format(
+                            entry=bibcache[key], docname=docname)
+                    ]
+                    for i, key in enumerate(group)
+                ]],
+                optional[post_text],
+                optional[boolean[parenthesis], ')']
+            ] for group in groups
         ]].format()
 
     @staticmethod
