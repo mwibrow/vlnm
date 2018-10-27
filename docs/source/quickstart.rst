@@ -19,3 +19,14 @@ which case the `rename` keyword argument can be used:
 
 >>> df_norm = LobanovNormalizer().normalize(df, rename='{}N')
 >>> df.head(n=5)
+
+.. console:: python
+
+   print('hello')
+   print('GOodbye')
+   for i in range(10):
+       print(i)
+
+   print('And that\'s all folks')
+
+End

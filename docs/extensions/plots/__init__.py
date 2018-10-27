@@ -1,7 +1,5 @@
 """
-natbib module.
-
-Adapted from https://bitbucket.org/wnielson/sphinx-natbib
+Plotting extension.
 """
 from io import BytesIO, StringIO
 import base64

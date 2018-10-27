@@ -52,7 +52,8 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'natbib',
-    'plots'
+    'plots',
+    'console'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
