@@ -282,10 +282,10 @@ class IfElse(Node):
         return self
 
     def format(self, **kwargs):
-        if self.children[0].format(**kwargs):
-            return self.children[1].format(**kwargs)
+        if format_node(self.children[0], **kwargs):
+            return format_node(self.children[1], **kwargs)
         if len(self.children) > 2:
-            return self.children[2].format(**kwargs)
+            return format_node(self.children[2], **kwargs)
         return None
 
 class Apply(Node):

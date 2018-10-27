@@ -184,16 +184,22 @@ class AuthorYearFormatter(Formatter):
             ref[year]
         ]
 
+        groups = get_key_groups(keys, bibcache)
+
         return join[
             optional[boolean[parenthesis], '('],
             optional[pre_text],
-            join(
-                sep='; ' if starred else ', ',
-                last_sep='; ' if starred else ' and '
-            )[[
-                join[
-                    citation_group(keys, bibcache, cite_template, docname)
-                ]
+            join(sep='; ')[[
+                join(sep=', ')[[
+                    ifelse[
+                        boolean[i > 0],
+                        ref[field['year_suffix']].format(
+                            entry=bibcache[key], docname=docname),
+                        cite_template.format(
+                            entry=bibcache[key], docname=docname)
+                    ]
+                    for i, key in enumerate(group)
+                ]] for group in groups
             ]],
             optional[post_text],
             optional[boolean[parenthesis], ')']].format()
