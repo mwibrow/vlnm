@@ -13,6 +13,7 @@ Vowel normalization in python.
    :caption: Contents
 
    quickstart
+   bibliography
 
 cite
 ----
@@ -99,9 +100,6 @@ citeps
 :citealp:`e.g., {% flynn_foulkes_2011a %}, chap.2`
 
 :citealp:`e.g., {% flynn_foulkes_2011a, adank_etal_2004 %}, chap.2`
-
-.. bibliography:: bibliography.bib
-    :style: author-year
 
 
 

@@ -18,6 +18,7 @@ class BibliographyDirective(Directive):
     final_argument_whitespace = True
     has_content = False
     option_spec = {
+        'all': directives.flag,
         'style': directives.unchanged
     }
 
@@ -38,5 +39,6 @@ class BibliographyDirective(Directive):
 
         data = dict(
             docname=env.docname,
-            style=self.options.get('style'))
+            style=self.options.get('style'),
+            all='all' in self.options)
         return [BibliographyNode('', ids=[id_], data=data)]
