@@ -211,7 +211,7 @@ class AuthorYearFormatter(Formatter):
             ref[year]
         ]
 
-        output = join[
+        output = join(sep='; ')[
             citation_group(keys, bibcache, cite_template, docname)
         ]
 
@@ -219,31 +219,27 @@ class AuthorYearFormatter(Formatter):
 
 
 def citation_group(keys, bibcache, cite_template, docname):
-    """Create citations for a group of keys."""
-    contractions = get_contractions(keys, bibcache)
-    keys = list(contractions.keys())
-    i = 0
-    key = keys[i]
-    template = [join[
-        optional[
-            boolean[i > 0],
-            ifelse[boolean[contractions[key]], ', ', '; '],
-        ],
-        ifelse[
-            boolean[contractions[key]],
-            idem[
-                ref[field['year_suffix']].format(
-                    entry=bibcache[key], docname=docname)
-            ],
-            idem[
-                cite_template.format(
-                    entry=bibcache[key], docname=docname)
+    """Create citations for groups of keys."""
+    groups = get_key_groups(keys, bibcache)
+    template = [
+        join(sep=', ')[[
+            ifelse[
+                boolean[i > 0],
+                idem[
+                    ref[field['year_suffix']].format(
+                        entry=bibcache[key], docname=docname)
+                ],
+                idem[
+                    cite_template.format(
+                        entry=bibcache[key], docname=docname)
+                ]
             ]
-        ]
-    ] for i, key in enumerate(keys)]
+            for i, key in enumerate(group)
+        ]] for group in groups
+    ]
     return template
 
-def get_contractions(keys, bibcache):
+def get_key_groups(keys, bibcache):
     """Identify citation contractions if necessary.
 
     This faciliates, for example:
@@ -251,17 +247,10 @@ def get_contractions(keys, bibcache):
         Smith 2008a, Smith 2008b -> Smith 2008a,b
     """
     sort_template = join[authors, field['year']]
-    key_contractions = OrderedDict()
+    groups = OrderedDict()
     for key in keys:
         entry = bibcache[key]
         sort_key = sort_template.format(entry=entry).astext()
-        key_contractions[sort_key] = key_contractions.get(
-            sort_key, OrderedDict())
-        key_contractions[sort_key][key] = bool(key_contractions[sort_key])
+        groups[sort_key] = groups.get(sort_key, []) + [key]
 
-    contractions = OrderedDict()
-    for sort_key in key_contractions:
-        for key in key_contractions[sort_key]:
-            contractions[key] = key_contractions[sort_key][key]
-
-    return contractions
+    return [groups[key] for key in groups]

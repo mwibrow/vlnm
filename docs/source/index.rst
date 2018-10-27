@@ -17,7 +17,7 @@ Vowel normalization in python.
 cite
 ----
 
-:cite:`flynn_foulkes_2011a,flynn_foulkes_2011b`
+:cite:`flynn_foulkes_2011a,flynn_foulkes_2011b,adank_etal_2004`
 
 citet
 -----
