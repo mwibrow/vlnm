@@ -60,7 +60,8 @@ class AuthorYearFormatter(Formatter):
                     field['booktitle'],
                     ','
                 ],
-                volume,
+                optional[volume],
+                optional[field['publisher']],
                 pages
             ]
         ]
