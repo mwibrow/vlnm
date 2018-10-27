@@ -13,7 +13,7 @@ from .cache import CitationCache, BibliographyCache
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
 from .roles import CitationRole
-
+# from .transforms import BibliographyTransform
 
 def init_app(app):
     """
@@ -29,13 +29,13 @@ def process_bibliographies(app, doctree, docname):
     """
 
     env = app.env
-    # print(env.config.master_doc)
     bibcache = env.bibcache
+    bibkeys = env.bibkeys
 
     for bibnode in doctree.traverse(BibliographyNode):
         cite_all = bibnode.data['all']
         docname = bibnode.data['docname']
-        keys = env.bibkeys.get_keys(None if cite_all else docname)
+        keys = bibkeys.get_keys(None if cite_all else docname)
         formatter = AuthorYearFormatter(env)
 
         node = docutils.nodes.paragraph()
@@ -98,5 +98,6 @@ def setup(app):
     app.add_role('cite', CitationRole())
     app.add_stylesheet('css/style.css')
     app.add_directive('bibliography', BibliographyDirective)
+    # app.add_transform(BibliographyTransform)
     app.add_node(CitationNode)
     app.add_node(BibliographyNode)
