@@ -15,8 +15,10 @@ Vowel normalization for python.
    :caption: Contents
 
    quickstart
-   bibliography
+   api
    license
+   bibliography
+
 
 
 Indices and tables

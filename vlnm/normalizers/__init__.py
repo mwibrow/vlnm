@@ -33,7 +33,8 @@ def register_normalizer(klass, *aliases):
     for alias in aliases:
         NORMALIZERS[alias] = klass
 
-register_normalizer(BarkDifferenceNormalizer, 'bark_difference', 'bark_diff')
+register_normalizer(BarkDifferenceNormalizer,
+    'bark_difference', 'bark_diff')
 register_normalizer(BarkNormalizer, 'bark')
 register_normalizer(LobanovNormalizer, 'lobanov', 'lob')
 
@@ -47,4 +48,5 @@ def normalize(df, *args, method=None, **kwargs):
         try:
             return method().normalize(df, *args, **kwargs)
         except TypeError:
-            return NORMALIZERS[method]().normalize(df, *args, **kwargs)
+            return NORMALIZERS[method]().normalize(
+                df, *args, **kwargs)
