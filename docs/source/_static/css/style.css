@@ -4,3 +4,7 @@ p.reference {
     text-indent: -2rem;
     margin: 0.125rem !important;
 }
+
+.tt {
+    font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+}
