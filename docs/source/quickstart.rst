@@ -22,6 +22,11 @@ which case the `rename` keyword argument can be used:
 
 .. console:: python
 
+   import pandas as pd
+   df = pd.DataFrame(dict(
+       a=[1,2,3,4,5,6,7,8,9],
+       b=['a','b','c','d','e','f','g','h','i']))
+   df.head()
    print('hello')
    print('GOodbye')
    for i in range(10):

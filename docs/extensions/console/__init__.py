@@ -2,10 +2,10 @@
 Console directive.
 """
 
-from code import InteractiveConsole
+from code import compile_command, InteractiveInterpreter
 from io import StringIO
 from contextlib import redirect_stdout
-
+import re
 
 import docutils.nodes
 from docutils.parsers.rst import directives, Directive
@@ -18,33 +18,56 @@ class ConsoleDirective(CodeBlock):
     def run(self):
         """Run directive"""
 
-        statements = []
-        console = InteractiveConsole()
-        session = StringIO()
-        hidden = False
-        content = [line for line in self.content]
-        for line in content:
-            line = line or '\n'
-            if line == '###':
-                hidden = not hidden
-            if line.strip() and not hidden and line != '###':
-                statements.append(line)
-            output = StringIO()
-            with redirect_stdout(output):
-                more = console.push(line)
-            value = output.getvalue()
-            output.close()
-            if more:
-                continue
-            else:
-                for i, statement in enumerate(statements):
-                    prefix = '...' if i else '>>>'
-                    session.write('{} {}\n'.format(prefix, statement))
-                session.write(value)
-                statements = []
+        console = []
+        code = ''
+        code_objects = []
+        code_object = None
+        initial_prefix = '>>> '
+        continuation_prefix = '... '
 
-        self.content = session.getvalue().strip().split('\n')
-        session.close()
+        statement = initial_prefix
+        interpreter = InteractiveInterpreter()
+
+        hidden = False
+
+        items = [item for item in self.content]
+        for item in items:
+            if item.startswith('###'):
+                hidden = not hidden
+                continue
+            line = re.sub(r'^[>.]{3}\s?', '', item)
+            code += line
+            if code_object:  # from previous iteration.
+                if line:
+                    statement = initial_prefix + line
+            else:
+                statement += line
+            try:
+                code_object = compile_command(code)
+                if code_object is None:
+                    code += '\n'
+                    statement += '\n' + continuation_prefix
+                else:
+                    code = ''
+                    if statement and not hidden:
+                        console.append(statement)
+                    stdout = StringIO()
+                    with redirect_stdout(stdout):
+                        interpreter.runcode(code_object)
+                    output = stdout.getvalue()
+                    stdout.close()
+                    if output and not hidden:
+                        console.append(output[:-1])
+                    statement = ''
+                    code_objects.append(code_object)
+
+            except SyntaxError:
+                code += r'\n'
+                statement += r'\n'
+                code_object = None
+
+        self.content = console
+
         return super(ConsoleDirective, self).run()
 
 def setup(app):
