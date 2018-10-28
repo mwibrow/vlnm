@@ -6,3 +6,9 @@
     :target: https://coveralls.io/github/mwibrow/vlnm
 
 .. |vlnm| replace:: **VLNM**
+
+.. |pandas| replace:: Pandas_
+.. _Pandas:  https://pandas.pydata.org/
+
+.. |numpy| replace:: NumPy_
+.. _NumPy: http://www.numpy.org/
