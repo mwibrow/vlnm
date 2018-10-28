@@ -15,15 +15,19 @@ class ConsoleDirective(CodeBlock):
     """Class for processing the :rst:dir:`bibliography` directive.
     """
 
+    required_arguments = 0
+
     def run(self):
         """Run directive"""
 
+        self.arguments = ['python']
         console = []
         code = ''
         code_objects = []
         code_object = None
         initial_prefix = '>>> '
         continuation_prefix = '... '
+        magic_prefix = '###'
 
         statement = initial_prefix
         interpreter = InteractiveInterpreter()
@@ -32,7 +36,7 @@ class ConsoleDirective(CodeBlock):
 
         items = [item for item in self.content]
         for item in items:
-            if item.startswith('###'):
+            if item.startswith(magic_prefix):
                 hidden = not hidden
                 continue
             line = re.sub(r'^[>.]{3}\s?', '', item)
