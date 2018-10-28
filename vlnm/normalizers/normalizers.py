@@ -249,10 +249,10 @@ class NordstromNormalizer(VowelNormalizer):
         super(NordstromNormalizer, self).__init__(**kwargs)
         self.groups = ['gender']
         self.actions.update(
-            gender=self.calculate_f3_means)
+            gender=self._calculate_f3_means)
 
     @staticmethod
-    def calculate_f3_means(df, **kwargs):
+    def _calculate_f3_means(df, **kwargs):
         """
         Calculate the f3 means.
         """
@@ -345,20 +345,19 @@ class LCENormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime = F_i \frac{F_i}{\max{F_i}}
+        F_i^\prime = \frac{F_i}{\max{F_i}}
 
     """
 
     def __init__(self, **kwargs):
         super(LCENormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.get_speaker_max
+            speaker=self._get_speaker_max
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def get_speaker_max(df, **kwargs):
-        """Maximum formant values for a speaker."""
+    def _get_speaker_max(df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants', [])
         for formant in formants:
@@ -384,20 +383,19 @@ class GerstmanNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime = F_i \frac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^\prime = \frac{F_i - \min{F_i}}{\max{F_i}}
 
     """
 
     def __init__(self, **kwargs):
         super(GerstmanNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_range
+            speaker=self._speaker_range
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_range(df, **kwargs):
-        """Maximum and minimum formant values for a speaker."""
+    def _speaker_range(df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
         for formant in formants:
@@ -424,7 +422,7 @@ class LobanovNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime = F_i \displayfrac{F_i - \mu_{F_i}}{\sigma{F_i}}
+        F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma{F_i}}
 
     Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
     mean and standard deviation (respectively) of the
@@ -434,14 +432,12 @@ class LobanovNormalizer(VowelNormalizer):
     def __init__(self, **kwargs):
         super(LobanovNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """Mean and and standard deviation formant values for a speaker."""
-
+    def _speaker_stats(df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
 
@@ -484,13 +480,12 @@ class NearyNormalizer(VowelNormalizer):
     def __init__(self, **kwargs):
         super(NearyNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """Mean log for speaker formants."""
+    def _speaker_stats(df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
         for formant in formants:
@@ -534,13 +529,12 @@ class NearyGMNormalizer(NearyNormalizer):
     def __init__(self, **kwargs):
         super(NearyGMNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """Mean log for speaker formants."""
+    def _speaker_stats(df, **kwargs):
         constants = kwargs.get('constants')
         formants = kwargs.get('formants')
         mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
@@ -577,15 +571,12 @@ class WattFabriciusNormalizer(VowelNormalizer):
     def __init__(self, **kwargs):
         super(WattFabriciusNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """
-        Calculate the speakers centroid.
-        """
+    def _speaker_stats(df, **kwargs):
         constants = kwargs['constants']
         formants = kwargs['formants']
         f1 = kwargs.get('f1', 'f1')
@@ -659,10 +650,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     """
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """
-        Calculate the speakers centroid.
-        """
+    def _speaker_stats(df, **kwargs):
         super(
             WattFabricius2Normalizer,
             WattFabricius2Normalizer).speaker_stats(df, **kwargs)
@@ -710,10 +698,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
     """
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """
-        Calculate the speakers centroid.
-        """
+    def _speaker_stats(df, **kwargs):
         constants = kwargs['constants']
         formants = kwargs['formants']
         f2 = kwargs.get('f2', 'f2')
@@ -772,15 +757,12 @@ class BighamNormalizer(WattFabriciusNormalizer):
     def __init__(self, **kwargs):
         super(BighamNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """
-        Calculate the speakers centroid.
-        """
+    def _speaker_stats(df, **kwargs):
         constants = kwargs['constants']
         formants = kwargs['formants']
         vowel = kwargs.get('vowel', 'vowel')
@@ -820,15 +802,12 @@ class SchwaNormalizer(WattFabriciusNormalizer):
     def __init__(self, **kwargs):
         super(SchwaNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self.speaker_stats
+            speaker=self._speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):
-        """
-        Calculate the speakers centroid.
-        """
+    def _speaker_stats(df, **kwargs):
         constants = kwargs['constants']
         formants = kwargs['formants']
         vowel = kwargs.get('vowel', 'vowel')
