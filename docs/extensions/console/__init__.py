@@ -71,8 +71,9 @@ class ConsoleDirective(CodeBlock):
                 code_object = None
 
         self.content = console
-
-        return super(ConsoleDirective, self).run()
+        nodes = super(ConsoleDirective, self).run()
+        nodes[0].attributes['classes'] = ['console']
+        return nodes
 
 def setup(app):
     """

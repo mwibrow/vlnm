@@ -8,3 +8,7 @@ p.reference {
 .tt {
     font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
 }
+
+div.console .highlight pre {
+    padding-left: 1rem;
+}

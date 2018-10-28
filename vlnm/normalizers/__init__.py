@@ -1,5 +1,8 @@
-r"""
-The  package contains the normalizers.
+"""
+    Normalizers package.
+    ~~~~~~~~~~~~~~~~~~~~
+
+    .. autofunction:: normalize
 """
 
 from vlnm.normalizers.normalizers import (
@@ -35,7 +38,9 @@ register_normalizer(BarkNormalizer, 'bark')
 register_normalizer(LobanovNormalizer, 'lobanov', 'lob')
 
 def normalize(df, *args, method=None, **kwargs):
-    """Normalize dataframe."""
+    """Normalize vowel data in a pandas dataframe.
+
+    """
     try:
         return method.normalize(df, *args, **kwargs)
     except AttributeError:
