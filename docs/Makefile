@@ -2,10 +2,10 @@
 SRCDIR=source
 BLDDIR=build
 define EXTENSIONS =
-	-z ./extensions/plots \
-	-z ./extensions/natbib \
-	-z ./extensions/console \
-	-z ./extensions/typography
+ -z ./extensions/plots \
+ -z ./extensions/natbib \
+ -z ./extensions/console \
+ -z ./extensions/typography
 endef
 WATCH=-z ../vlnm -z ./$(SRCDIR) $(EXTENSIONS)
 CMDOPT=-E -a -d $(BLDDIR)/.doctrees

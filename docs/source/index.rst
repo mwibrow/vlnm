@@ -16,6 +16,7 @@ Vowel normalization for python.
 
    quickstart
    bibliography
+   license
 
 
 Indices and tables
