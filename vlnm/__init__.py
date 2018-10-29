@@ -6,38 +6,7 @@ import os
 
 import pandas as pd
 
-from vlnm.normalizers.normalizers import (
-    BarkDifferenceNormalizer,
-    BarkNormalizer,
-    BighamNormalizer,
-    BladenNormalizer,
-    ErbNormalizer,
-    GerstmanNormalizer,
-    LCENormalizer,
-    LobanovNormalizer,
-    Log10Normalizer,
-    LogNormalizer,
-    MelNormalizer,
-    NearyGMNormalizer,
-    NearyNormalizer,
-    NordstromNormalizer,
-    SchwaNormalizer,
-    VowelNormalizer,
-    WattFabricius2Normalizer,
-    WattFabricius3Normalizer,
-    WattFabriciusNormalizer)
-
-NORMALIZERS = {}
-
-def register_normalizer(klass, *aliases):
-    """Register a normalizer class."""
-    for alias in aliases:
-        NORMALIZERS[alias] = klass
-
-register_normalizer(
-    BarkDifferenceNormalizer, 'bark_difference', 'bark_diff')
-register_normalizer(BarkNormalizer, 'bark')
-register_normalizer(LobanovNormalizer, 'lobanov', 'lob')
+from vlnm.normalizers import get_normalizer
 
 DATA_DIR = '.'
 
@@ -63,5 +32,5 @@ def normalize(data, *args, method=None, **kwargs):
         try:
             return method().normalize(df, *args, **kwargs)
         except TypeError:
-            return NORMALIZERS[method]().normalize(
+            return get_normalizer(method)().normalize(
                 df, *args, **kwargs)

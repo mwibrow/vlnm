@@ -3,6 +3,8 @@ Normalizers
 """
 import numpy as np
 
+from vlnm.normalizers import Register
+
 from vlnm.normalizers.base import (
     FORMANTS,
     VowelNormalizer,
@@ -17,6 +19,7 @@ from vlnm.normalizers.validation import (
     Keywords)
 
 
+@Register('bark')
 @DocString
 @Columns(
     choice=dict(
@@ -48,6 +51,7 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
         df[formants] = convert(df[formants])
         return df
 
+@Register('erb')
 @DocString
 @Columns(
     choice=dict(
@@ -77,6 +81,7 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
         return df
 
 
+@Register('log10')
 @DocString
 @Columns(
     choice=dict(
@@ -104,6 +109,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
         return df
 
 
+@Register('log')
 @DocString
 @Columns(
     choice=dict(
@@ -129,7 +135,7 @@ class LogNormalizer(FormantIntrinsicNormalizer):
         return df
 
 
-
+@Register('mel')
 @DocString
 @Columns(
     choice=dict(
@@ -173,6 +179,7 @@ def infer_gender_labels(df, gender, female=None, male=None):
     return female, male
 
 
+@Register('bladen')
 @DocString
 @Columns(
     required=['gender'],
@@ -215,6 +222,7 @@ class BladenNormalizer(VowelNormalizer):
             axis=0).T
         return hz_to_bark(df[formants]) - indicator
 
+@Register('nordstrom')
 @DocString
 @Columns(
     required=['f1', 'f3', 'gender']
@@ -294,6 +302,7 @@ class NordstromNormalizer(VowelNormalizer):
 
 
 
+@Register('barkdiff')
 @DocString
 @Columns(
     required=['f0', 'f1', 'f2', 'f3'],
@@ -336,6 +345,7 @@ class BarkDifferenceNormalizer(VowelNormalizer):
         return df
 
 
+@Register('lce')
 @DocString
 @Columns(
     required=['speaker']
@@ -374,6 +384,7 @@ class LCENormalizer(VowelNormalizer):
             df[formant] = df[formant] / constants.get('{}_max'.format(formant))
         return df
 
+@Register('gerstman')
 @DocString
 @Columns(
     required=['speaker']
@@ -413,6 +424,7 @@ class GerstmanNormalizer(VowelNormalizer):
             df[formant] = 999 * (df[formant] - fmin) / (fmax - fmin)
         return df
 
+@Register('lobanov')
 @DocString
 @Columns(
     required=['speaker']
@@ -456,7 +468,7 @@ class LobanovNormalizer(VowelNormalizer):
             df[formant] = (df[formant] - f_mu) / f_sigma if f_sigma else 0.
         return df
 
-
+@Register('Neary')
 @DocString
 @Columns(
     required=['speaker'],
@@ -505,7 +517,7 @@ class NearyNormalizer(VowelNormalizer):
             df[formants] = np.exp(df[formants])
         return df
 
-
+@Register('NearyGM')
 @DocString
 @Columns(
     required=['speaker'],
@@ -542,6 +554,7 @@ class NearyGMNormalizer(NearyNormalizer):
             constants['{}_mu_log'.format(formant)] = mu_log
 
 
+@Register('wattfabb')
 @DocString
 @Columns(
     required=['speaker', 'vowel', 'f1', 'f2']
