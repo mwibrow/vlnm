@@ -8,14 +8,17 @@ import pandas as pd
 
 from vlnm.normalizers import get_normalizer
 
-DATA_DIR = '.'
+DATA_DIR = ''
 
 def read_csv(data, *args, **kwargs):
     """Read csv file."""
-    try:
-        return pd.read_csv(os.path.join(DATA_DIR, data), *args, **kwargs)
-    except (IOError, FileNotFoundError):
-        return pd.read_csv(data, *args, **kwargs)
+
+    if DATA_DIR:
+        try:
+            return pd.read_csv(os.path.join(DATA_DIR, data), *args, **kwargs)
+        except (IOError, FileNotFoundError):
+            pass
+    return pd.read_csv(data, *args, **kwargs)
 
 def normalize(data, *args, method=None, **kwargs):
     """Normalize vowel data in a pandas dataframe.

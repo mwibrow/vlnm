@@ -7,9 +7,12 @@ Although, some normalizers have more complex requirements,
 in the simplest case, you have a CSV file which contains columns
 for `speaker`, `vowel`, `f1` and `f2`.
 
-The csv file must be loaded using the |Pandas|
-:code:`read_csv` function, and then the
-:code:`normalize` function from |vlnm| can be used:
+|VLNM| provides a :code:`read_csv` function
+(which is actually a super-thin wrapper around the |Pandas|
+:code:`read_csv` function) for reading CSVs,
+which can be used to read the CSV file.
+
+The the :code:`normalize` function from |vlnm| can be used:
 
 .. console::
     ###
