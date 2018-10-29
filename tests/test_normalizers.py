@@ -85,7 +85,7 @@ class TestLCENormalizer(unittest.TestCase):
             for formant in formants:
                 expected['{}_max'.format(formant)] = df[formant].max()
             actual = {}
-            LCENormalizer.get_speaker_max(
+            LCENormalizer._get_speaker_max(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -191,7 +191,7 @@ class TestGerstmanNormalizer(unittest.TestCase):
                 expected['{}_min'.format(formant)] = df[formant].min()
                 expected['{}_max'.format(formant)] = df[formant].max()
             actual = {}
-            GerstmanNormalizer.speaker_range(
+            GerstmanNormalizer._speaker_range(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -274,7 +274,7 @@ class TestLobanovNormalizer(unittest.TestCase):
                 expected['{}_mu'.format(formant)] = df[formant].mean()
                 expected['{}_sigma'.format(formant)] = df[formant].std() or 0.
             actual = {}
-            LobanovNormalizer.speaker_stats(
+            LobanovNormalizer._speaker_stats(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -357,7 +357,7 @@ class TestNearyNormalizer(unittest.TestCase):
                 expected['{}_mu_log'.format(formant)] = (
                     np.mean(np.log(df[formant].dropna())))
             actual = {}
-            NearyNormalizer.speaker_stats(
+            NearyNormalizer._speaker_stats(
                 df,
                 formants=self.kwargs['formants'],
                 constants=actual)
@@ -460,7 +460,7 @@ class TestNearyGMNormalizer(unittest.TestCase):
                 expected['{}_mu_log'.format(formant)] = np.mean(
                     np.mean(np.log(df[formants].dropna())))
             actual = {}
-            NearyGMNormalizer.speaker_stats(
+            NearyGMNormalizer._speaker_stats(
                 df,
                 formants=self.kwargs['formants'],
                 method='extrinsic',

@@ -15,10 +15,11 @@ def Register(*aliases):  # pylint: disable=C0103
         return cls
     return _decorator
 
-def register_normalizer(cls, *aliases):
+def register_normalizer(cls, *aliases, register=None):
     """Register a normalizer to be used with the normalize function."""
+    register = NORMALIZERS if register is None else register
     for alias in aliases:
-        NORMALIZERS[alias] = cls
+        register[alias] = cls
 
 def get_normalizer(method):
     """Return a normalizer."""
