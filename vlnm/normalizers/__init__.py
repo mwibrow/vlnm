@@ -4,49 +4,43 @@
 
     .. autofunction:: normalize
 """
-
-from vlnm.normalizers.normalizers import (
-    BarkDifferenceNormalizer,
-    BarkNormalizer,
-    BighamNormalizer,
-    BladenNormalizer,
-    ErbNormalizer,
-    GerstmanNormalizer,
-    LCENormalizer,
-    LobanovNormalizer,
-    Log10Normalizer,
-    LogNormalizer,
-    MelNormalizer,
-    NearyGMNormalizer,
-    NearyNormalizer,
-    NordstromNormalizer,
-    SchwaNormalizer,
-    VowelNormalizer,
-    WattFabricius2Normalizer,
-    WattFabricius3Normalizer,
-    WattFabriciusNormalizer)
+from vlnm.utils import nameify
 
 NORMALIZERS = {}
 
-def register_normalizer(klass, *aliases):
-    """Register a normalizer class."""
+def Register(*aliases):  # pylint: disable=C0103
+    """Decorator for registering normalizers."""
+    def _decorator(cls):
+        register_normalizer(cls, *aliases)
+        return cls
+    return _decorator
+
+def register_normalizer(cls, *aliases):
+    """Register a normalizer to be used with the normalize function."""
     for alias in aliases:
-        NORMALIZERS[alias] = klass
+        NORMALIZERS[alias] = cls
 
-register_normalizer(BarkDifferenceNormalizer,
-    'bark_difference', 'bark_diff')
-register_normalizer(BarkNormalizer, 'bark')
-register_normalizer(LobanovNormalizer, 'lobanov', 'lob')
+def get_normalizer(method):
+    """Return a normalizer."""
+    raw = method
+    method = method.lower()
+    if method:
+        normalizers = [name for name in NORMALIZERS
+                       if name.lower().startswith(method)]
+        if normalizers:
+            if len(normalizers) == 1:
+                return NORMALIZERS[normalizers[0]]
+            raise NameError(
+                'Found {count} normalizers matching {name}:'
+                '{matching}'.format(
+                    count=len(normalizers),
+                    name=raw,
+                    matching=nameify(normalizers, quote='\'')))
+        raise NameError(
+            'Unknown normalizer {name}'.format(
+                name=nameify([method], quote='\'')))
+    raise NameError('No normalizer specified')
 
-def normalize(df, *args, method=None, **kwargs):
-    """Normalize vowel data in a pandas dataframe.
-
-    """
-    try:
-        return method.normalize(df, *args, **kwargs)
-    except AttributeError:
-        try:
-            return method().normalize(df, *args, **kwargs)
-        except TypeError:
-            return NORMALIZERS[method]().normalize(
-                df, *args, **kwargs)
+def list_normalizers():
+    """Return a list of normalizers."""
+    return list(NORMALIZERS.keys())

@@ -1,4 +1,4 @@
 API
 ===
 
-.. automodule:: vlnm.normalizers
+.. automodule:: vlnm

@@ -3,8 +3,9 @@ Console directive.
 """
 
 from code import compile_command, InteractiveInterpreter
-from io import StringIO
 from contextlib import redirect_stdout
+from io import StringIO
+import os
 import re
 
 import docutils.nodes
@@ -19,6 +20,12 @@ class ConsoleDirective(CodeBlock):
 
     def run(self):
         """Run directive"""
+        env = self.state.document.settings.env
+
+        local_env = dict(
+            __file__=os.path.normpath(env.relfn2path('.')[1]),
+            __doc__=None,
+            __name__='__console__')
 
         self.arguments = ['python']
         console = []
@@ -30,7 +37,7 @@ class ConsoleDirective(CodeBlock):
         magic_prefix = '###'
 
         statement = initial_prefix
-        interpreter = InteractiveInterpreter()
+        interpreter = InteractiveInterpreter(locals=local_env)
 
         hidden = False
 
