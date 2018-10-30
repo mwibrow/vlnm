@@ -42,7 +42,7 @@ def normalize(data, *args, method=None, **kwargs):
 def normlize_csv(file_in, file_out=None, method=None, **kwargs):
     """Normalize a csv file and save the result.
     """
-    df = read_csv(data)
+    df = read_csv(file_in)
     df_norm = normalize(df, method, **kwargs)
     if file_out:
         df.norm.to_csv(file_out, header=True, index=False)
