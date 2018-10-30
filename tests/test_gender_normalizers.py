@@ -6,10 +6,10 @@ import unittest
 
 from vlnm.conversion import (
     hz_to_bark)
-from vlnm.normalizers.normalizers import (
+from vlnm.normalizers.gender import (
     BladenNormalizer,
     NordstromNormalizer)
-from vlnm.normalizers.validation import (
+from vlnm.validation import (
     ChoiceKeywordMissingError)
 from tests.helpers import (
     generate_data_frame,

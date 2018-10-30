@@ -5,14 +5,12 @@ Centroid normalizers
 Normalizers which make use of the speakers vowel centroid.
 """
 
-from vlnm.normalizers import Register
-
 from vlnm.normalizers.base import VowelNormalizer
-from vlnm.normalizers.documentation import DocString
 from vlnm.decorators import (
     Columns,
-    Keywords)
-
+    DocString,
+    Keywords,
+    Register)
 
 @Register('wattfabb')
 @DocString
@@ -44,12 +42,12 @@ class WattFabriciusNormalizer(VowelNormalizer):
     def __init__(self, **kwargs):
         super(WattFabriciusNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self._speaker_stats
+            speaker=self.speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def _speaker_stats(df, **kwargs):
+    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs['constants']
         formants = kwargs['formants']
         f1 = kwargs.get('f1', 'f1')
@@ -123,7 +121,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     """
 
     @staticmethod
-    def _speaker_stats(df, **kwargs):
+    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
         super(
             WattFabricius2Normalizer,
             WattFabricius2Normalizer).speaker_stats(df, **kwargs)
@@ -171,7 +169,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
     """
 
     @staticmethod
-    def _speaker_stats(df, **kwargs):
+    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs['constants']
         formants = kwargs['formants']
         f2 = kwargs.get('f2', 'f2')
@@ -230,12 +228,12 @@ class BighamNormalizer(WattFabriciusNormalizer):
     def __init__(self, **kwargs):
         super(BighamNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self._speaker_stats
+            speaker=self.speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def _speaker_stats(df, **kwargs):
+    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs['constants']
         formants = kwargs['formants']
         vowel = kwargs.get('vowel', 'vowel')
@@ -275,12 +273,12 @@ class SchwaNormalizer(WattFabriciusNormalizer):
     def __init__(self, **kwargs):
         super(SchwaNormalizer, self).__init__(**kwargs)
         self.actions.update(
-            speaker=self._speaker_stats
+            speaker=self.speaker_stats
         )
         self.groups = ['speaker']
 
     @staticmethod
-    def _speaker_stats(df, **kwargs):
+    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs['constants']
         formants = kwargs['formants']
         vowel = kwargs.get('vowel', 'vowel')

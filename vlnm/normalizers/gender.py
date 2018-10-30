@@ -8,17 +8,15 @@ on the gender identified by the speaker.
 
 import numpy as np
 
-from vlnm.normalizers import Register
-
 from vlnm.normalizers.base import (
     FORMANTS,
     VowelNormalizer)
-from vlnm.conversion import (
-    hz_to_bark)
-from vlnm.normalizers.documentation import DocString
-from vlnm.normalizers.validation import (
+from vlnm.conversion import hz_to_bark
+from vlnm.decorators import (
     Columns,
-    Keywords)
+    DocString,
+    Keywords,
+    Register)
 
 
 def infer_gender_labels(df, gender, female=None, male=None):
@@ -113,13 +111,10 @@ class NordstromNormalizer(VowelNormalizer):
         super(NordstromNormalizer, self).__init__(**kwargs)
         self.groups = ['gender']
         self.actions.update(
-            gender=self._calculate_f3_means)
+            gender=self.calculate_f3_means)
 
     @staticmethod
-    def _calculate_f3_means(df, **kwargs):
-        """
-        Calculate the f3 means.
-        """
+    def calculate_f3_means(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs.get('constants')
         gender = kwargs.get('gender')
         female, male = infer_gender_labels(

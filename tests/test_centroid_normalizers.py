@@ -4,7 +4,7 @@ Tests for 'centroid' normalizers
 
 import pandas as pd
 
-from vlnm.normalizers.normalizers import (
+from vlnm.normalizers.centroid import (
     BighamNormalizer,
     SchwaNormalizer,
     WattFabriciusNormalizer,
