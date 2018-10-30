@@ -4,18 +4,17 @@ Transform normalizers
 """
 import numpy as np
 
-from vlnm.normalizers import Register
-
 from vlnm.normalizers.base import (
     FormantIntrinsicNormalizer)
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from vlnm.normalizers.documentation import DocString
-from vlnm.normalizers.validation import (
+from vlnm.decorators import (
     Columns,
-    Keywords)
+    DocString,
+    Keywords,
+    Register)
 
 @Register('bark')
 @DocString
