@@ -8,13 +8,6 @@ from vlnm.utils import nameify
 
 NORMALIZERS = {}
 
-def Register(*aliases):  # pylint: disable=C0103
-    """Decorator for registering normalizers."""
-    def _decorator(cls):
-        register_normalizer(cls, *aliases)
-        return cls
-    return _decorator
-
 def register_normalizer(cls, *aliases, register=None):
     """Register a normalizer to be used with the normalize function."""
     register = NORMALIZERS if register is None else register
