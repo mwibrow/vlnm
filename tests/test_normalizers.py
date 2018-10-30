@@ -10,14 +10,14 @@ import numpy as np
 
 from vlnm.conversion import (
     hz_to_bark)
-from vlnm.normalizers.normalizers import (
+from vlnm.normalizers.standardize import (
     BarkDifferenceNormalizer,
     GerstmanNormalizer,
     LCENormalizer,
     LobanovNormalizer,
     NearyNormalizer,
     NearyGMNormalizer)
-from vlnm.normalizers.validation import (
+from vlnm.validation import (
     RequiredColumnMissingError,
     RequiredColumnAliasMissingError)
 from tests.helpers import (

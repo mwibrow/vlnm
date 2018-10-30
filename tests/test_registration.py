@@ -5,9 +5,8 @@ Tests for registering normalizer classes
 import unittest
 
 import vlnm.normalizers
-from vlnm.normalizers import (
-    Register, register_normalizer
-)
+from vlnm.decorators import Register
+from vlnm.normalizers import register_normalizer
 
 class _TestNormalizer:
     def public_method(self):

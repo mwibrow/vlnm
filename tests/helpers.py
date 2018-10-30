@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import pandas.testing
 
-from vlnm.normalizers import VowelNormalizer
-from vlnm.normalizers.validation import (
+from vlnm.normalizers.base import VowelNormalizer
+from vlnm.validation import (
     RequiredColumnMissingError,
     RequiredColumnAliasMissingError,
     RequiredKeywordMissingError)

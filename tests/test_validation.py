@@ -7,17 +7,19 @@ import unittest
 
 import pandas as pd
 
+from vlnm.decorators import (
+    Columns,
+    Keywords,
+    Name,
+    Parameters
+)
 from vlnm.normalizers.base import VowelNormalizer
-from vlnm.normalizers.validation import (
+from vlnm.validation import (
     ChoiceColumnAliasMissingError,
     ChoiceColumnMissingError,
     ChoiceKeywordMissingError,
-    Columns,
     GroupsContainChoiceColumnError,
     GroupsContainRequiredColumnError,
-    Keywords,
-    Name,
-    Parameters,
     RequiredColumnAliasMissingError,
     RequiredColumnMissingError,
     RequiredKeywordMissingError,
