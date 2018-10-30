@@ -84,7 +84,7 @@ class WattFabriciusNormalizer(VowelNormalizer):
             df[formant] /= centroid
         return df
 
-WaltFabricious1Normalizer = WattFabriciusNormalizer
+WattFabricius1Normalizer = WattFabriciusNormalizer
 
 
 @DocString

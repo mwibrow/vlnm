@@ -6,7 +6,28 @@ import os
 
 import pandas as pd
 
-from vlnm.normalizers import get_normalizer
+from vlnm.normalizers import get_normalizer, list_normalizers
+
+from vlnm.normalizers.centroid import (
+    WattFabricius1Normalizer,
+    WattFabricius2Normalizer,
+    WattFabricius3Normalizer,
+    WattFabriciusNormalizer)
+from vlnm.normalizers.gender import (
+    BladenNormalizer,
+    NordstromNormalizer)
+from vlnm.normalizers.standardize import (
+    BarkDifferenceNormalizer,
+    LCENormalizer,
+    LobanovNormalizer,
+    NearyGMNormalizer,
+    NearyNormalizer)
+from vlnm.normalizers.transform import (
+    BarkNormalizer,
+    ErbNormalizer,
+    Log10Normalizer,
+    LogNormalizer,
+    MelNormalizer)
 
 DATA_DIR = ''
 
@@ -45,5 +66,5 @@ def normlize_csv(file_in, file_out=None, method=None, **kwargs):
     df = read_csv(file_in)
     df_norm = normalize(df, method, **kwargs)
     if file_out:
-        df.norm.to_csv(file_out, header=True, index=False)
+        df_norm.to_csv(file_out, header=True, index=False)
     return df_norm
