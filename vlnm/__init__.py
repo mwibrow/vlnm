@@ -37,3 +37,13 @@ def normalize(data, *args, method=None, **kwargs):
         except TypeError:
             return get_normalizer(method)().normalize(
                 df, *args, **kwargs)
+
+
+def normlize_csv(file_in, file_out=None, method=None, **kwargs):
+    """Normalize a csv file and save the result.
+    """
+    df = read_csv(data)
+    df_norm = normalize(df, method, **kwargs)
+    if file_out:
+        df.norm.to_csv(file_out, header=True, index=False)
+    return df_norm
