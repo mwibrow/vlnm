@@ -20,14 +20,27 @@ def identity(value):
     """Identity magic."""
     return value
 
-def csv(value):
-    """CSV magic."""
-    return value
+def pycon(value):
+    """Console magic."""
+    if value:
+        node = docutils.nodes.literal_block(value, value)
+        node['language'] = 'pycon'
+        return node
+    return None
+
+def default(value):
+    """Default magic."""
+    if value:
+        node = docutils.nodes.literal_block(value, value)
+        node['language'] = 'python'
+        return node
+    return None
 
 MAGICS = dict(
-    default=identity,
+    default=default,
     hidden=noop,
-    csv=identity
+    csv=pycon,
+    console=pycon
 )
 class ConsoleDirective(CodeBlock):
     """Class for processing the :rst:dir:`bibliography` directive.
@@ -50,25 +63,29 @@ class ConsoleDirective(CodeBlock):
         console = []
         for line in generate_statements(items):
             statement, magic, code_object, code_magic = line
+
             cast = MAGICS.get(magic, MAGICS['default'])
             result = cast(statement)
             if result:
-                console.append(statement)
+                console.append(result)
 
             stdout, stderr = run_code(interpreter, code_object)
-            cast = MAGICS.get(code_magic, MAGICS['default'])
-            stdout_output = cast(stdout)
-            stderr_output = cast(stderr)
-
+            cast = MAGICS.get(code_magic, MAGICS['console'])
+            stdout_output = cast(stdout[:-1])
+            stderr_output = cast(stderr[:-1])
             if stdout_output:
-                console.append(stdout_output[:-1])
+                console.append(stdout_output)
             if stderr_output:
-                console.append(stderr_output[:-1])
+                console.append(stderr_output)
 
-        self.content = console
-        nodes = super(ConsoleDirective, self).run()
+        # self.content = console
+        # nodes = super(ConsoleDirective, self).run()
         parent = docutils.nodes.line_block(classes=['console'])
-        parent += nodes[0]
+        for block in console:
+            # subblock = docutils.nodes.literal_block(block, block)
+            # subblock['language'] = 'python'
+            parent += block
+        # parent += nodes[0]
         return [parent]
 
 def run_code(interpreter, code_object):

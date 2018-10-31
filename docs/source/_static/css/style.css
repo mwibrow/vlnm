@@ -10,5 +10,14 @@ p.reference {
 }
 
 div.console .highlight pre {
-    padding-left: 1rem;
+    padding: 0 1em;
+    margin: 0;
+}
+
+div.console .highlight-python:first-child pre {
+    padding-top: 0.5em;
+}
+
+div.console .highlight-python:last-child pre {
+    padding-bottom: 0.5em;
 }
