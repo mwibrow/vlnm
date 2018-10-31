@@ -20,9 +20,14 @@ def identity(value):
     """Identity magic."""
     return value
 
+def csv(value):
+    """CSV magic."""
+    return value
+
 MAGICS = dict(
     default=identity,
-    hidden=noop
+    hidden=noop,
+    csv=identity
 )
 class ConsoleDirective(CodeBlock):
     """Class for processing the :rst:dir:`bibliography` directive.
@@ -43,19 +48,18 @@ class ConsoleDirective(CodeBlock):
 
         items = [item for item in self.content]
         console = []
-        for statement, magic, code_object in generate_statements(items):
+        for line in generate_statements(items):
+            statement, magic, code_object, code_magic = line
             cast = MAGICS.get(magic, MAGICS['default'])
             result = cast(statement)
             if result:
                 console.append(statement)
-            stdout = StringIO()
-            stderr = StringIO()
-            with redirect_stdout(stdout), redirect_stderr(stderr):
-                interpreter.runcode(code_object)
-            stdout_output = cast(stdout.getvalue())
-            stderr_output = cast(stderr.getvalue())
-            stdout.close()
-            stderr.close()
+
+            stdout, stderr = run_code(interpreter, code_object)
+            cast = MAGICS.get(code_magic, MAGICS['default'])
+            stdout_output = cast(stdout)
+            stderr_output = cast(stderr)
+
             if stdout_output:
                 console.append(stdout_output[:-1])
             if stderr_output:
@@ -67,6 +71,18 @@ class ConsoleDirective(CodeBlock):
         parent += nodes[0]
         return [parent]
 
+def run_code(interpreter, code_object):
+    """Run a code_object and return output."""
+    stdout = StringIO()
+    stderr = StringIO()
+    with redirect_stdout(stdout), redirect_stderr(stderr):
+        interpreter.runcode(code_object)
+    stdout_output = stdout.getvalue()
+    stderr_output = stderr.getvalue()
+    stdout.close()
+    stderr.close()
+    return stdout_output, stderr_output
+
 def generate_statements(content):
     """Generator for statements and code_objects.
     """
@@ -74,6 +90,7 @@ def generate_statements(content):
     continuation_prefix = '... '
     magic_prefix = '### '
     magic = ''
+    code_magic = ''
     code_object = None
     code = ''
     statement = initial_prefix
@@ -85,7 +102,7 @@ def generate_statements(content):
         else:
             match = re.match(r'^(.*)\s+{}(.*)\s*?$'.format(magic_prefix), item)
             if match:
-                item, magic = match.groups()
+                item, code_magic = match.groups()
 
         line = re.sub(r'^[>.]{3}\s?', '', item)
         code += line
@@ -101,10 +118,8 @@ def generate_statements(content):
                 statement += '\n' + continuation_prefix
             else:
                 if statement:
-                    yield (statement, magic, code_object)
-                statement = ''
-                magic = ''
-                code = ''
+                    yield (statement, magic, code_object, code_magic)
+                code = code_magic = magic = statement = ''
         except SyntaxError:
             code += r'\n'
             statement += r'\n'
