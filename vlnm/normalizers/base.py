@@ -239,8 +239,14 @@ class FormantIntrinsicNormalizer(VowelNormalizer):
 
         return df
 
-    def _norm(self, df, **_):  # pylint: disable=no-self-use
+    @staticmethod
+    def _norm(df, **_):
         """
         Default transform for formant intrinsic normalizers
         """
         return df
+
+class VowelIntrinsicNormalizer(FormantIntrinsicNormalizer):
+    """
+    Base class for vowel intrinsic normalizers.
+    """

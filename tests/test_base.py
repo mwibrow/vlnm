@@ -8,9 +8,8 @@ from vlnm.normalizers.base import (
     FormantIntrinsicNormalizer,
     VowelNormalizer)
 
-from tests.test_normalizers import (
-    get_test_dataframe
-)
+from tests.test_speaker_normalizers import get_test_dataframe
+
 
 class TestVowelNormalizer(unittest.TestCase):
     """

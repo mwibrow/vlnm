@@ -1,5 +1,5 @@
 """
-Transform normalizers
+Formant intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~
 """
 import numpy as np
@@ -39,7 +39,8 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
     {{columns}}
     {{keywords}}
     """
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         """
         Transform formants.
         """
@@ -68,7 +69,8 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         """
         Transform formants.
         """
@@ -97,7 +99,8 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
        F_i^N = \log_{10}\left(F_i\right)
 
     """
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         """
         Transform formants.
         """
@@ -123,7 +126,8 @@ class LogNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         """
         Transform formants.
         """
@@ -152,7 +156,8 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         """
         Transform formants.
         """

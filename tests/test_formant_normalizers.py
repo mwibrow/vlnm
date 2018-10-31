@@ -10,7 +10,7 @@ from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from vlnm.normalizers.transform import (
+from vlnm.normalizers.formant import (
     BarkNormalizer,
     ErbNormalizer,
     LogNormalizer,

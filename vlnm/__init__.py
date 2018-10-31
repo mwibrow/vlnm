@@ -16,18 +16,19 @@ from vlnm.normalizers.centroid import (
 from vlnm.normalizers.gender import (
     BladenNormalizer,
     NordstromNormalizer)
-from vlnm.normalizers.standardize import (
-    BarkDifferenceNormalizer,
+from vlnm.normalizers.speaker import (
     LCENormalizer,
     LobanovNormalizer,
     NearyGMNormalizer,
     NearyNormalizer)
-from vlnm.normalizers.transform import (
+from vlnm.normalizers.formant import (
     BarkNormalizer,
     ErbNormalizer,
     Log10Normalizer,
     LogNormalizer,
     MelNormalizer)
+from vlnm.normalizers.vowel import (
+    BarkDifferenceNormalizer)
 
 DATA_DIR = ''
 
