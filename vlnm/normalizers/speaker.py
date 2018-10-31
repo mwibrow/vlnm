@@ -100,9 +100,9 @@ class LobanovNormalizer(VowelNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma{F_i}}
+        F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
 
-    Where :math:`\mu_{F_i}` and :math:`\sigma{F_i}` are the
+    Where :math:`\mu_{F_i}` and :math:`\sigma_{F_i}` are the
     mean and standard deviation (respectively) of the
     formant :math:`F_i` for a given speaker.
 
@@ -147,7 +147,7 @@ class NearyNormalizer(VowelNormalizer):
 
         F_i^\prime = T\left(
             \log\left(F_i\right) - \frac{1}{n-m+1}
-                \sum_{j=m}{n}\mu_{\log\left(F_j\right)}
+                \sum_{j=m}^{n}\mu_{\log\left(F_j\right)}
         \right)
 
     Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,
@@ -196,7 +196,7 @@ class NearyGMNormalizer(NearyNormalizer):
 
         F_i^\prime = T\left(
             \log\left(F_i\right) - \frac{1}{n - m+ 1}
-                \sum_{j=m}{n}\mu_{\log\left(F_j\right)}
+                \sum_{j=m}^{n}\mu_{\log\left(F_j\right)}
         \right)
 
     Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,
