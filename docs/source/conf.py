@@ -195,3 +195,4 @@ epub_exclude_files = ['search.html']
 # -- Extension configuration -------------------------------------------------
 
 pd.set_option('display.max_columns', None)
+add_module_names = False

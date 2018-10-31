@@ -1,6 +1,6 @@
 """
 Formant intrinsic normalizers
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 import numpy as np
 

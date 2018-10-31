@@ -1,6 +1,6 @@
 """
 Gender-based normalizers
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Normalizers which adjust calculations based
 on the gender identified by the speaker.
