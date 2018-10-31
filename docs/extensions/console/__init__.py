@@ -12,6 +12,18 @@ import docutils.nodes
 from docutils.parsers.rst import directives, Directive
 from sphinx.directives import CodeBlock
 
+def noop(_):
+    """Noop magic."""
+    return None
+
+def identity(value):
+    """Identity magic."""
+    return value
+
+MAGICS = dict(
+    default=identity,
+    hidden=noop
+)
 class ConsoleDirective(CodeBlock):
     """Class for processing the :rst:dir:`bibliography` directive.
     """
@@ -32,17 +44,19 @@ class ConsoleDirective(CodeBlock):
         items = [item for item in self.content]
         console = []
         for statement, magic, code_object in generate_statements(items):
-            if not magic:
+            cast = MAGICS.get(magic, MAGICS['default'])
+            result = cast(statement)
+            if result:
                 console.append(statement)
             stdout = StringIO()
             stderr = StringIO()
             with redirect_stdout(stdout), redirect_stderr(stderr):
                 interpreter.runcode(code_object)
-            stdout_output = stdout.getvalue()
-            stderr_output = stderr.getvalue()
+            stdout_output = cast(stdout.getvalue())
+            stderr_output = cast(stderr.getvalue())
             stdout.close()
             stderr.close()
-            if stdout_output and not magic:
+            if stdout_output:
                 console.append(stdout_output[:-1])
             if stderr_output:
                 console.append(stderr_output[:-1])
@@ -72,8 +86,6 @@ def generate_statements(content):
             match = re.match(r'^(.*)\s+{}(.*)\s*?$'.format(magic_prefix), item)
             if match:
                 item, magic = match.groups()
-            else:
-                magic = ''
 
         line = re.sub(r'^[>.]{3}\s?', '', item)
         code += line
@@ -88,10 +100,11 @@ def generate_statements(content):
                 code += '\n'
                 statement += '\n' + continuation_prefix
             else:
-                code = ''
                 if statement:
                     yield (statement, magic, code_object)
                 statement = ''
+                magic = ''
+                code = ''
         except SyntaxError:
             code += r'\n'
             statement += r'\n'
