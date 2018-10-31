@@ -56,10 +56,9 @@ class ConsoleDirective(CodeBlock):
 def generate_statements(content):
     """Generator for statements and code_objects.
     """
-    hidden = False
     initial_prefix = '>>> '
     continuation_prefix = '... '
-    magic_prefix = '###'
+    magic_prefix = '### '
     magic = ''
     code_object = None
     code = ''
@@ -67,9 +66,15 @@ def generate_statements(content):
     items = [item for item in content]
     for item in items:
         if item.startswith(magic_prefix):
-            hidden = not hidden
-            magic = 'hidden' if hidden else ''
-            continue
+            magic = 'hidden'
+            item = item[len(magic_prefix):]
+        else:
+            match = re.match(r'^(.*)\s+{}(.*)\s*?$'.format(magic_prefix), item)
+            if match:
+                item, magic = match.groups()
+            else:
+                magic = ''
+
         line = re.sub(r'^[>.]{3}\s?', '', item)
         code += line
         if code_object:  # from previous iteration.
