@@ -57,6 +57,7 @@ extensions = [
     'natbib',
     'plots',
     'console',
+    'tables',
     'typography'
 ]
 

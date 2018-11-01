@@ -42,24 +42,28 @@ def read_csv(data, *args, **kwargs):
             pass
     return pd.read_csv(data, *args, **kwargs)
 
-def normalize(data, *args, method=None, **kwargs):
+def normalize(data, *args, method=None, sep=',', header=0, **kwargs):
     """Normalize vowel data in a pandas dataframe.
 
     """
     try:
-        df = read_csv(data)
+        df = read_csv(data, sep=sep, header=header)
     except TypeError:
         df = data
 
     try:
-        return method.normalize(df, *args, **kwargs)
+        df_norm = method.normalize(df, **kwargs)
     except AttributeError:
         try:
-            return method().normalize(df, *args, **kwargs)
+            df_norm = method().normalize(df, **kwargs)
         except TypeError:
-            return get_normalizer(method)().normalize(
-                df, *args, **kwargs)
+            df_norm = get_normalizer(method)().normalize(
+                df, **kwargs)
 
+    if args:
+        output = args[0]
+        df_norm.to_csv(output, sep=sep, header=True, index=False)
+    return df_norm
 
 def normlize_csv(file_in, file_out=None, method=None, **kwargs):
     """Normalize a csv file and save the result.

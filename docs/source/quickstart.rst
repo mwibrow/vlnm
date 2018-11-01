@@ -5,7 +5,22 @@ Quick start
 
 Although, some normalizers have more complex requirements,
 in the simplest case, you have a CSV file which contains columns
-for `speaker`, `vowel`, `f1` and `f2`.
+for `speaker`, `vowel`, `f1` and `f2`:
+
+.. csv-tabular::
+    :file: ./_data/hawkins_midgely_2005.csv
+    :header-rows: 1
+    :pre-rows: 5
+    :post-rows: 5
+
+If this file is called, for example, `input.csv`
+
+.. console::
+    :code-only:
+
+    >>> from vlnm import normalize
+    >>> normalize('input.csv', 'output.csv', method='lobanov')
+
 
 |VLNM| provides a :code:`read_csv` function
 (which is actually a super-thin wrapper around the |Pandas|
@@ -23,7 +38,7 @@ The the :code:`normalize` function from |vlnm| can be used:
     >>> df = read_csv('hawkins_midgely_2005.csv')
     >>> df.head(n=5) ### dataframe
     >>> df_norm = normalize(df, method='lobanov')
-    >>> df_norm.head(n=5) ### dataframe
+    >>> df_norm.head(n=10) ### dataframe
 
 Perhaps, you wish to keep the original formant values, in
 which case the `rename` keyword argument can be used:
