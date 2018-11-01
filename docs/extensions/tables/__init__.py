@@ -30,6 +30,9 @@ class CSVTabular(CSVTable):
             if post:
                 pre.extend(post)
             rows = pre
+            for row in rows:
+                for col in row:
+                    col[3][0] = col[3][0][:7]
         return rows, max_cols
 
 def setup(app):

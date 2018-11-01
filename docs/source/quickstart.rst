@@ -5,7 +5,8 @@ Quick start
 
 In the simplest case, you have a (possible large)
 file containing formant data with columns for
-`speaker`, `vowel`, `f1` and `f2`:
+`speaker`, `vowel`, `f1` and `f2` (data shown here
+taken from :citealp:`hawkins_midgley_2005`):
 
 .. csv-tabular::
     :file: ./_data/hawkins_midgely_2005.csv
