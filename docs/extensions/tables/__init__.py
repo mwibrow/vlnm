@@ -11,7 +11,6 @@ class CSVTabular(CSVTable):
     option_spec['rows'] = directives.nonnegative_int
     option_spec['pre-rows'] = directives.nonnegative_int
     option_spec['post-rows'] = directives.nonnegative_int
-
     def parse_csv_data_into_rows(self, csv_data, dialect, source):
         """Parse csv file."""
         pre_rows = self.options.get('pre-rows', self.options.get('rows'))

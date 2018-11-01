@@ -3,9 +3,9 @@
 Quick start
 ============
 
-Although, some normalizers have more complex requirements,
-in the simplest case, you have a CSV file which contains columns
-for `speaker`, `vowel`, `f1` and `f2`:
+In the simplest case, you have a (possible large)
+file containing formant data with columns for
+`speaker`, `vowel`, `f1` and `f2`:
 
 .. csv-tabular::
     :file: ./_data/hawkins_midgely_2005.csv
@@ -13,7 +13,12 @@ for `speaker`, `vowel`, `f1` and `f2`:
     :pre-rows: 5
     :post-rows: 5
 
-If this file is called, for example, `input.csv`
+Assuming for the moment that this data is
+in comma-separated (CSV) format in a file called `'input.csv'`,
+to generate a new file called `'output.csv'`
+containing formants normalized
+using the normaliztion method of :citet:`lobanov_1971`,
+you can simply use the `normalize` function:
 
 .. console::
     :code-only:
@@ -21,6 +26,13 @@ If this file is called, for example, `input.csv`
     >>> from vlnm import normalize
     >>> normalize('input.csv', 'output.csv', method='lobanov')
 
+Which will result in a CSV file including the following data:
+
+.. csv-tabular::
+    :file: ./_data/lobanov.csv
+    :header-rows: 1
+    :pre-rows: 5
+    :post-rows: 5
 
 |VLNM| provides a :code:`read_csv` function
 (which is actually a super-thin wrapper around the |Pandas|
