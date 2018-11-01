@@ -9,15 +9,49 @@ p.reference {
     font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
 }
 
+.console {
+    background-color: #eee;
+    font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+    line-height: 1.3;
+}
 div.console .highlight pre {
     padding: 0 1em;
     margin: 0;
 }
 
-div.console .highlight-python:first-child pre {
-    padding-top: 0.5em;
+div.console .console-subblock:first-of-type pre {
+    padding-top: 0.5rem;
 }
 
-div.console .highlight-python:last-child pre {
-    padding-bottom: 0.5em;
+div.console .console-subblock:last-of-type pre {
+    padding-bottom: 0.625rem;
 }
+
+.dataframe, .dataframe.line-block {
+    display: inline-flex;
+    flex-direction: row;
+    flex-grow: 0;
+    flex-shrink: 1;
+    width: auto;
+    margin: 0.5rem 0 0.5rem 1rem;
+}
+
+.dataframe.highlight {
+    background-color: transparent;
+}
+
+.dataframe__column, .dataframe__column.line-block {
+    display: flex;
+    flex-grow: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 0;
+}
+
+.dataframe__cell, .dataframe__cell.line-block  {
+    height: 1.3em;
+    margin: 0 1em 0 0;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+

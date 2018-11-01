@@ -12,7 +12,7 @@ import docutils.nodes
 from docutils.parsers.rst import directives, Directive
 from sphinx.directives import CodeBlock
 
-def noop(_):
+def hidden(_):
     """Noop magic."""
     return None
 
@@ -36,10 +36,56 @@ def default(value):
         return node
     return None
 
+def dataframe(value):
+    """Dataframe formatter."""
+    if value:
+        rows = value.split('\n')
+        divs = []
+        for i, row in enumerate(rows):
+            columns = re.findall(r'^\s+|([^\s]+)', row)
+            if i == 0:
+                for column in columns:
+                    div = docutils.nodes.line_block()
+                    div.attributes['classes'] += ['dataframe__column']
+                    divs.append(div)
+
+            for j, column in enumerate(columns):
+                div = docutils.nodes.line_block()
+                content = docutils.nodes.inline(column, column)
+                div += content
+                div.attributes['classes'] += ['dataframe__cell']
+                if j == 0:
+                    content.attributes['classes'] += ['go']
+
+                else:
+                    if i == 0:
+                        div.attributes['classes'] += ['dataframe__head']
+                        content.attributes['classes'] += ['kn']
+                    else:
+                        pygments_class = get_pygments_class(column)
+                        content.attributes['classes'] += [pygments_class]
+
+                divs[j] += div
+
+        parent = docutils.nodes.line_block()
+        parent.attributes['classes'] += ['dataframe highlight']
+        parent += divs
+        return parent
+    return None
+
+def get_pygments_class(data):
+    """Get pygments class."""
+    try:
+        float(data)
+        return 'mi'
+    except ValueError:
+        pass
+    return 's1'
+
 MAGICS = dict(
     default=default,
-    hidden=noop,
-    csv=pycon,
+    hidden=hidden,
+    dataframe=dataframe,
     console=pycon
 )
 class ConsoleDirective(CodeBlock):
@@ -84,6 +130,7 @@ class ConsoleDirective(CodeBlock):
         for block in console:
             # subblock = docutils.nodes.literal_block(block, block)
             # subblock['language'] = 'python'
+            block.attributes['classes'] += ['console-subblock']
             parent += block
         # parent += nodes[0]
         return [parent]
