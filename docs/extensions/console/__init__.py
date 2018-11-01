@@ -10,7 +10,6 @@ import re
 
 import docutils.nodes
 from docutils.parsers.rst import directives, Directive
-from sphinx.directives import CodeBlock
 
 def hidden(_):
     """Noop magic."""
@@ -88,7 +87,7 @@ MAGICS = dict(
     dataframe=dataframe,
     console=pycon
 )
-class ConsoleDirective(CodeBlock):
+class ConsoleDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.
     """
 
@@ -107,46 +106,38 @@ class ConsoleDirective(CodeBlock):
         self.arguments = ['python']
         execute = 'code-only' not in self.options
 
-        if execute:
-            env = self.state.document.settings.env
-            local_env = dict(
-                __file__=os.path.normpath(env.relfn2path('.')[1]),
-                __doc__=None,
-                __name__='__console__')
-            interpreter = InteractiveInterpreter(locals=local_env)
+        env = self.state.document.settings.env
+        local_env = dict(
+            __file__=os.path.normpath(env.relfn2path('.')[1]),
+            __doc__=None,
+            __name__='__console__')
+        interpreter = InteractiveInterpreter(locals=local_env)
 
-            items = [item for item in self.content]
-            console = []
-            for line in generate_statements(items):
-                statement, magic, code_object, code_magic = line
+        items = [item for item in self.content]
+        console = []
+        for line in generate_statements(items):
+            statement, magic, code_object, code_magic = line
 
-                cast = MAGICS.get(magic, MAGICS['default'])
-                result = cast(statement)
-                if result:
-                    console.append(result)
+            cast = MAGICS.get(magic, MAGICS['default'])
+            result = cast(statement)
+            if result:
+                console.append(result)
 
+            if execute:
                 stdout, stderr = run_code(interpreter, code_object)
                 cast = MAGICS.get(code_magic, MAGICS['console'])
-                stdout_output = cast(stdout[:-1])
-                stderr_output = docutils.nodes.inline(stderr[:-1], stderr[:-1])
-                if stdout_output:
-                    console.append(stdout_output)
-                if stderr_output:
-                    console.append(stderr_output)
-        else:
-            value = '\n'.join(self.content)
-            node = docutils.nodes.literal_block(value, value)
-            node['language'] = 'pycon'
-            console = [node]
-        # self.content = console
-        # nodes = super(ConsoleDirective, self).run()
+                output = cast(stdout[:-1])
+                if output:
+                    console.append(output)
+                output = MAGICS['console'](stderr[:-1])
+                if output:
+                    console.append(output)
+
         parent = docutils.nodes.line_block(classes=['console'])
         for block in console:
-            # subblock = docutils.nodes.literal_block(block, block)
-            # subblock['language'] = 'python'
             block.attributes['classes'] += ['console-subblock']
             parent += block
-        # parent += nodes[0]
+
         return [parent]
 
 def run_code(interpreter, code_object):
