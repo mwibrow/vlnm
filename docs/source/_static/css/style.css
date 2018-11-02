@@ -32,4 +32,12 @@ div.console .console-subblock:last-of-type pre {
     padding-top: 0.5em;
 }
 
+.highlight-pandas * {
+    font-style: italic !important;
+}
+
+div.highlight-pandas + div.highlight-python {
+    padding-top: 0.5em;
+}
+
 
