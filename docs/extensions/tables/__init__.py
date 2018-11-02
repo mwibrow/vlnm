@@ -26,17 +26,18 @@ class CSVTabular(CSVTable):
             for i in range(1, len(rows)):
                 rows[i].insert(0, (0, 0, 0, statemachine.StringList(
                     [str(i)], source=source)))
+        header = self.options.get('header-rows', 0)
+
         if row_specs:
             new_rows = []
+            if header:
+                new_rows.extend(rows[:header])
             for i, row_spec in enumerate(row_specs.split(',')):
-                index = [int(number) if number else None
-                         for number in row_spec.split('..')]
-                if len(index) == 1:
-                    new_rows.append(rows[index[0]])
-                else:
-                    new_rows.extend(rows[slice(index[0], index[1])])
-                last = index[-1]
-                if i < len(row_specs) and last and last < len(rows):
+                start, end = parse_row_spec(row_spec)
+                start = start or header
+                end = end + header if end else len(rows)
+                new_rows.extend(rows[slice(start, end)])
+                if i < len(row_specs) and end and end < len(rows):
                     row_data = []
                     for _ in range(max_cols):
                         cell_data = (0, 0, 0, statemachine.StringList(
@@ -51,7 +52,13 @@ class CSVTabular(CSVTable):
                     col[3][0] = col[3][0][:truncate]
         return rows, max_cols
 
-
+def parse_row_spec(spec):
+    """Parse a row spec """
+    indices = [int(number) if number else None
+               for number in spec.split('..')]
+    if len(indices) == 1:
+        return indices[0], indices[1] + 1
+    return indices[:2]
 def setup(app):
     """
     Set up the sphinx extension.

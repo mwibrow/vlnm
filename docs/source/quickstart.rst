@@ -11,7 +11,7 @@ taken from :citealp:`hawkins_midgley_2005`):
 .. csv-tabular::
     :file: ./_data/hawkins_midgely_2005.csv
     :header-rows: 1
-    :rows: ..6, -5..
+    :rows: ..5, -5..
 
 
 Assuming for the moment that this data is
