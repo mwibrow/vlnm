@@ -54,7 +54,10 @@ def row_callback(_lexer, match):
                     float(item)
                     yield start, token.Number, item
                 except ValueError:
-                    yield start, token.String, item
+                    if item.strip().lower() in ['na', 'nan']:
+                        yield start, token.Generic.Output, item
+                    else:
+                        yield start, token.String, item
             start += len(item)
 
 
