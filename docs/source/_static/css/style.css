@@ -28,31 +28,8 @@ div.console .console-subblock:last-of-type pre {
     padding-bottom: 0.625rem;
 }
 
-.dataframe, .dataframe.line-block {
-    display: inline-flex;
-    flex-direction: row;
-    flex-grow: 0;
-    flex-shrink: 1;
-    width: auto;
-    margin: 0.5rem 0 0.5rem 1rem;
+.highlight-pandas {
+    padding-top: 0.5em;
 }
 
-.dataframe.highlight {
-    background-color: transparent;
-}
-
-.dataframe__column, .dataframe__column.line-block {
-    display: flex;
-    flex-grow: 0;
-    flex-direction: column;
-    align-items: flex-end;
-    margin: 0;
-}
-
-.dataframe__cell, .dataframe__cell.line-block  {
-    height: 1.3em;
-    margin: 0 1em 0 0;
-    font-size: 0.9em;
-    line-height: 1.3;
-}
 
