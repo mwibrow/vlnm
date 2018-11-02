@@ -35,41 +35,66 @@ def default(value):
         return node
     return None
 
+from pygments.lexer import RegexLexer
+from pygments import token
+from sphinx.highlighting import lexers
+
+class DataFrameLexer(RegexLexer):
+    name = 'pandas'
+
+    tokens = {
+        'root': [
+            (r'.+', token.Keyword)
+        ]
+    }
+
+lexers['pandas'] = DataFrameLexer(startinline=True)
+
 def dataframe(value):
     """Dataframe formatter."""
     if value:
-        rows = value.split('\n')
-        divs = []
-        for i, row in enumerate(rows):
-            # columns = re.findall(r'(^\s+|\s*[^\s]+)', row)
-            columns = re.findall(r'^\s+|([^\s]+)', row)
-            if i == 0:
-                for column in columns:
-                    div = docutils.nodes.line_block()
-                    div.attributes['classes'] += ['dataframe__column']
-                    divs.append(div)
+        # rows = value.split('\n')
+        # divs = []
+        # for i, row in enumerate(rows):
+        #     columns = re.findall(r'(^\s+|\s*[^\s]+)', row)
+        #     div = docutils.nodes.line_block()
+        #     for column in columns:
+        #         content = content = docutils.nodes.literal(column, column)
+        #         if i == 0:
+        #             content.attributes['classes'] += ['kn']
+        #         div += content
+        #     divs.append(div)
+        # columns = re.findall(r'^\s+|([^\s]+)', row)
+        # if i == 0:
+        #     for column in columns:
+        #         div = docutils.nodes.line_block()
+        #         div.attributes['classes'] += ['dataframe__column']
+        #         divs.append(div)
 
-            for j, column in enumerate(columns):
-                div = docutils.nodes.line_block()
-                content = docutils.nodes.inline(column, column)
-                div += content
-                div.attributes['classes'] += ['dataframe__cell']
-                if j == 0:
-                    content.attributes['classes'] += ['go']
+        # for j, column in enumerate(columns):
+        #     div = docutils.nodes.line_block()
+        #     content = docutils.nodes.inline(column, column)
+        #     div += content
+        #     div.attributes['classes'] += ['dataframe__cell']
+        #     if j == 0:
+        #         content.attributes['classes'] += ['go']
 
-                else:
-                    if i == 0:
-                        div.attributes['classes'] += ['dataframe__head']
-                        content.attributes['classes'] += ['kn']
-                    else:
-                        pygments_class = get_pygments_class(column)
-                        content.attributes['classes'] += [pygments_class]
+        #     else:
+        #         if i == 0:
+        #             div.attributes['classes'] += ['dataframe__head']
+        #             content.attributes['classes'] += ['kn']
+        #         else:
+        #             pygments_class = get_pygments_class(column)
+        #             content.attributes['classes'] += [pygments_class]
 
-                divs[j] += div
+        #     divs[j] += div
 
-        parent = docutils.nodes.line_block()
+        node = docutils.nodes.literal_block(value, value)
+        node['language'] = 'pandas'
+        # parent = docutils.nodes.line_block()
+        parent = docutils.nodes.paragraph()
         parent.attributes['classes'] += ['dataframe highlight']
-        parent += divs
+        parent += node
         return parent
     return None
 
