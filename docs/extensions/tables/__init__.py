@@ -10,6 +10,7 @@ class CSVTabular(CSVTable):
     option_spec = CSVTable.option_spec
     option_spec['rows'] = directives.unchanged
     option_spec['truncate'] = directives.nonnegative_int
+    option_spec['index'] = directives.flag
 
     def parse_csv_data_into_rows(self, csv_data, dialect, source):
         """Parse csv file."""
@@ -18,7 +19,13 @@ class CSVTabular(CSVTable):
         rows, max_cols = super(
             CSVTabular, self).parse_csv_data_into_rows(
                 csv_data, dialect, source)
-
+        if 'index' in self.options:
+            max_cols += 1
+            rows[0].insert(0, (0, 0, 0, statemachine.StringList(
+                ['row'], source=source)))
+            for i in range(1, len(rows)):
+                rows[i].insert(0, (0, 0, 0, statemachine.StringList(
+                    [str(i)], source=source)))
         if row_specs:
             new_rows = []
             for i, row_spec in enumerate(row_specs.split(',')):
