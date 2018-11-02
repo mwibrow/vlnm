@@ -11,8 +11,8 @@ taken from :citealp:`hawkins_midgley_2005`):
 .. csv-tabular::
     :file: ./_data/hawkins_midgely_2005.csv
     :header-rows: 1
-    :pre-rows: 5
-    :post-rows: 5
+    :rows: ..6, -5..
+
 
 Assuming for the moment that this data is
 in comma-separated (CSV) format in a file called `'input.csv'`,
@@ -32,8 +32,8 @@ Which will result in a CSV file including the following data:
 .. csv-tabular::
     :file: ./_data/lobanov.csv
     :header-rows: 1
-    :pre-rows: 5
-    :post-rows: 5
+    :rows: ..6, -5..
+    :truncate: 8
 
 |VLNM| provides a :code:`read_csv` function
 (which is actually a super-thin wrapper around the |Pandas|
