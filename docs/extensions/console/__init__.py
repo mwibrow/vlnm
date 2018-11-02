@@ -41,6 +41,7 @@ def dataframe(value):
         rows = value.split('\n')
         divs = []
         for i, row in enumerate(rows):
+            # columns = re.findall(r'(^\s+|\s*[^\s]+)', row)
             columns = re.findall(r'^\s+|([^\s]+)', row)
             if i == 0:
                 for column in columns:
