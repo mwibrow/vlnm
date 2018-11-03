@@ -4,28 +4,32 @@ Formant intrinsic normalizers
 """
 import numpy as np
 
-from vlnm.normalizers.base import (
-    FormantIntrinsicNormalizer)
+from vlnm.normalizers.base import Normalizer
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from vlnm.decorators import (
-    Columns,
-    DocString,
-    Keywords,
-    Register)
 
-@Register('bark')
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['hz_to_bark']
-)
+
+class FormantIntrinsicNormalizer(Normalizer):
+    """Base class for formant intrinsic normalizers.
+
+    """
+    transform = None
+
+    def __init__(self, transform=None, **kwargs):
+        super(FormantIntrinsicNormalizer, self).__init__(
+            transform=transform or self.__class__.transform,
+            **kwargs)
+
+    @staticmethod
+    def _norm(df, **kwargs):
+        transform = kwargs.get('transform')
+        if transform:
+            formants = kwargs.get('formants')
+            df[formants] = transform(df[formants])
+        return df
+
 class BarkNormalizer(FormantIntrinsicNormalizer):
     r"""
     Normalise vowels using the Bark scale.
@@ -39,26 +43,9 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
     {{columns}}
     {{keywords}}
     """
-    @staticmethod
-    def _norm(df, **kwargs):
-        """
-        Transform formants.
-        """
-        formants = kwargs.get('formants')
-        convert = kwargs.get('hz_to_bark', hz_to_bark)
-        df[formants] = convert(df[formants])
-        return df
+    transform = hz_to_bark
 
-@Register('erb')
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['hz_to_erb']
-)
+
 class ErbNormalizer(FormantIntrinsicNormalizer):
     r"""
     Normalise vowels
@@ -69,27 +56,8 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    @staticmethod
-    def _norm(df, **kwargs):
-        """
-        Transform formants.
-        """
-        formants = kwargs.get('formants')
-        convert = kwargs.get('hz_to_erb', hz_to_erb)
-        df[formants] = convert(df[formants])
-        return df
+    transform = hz_to_erb
 
-
-@Register('log10')
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['aliases', 'rename']
-)
 class Log10Normalizer(FormantIntrinsicNormalizer):
     r"""
     Normalize using the base 10 logarithm of the formant values.
@@ -99,23 +67,9 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
        F_i^N = \log_{10}\left(F_i\right)
 
     """
-    @staticmethod
-    def _norm(df, **kwargs):
-        """
-        Transform formants.
-        """
-        formants = kwargs.get('formants')
-        df[formants] = np.log10(df[formants])
-        return df
+    transform = np.log10
 
 
-@Register('log')
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
 class LogNormalizer(FormantIntrinsicNormalizer):
     r"""
     Normalize using the natural logarithm of the formant values.
@@ -124,28 +78,10 @@ class LogNormalizer(FormantIntrinsicNormalizer):
 
        F_i^N = \log\left(F_i\right)
 
-    {{columns}}
     """
-    @staticmethod
-    def _norm(df, **kwargs):
-        """
-        Transform formants.
-        """
-        formants = kwargs.get('formants')
-        df[formants] = np.log(df[formants])
-        return df
+    transform = np.log
 
 
-@Register('mel')
-@DocString
-@Columns(
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    optional=['hz_to_mel']
-)
 class MelNormalizer(FormantIntrinsicNormalizer):
     r"""
     Normalise vowels using the Mel scale.
@@ -156,12 +92,4 @@ class MelNormalizer(FormantIntrinsicNormalizer):
 
     {{columns}}
     """
-    @staticmethod
-    def _norm(df, **kwargs):
-        """
-        Transform formants.
-        """
-        formants = kwargs.get('formants')
-        convert = kwargs.get('hz_to_mel', hz_to_mel)
-        df[formants] = convert(df[formants])
-        return df
+    transform = hz_to_mel

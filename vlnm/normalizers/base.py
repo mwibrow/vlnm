@@ -25,6 +25,7 @@ FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 class Normalizer:
     """Base normalizer class."""
+
     def __init__(
             self,
             formants=None,
@@ -121,7 +122,8 @@ class Normalizer:
                     df[column] = norm_df[column]
             return df
 
-    def _norm(self, df, **_kwargs):
+    @staticmethod
+    def _norm(df, **_kwargs):
         return df
 
 
