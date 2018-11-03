@@ -73,7 +73,7 @@ class Normalizer:
             f2=f2,
             f3=f3,
             groups=groups or [],
-            reanme=rename or '',
+            rename=rename or '',
             **kwargs)
         return self._normalize(df, **options)
 
