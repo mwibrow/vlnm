@@ -2,6 +2,8 @@
 Misc. utilities.
 """
 
+import re
+
 def quote_item(item, pre='', post=''):
     """Format an string item with quotes.
     """
@@ -71,3 +73,56 @@ def str_or_list(value):
     if isinstance(value, list):
         return value
     return [value]
+
+
+def get_formants_spec(formants, f0, f1, f2, f3, columns):
+    """Sanitize the user formant specification for normalizers."""
+    formants_spec = dict(
+        formants=[],
+        f0=[],
+        f1=[],
+        f2=[],
+        f3=[])
+    if formants:
+        try:
+            # dict
+            for key in formants.keys():
+                formants_spec[key] = get_formant_columns(
+                    formants_spec[key], columns)
+        except AttributeError:
+            try:
+                # re
+                formants_spec['formants'] = get_formant_columns(
+                    formants, columns) or []
+            except TypeError:
+                # list
+                formants_spec['formants'] = get_formant_columns(
+                    formants, columns)
+    else:
+        formants_spec['f0'] = get_formant_columns(f0, columns)
+        formants_spec['f1'] = get_formant_columns(f1, columns)
+        formants_spec['f3'] = get_formant_columns(f2, columns)
+        formants_spec['f4'] = get_formant_columns(f3, columns)
+
+    for key in ['f0', 'f1', 'f2', 'f3']:
+        for column in formants_spec[key]:
+            if column not in formants_spec['formants']:
+                formants_spec['formants'].append(column)
+
+    return formants_spec
+
+def get_formant_columns(formant, columns):
+    """Get the formant columns."""
+    formant_columns = []
+    if formant:
+        try:
+            # re
+            pattern = re.compile(
+                r'^{}$'.format(re.sub(r'^\^+|\$+$', '', formant)))
+            formant_columns = [column for column in columns
+                               if pattern.match(column)]
+        except TypeError:
+            # list
+            for item in formant:
+                formant_columns.extend(get_formant_columns(item, columns))
+    return formant_columns
