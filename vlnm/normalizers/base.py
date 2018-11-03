@@ -9,6 +9,8 @@ from vlnm.validation import (
     validate_columns,
     validate_keywords)
 
+from vlnm.utils import get_formants_spec
+
 def prepare_df(df, columns, aliases):
     """
     Prepare
@@ -20,6 +22,108 @@ def prepare_df(df, columns, aliases):
     return df
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
+
+class Normalizer:
+    """Base normalizer class."""
+    def __init__(
+            self,
+            formants=None,
+            f0=None,
+            f1=None,
+            f2=None,
+            f3=None,
+            rename=None,
+            groups=None,
+            **kwargs):
+        self.kwargs = dict(
+            formants=formants,
+            f0=f0,
+            f1=f1,
+            f2=f2,
+            f3=f3,
+            groups=groups,
+            reanme=rename,
+            **kwargs)
+        self.actions = {}
+        self.columns = []
+
+    def __call__(self, df, **kwargs):
+        return self.normalize(df, **kwargs)
+
+    def normalize(
+            self,
+            df,
+            formants=None,
+            f0=None,
+            f1=None,
+            f2=None,
+            f3=None,
+            groups=None,
+            rename=None,
+            **kwargs):
+        """Normalize a dataframe.
+
+        """
+        options = self.kwargs.copy()
+        options.update(
+            formants=formants,
+            f0=f0,
+            f1=f1,
+            f2=f2,
+            f3=f3,
+            groups=groups or [],
+            reanme=rename or '',
+            **kwargs)
+        return self._normalize(df, **options)
+
+    def _normalize(self, df, **kwargs):
+        formants = get_formants_spec(
+            kwargs.pop('formants', None),
+            kwargs.pop('f0', 'f0'),
+            kwargs.pop('f1', 'f1'),
+            kwargs.pop('f2', 'f2'),
+            kwargs.pop('f3', 'f3'),
+            df.columns)
+        groups = kwargs.pop('groups', [])
+        constants = kwargs.pop('constants', {})
+        kwargs = kwargs.copy()
+        kwargs.update(**formants)
+        return self._partition(
+            df, groups=groups, constants=constants, **kwargs)
+
+    def _partition(self, df, groups=None, constants=None, **kwargs):
+        if groups:
+            group = groups[0]
+            if group[-1] in self.actions:
+                self.actions[group](df, constants=constants, **kwargs)
+            norm_df = df.groupby(group, as_index=False).apply(
+                lambda gdf, groups=groups[1:], constants=constants:
+                self._partition(
+                    gdf,
+                    groups=groups,
+                    constants=constants,
+                    **kwargs))
+            return norm_df.reset_index(drop=True)
+        else:
+            columns = kwargs['formants']
+            columns.extend(self.columns)
+            norm_df = self._norm(
+                df.copy()[columns], constants=constants, **kwargs)
+            renameables = [column for column in norm_df
+                           if column not in columns]
+            renameables.extend(kwargs['formants'])
+            rename = kwargs.get('rename')
+            if rename:
+                for column in renameables:
+                    df[rename.format(column)] = norm_df[column]
+            else:
+                for column in renameables:
+                    df[column] = norm_df[column]
+            return df
+
+    def _norm(self, df, **_kwargs):
+        return df
+
 
 class VowelNormalizer:
     """
