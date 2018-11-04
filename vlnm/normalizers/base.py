@@ -28,7 +28,6 @@ class Normalizer:
 
     def __init__(
             self,
-            formants=None,
             f0=None,
             f1=None,
             f2=None,
@@ -37,11 +36,10 @@ class Normalizer:
             groups=None,
             **kwargs):
         self.kwargs = dict(
-            formants=formants or ['f0', 'f1', 'f2', 'f3'],
-            f0=f0 or 'f0',
-            f1=f1 or 'f1',
-            f2=f2 or 'f2',
-            f3=f3 or 'f3',
+            f0=f0,
+            f1=f1,
+            f2=f2,
+            f3=f3,
             groups=groups,
             reanme=rename,
             **kwargs)
@@ -54,7 +52,6 @@ class Normalizer:
     def normalize(
             self,
             df,
-            formants=None,
             f0=None,
             f1=None,
             f2=None,
@@ -67,19 +64,24 @@ class Normalizer:
         """
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
-        new_kwargs = dict(
-            formants=formants or [],
-            f0=f0,
-            f1=f1,
-            f2=f2,
-            f3=f3,
-            groups=groups or [],
-            rename=rename or '')
-        _kwargs.update(
-            {key: value for key, value in new_kwargs.items() if value})
-        for formant in [f0, f1, f2, f3]:
-            if formant and not formant in _kwargs:
-                _kwargs['formants'].append(f)
+
+        if any([f0, f1, f2, f3]):
+            formants = dict(f0=f0, f1=f1, f2=f2, f3=f3)
+            for key in formants:
+                if key in self.required_columns:
+                    formants[key] = (
+                        formants[key] or self.kwargs[key])
+
+            formants = {key: value for key, value in formants.items() if value}
+        else:
+            formants = dict(f0='f0', f1='f1', f2='f2', f3='f3')
+            formants = {key: value for key, value in formants.items()
+                        if value in df}
+        formants['formants'] = list(formants.values())
+
+        _kwargs.update(**formants)
+        _kwargs.update(groups=groups or [], rename=rename or '')
+
         self._validate(df, **_kwargs)
         return self._normalize(df, **_kwargs)
 
@@ -102,6 +104,7 @@ class Normalizer:
             kwargs.pop('f2', 'f2'),
             kwargs.pop('f3', 'f3'),
             df.columns)
+
         groups = kwargs.pop('groups', [])
         constants = kwargs.pop('constants', {})
         kwargs = kwargs.copy()

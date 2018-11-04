@@ -106,8 +106,8 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         """Test BarkNormalizer."""
         expected = self.df.copy()
         expected[self.subset] = hz_to_bark(expected[self.subset])
-        actual = BarkNormalizer().normalize(self.df, f0='f0@50')
-
+        actual = BarkNormalizer().normalize(
+            self.df, f0='f0@50', f1='f1', f2='f2', f3='f3')
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
