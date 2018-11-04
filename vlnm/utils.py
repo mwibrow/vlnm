@@ -99,10 +99,11 @@ def get_formants_spec(formants, f0, f1, f2, f3, columns):
                 formants_spec['formants'] = get_formant_columns(
                     formants, columns)
     else:
-        formants_spec['f0'] = get_formant_columns(f0, columns)
-        formants_spec['f1'] = get_formant_columns(f1, columns)
-        formants_spec['f3'] = get_formant_columns(f2, columns)
-        formants_spec['f4'] = get_formant_columns(f3, columns)
+        formants_spec['f0'] = get_formant_columns(f0 or 'f0', columns)
+        formants_spec['f1'] = get_formant_columns(f2 or 'f1', columns)
+        formants_spec['f2'] = get_formant_columns(f1 or 'f2', columns)
+        formants_spec['f3'] = get_formant_columns(f2 or 'f3', columns)
+        formants_spec['f4'] = get_formant_columns(f3 or 'f4', columns)
 
     for key in ['f0', 'f1', 'f2', 'f3']:
         for column in formants_spec[key]:

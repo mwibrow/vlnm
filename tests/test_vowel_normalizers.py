@@ -33,7 +33,7 @@ class TestBarkDifferenceNormalizer(unittest.TestCase):
     def setUp(self):
         self.df = DATA_FRAME.copy()
         self.formants = ['f2', 'f3']
-        self.kwargs = dict(formants=self.formants)
+        self.kwargs = dict()
 
     def test_formants(self):
         """Should normalize df."""

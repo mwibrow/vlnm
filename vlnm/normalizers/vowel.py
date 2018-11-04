@@ -3,24 +3,14 @@ Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
-from .base import VowelIntrinsicNormalizer
+from .formant import FormantIntrinsicNormalizer
 from ..conversion import hz_to_bark
-from ..decorators import (
-    Columns,
-    DocString,
-    Keywords,
-    Register)
 
-@Register('barkdiff')
-@DocString
-@Columns(
-    required=['f0', 'f1', 'f2', 'f3'],
-    returns=['z1-z0', 'z2-z1', 'z3-z2']
-)
-@Keywords(
-    optional=['f0', 'hz_to_bark']
-)
-class BarkDifferenceNormalizer(VowelIntrinsicNormalizer):
+class FormantExtrinsicNormalizer(FormantIntrinsicNormalizer):
+    """Base class for formant-extrinsic normalizers."""
+
+
+class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     r"""
     .. math::
 
@@ -31,24 +21,27 @@ class BarkDifferenceNormalizer(VowelIntrinsicNormalizer):
     :math:`B^\prime` is :math:`B_0` or :math:`B_1`
     depending on the context.
     """
+    required_keywords = ['f1', 'f2', 'f3']
+
+    transform = hz_to_bark
 
     def _norm(self, df, **kwargs):
 
-        convert = kwargs.get('hz_to_bark', hz_to_bark)
+        transform = kwargs.get('transform')
 
-        z0 = convert(df['f0']) if 'f0' in df else None
-        z1 = convert(df['f1'])
-        z2 = convert(df['f2'])
-        z3 = convert(df['f3'])
+        f0 = kwargs.get('f0')
+        f1 = kwargs.get('f1')
+        f2 = kwargs.get('f2')
+        f3 = kwargs.get('f3')
+
+        z0 = transform(df[f0]) if f0 in df else None
+        z1 = transform(df[f1])
+        z2 = transform(df[f2])
+        z3 = transform(df[f3])
 
         if z0 is not None:
             df['z1-z0'] = z1 - z0
         df['z2-z1'] = z2 - z1
         df['z3-z2'] = z3 - z2
-
-        drop = [
-            column for column in df.columns
-            if column in ['f0', 'f1', 'f2', 'f3', 'f4']]
-        df = df.drop(drop, axis=1)
 
         return df

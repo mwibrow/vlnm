@@ -100,39 +100,41 @@ class TestIntrinsicNormalizersAliasColumns(unittest.TestCase):
         self.df = df.copy()
         self.df['f0@50'] = self.df['f0']
         self.df = self.df.drop('f0', axis=1)
+        self.subset = ['f0@50', 'f1', 'f2', 'f3']
 
     def test_bark_normalizer(self):
         """Test BarkNormalizer."""
         expected = self.df.copy()
-        expected['f0@50'] = hz_to_bark(expected['f0@50'])
+        expected[self.subset] = hz_to_bark(expected[self.subset])
         actual = BarkNormalizer().normalize(self.df, f0='f0@50')
+
         self.assertTrue(actual.equals(expected))
 
     def test_erb_normalizer(self):
         """Test ErbNormalizer."""
         expected = self.df.copy()
-        expected['f0@50'] = hz_to_erb(expected['f0@50'])
+        expected[self.subset] = hz_to_erb(expected[self.subset])
         actual = ErbNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
     def test_log10_normalizer(self):
         """Test Log10Normalizer."""
         expected = self.df.copy()
-        expected['f0@50'] = np.log10(expected['f0@50'])
+        expected[self.subset] = np.log10(expected[self.subset])
         actual = Log10Normalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
     def test_log_normalizer(self):
         """Test LogNormalizer."""
         expected = self.df.copy()
-        expected['f0@50'] = np.log(expected['f0@50'])
+        expected[self.subset] = np.log(expected[self.subset])
         actual = LogNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 
     def test_mel_normalizer(self):
         """Test MelNormalizer."""
         expected = self.df.copy()
-        expected['f0@50'] = hz_to_mel(expected['f0@50'])
+        expected[self.subset] = hz_to_mel(expected[self.subset])
         actual = MelNormalizer().normalize(self.df, f0='f0@50')
         self.assertTrue(actual.equals(expected))
 

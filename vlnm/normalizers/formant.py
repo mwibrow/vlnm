@@ -4,31 +4,14 @@ Formant intrinsic normalizers
 """
 import numpy as np
 
-from vlnm.normalizers.base import Normalizer
+from vlnm.normalizers.base import FormantIntrinsicNormalizer
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
 
 
-class FormantIntrinsicNormalizer(Normalizer):
-    """Base class for formant intrinsic normalizers.
 
-    """
-    transform = None
-
-    def __init__(self, transform=None, **kwargs):
-        super(FormantIntrinsicNormalizer, self).__init__(
-            transform=transform or self.__class__.transform,
-            **kwargs)
-
-    @staticmethod
-    def _norm(df, **kwargs):
-        transform = kwargs.get('transform')
-        if transform:
-            formants = kwargs.get('formants')
-            df[formants] = transform(df[formants])
-        return df
 
 class BarkNormalizer(FormantIntrinsicNormalizer):
     r"""
