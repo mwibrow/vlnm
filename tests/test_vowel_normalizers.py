@@ -45,5 +45,5 @@ class TestBarkDifferenceNormalizer(unittest.TestCase):
         expected['z3-z2'] = (
             hz_to_bark(self.df['f3']) - hz_to_bark(self.df['f2']))
         actual = BarkDifferenceNormalizer().normalize(
-            self.df, f0='f0', **self.kwargs)
+            self.df, **self.kwargs)
         self.assertTrue(actual[self.formants].equals(expected[self.formants]))

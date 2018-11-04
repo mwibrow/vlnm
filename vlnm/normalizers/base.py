@@ -80,7 +80,10 @@ class Normalizer:
         formants['formants'] = list(formants.values())
 
         _kwargs.update(**formants)
-        _kwargs.update(groups=groups or [], rename=rename or '')
+
+        groups = groups or []
+        groups.extend(self.actions.keys())
+        _kwargs.update(groups=groups, rename=rename or '')
 
         self._validate(df, **_kwargs)
         return self._normalize(df, **_kwargs)
@@ -97,18 +100,8 @@ class Normalizer:
                     column))
 
     def _normalize(self, df, **kwargs):
-        formants = get_formants_spec(
-            kwargs.pop('formants', None),
-            kwargs.pop('f0', 'f0'),
-            kwargs.pop('f1', 'f1'),
-            kwargs.pop('f2', 'f2'),
-            kwargs.pop('f3', 'f3'),
-            df.columns)
-
         groups = kwargs.pop('groups', [])
         constants = kwargs.pop('constants', {})
-        kwargs = kwargs.copy()
-        kwargs.update(**formants)
         return self._partition(
             df,
             groups=groups,
@@ -119,9 +112,9 @@ class Normalizer:
     def _partition(self, df, groups=None, constants=None, **kwargs):
         if groups:
             group = groups[0]
-            if group[-1] in self.actions:
+            if group in self.actions:
                 self.actions[group](df, constants=constants, **kwargs)
-            norm_df = df.groupby(group, as_index=False).apply(
+            norm_df = df.groupby([group], as_index=False).apply(
                 lambda gdf, groups=groups[1:], constants=constants:
                 self._partition(
                     gdf,
@@ -130,23 +123,21 @@ class Normalizer:
                     **kwargs))
             return norm_df.reset_index(drop=True)
         else:
-            for formant_spec in self._formant_iterator(**kwargs):
-                nkwargs = kwargs.copy()
-                nkwargs.update(**formant_spec)
-                subset = formant_spec['formants'][:]
-                subset.extend(
-                    kwargs.get(column, column)
-                    for column in self.required_columns)
-                subset = [column for column in subset if column in df.columns]
-                norm_df = self._norm(
-                    df[subset].copy(), constants=constants, **nkwargs)
-                renameables = [column for column in norm_df
-                               if column not in subset]
-                renameables.extend(formant_spec['formants'])
-                rename = kwargs.get('rename') or '{}'
-                for column in renameables:
-                    if column in norm_df:
-                        df[rename.format(column)] = norm_df[column]
+            subset = kwargs['formants'][:]
+            subset.extend(
+                kwargs.get(column, column)
+                for column in self.required_columns)
+            subset = list(
+                set(column for column in subset if column in df.columns))
+            norm_df = self._norm(
+                df[subset].copy(), constants=constants, **kwargs)
+            renameables = [column for column in norm_df
+                           if column not in subset]
+            renameables.extend(kwargs['formants'])
+            rename = kwargs.get('rename') or '{}'
+            for column in renameables:
+                if column in norm_df:
+                    df[rename.format(column)] = norm_df[column]
             return df
 
     @staticmethod
