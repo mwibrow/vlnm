@@ -3,11 +3,8 @@ Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
-from .formant import FormantIntrinsicNormalizer
+from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
-
-class FormantExtrinsicNormalizer(FormantIntrinsicNormalizer):
-    """Base class for formant-extrinsic normalizers."""
 
 
 class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
@@ -22,13 +19,16 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     depending on the context.
     """
     required_keywords = ['f1', 'f2', 'f3']
-
     transform = hz_to_bark
+
+    def __init__(self, transform=None, **kwargs):
+        super(BarkDifferenceNormalizer, self).__init__(
+            transform=transform or self.__class__.transform,
+            **kwargs)
 
     def _norm(self, df, **kwargs):
 
         transform = kwargs.get('transform')
-
         f0 = kwargs.get('f0')
         f1 = kwargs.get('f1')
         f2 = kwargs.get('f2')

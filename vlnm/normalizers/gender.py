@@ -9,44 +9,12 @@ on the gender identified by the speaker.
 import numpy as np
 
 from vlnm.normalizers.base import (
-    FORMANTS,
-    VowelNormalizer)
+    FormantExtrinsicNormalizer,
+    FormantIntrinsicNormalizer)
 from vlnm.conversion import hz_to_bark
-from vlnm.decorators import (
-    Columns,
-    DocString,
-    Keywords,
-    Register)
 
 
-def infer_gender_labels(df, gender, female=None, male=None):
-    """
-    Infer female and male gender labels.
-    """
-    labels = df[gender].dropna().unique()
-    if female and not male:
-        male_labels = [label for label in labels if not label == female]
-        male = male_labels[0] if male_labels else None
-    elif male and not female:
-        female_labels = [label for label in labels if not label == male]
-        female = female_labels[0] if female_labels else None
-    return female, male
-
-
-@Register('bladen')
-@DocString
-@Columns(
-    required=['gender'],
-    choice=dict(
-        formants=['f0', 'f1', 'f2', 'f3']
-    )
-)
-@Keywords(
-    choice=dict(
-        gender_label=['female', 'male']
-    )
-)
-class BladenNormalizer(VowelNormalizer):
+class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""
     .. math::
 
@@ -57,36 +25,33 @@ class BladenNormalizer(VowelNormalizer):
     Where :math:`I(s_k)` is an indicator function returning 1 if
     speaker :math:`k` is identified/identifying as female and 0 otherwise.
     """
+    required_columns = ['gender']
+    required_keywords = ['male', 'female']
 
     def _norm(self, df, **kwargs):
         aliases = kwargs.get('aliases')
         gender = kwargs.get('gender') or aliases.get('gender') or 'gender'
-        formants = [column for column in df.columns
-                    if column in FORMANTS]  # Ugh
+        formants = kwargs.get('formants')
 
-        female, _male = infer_gender_labels(
-            df,
-            gender,
-            female=kwargs.get('female'),
-            male=kwargs.get('male'))
-        indicator = np.repeat(
-            np.atleast_2d(
-                (df[gender] == female).astype(float)),
-            len(formants),
-            axis=0).T
+        female = kwargs.get('female', 'F')
+        male = kwargs.get('male', 'M')
+        if female:
+            indicator = np.repeat(
+                np.atleast_2d(
+                    (df[gender] == female).astype(float)),
+                len(formants),
+                axis=0).T
+        else:
+            indicator = np.repeat(
+                np.atleast_2d(
+                    (df[gender] != male).astype(float)),
+                len(formants),
+                axis=0).T
+
         return hz_to_bark(df[formants]) - indicator
 
-@Register('nordstrom')
-@DocString
-@Columns(
-    required=['f1', 'f3', 'gender']
-)
-@Keywords(
-    choice=dict(
-        gender_label=['female', 'male']
-    )
-)
-class NordstromNormalizer(VowelNormalizer):
+
+class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
     .. math::
 
@@ -106,6 +71,8 @@ class NordstromNormalizer(VowelNormalizer):
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
     """
+    required_columns = ['f1', 'f3', 'gender']
+    required_keywords = ['male', 'female']
 
     def __init__(self, **kwargs):
         super(NordstromNormalizer, self).__init__(**kwargs)
@@ -117,11 +84,9 @@ class NordstromNormalizer(VowelNormalizer):
     def calculate_f3_means(df, **kwargs):  # pylint: disable=C0111
         constants = kwargs.get('constants')
         gender = kwargs.get('gender')
-        female, male = infer_gender_labels(
-            df,
-            gender,
-            female=kwargs.get('female'),
-            male=kwargs.get('male'))
+        female = kwargs.get('female', 'F')
+        male = kwargs.get('male', 'M')
+
         constants['mu_female'] = df[
             (df[gender] == female) & (df['f1'] > 600)]['f3'].mean()
         constants['mu_male'] = df[
@@ -130,20 +95,23 @@ class NordstromNormalizer(VowelNormalizer):
     def _norm(self, df, **kwargs):
         constants = kwargs['constants']
         gender = kwargs['gender']
-        formants = [column for column in df.columns
-                    if column in FORMANTS]  # Ugh
+        formants = formants = kwargs.get('formants')
 
-        female, _male = infer_gender_labels(
-            df,
-            gender,
-            female=kwargs.get('female'),
-            male=kwargs.get('male'))
+        female = kwargs.get('female', 'F')
+        male = kwargs.get('male', 'M')
 
-        indicator = np.repeat(
-            np.atleast_2d(
-                (df[gender] == female).astype(float)),
-            len(formants),
-            axis=0).T
+        if female:
+            indicator = np.repeat(
+                np.atleast_2d(
+                    (df[gender] == female).astype(float)),
+                len(formants),
+                axis=0).T
+        else:
+            indicator = np.repeat(
+                np.atleast_2d(
+                    (df[gender] != male).astype(float)),
+                len(formants),
+                axis=0).T
 
         mu_female, mu_male = constants['mu_female'], constants['mu_male']
         df[formants] = (

@@ -5,9 +5,6 @@ Vowel normalizer module
 import pandas as pd
 
 from vlnm.decorators import Parameters
-from vlnm.validation import (
-    validate_columns,
-    validate_keywords)
 
 from vlnm.utils import get_formants_spec
 
@@ -26,8 +23,8 @@ FORMANTS = ['f0', 'f1', 'f2', 'f3']
 class Normalizer:
     """Base normalizer class."""
 
+    required_columns = []
     required_keywords = []
-    iterate_formants = False
 
     def __init__(
             self,
@@ -40,11 +37,11 @@ class Normalizer:
             groups=None,
             **kwargs):
         self.kwargs = dict(
-            formants=formants,
-            f0=f0,
-            f1=f1,
-            f2=f2,
-            f3=f3,
+            formants=formants or ['f0', 'f1', 'f2', 'f3'],
+            f0=f0 or 'f0',
+            f1=f1 or 'f1',
+            f2=f2 or 'f2',
+            f3=f3 or 'f3',
             groups=groups,
             reanme=rename,
             **kwargs)
@@ -68,24 +65,34 @@ class Normalizer:
         """Normalize a dataframe.
 
         """
-        options = self.kwargs.copy()
-        options.update(
-            formants=formants,
+        _kwargs = self.kwargs.copy()
+        _kwargs.update(kwargs)
+        new_kwargs = dict(
+            formants=formants or [],
             f0=f0,
             f1=f1,
             f2=f2,
             f3=f3,
             groups=groups or [],
-            rename=rename or '',
-            **kwargs)
-        self._validate(df, **options)
-        return self._normalize(df, **options)
+            rename=rename or '')
+        _kwargs.update(
+            {key: value for key, value in new_kwargs.items() if value})
+        for formant in [f0, f1, f2, f3]:
+            if formant and not formant in _kwargs:
+                _kwargs['formants'].append(f)
+        self._validate(df, **_kwargs)
+        return self._normalize(df, **_kwargs)
 
-    def _validate(self, _df, **kwargs):
+    def _validate(self, df, **kwargs):
         for keyword in self.required_keywords:
             if not keyword in kwargs:
                 raise ValueError('{} requires keyword {}'.format(
                     self.__class__.__name__, keyword))
+        for column in self.required_columns:
+            column = kwargs.get(column, column)
+            if column not in df:
+                raise ValueError('Column `{}` not found in data frame'.format(
+                    column))
 
     def _normalize(self, df, **kwargs):
         formants = get_formants_spec(
@@ -124,10 +131,12 @@ class Normalizer:
                 nkwargs = kwargs.copy()
                 nkwargs.update(**formant_spec)
                 subset = formant_spec['formants'][:]
-                subset.extend(kwargs.get('columns', []))
-                subset = [column for column in subset if column in df]
+                subset.extend(
+                    kwargs.get(column, column)
+                    for column in self.required_columns)
+                subset = [column for column in subset if column in df.columns]
                 norm_df = self._norm(
-                    df[subset].copy(), constants=constants, **kwargs)
+                    df[subset].copy(), constants=constants, **nkwargs)
                 renameables = [column for column in norm_df
                                if column not in subset]
                 renameables.extend(formant_spec['formants'])
