@@ -26,16 +26,8 @@ class Normalizer:
     required_columns = []
     required_keywords = []
 
-    def __init__(
-            self,
-            f0=None,
-            f1=None,
-            f2=None,
-            f3=None,
-            formants=None,
-            rename=None,
-            groups=None,
-            **kwargs):
+    def __init__(self, f0=None, f1=None, f2=None, f3=None,
+                 formants=None, rename=None, groups=None, **kwargs):
         self.kwargs = dict(
             f0=f0,
             f1=f1,
@@ -51,17 +43,8 @@ class Normalizer:
     def __call__(self, df, **kwargs):
         return self.normalize(df, **kwargs)
 
-    def normalize(
-            self,
-            df,
-            f0=None,
-            f1=None,
-            f2=None,
-            f3=None,
-            formants=None,
-            groups=None,
-            rename=None,
-            **kwargs):
+    def normalize(self, df, f0=None, f1=None, f2=None, f3=None,
+                  formants=None, groups=None, rename=None, **kwargs):
         """Normalize a dataframe.
 
         """
@@ -134,19 +117,22 @@ class Normalizer:
             for formant_spec in self._formant_iterator(**kwargs):
                 _kwargs = kwargs.copy()
                 _kwargs.update(**formant_spec)
+
+                # Get the columns to subset the dataframe.
                 subset = formant_spec['formants'][:]
                 for column in self.required_columns:
-                    column = kwargs.get(column)
-                    if isinstance(column, list):
-                        subset.extend(item for item in column
-                                      if not item in subset)
-                    elif column not in subset:
+                    if column in formant_spec:
+                        subset.extend(formant_spec[column])
+                    else:
                         subset.append(kwargs.get(column, column))
 
+                # Throw an error if column not in dataframe or just plough on?
                 subset = list(
                     set(column for column in subset if column in df.columns))
                 norm_df = self._norm(
                     df[subset].copy(), constants=constants, **_kwargs)
+
+                # Find new/renameable columns and rename.
                 renameables = [column for column in norm_df
                                if column not in subset]
                 renameables.extend(_kwargs['formants'])
