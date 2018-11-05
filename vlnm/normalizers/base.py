@@ -32,6 +32,7 @@ class Normalizer:
             f1=None,
             f2=None,
             f3=None,
+            formants=None,
             rename=None,
             groups=None,
             **kwargs):
@@ -40,6 +41,7 @@ class Normalizer:
             f1=f1,
             f2=f2,
             f3=f3,
+            formants=formants,
             groups=groups,
             reanme=rename,
             **kwargs)
@@ -56,6 +58,7 @@ class Normalizer:
             f1=None,
             f2=None,
             f3=None,
+            formants=None,
             groups=None,
             rename=None,
             **kwargs):
@@ -65,19 +68,7 @@ class Normalizer:
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
 
-        if any([f0, f1, f2, f3]):
-            formants = dict(f0=f0, f1=f1, f2=f2, f3=f3)
-            for key in formants:
-                if key in self.required_columns:
-                    formants[key] = (
-                        formants[key] or self.kwargs[key])
-
-            formants = {key: value for key, value in formants.items() if value}
-        else:
-            formants = dict(f0='f0', f1='f1', f2='f2', f3='f3')
-            formants = {key: value for key, value in formants.items()
-                        if value in df}
-        formants['formants'] = list(formants.values())
+        formant_spec = self._get_formant_spec(df, **kwargs)
 
         _kwargs.update(**formants)
 
@@ -87,6 +78,15 @@ class Normalizer:
 
         self._validate(df, **_kwargs)
         return self._normalize(df, **_kwargs)
+
+    def _get_formant_spec(self, df, **kwargs):
+        default_spec = get_formants_spec()
+        f0 = kwargs.get('f0', self.kwargs.get('f0'))
+        f1 = kwargs.get('f1', self.kwargs.get('f1'))
+        f2 = kwargs.get('f2', self.kwargs.get('f2'))
+        f3 = kwargs.get('f3', self.kwargs.get('f3'))
+        formants = kwargs.get('formants', self.kwargs.get('formants'))
+        return get_formants_spec(formants, f0, f1, f2, f3, df.columns)
 
     def _validate(self, df, **kwargs):
         for keyword in self.required_keywords:

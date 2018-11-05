@@ -75,15 +75,25 @@ def str_or_list(value):
     return [value]
 
 
-def get_formants_spec(formants, f0, f1, f2, f3, columns):
+def get_formants_spec(columns, **kwargs):
     """Sanitize the user formant specification for normalizers."""
-    formants_spec = dict(
-        formants=[],
-        f0=[],
-        f1=[],
-        f2=[],
-        f3=[])
-    if formants:
+    formants = kwargs.get('formants')
+    f0 = kwargs.get('f0')
+    f1 = kwargs.get('f1')
+    f2 = kwargs.get('f2')
+    f3 = kwargs.get('f3')
+    formants_spec = dict()
+
+    if any([f0, f1, f2, f3]):
+        if f0:
+            formants_spec['f0'] = get_formant_columns(f0, columns)
+        if f1:
+            formants_spec['f1'] = get_formant_columns(f1, columns)
+        if f2:
+            formants_spec['f2'] = get_formant_columns(f2, columns)
+        if f3:
+            formants_spec['f3'] = get_formant_columns(f3, columns)
+    elif formants:
         try:
             # dict
             for key in formants.keys():
@@ -99,16 +109,9 @@ def get_formants_spec(formants, f0, f1, f2, f3, columns):
                 formants_spec['formants'] = get_formant_columns(
                     formants, columns)
     else:
-        formants_spec['f0'] = get_formant_columns(f0 or 'f0', columns)
-        formants_spec['f1'] = get_formant_columns(f2 or 'f1', columns)
-        formants_spec['f2'] = get_formant_columns(f1 or 'f2', columns)
-        formants_spec['f3'] = get_formant_columns(f2 or 'f3', columns)
-        formants_spec['f4'] = get_formant_columns(f3 or 'f4', columns)
-
-    for key in ['f0', 'f1', 'f2', 'f3']:
-        for column in formants_spec[key]:
-            if column not in formants_spec['formants']:
-                formants_spec['formants'].append(column)
+        for f in ['f0', 'f1', 'f2', 'f3']:
+            if f in columns:
+                formants_spec[f] = [f]
 
     return formants_spec
 
