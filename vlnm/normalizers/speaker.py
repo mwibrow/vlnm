@@ -5,18 +5,14 @@ Standardize normalizers
 
 import numpy as np
 
-from .base import VowelNormalizer
+from .base import Normalizer, VowelNormalizer
 from ..decorators import (
     Columns,
     DocString,
     Register)
 
-@Register('lce')
-@DocString
-@Columns(
-    required=['speaker']
-)
-class LCENormalizer(VowelNormalizer):
+
+class LCENormalizer(Normalizer):
     r"""
 
     .. math::
@@ -24,6 +20,7 @@ class LCENormalizer(VowelNormalizer):
         F_i^\prime = \frac{F_i}{\max{F_i}}
 
     """
+    required_columns = ['speaker']
 
     def __init__(self, **kwargs):
         super(LCENormalizer, self).__init__(**kwargs)
@@ -45,7 +42,6 @@ class LCENormalizer(VowelNormalizer):
         formants = kwargs.get('formants')
         if not constants or not formants:
             return df
-
         for formant in formants:
             df[formant] = df[formant] / constants.get('{}_max'.format(formant))
         return df

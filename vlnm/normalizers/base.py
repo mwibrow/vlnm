@@ -100,18 +100,32 @@ class Normalizer:
             columns=self.columns,
             **kwargs)
 
+    def _action(self, df, action, **kwargs):
+        _kwargs = kwargs.copy()
+        if not _kwargs.get('formants'):
+            _kwargs['formants'] = []
+            for f in ['f0', 'f1', 'f2', 'f3']:
+                if f in _kwargs:
+                    _kwargs['formants'].extend(_kwargs[f])
+        self.actions[action](df, **_kwargs)
+        return self._partition(df, **kwargs)
+
     def _partition(self, df, groups=None, constants=None, **kwargs):
         if groups:
             group = groups[0]
             if group in self.actions:
-                self.actions[group](df, constants=constants, **kwargs)
-            norm_df = df.groupby([group], as_index=False).apply(
-                lambda gdf, groups=groups[1:], constants=constants:
-                self._partition(
-                    gdf,
-                    groups=groups,
-                    constants=constants,
-                    **kwargs))
+                norm_df = df.groupby([group], as_index=False).apply(
+                    lambda gdf, groups=groups[1:], constants=constants:
+                    self._action(gdf, group, constants=constants,
+                                 groups=groups, **kwargs))
+            else:
+                norm_df = df.groupby([group], as_index=False).apply(
+                    lambda gdf, groups=groups[1:], constants=constants:
+                    self._partition(
+                        gdf,
+                        groups=groups,
+                        constants=constants,
+                        **kwargs))
             return norm_df.reset_index(drop=True)
         else:
             for formant_spec in self._formant_iterator(**kwargs):
