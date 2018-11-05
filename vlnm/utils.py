@@ -93,6 +93,7 @@ def get_formants_spec(columns, **kwargs):
             formants_spec['f2'] = get_formant_columns(f2, columns)
         if f3:
             formants_spec['f3'] = get_formant_columns(f3, columns)
+
     elif formants:
         try:
             # dict

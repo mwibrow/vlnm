@@ -68,9 +68,10 @@ class Normalizer:
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
 
-        formant_spec = self._get_formant_spec(df, **kwargs)
+        formants_spec = self._get_formants_spec(
+            df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
 
-        _kwargs.update(**formants)
+        _kwargs.update(**formants_spec)
 
         groups = groups or []
         groups.extend(self.actions.keys())
@@ -79,14 +80,14 @@ class Normalizer:
         self._validate(df, **_kwargs)
         return self._normalize(df, **_kwargs)
 
-    def _get_formant_spec(self, df, **kwargs):
-        default_spec = get_formants_spec()
-        f0 = kwargs.get('f0', self.kwargs.get('f0'))
-        f1 = kwargs.get('f1', self.kwargs.get('f1'))
-        f2 = kwargs.get('f2', self.kwargs.get('f2'))
-        f3 = kwargs.get('f3', self.kwargs.get('f3'))
-        formants = kwargs.get('formants', self.kwargs.get('formants'))
-        return get_formants_spec(formants, f0, f1, f2, f3, df.columns)
+    def _get_formants_spec(self, df, **kwargs):
+        if any(kwargs.get(f) for f in ['f0', 'f1', 'f2', 'f3']):
+            _kwargs = kwargs.copy()
+            _kwargs['formants'] = None
+            return get_formants_spec(df.columns, **_kwargs)
+        elif kwargs.get('formant'):
+            return get_formants_spec(df.columns, formants=kwargs['formants'])
+        return get_formants_spec(df.columns, **self.kwargs)
 
     def _validate(self, df, **kwargs):
         for keyword in self.required_keywords:
@@ -95,9 +96,16 @@ class Normalizer:
                     self.__class__.__name__, keyword))
         for column in self.required_columns:
             column = kwargs.get(column, column)
-            if column not in df:
-                raise ValueError('Column `{}` not found in data frame'.format(
-                    column))
+            try:
+                if column.strip() not in df:
+                    raise ValueError(
+                        'Column `{}` not found in data frame'.format(column))
+            except AttributeError:
+                for col in column:
+                    if col not in df:
+                        raise ValueError(
+                            'Column `{}` not found in data frame'.format(col))
+
 
     def _normalize(self, df, **kwargs):
         groups = kwargs.pop('groups', [])
@@ -123,26 +131,38 @@ class Normalizer:
                     **kwargs))
             return norm_df.reset_index(drop=True)
         else:
-            subset = kwargs['formants'][:]
-            subset.extend(
-                kwargs.get(column, column)
-                for column in self.required_columns)
-            subset = list(
-                set(column for column in subset if column in df.columns))
-            norm_df = self._norm(
-                df[subset].copy(), constants=constants, **kwargs)
-            renameables = [column for column in norm_df
-                           if column not in subset]
-            renameables.extend(kwargs['formants'])
-            rename = kwargs.get('rename') or '{}'
-            for column in renameables:
-                if column in norm_df:
-                    df[rename.format(column)] = norm_df[column]
+            for formant_spec in self._formant_iterator(**kwargs):
+                _kwargs = kwargs.copy()
+                _kwargs.update(**formant_spec)
+                subset = formant_spec['formants'][:]
+                for column in self.required_columns:
+                    column = kwargs.get(column)
+                    if isinstance(column, list):
+                        subset.extend(item for item in column
+                                      if not item in subset)
+                    elif column not in subset:
+                        subset.append(kwargs.get(column, column))
+
+                subset = list(
+                    set(column for column in subset if column in df.columns))
+                norm_df = self._norm(
+                    df[subset].copy(), constants=constants, **_kwargs)
+                renameables = [column for column in norm_df
+                               if column not in subset]
+                renameables.extend(_kwargs['formants'])
+                rename = kwargs.get('rename') or '{}'
+                for column in renameables:
+                    if column in norm_df:
+                        df[rename.format(column)] = norm_df[column]
             return df
 
     @staticmethod
     def _formant_iterator(**kwargs):
         formants = kwargs.get('formants')
+        if not formants:
+            formants = []
+            for f in ['f0', 'f1', 'f2', 'f3']:
+                formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
 
