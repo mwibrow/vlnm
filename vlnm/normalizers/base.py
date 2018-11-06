@@ -2,21 +2,7 @@
 Vowel normalizer module
 """
 
-import pandas as pd
-
-from vlnm.decorators import Parameters
-
 from vlnm.utils import get_formants_spec
-
-def prepare_df(df, columns, aliases):
-    """
-    Prepare
-    """
-    for column in columns:
-        alias = aliases.get(column)
-        if alias and alias in df:
-            df[column] = df[alias]
-    return df
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
@@ -47,6 +33,7 @@ class Normalizer:
                   formants=None, rename=None, **kwargs):
         """Normalize a dataframe.
 
+        Set up arguments and call the internal function _normalize.
         """
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
@@ -61,10 +48,14 @@ class Normalizer:
         if not 'constants' in _kwargs:
             kwargs['constants'] = {}
         self._validate(df, **_kwargs)
-        return self._normalize(df, **_kwargs)
+
+        self._prenormalize(df, **_kwargs)
+        norm_df = self._normalize(df, **_kwargs)
+        self._postnormalize(norm_df, **_kwargs)
+        return norm_df
 
     def _get_formants_spec(self, df, **kwargs):
-        if any(kwargs.get(f) for f in ['f0', 'f1', 'f2', 'f3']):
+        if any(kwargs.get(f) for f in FORMANTS):
             _kwargs = kwargs.copy()
             _kwargs['formants'] = None
             return get_formants_spec(df.columns, **_kwargs)
@@ -99,12 +90,6 @@ class Normalizer:
         return df
 
     def _normalize(self, df, **kwargs):
-        self._prenormalize(df, **kwargs)
-        norm_df = self._partition(df, **kwargs)
-        self._prenormalize(norm_df, **kwargs)
-        return norm_df
-
-    def _partition(self, df, **kwargs):
         for formant_spec in self._formant_iterator(**kwargs):
             _kwargs = kwargs.copy()
             _kwargs.update(**formant_spec)
@@ -137,7 +122,7 @@ class Normalizer:
         formants = kwargs.get('formants')
         if not formants:
             formants = []
-            for f in ['f0', 'f1', 'f2', 'f3']:
+            for f in FORMANTS:
                 formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
@@ -147,7 +132,11 @@ class Normalizer:
         return df
 
 class SimpleTransformable:
-    """Base class for normalizers which simply transform formants."""
+    """Base class for normalizers which simply transform formants.
+
+    Provides a :code:`_norm` method which transforms
+    all formants together.
+    """
 
     @staticmethod
     def _norm(df, **kwargs):
@@ -160,6 +149,8 @@ class SimpleTransformable:
 class FormantIntrinsicNormalizer(Normalizer):
     """Base class for formant intrinsic normalizers.
 
+    This provides a :code:`_formant_iterator` method which yields
+    a single formant structure for all specified formants.
     """
 
     @staticmethod
@@ -167,26 +158,28 @@ class FormantIntrinsicNormalizer(Normalizer):
         formants = kwargs.get('formants')
         if not formants:
             formants = []
-            for f in ['f0', 'f1', 'f2', 'f3']:
+            for f in FORMANTS:
                 formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
 
 
 class FormantExtrinsicNormalizer(Normalizer):
-    """Base class for formant extrinsic normalizers."""
+    """Base class for formant extrinsic normalizers.
+
+    This provides a :code:`_formant_iterator` method which yields
+    a formant structure for sequences of formants.
+    """
 
     @staticmethod
     def _formant_iterator(**kwargs):
-        formant_list = [kwargs.get('f{}'.format(i), [None]) for i in range(4)]
+        formant_list = [kwargs.get(f, [None]) for f in FORMANTS]
         length = max(len(formant) for formant in formant_list)
         for item in formant_list:
             item.extend(item[-1:] * (length - len(item)))
 
-        for j in range(length):
-            formant_spec = {
-                'f{}'.format(i): formant_list[i][j]
-                for i in range(len(formant_list))}
+        for i in range(length):
+            formant_spec = {formant: formant[i] for formant in FORMANTS}
             formants = [value for value in formant_spec.values()]
             formant_spec.update(formants=formants)
             yield formant_spec

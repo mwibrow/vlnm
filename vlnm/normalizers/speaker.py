@@ -16,6 +16,7 @@ class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
         column = kwargs.get('speaker', 'speaker')
         df.groupby(column, as_index=False).apply(self._norm)
 
+
 class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
@@ -60,7 +61,7 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     """
 
     def _norm(self, df, **kwargs):
-        formants = kwargs.get('formants')
+        formants = kwargs.get('formants', [])
         mean = df[formants].mean(axis=1)
         std = df[formants].std(axis=1)
         df[formants] = (df[formants] - mean) / std
@@ -83,7 +84,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     transform = None
 
     def _norm(self, df, **kwargs):
-        formants = kwargs.get('formants')
+        formants = kwargs.get('formants', [])
         df[formants] -= np.log(df[formants].dropba()).mean(axis=0)
         transform = kwargs.get('transform')
         if transform:
@@ -106,7 +107,7 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     """
 
     def _norm(self, df, **kwargs):
-        formants = kwargs.get('formants')
+        formants = kwargs.get('formants', [])
         df[formants] -= np.log(df[formants].dropba()).mean(axis=0).mean()
         transform = kwargs.get('transform')
         if transform:

@@ -7,6 +7,7 @@ import numpy as np
 from vlnm.normalizers.base import (
     FormantIntrinsicNormalizer,
     SimpleTransformable)
+
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
