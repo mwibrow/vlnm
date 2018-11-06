@@ -5,11 +5,18 @@ Standardize normalizers
 
 import numpy as np
 
-from .base import Normalizer
+from .base import FormantExtrinsicNormalizer
 
 
+class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
+    """Base class for speaker intrinsic normalizers."""
+    required_columns = ['speaker']
 
-class LCENormalizer(Normalizer):
+    def _partition(self, df, **kwargs):
+        column = kwargs.get('speaker', 'speaker')
+        df.groupby(column, as_index=False).apply(self._norm)
+
+class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
     .. math::
@@ -17,18 +24,13 @@ class LCENormalizer(Normalizer):
         F_i^\prime = \frac{F_i}{\max{F_i}}
 
     """
-    required_columns = ['speaker']
-
-    def __init__(self, **kwargs):
-        super(LCENormalizer, self).__init__(**kwargs)
-        self.groups = ['speaker']
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants')
         df[formants] = df[formants] / df[formants].max(axis=0)
         return df
 
-class GerstmanNormalizer(Normalizer):
+class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
     .. math::
@@ -37,11 +39,6 @@ class GerstmanNormalizer(Normalizer):
 
     """
 
-    def __init__(self, **kwargs):
-        super(GerstmanNormalizer, self).__init__(**kwargs)
-        self.groups = ['speaker']
-
-
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
         fmin = df[formants].max(axis=0)
@@ -49,7 +46,7 @@ class GerstmanNormalizer(Normalizer):
         df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
         return df
 
-class LobanovNormalizer(Normalizer):
+class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
     .. math::
@@ -61,12 +58,6 @@ class LobanovNormalizer(Normalizer):
     formant :math:`F_i` for a given speaker.
 
     """
-    required_column = ['speaker']
-
-    def __init__(self, **kwargs):
-        super(LobanovNormalizer, self).__init__(**kwargs)
-        self.groups = ['speaker']
-
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants')
@@ -75,7 +66,7 @@ class LobanovNormalizer(Normalizer):
         df[formants] = (df[formants] - mean) / std
         return df
 
-class NearyNormalizer(Normalizer):
+class NearyNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
     .. math::
@@ -89,13 +80,7 @@ class NearyNormalizer(Normalizer):
     and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
     """
-
-    require_columns = ['speaker']
     transform = None
-
-    def __init__(self, **kwargs):
-        super(NearyNormalizer, self).__init__(**kwargs)
-        self.groups = ['speaker']
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants')
@@ -105,7 +90,7 @@ class NearyNormalizer(Normalizer):
             df[formants] = np.exp(df[formants])
         return df
 
-class NearyGMNormalizer(Normalizer):
+class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
     .. math::

@@ -4,7 +4,9 @@ Formant intrinsic normalizers
 """
 import numpy as np
 
-from vlnm.normalizers.base import FormantIntrinsicNormalizer
+from vlnm.normalizers.base import (
+    FormantIntrinsicNormalizer,
+    SimpleTransformable)
 from vlnm.conversion import (
     hz_to_bark,
     hz_to_erb,
@@ -13,7 +15,7 @@ from vlnm.conversion import (
 
 
 
-class BarkNormalizer(FormantIntrinsicNormalizer):
+class BarkNormalizer(FormantIntrinsicNormalizer, SimpleTransformable):
     r"""
     Normalise vowels using the Bark scale.
 
@@ -29,7 +31,7 @@ class BarkNormalizer(FormantIntrinsicNormalizer):
     transform = hz_to_bark
 
 
-class ErbNormalizer(FormantIntrinsicNormalizer):
+class ErbNormalizer(FormantIntrinsicNormalizer, SimpleTransformable):
     r"""
     Normalise vowels
 
@@ -41,7 +43,7 @@ class ErbNormalizer(FormantIntrinsicNormalizer):
     """
     transform = hz_to_erb
 
-class Log10Normalizer(FormantIntrinsicNormalizer):
+class Log10Normalizer(FormantIntrinsicNormalizer, SimpleTransformable):
     r"""
     Normalize using the base 10 logarithm of the formant values.
 
@@ -53,7 +55,7 @@ class Log10Normalizer(FormantIntrinsicNormalizer):
     transform = np.log10
 
 
-class LogNormalizer(FormantIntrinsicNormalizer):
+class LogNormalizer(FormantIntrinsicNormalizer, SimpleTransformable):
     r"""
     Normalize using the natural logarithm of the formant values.
 
@@ -65,7 +67,7 @@ class LogNormalizer(FormantIntrinsicNormalizer):
     transform = np.log
 
 
-class MelNormalizer(FormantIntrinsicNormalizer):
+class MelNormalizer(FormantIntrinsicNormalizer, SimpleTransformable):
     r"""
     Normalise vowels using the Mel scale.
 
