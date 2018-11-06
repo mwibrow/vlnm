@@ -232,10 +232,10 @@ class TestNearyNormalizer(unittest.TestCase):
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
             for formant in self.formants:
-                mu_log = np.mean(np.log(expected_df[formant].dropna()))
+                mu_log = np.log(expected_df[formant]).mean(axis=0)
 
-                actual = actual_df[formant].dropna()
-                expected = np.log(expected_df[formant].dropna()) - mu_log
+                actual = actual_df[formant]
+                expected = np.log(expected_df[formant]) - mu_log
 
                 assert_series_equal(actual, expected)
 
@@ -252,9 +252,9 @@ class TestNearyNormalizer(unittest.TestCase):
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
             for formant in self.formants:
-                mu_log = np.mean(np.log(expected_df[formant].dropna()))
+                mu_log = np.log(expected_df[formant]).mean(axis=0)
 
-                actual = actual_df[formant].dropna()
+                actual = actual_df[formant]
                 expected = np.exp(
                     np.log(expected_df[formant]) - mu_log)
 
@@ -304,11 +304,11 @@ class TestNearyGMNormalizer(unittest.TestCase):
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
             for formant in self.formants:
-                mu_log = np.mean(
-                    np.mean(np.log(expected_df[self.formants].dropna())))
+                mu_log = np.log(
+                    expected_df[self.formants]).mean(axis=0).mean()
 
-                actual = actual_df[formant].dropna()
-                expected = np.log(expected_df[formant].dropna()) - mu_log
+                actual = actual_df[formant]
+                expected = np.log(expected_df[formant]) - mu_log
 
                 assert_series_equal(actual, expected)
 
@@ -326,12 +326,12 @@ class TestNearyGMNormalizer(unittest.TestCase):
             actual_df = df[df['speaker'] == speaker]
             expected_df = self.df[self.df['speaker'] == speaker]
             for formant in self.formants:
-                mu_log = np.mean(
-                    np.mean(np.log(expected_df[self.formants].dropna())))
+                mu_log = np.log(
+                    expected_df[self.formants]).mean(axis=0).mean()
 
-                actual = actual_df[formant].dropna()
+                actual = actual_df[formant]
                 expected = np.exp(
-                    np.log(expected_df[formant].dropna()) - mu_log)
+                    np.log(expected_df[formant]) - mu_log)
 
                 assert_series_equal(actual, expected)
 

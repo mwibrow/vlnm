@@ -81,7 +81,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        logs = np.log(df[formants].dropna())
+        logs = np.log(df[formants])
         df[formants] = np.log(df[formants]) - logs.mean(axis=0)
         transform = kwargs.get('transform')
         if transform:
@@ -105,7 +105,7 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        logs = np.log(df[formants].dropna())
+        logs = np.log(df[formants])
         df[formants] = logs - logs.mean(axis=0).mean()
         transform = kwargs.get('transform')
         if transform:
