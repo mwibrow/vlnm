@@ -5,11 +5,8 @@ Standardize normalizers
 
 import numpy as np
 
-from .base import Normalizer, VowelNormalizer
-from ..decorators import (
-    Columns,
-    DocString,
-    Register)
+from .base import Normalizer
+
 
 
 class LCENormalizer(Normalizer):
@@ -24,34 +21,14 @@ class LCENormalizer(Normalizer):
 
     def __init__(self, **kwargs):
         super(LCENormalizer, self).__init__(**kwargs)
-        self.actions.update(
-            speaker=self._get_speaker_max
-        )
         self.groups = ['speaker']
 
-    @staticmethod
-    def _get_speaker_max(df, **kwargs):
-        constants = kwargs.get('constants')
-        formants = kwargs.get('formants', [])
-        for formant in formants:
-            key = '{}_max'.format(formant)
-            constants[key] = df[formant].max()
-
     def _norm(self, df, **kwargs):
-        constants = kwargs.get('constants')
         formants = kwargs.get('formants')
-        if not constants or not formants:
-            return df
-        for formant in formants:
-            df[formant] = df[formant] / constants.get('{}_max'.format(formant))
+        df[formants] = df[formants] / df[formants].max(axis=0)
         return df
 
-@Register('gerstman')
-@DocString
-@Columns(
-    required=['speaker']
-)
-class GerstmanNormalizer(VowelNormalizer):
+class GerstmanNormalizer(Normalizer):
     r"""
 
     .. math::
@@ -62,36 +39,17 @@ class GerstmanNormalizer(VowelNormalizer):
 
     def __init__(self, **kwargs):
         super(GerstmanNormalizer, self).__init__(**kwargs)
-        self.actions.update(
-            speaker=self._speaker_range
-        )
         self.groups = ['speaker']
-
-    @staticmethod
-    def _speaker_range(df, **kwargs):
-        constants = kwargs.get('constants')
-        formants = kwargs.get('formants')
-        for formant in formants:
-            constants['{}_max'.format(formant)] = df[formant].max()
-            constants['{}_min'.format(formant)] = df[formant].min()
 
 
     def _norm(self, df, **kwargs):
-        constants = kwargs.get('constants', [])
         formants = kwargs.get('formants', [])
-
-        for formant in formants:
-            fmin = constants['{}_min'.format(formant)]
-            fmax = constants['{}_max'.format(formant)]
-            df[formant] = 999 * (df[formant] - fmin) / (fmax - fmin)
+        fmin = df[formants].max(axis=0)
+        fmax = df[formants].max(axis=0)
+        df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
         return df
 
-@Register('lobanov')
-@DocString
-@Columns(
-    required=['speaker']
-)
-class LobanovNormalizer(VowelNormalizer):
+class LobanovNormalizer(Normalizer):
     r"""
 
     .. math::
@@ -103,40 +61,21 @@ class LobanovNormalizer(VowelNormalizer):
     formant :math:`F_i` for a given speaker.
 
     """
+    required_column = ['speaker']
+
     def __init__(self, **kwargs):
         super(LobanovNormalizer, self).__init__(**kwargs)
-        self.actions.update(
-            speaker=self._speaker_stats
-        )
         self.groups = ['speaker']
-
-    @staticmethod
-    def _speaker_stats(df, **kwargs):
-        constants = kwargs.get('constants')
-        formants = kwargs.get('formants')
-
-        for formant in formants or []:
-            constants['{}_mu'.format(formant)] = df[formant].mean()
-            constants['{}_sigma'.format(formant)] = df[formant].std() or 0.
 
 
     def _norm(self, df, **kwargs):
-        constants = kwargs.get('constants')
         formants = kwargs.get('formants')
-
-        for formant in formants:
-            f_mu = constants['{}_mu'.format(formant)]
-            f_sigma = constants['{}_sigma'.format(formant)]
-            df[formant] = (df[formant] - f_mu) / f_sigma if f_sigma else 0.
+        mean = df[formants].mean(axis=1)
+        std = df[formants].std(axis=1)
+        df[formants] = (df[formants] - mean) / std
         return df
 
-@Register('Neary')
-@DocString
-@Columns(
-    required=['speaker'],
-    optional=['transform']
-)
-class NearyNormalizer(VowelNormalizer):
+class NearyNormalizer(Normalizer):
     r"""
 
     .. math::
@@ -151,41 +90,22 @@ class NearyNormalizer(VowelNormalizer):
 
     """
 
+    require_columns = ['speaker']
+    transform = None
+
     def __init__(self, **kwargs):
         super(NearyNormalizer, self).__init__(**kwargs)
-        self.actions.update(
-            speaker=self._speaker_stats
-        )
         self.groups = ['speaker']
 
-    @staticmethod
-    def _speaker_stats(df, **kwargs):
-        constants = kwargs.get('constants')
-        formants = kwargs.get('formants')
-        for formant in formants:
-            constants['{}_mu_log'.format(formant)] = (
-                np.mean(np.log(df[formant].dropna())))
-
     def _norm(self, df, **kwargs):
-        constants = kwargs.get('constants')
         formants = kwargs.get('formants')
-
-        for formant in formants:
-            df[formant] = (
-                np.log(df[formant].dropna()) -
-                constants['{}_mu_log'.format(formant)])
+        df[formants] -= np.log(df[formants].dropba()).mean(axis=0)
         transform = kwargs.get('transform')
         if transform:
             df[formants] = np.exp(df[formants])
         return df
 
-@Register('NearyGM')
-@DocString
-@Columns(
-    required=['speaker'],
-    optional=['transform']
-)
-class NearyGMNormalizer(NearyNormalizer):
+class NearyGMNormalizer(Normalizer):
     r"""
 
     .. math::
@@ -200,17 +120,10 @@ class NearyGMNormalizer(NearyNormalizer):
 
     """
 
-    def __init__(self, **kwargs):
-        super(NearyGMNormalizer, self).__init__(**kwargs)
-        self.actions.update(
-            speaker=self._speaker_stats
-        )
-        self.groups = ['speaker']
-
-    @staticmethod
-    def _speaker_stats(df, **kwargs):
-        constants = kwargs.get('constants')
+    def _norm(self, df, **kwargs):
         formants = kwargs.get('formants')
-        mu_log = np.mean(np.mean(np.log(df[formants].dropna())))
-        for formant in formants:
-            constants['{}_mu_log'.format(formant)] = mu_log
+        df[formants] -= np.log(df[formants].dropba()).mean(axis=0).mean()
+        transform = kwargs.get('transform')
+        if transform:
+            df[formants] = np.exp(df[formants])
+        return df
