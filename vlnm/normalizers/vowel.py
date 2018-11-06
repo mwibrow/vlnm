@@ -21,11 +21,6 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     required_keywords = ['f1', 'f2', 'f3']
     transform = hz_to_bark
 
-    def __init__(self, transform=None, **kwargs):
-        super(BarkDifferenceNormalizer, self).__init__(
-            transform=transform or self.__class__.transform,
-            **kwargs)
-
     def _norm(self, df, **kwargs):
 
         transform = kwargs.get('transform')

@@ -11,11 +11,7 @@ from .base import FormantExtrinsicNormalizer
 class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
     """Base class for speaker intrinsic normalizers."""
     required_columns = ['speaker']
-
-    def _partition(self, df, **kwargs):
-        column = kwargs.get('speaker', 'speaker')
-        df.groupby(column, as_index=False).apply(self._norm)
-
+    groups = ['speaker']
 
 class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""
@@ -42,7 +38,7 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        fmin = df[formants].max(axis=0)
+        fmin = df[formants].min(axis=0)
         fmax = df[formants].max(axis=0)
         df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
         return df
@@ -62,8 +58,8 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        mean = df[formants].mean(axis=1)
-        std = df[formants].std(axis=1)
+        mean = df[formants].mean(axis=0)
+        std = df[formants].std(axis=0)
         df[formants] = (df[formants] - mean) / std
         return df
 
@@ -85,7 +81,8 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        df[formants] -= np.log(df[formants].dropba()).mean(axis=0)
+        logs = np.log(df[formants].dropna())
+        df[formants] = np.log(df[formants]) - logs.mean(axis=0)
         transform = kwargs.get('transform')
         if transform:
             df[formants] = np.exp(df[formants])
@@ -108,7 +105,8 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
-        df[formants] -= np.log(df[formants].dropba()).mean(axis=0).mean()
+        logs = np.log(df[formants].dropna())
+        df[formants] = logs - logs.mean(axis=0).mean()
         transform = kwargs.get('transform')
         if transform:
             df[formants] = np.exp(df[formants])

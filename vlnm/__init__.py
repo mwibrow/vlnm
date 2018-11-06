@@ -8,19 +8,19 @@ import pandas as pd
 
 from vlnm.normalizers import get_normalizer, list_normalizers
 
-from vlnm.normalizers.centroid import (
-    WattFabricius1Normalizer,
-    WattFabricius2Normalizer,
-    WattFabricius3Normalizer,
-    WattFabriciusNormalizer)
-from vlnm.normalizers.gender import (
-    BladenNormalizer,
-    NordstromNormalizer)
-from vlnm.normalizers.speaker import (
-    LCENormalizer,
-    LobanovNormalizer,
-    NearyGMNormalizer,
-    NearyNormalizer)
+# from vlnm.normalizers.centroid import (
+#     WattFabricius1Normalizer,
+#     WattFabricius2Normalizer,
+#     WattFabricius3Normalizer,
+#     WattFabriciusNormalizer)
+# from vlnm.normalizers.gender import (
+#     BladenNormalizer,
+#     NordstromNormalizer)
+# from vlnm.normalizers.speaker import (
+#     LCENormalizer,
+#     LobanovNormalizer,
+#     NearyGMNormalizer,
+#     NearyNormalizer)
 from vlnm.normalizers.formant import (
     BarkNormalizer,
     ErbNormalizer,

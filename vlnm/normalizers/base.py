@@ -10,11 +10,12 @@ class Normalizer:
     """Base normalizer class."""
 
     transform = None
+    groups = []
     required_columns = []
     required_keywords = []
 
     def __init__(self, f0=None, f1=None, f2=None, f3=None,
-                 formants=None, rename=None, groups=None, **kwargs):
+                 formants=None, rename=None, **kwargs):
         self.kwargs = dict(
             f0=f0,
             f1=f1,
@@ -24,7 +25,6 @@ class Normalizer:
             reanme=rename,
             **kwargs)
         self.columns = []
-        self.groups = []
 
     def __call__(self, df, **kwargs):
         return self.normalize(df, **kwargs)
@@ -35,23 +35,24 @@ class Normalizer:
 
         Set up arguments and call the internal function _normalize.
         """
-        _kwargs = self.kwargs.copy()
-        _kwargs.update(kwargs)
+        nkwargs = self.kwargs.copy()
+        nkwargs.update(kwargs)
 
         formants_spec = self._get_formants_spec(
             df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
 
-        _kwargs.update(**formants_spec)
+        nkwargs.update(**formants_spec)
 
-        groups = self.groups or []
-        _kwargs.update(groups=groups, rename=rename or '')
-        if not 'constants' in _kwargs:
-            kwargs['constants'] = {}
-        self._validate(df, **_kwargs)
 
-        self._prenormalize(df, **_kwargs)
-        norm_df = self._normalize(df, **_kwargs)
-        self._postnormalize(norm_df, **_kwargs)
+        nkwargs.update(
+            groups=self.groups or [],
+            rename=rename or '',
+            transform=nkwargs.pop('transform', self.__class__.transform))
+        self._validate(df, **nkwargs)
+
+        self._prenormalize(df, **nkwargs)
+        norm_df = self._normalize(df, **nkwargs)
+        self._postnormalize(norm_df, **nkwargs)
         return norm_df
 
     def _get_formants_spec(self, df, **kwargs):
@@ -89,7 +90,13 @@ class Normalizer:
     def _postnormalize(df, **_kwargs):
         return df
 
-    def _normalize(self, df, **kwargs):
+    def _normalize(self, df, groups=None, **kwargs):
+        if groups:
+            norm_df = df.groupby(by=groups, as_index=False).apply(
+                lambda group_df, groups=groups[1:], kwargs=kwargs:
+                self._normalize(group_df, groups=groups[1:], **kwargs))
+            # norm_df = norm_df.reset_index(drop=True)
+            return norm_df
         for formant_spec in self._formant_iterator(**kwargs):
             _kwargs = kwargs.copy()
             _kwargs.update(**formant_spec)
@@ -163,6 +170,10 @@ class FormantIntrinsicNormalizer(Normalizer):
         yield dict(formants=formants)
 
 
+class FormatIntrinsicTransformableNormalizer(
+        SimpleTransformable, FormantIntrinsicNormalizer):
+    """Base clase for formant intrinsic normalizers with a transform."""
+
 
 class FormantExtrinsicNormalizer(Normalizer):
     """Base class for formant extrinsic normalizers.
@@ -179,7 +190,9 @@ class FormantExtrinsicNormalizer(Normalizer):
             item.extend(item[-1:] * (length - len(item)))
 
         for i in range(length):
-            formant_spec = {formant: formant[i] for formant in FORMANTS}
+            formant_spec = {
+                formant: formant_list[j][i]
+                for j, formant in enumerate(FORMANTS)}
             formants = [value for value in formant_spec.values()]
             formant_spec.update(formants=formants)
             yield formant_spec
