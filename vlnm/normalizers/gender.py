@@ -18,7 +18,7 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""
     .. math::
 
-        F_{ik}^N = 26.81 \ln\left(
+        F_{ik}^N = 26.81 \left(
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53 - I(s_k)
 
@@ -26,27 +26,22 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
     speaker :math:`k` is identified/identifying as female and 0 otherwise.
     """
     required_columns = ['gender']
-    required_keywords = ['male', 'female']
+    optional_keywords = ['male', 'female']
 
     def _norm(self, df, **kwargs):
-        aliases = kwargs.get('aliases')
-        gender = kwargs.get('gender') or aliases.get('gender') or 'gender'
+        gender = kwargs.get('gender') or 'gender'
         formants = kwargs.get('formants')
 
         female = kwargs.get('female', 'F')
         male = kwargs.get('male', 'M')
-        if female:
-            indicator = np.repeat(
-                np.atleast_2d(
-                    (df[gender] == female).astype(float)),
-                len(formants),
-                axis=0).T
-        else:
-            indicator = np.repeat(
-                np.atleast_2d(
-                    (df[gender] != male).astype(float)),
-                len(formants),
-                axis=0).T
+
+        is_female = lambda x: x == female if female else lambda x: x != male
+
+        indicator = np.repeat(
+            np.atleast_2d(
+                (is_female(df[gender])).astype(float)),
+            len(formants),
+            axis=0).T
 
         return hz_to_bark(df[formants]) - indicator
 
@@ -72,27 +67,34 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     identified/identifying as female, and 0 otherwise.
     """
     required_columns = ['f1', 'f3', 'gender']
-    required_keywords = ['male', 'female']
+    optional_keywords = ['male', 'female']
 
     def __init__(self, **kwargs):
         super(NordstromNormalizer, self).__init__(**kwargs)
         self.groups = ['gender']
-        self.actions.update(
-            gender=self.calculate_f3_means)
 
     @staticmethod
-    def calculate_f3_means(df, **kwargs):  # pylint: disable=C0111
+    def _prenormalize(df, **kwargs):
+        return NordstromNormalizer.get_f3_means(df, **kwargs)
+
+    @staticmethod
+    def get_f3_means(df, **kwargs):
+        """Calculate the mean F3 for all speakers."""
         constants = kwargs.get('constants')
         gender = kwargs.get('gender')
         female = kwargs.get('female', 'F')
         male = kwargs.get('male', 'M')
 
-        constants['mu_female'] = df[
-            (df[gender] == female) & (df['f1'] > 600)]['f3'].mean()
-        constants['mu_male'] = df[
-            (df[gender] == male) & (df['f1'] > 600)]['f3'].mean()
+        is_female = lambda x: x == female if female else lambda x: x != male
 
-    def _norm(self, df, **kwargs):
+        constants['mu_female'] = df[
+            is_female(df[gender]) & (df['f1'] > 600)]['f3'].mean()
+        constants['mu_male'] = df[
+            ~is_female(df[gender]) & (df['f1'] > 600)]['f3'].mean()
+        return df
+
+    @staticmethod
+    def _norm(df, **kwargs):
         constants = kwargs['constants']
         gender = kwargs['gender']
         formants = formants = kwargs.get('formants')
@@ -100,18 +102,13 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
         female = kwargs.get('female', 'F')
         male = kwargs.get('male', 'M')
 
-        if female:
-            indicator = np.repeat(
-                np.atleast_2d(
-                    (df[gender] == female).astype(float)),
-                len(formants),
-                axis=0).T
-        else:
-            indicator = np.repeat(
-                np.atleast_2d(
-                    (df[gender] != male).astype(float)),
-                len(formants),
-                axis=0).T
+        is_female = lambda x: x == female if female else lambda x: x != male
+
+        indicator = np.repeat(
+            np.atleast_2d(
+                (is_female(df[gender])).astype(float)),
+            len(formants),
+            axis=0).T
 
         mu_female, mu_male = constants['mu_female'], constants['mu_male']
         df[formants] = (

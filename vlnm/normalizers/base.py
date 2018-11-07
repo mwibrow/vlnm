@@ -45,9 +45,10 @@ class Normalizer:
 
 
         nkwargs.update(
+            constants={},
             groups=self.groups or [],
             rename=rename or '',
-            transform=nkwargs.pop('transform', self.__class__.transform))
+            transform=kwargs.pop('transform', self.__class__.transform))
         self._validate(df, **nkwargs)
 
         self._prenormalize(df, **nkwargs)
@@ -84,10 +85,12 @@ class Normalizer:
 
     @staticmethod
     def _prenormalize(df, **_kwargs):
+        """Actions performed before normalization."""
         return df
 
     @staticmethod
     def _postnormalize(df, **_kwargs):
+        """Actions performed after normalization."""
         return df
 
     def _normalize(self, df, groups=None, **kwargs):

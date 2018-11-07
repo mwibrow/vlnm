@@ -43,6 +43,17 @@ class TestBladenNormalizer(unittest.TestCase):
         self.kwargs = {}
         self.formants = ['f0', 'f1', 'f2', 'f3']
 
+    def test_output(self):
+        """Test output."""
+        normalizer = BladenNormalizer()
+
+        df = self.df.copy()
+        expected = hz_to_bark(df[self.formants])
+        expected[df['gender'] == 'F'] -= 1.
+        actual = normalizer.normalize(
+            df,
+            **self.kwargs)[self.formants]
+        self.assertTrue(actual.equals(expected))
 
     def test_gender_alias(self):
         """Test aliased gender column."""
@@ -80,14 +91,14 @@ class TestNordstromNormalizer(unittest.TestCase):
         self.kwargs = {}
         self.formants = ['f0', 'f1', 'f2', 'f3']
 
-    def test_mu_ratio(self):
+    def test_prenormalize(self):
         """Calculate mu ratios."""
         df = self.df
         mu_male = df[(df['gender'] == 'M') & (df['f1'] > 600)]['f3'].mean()
         mu_female = df[(df['gender'] == 'F') & (df['f1'] > 600)]['f3'].mean()
 
         constants = {}
-        NordstromNormalizer.calculate_f3_means(
+        NordstromNormalizer.get_f3_means(
             df,
             constants=constants,
             gender='gender',
