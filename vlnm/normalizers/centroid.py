@@ -7,11 +7,6 @@ Normalizers which make use of the speakers vowel centroid.
 import numpy as np
 
 from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
-from vlnm.decorators import (
-    Columns,
-    DocString,
-    Keywords,
-    Register)
 
 
 class WattFabriciusNormalizer(SpeakerIntrinsicNormalizer):
@@ -38,38 +33,32 @@ class WattFabriciusNormalizer(SpeakerIntrinsicNormalizer):
     groups = ['speaker']
 
     @staticmethod
-    def get_apice_formants(df, **kwargs):
-        """Calculate the centroid for the speaker."""
+    def get_apice_formants(df, apices, **kwargs):
+        """Calculate the formants for the apices of the speakers vowel space."""
         formants = kwargs['formants']
-        f1 = kwargs.get('f1', 'f1')
-        f2 = kwargs.get('f2', 'f2')
         vowel = kwargs.get('vowel', 'vowel')
-        trap = kwargs['trap']
-        fleece = kwargs['fleece']
-
-        vowels = [trap, fleece]
-        apice_df = df[df[vowel].isin(vowels)]
-        agg = {f: np.mean for f in formants}
+        apice_df = df[df[vowel].isin(apices)]
         grouped = apice_df.groupby(vowel)
+        apices = grouped.agg({f: np.mean for f in formants})
 
-        apice_df = grouped.agg(agg)
-        return apice_df
+        return apices
 
     @staticmethod
     def _norm(df, **kwargs):
         formants = kwargs['formants']
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        vowel = kwargs.get('vowel', 'vowel')
         trap = kwargs['trap']
         fleece = kwargs['fleece']
+        apices = [trap, fleece]
 
-        apice_df = WattFabriciusNormalizer.get_apice_formants(df, **kwargs)
+        apice_df = WattFabriciusNormalizer.get_apice_formants(
+            df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
-
-        centroids = apice_df.mean()
+        centroids = apice_df.mean(axis=0)
         df[formants] /= centroids
+
         return df
 
 WattFabricius1Normalizer = WattFabriciusNormalizer
@@ -105,26 +94,30 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     required_keywords = ['fleece', 'trap']
 
     @staticmethod
-    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
-        super(
-            WattFabricius2Normalizer,
-            WattFabricius2Normalizer).speaker_stats(df, **kwargs)
-        constants = kwargs['constants']
-
+    def _norm(df, **kwargs):
+        formants = kwargs['formants']
+        f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+        apices = [trap, fleece]
 
-        constants['{}_centroid'.format(f2)] = (
-            constants['{}_fleece'.format(f2)] +
-            constants['{}_goose'.format(f2)]) / 2
+        apice_df = WattFabriciusNormalizer.get_apice_formants(
+            df, apices, **kwargs)
+        apice_df.loc['goose'] = apice_df.loc[fleece]
+        apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
+
+        def _means(series):
+            if series.name == f2:
+                return series[[fleece, 'goose']].mean()
+            return series.mean()
+
+        centroids = apice_df.apply(_means)
+        df[formants] /= centroids
+
+        return df
 
 
-@DocString
-@Columns(
-    required=['speaker', 'vowel', 'f1', 'f2']
-)
-@Keywords(
-    required=['point_vowels']
-)
 class WattFabricius3Normalizer(WattFabricius2Normalizer):
     r"""
     .. math::
@@ -153,42 +146,21 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
     """
 
     @staticmethod
-    def speaker_stats(df, **kwargs):  # pylint: disable=C0111
-        constants = kwargs['constants']
+    def _norm(df, **kwargs):
         formants = kwargs['formants']
-        f2 = kwargs.get('f2', 'f2')
-        vowel = kwargs.get('vowel', 'vowel')
-        trap = kwargs.get('trap', 'trap')
-        fleece = kwargs.get('fleece', 'fleece')
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+        apices = [trap, fleece]
 
-        point_vowels = kwargs.get('point_vowels')
+        apice_df = WattFabriciusNormalizer.get_apice_formants(
+            df, apices, **kwargs)
+        apice_df.loc['goose'] = apice_df.min(axis=0)
+        centroids = apice_df.mean(axis=0)
+        df[formants] /= centroids
 
-        for formant in formants:
-            constants['{}_fleece'.format(formant)] = (
-                df[df[vowel] == fleece][formant].mean())
-            constants['{}_trap'.format(formant)] = (
-                df[df[vowel] == trap][formant].mean())
-            constants['{}_goose'.format(formant)] = (
-                df[df[vowel].isin(point_vowels)].groupby(
-                    vowel).apply(lambda x, i=formant: x[i].mean()).min()).min()
-
-            constants['{}_centroid'.format(formant)] = (
-                constants['{}_fleece'.format(formant)] +
-                constants['{}_trap'.format(formant)] +
-                constants['{}_goose'.format(formant)]) / 3
-
-        constants['{}_centroid'.format(f2)] = (
-            constants['{}_fleece'.format(f2)] +
-            constants['{}_goose'.format(f2)]) / 2
+        return df
 
 
-@DocString
-@Columns(
-    required=['speaker', 'vowel']
-)
-@Keywords(
-    required=['apices']
-)
 class BighamNormalizer(WattFabriciusNormalizer):
     r"""
 
@@ -214,14 +186,11 @@ class BighamNormalizer(WattFabriciusNormalizer):
     @staticmethod
     def _norm(df, **kwargs):
         formants = kwargs['formants']
-        vowel = kwargs.get('vowel', 'vowel')
         apices = kwargs['apices']
 
-        apice_df = df[df[vowel].isin(apices)]
-        agg = {f: np.mean for f in formants}
-        grouped = apice_df.groupby(vowel, as_index=False)
-        centroids = grouped.agg(agg)[formants].mean()
-
+        apice_df = BighamNormalizer.get_apice_formants(
+            df, apices, **kwargs)
+        centroids = apice_df.mean(axis=0)
         # X /= Y / Z <=> X = X / Y * Z
         df[formants] /= centroids / 100
 
@@ -241,9 +210,10 @@ class SchwaNormalizer(WattFabriciusNormalizer):
     @staticmethod
     def _norm(df, **kwargs):
         formants = kwargs['formants']
-        vowel = kwargs.get('vowel', 'vowel')
         schwa = kwargs['schwa']
-        for formant in formants:
-            centroid = df[df[vowel] == schwa][formant].mean()
-            df[formant] /= centroid
+
+        apice_df = SchwaNormalizer.get_apice_formants(df, [schwa], **kwargs)
+        centroids = apice_df.mean(axis=0)
+        df[formants] = df[formants] / centroids - 1
+
         return df
