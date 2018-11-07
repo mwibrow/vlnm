@@ -2,7 +2,6 @@
 Helpers for tests.
 """
 import itertools
-import unittest
 
 import numpy as np
 import pandas as pd
@@ -90,6 +89,7 @@ def get_test_dataframe(speakers=8):
 
 DATA_FRAME = get_test_dataframe()
 
+DataFrame = pd.DataFrame
 
 # class BaseTestCases:  # pylint: disable=too-few-public-methods
 #     """

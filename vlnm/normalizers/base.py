@@ -14,8 +14,11 @@ class Normalizer:
     required_columns = []
     required_keywords = []
 
+    options = dict()
+
     def __init__(self, f0=None, f1=None, f2=None, f3=None,
                  formants=None, rename=None, **kwargs):
+        kwargs.update(**self.options)
         self.kwargs = dict(
             f0=f0,
             f1=f1,
@@ -43,12 +46,11 @@ class Normalizer:
 
         nkwargs.update(**formants_spec)
 
-
         nkwargs.update(
             constants={},
             groups=self.groups or [],
             rename=rename or '',
-            transform=kwargs.pop('transform', self.__class__.transform))
+            transform=kwargs.pop('transform', self.transform))
         self._validate(df, **nkwargs)
 
         self._prenormalize(df, **nkwargs)
@@ -199,3 +201,9 @@ class FormantExtrinsicNormalizer(Normalizer):
             formants = [value for value in formant_spec.values()]
             formant_spec.update(formants=formants)
             yield formant_spec
+
+
+class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
+    """Base class for speaker intrinsic normalizers."""
+    required_columns = ['speaker']
+    groups = ['speaker']

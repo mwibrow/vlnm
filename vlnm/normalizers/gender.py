@@ -68,10 +68,7 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     """
     required_columns = ['f1', 'f3', 'gender']
     optional_keywords = ['male', 'female']
-
-    def __init__(self, **kwargs):
-        super(NordstromNormalizer, self).__init__(**kwargs)
-        self.groups = ['gender']
+    groups = ['gender']
 
     @staticmethod
     def _prenormalize(df, **kwargs):

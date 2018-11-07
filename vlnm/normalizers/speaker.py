@@ -5,13 +5,8 @@ Standardize normalizers
 
 import numpy as np
 
-from .base import FormantExtrinsicNormalizer
+from .base import SpeakerIntrinsicNormalizer
 
-
-class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
-    """Base class for speaker intrinsic normalizers."""
-    required_columns = ['speaker']
-    groups = ['speaker']
 
 class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""
@@ -22,7 +17,8 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         formants = kwargs.get('formants')
         df[formants] = df[formants] / df[formants].max(axis=0)
         return df
@@ -36,7 +32,8 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         formants = kwargs.get('formants', [])
         fmin = df[formants].min(axis=0)
         fmax = df[formants].max(axis=0)
@@ -56,7 +53,8 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    def _norm(self, df, **kwargs):
+    @staticmethod
+    def _norm(df, **kwargs):
         formants = kwargs.get('formants', [])
         mean = df[formants].mean(axis=0)
         std = df[formants].std(axis=0)
@@ -77,14 +75,15 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
     """
-    transform = None
 
-    def _norm(self, df, **kwargs):
+    options = dict(exp=False)
+
+    @staticmethod
+    def _norm(df, **kwargs):
         formants = kwargs.get('formants', [])
         logs = np.log(df[formants])
         df[formants] = np.log(df[formants]) - logs.mean(axis=0)
-        transform = kwargs.get('transform')
-        if transform:
+        if kwargs.get('exp'):
             df[formants] = np.exp(df[formants])
         return df
 
@@ -103,11 +102,12 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
+    options = dict(exp=False)
+
     def _norm(self, df, **kwargs):
         formants = kwargs.get('formants', [])
         logs = np.log(df[formants])
         df[formants] = logs - logs.mean(axis=0).mean()
-        transform = kwargs.get('transform')
-        if transform:
+        if kwargs.get('exp'):
             df[formants] = np.exp(df[formants])
         return df

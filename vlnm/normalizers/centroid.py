@@ -8,8 +8,20 @@ import numpy as np
 
 from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
 
+class CentroidNormalizer(SpeakerIntrinsicNormalizer):
+    """Base class for centroid based normalizers."""
 
-class WattFabriciusNormalizer(SpeakerIntrinsicNormalizer):
+    @staticmethod
+    def get_apice_formants(df, apices, **kwargs):
+        """Calculate the formants for the apices of the speakers vowel space."""
+        formants = kwargs['formants']
+        vowel = kwargs.get('vowel', 'vowel')
+        vowels_df = df[df[vowel].isin(apices)]
+        grouped = vowels_df.groupby(vowel)
+        apice_df = grouped.agg({f: np.mean for f in formants})
+        return apice_df
+
+class WattFabriciusNormalizer(CentroidNormalizer):
     r"""
     .. math::
 
@@ -33,31 +45,27 @@ class WattFabriciusNormalizer(SpeakerIntrinsicNormalizer):
     groups = ['speaker']
 
     @staticmethod
-    def get_apice_formants(df, apices, **kwargs):
-        """Calculate the formants for the apices of the speakers vowel space."""
-        formants = kwargs['formants']
-        vowel = kwargs.get('vowel', 'vowel')
-        apice_df = df[df[vowel].isin(apices)]
-        grouped = apice_df.groupby(vowel)
-        apices = grouped.agg({f: np.mean for f in formants})
-
-        return apices
-
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
+    def get_centroid(df, apices, **kwargs):
+        """Calculate the speakers centroid."""
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        trap = kwargs['trap']
         fleece = kwargs['fleece']
-        apices = [trap, fleece]
 
         apice_df = WattFabriciusNormalizer.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
-        centroids = apice_df.mean(axis=0)
-        df[formants] /= centroids
+        centroid = apice_df.mean(axis=0)
+        return centroid
+
+    @staticmethod
+    def _norm(df, **kwargs):
+        formants = kwargs['formants']
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+        apices = [trap, fleece]
+        centroid = WattFabriciusNormalizer.get_centroid(apices, **kwargs)
+        df[formants] /= centroid
 
         return df
 
@@ -102,7 +110,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
         fleece = kwargs['fleece']
         apices = [trap, fleece]
 
-        apice_df = WattFabriciusNormalizer.get_apice_formants(
+        apice_df = WattFabricius2Normalizer.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
@@ -118,7 +126,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
         return df
 
 
-class WattFabricius3Normalizer(WattFabricius2Normalizer):
+class WattFabricius3Normalizer(WattFabriciusNormalizer):
     r"""
     .. math::
 
@@ -152,7 +160,7 @@ class WattFabricius3Normalizer(WattFabricius2Normalizer):
         fleece = kwargs['fleece']
         apices = [trap, fleece]
 
-        apice_df = WattFabriciusNormalizer.get_apice_formants(
+        apice_df = WattFabricius3Normalizer.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.min(axis=0)
         centroids = apice_df.mean(axis=0)
