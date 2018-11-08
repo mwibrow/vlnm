@@ -6,6 +6,7 @@ import unittest
 
 import numpy as np
 
+from vlnm.normalizers.base import Normalizer
 from vlnm.normalizers.speaker import (
     GerstmanNormalizer,
     LCENormalizer,
@@ -33,10 +34,43 @@ def get_test_dataframe(speakers=2):
 
 DATA_FRAME = get_test_dataframe()
 
-class TestLCENormalizer(unittest.TestCase):
+
+class Helper:
+    """Wrapper class around base test class"""
+
+    class SpeakerNormalizerTests(unittest.TestCase):
+        """Common tests for the speaker normalizers."""
+
+        klass = Normalizer
+
+        def setUp(self):
+            self.df = get_test_dataframe()
+            self.formants = ['f0', 'f1', 'f2', 'f3']
+            self.kwargs = dict(formants=self.formants)
+
+        def test_column_missing(self):
+            """
+            Missing speaker column raises ValueError.
+            """
+            df = self.df.copy()
+            df = df.drop('speaker', axis=1)
+            with self.assertRaises(ValueError):
+                self.klass().normalize(df, **self.kwargs)
+
+        def test_incorrect_alias(self):
+            """
+            Missing aliased column raises ValueError.
+            """
+            df = self.df.copy()
+            with self.assertRaises(ValueError):
+                self.klass().normalize(df, speaker='talker', **self.kwargs)
+
+class TestLCENormalizer(Helper.SpeakerNormalizerTests):
     """
     Tests for the LCENormalizer class.
     """
+
+    klass = LCENormalizer
 
     def setUp(self):
         self.df = get_test_dataframe()
@@ -116,6 +150,23 @@ class TestGerstmanNormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
+    def test_column_missing(self):
+        """
+        Missing speaker column raises ValueError.
+        """
+        df = self.df.copy()
+        df = df.drop('speaker', axis=1)
+        with self.assertRaises(ValueError):
+            GerstmanNormalizer().normalize(df, **self.kwargs)
+
+    def test_incorrect_alias(self):
+        """
+        Missing aliased column raises ValueError.
+        """
+        df = self.df.copy()
+        with self.assertRaises(ValueError):
+            GerstmanNormalizer().normalize(df, speaker='talker', **self.kwargs)
+
     def test_output(self):
         """Check output."""
         df = GerstmanNormalizer().normalize(
@@ -167,6 +218,23 @@ class TestLobanovNormalizer(unittest.TestCase):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
+    def test_column_missing(self):
+        """
+        Missing speaker column raises ValueError.
+        """
+        df = self.df.copy()
+        df = df.drop('speaker', axis=1)
+        with self.assertRaises(ValueError):
+            LobanovNormalizer().normalize(df, **self.kwargs)
+
+    def test_incorrect_alias(self):
+        """
+        Missing aliased column raises ValueError.
+        """
+        df = self.df.copy()
+        with self.assertRaises(ValueError):
+            LobanovNormalizer().normalize(df, speaker='talker', **self.kwargs)
+
     def test_output(self):
         """Check output."""
         df = LobanovNormalizer().normalize(
@@ -217,6 +285,23 @@ class TestNearyNormalizer(unittest.TestCase):
         self.df = get_test_dataframe()
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
+
+    def test_column_missing(self):
+        """
+        Missing speaker column raises ValueError.
+        """
+        df = self.df.copy()
+        df = df.drop('speaker', axis=1)
+        with self.assertRaises(ValueError):
+            NearyNormalizer().normalize(df, **self.kwargs)
+
+    def test_incorrect_alias(self):
+        """
+        Missing aliased column raises ValueError.
+        """
+        df = self.df.copy()
+        with self.assertRaises(ValueError):
+            NearyNormalizer().normalize(df, speaker='talker', **self.kwargs)
 
     def test_output(self):
         """Check output."""
@@ -288,6 +373,23 @@ class TestNearyGMNormalizer(unittest.TestCase):
         self.df = get_test_dataframe()
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
+
+    def test_column_missing(self):
+        """
+        Missing speaker column raises ValueError.
+        """
+        df = self.df.copy()
+        df = df.drop('speaker', axis=1)
+        with self.assertRaises(ValueError):
+            NearyGMNormalizer().normalize(df, **self.kwargs)
+
+    def test_incorrect_alias(self):
+        """
+        Missing aliased column raises ValueError.
+        """
+        df = self.df.copy()
+        with self.assertRaises(ValueError):
+            NearyGMNormalizer().normalize(df, speaker='talker', **self.kwargs)
 
     def test_output(self):
         """Check output for extrinsic normalizer."""
