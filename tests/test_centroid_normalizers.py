@@ -1,7 +1,6 @@
 """
 Tests for 'centroid' normalizers
 """
-import unittest
 
 from vlnm.normalizers.centroid import (
     BighamNormalizer,
@@ -9,24 +8,31 @@ from vlnm.normalizers.centroid import (
     WattFabriciusNormalizer,
     WattFabricius2Normalizer,
     WattFabricius3Normalizer)
+from tests.test_speaker_normalizers import Helper
 from tests.helpers import (
     get_test_dataframe,
     assert_frame_equal,
     DataFrame)
 
 
-class TestWattFabriciusNormalizer(unittest.TestCase):
+class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
     """Tests for the WattFabriciusNormalizer Class. """
 
     normalizer = WattFabriciusNormalizer
+
     required_kwargs = dict(
         fleece='i',
         trap='a')
 
     def setUp(self):
         self.df = get_test_dataframe()
-        self.formants = ['f1', 'f2']
-        self.kwargs = dict(formants=self.formants)
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.normalizer = self.__class__.normalizer
+        self.kwargs = dict(
+            formants=self.formants,
+            fleece='i',
+            trap='a',
+            apices=['i', 'a'])
 
     def test_apice_formants(self):
         """Check speaker parameter values for all speakers."""
@@ -36,15 +42,13 @@ class TestWattFabriciusNormalizer(unittest.TestCase):
             f1=[100., 250.],
             f2=[400., 450.]
         ))
-        apices = ['fleece', 'trap']
-        actual = WattFabriciusNormalizer.get_apice_formants(
-            df, apices, vowel='vowel', fleece='fleece',
-            trap='trap', **self.kwargs)
+        actual = self.normalizer.get_apice_formants(
+            df, ['fleece', 'trap'], vowel='vowel', formants=['f1', 'f2'])
 
         expected = DataFrame(dict(
             f1=df['f1'],
             f2=df['f2']))
-        expected.index = apices
+        expected.index = ['fleece', 'trap']
         expected.index.name = 'vowel'
         assert_frame_equal(actual, expected)
 

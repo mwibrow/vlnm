@@ -7,7 +7,7 @@ which calculate the centroid of a speaker's vowel space
 and use this to normalize the formant data.
 """
 
-import numpy as np
+import pandas as pd
 
 from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
 
@@ -47,7 +47,12 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         vowel = kwargs.get('vowel', 'vowel')
         vowels_df = df[df[vowel].isin(apices)]
         grouped = vowels_df.groupby(vowel)
-        apice_df = grouped.agg({f: np.mean for f in formants})
+
+        def _agg(agg_df):
+            names = {f: agg_df[f].mean() for f in formants}
+            return pd.Series(names, index=formants)
+
+        apice_df = grouped.agg(_agg)[formants]
         return apice_df
 
     @classmethod
@@ -78,8 +83,8 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
     @classmethod
     def _norm(cls, df, **kwargs):
         formants = kwargs.get('formants')
-        apices = kwargs.get('apices', [])
-        centroid = cls.get_centroid(apices, **kwargs)
+        apices = kwargs.pop('apices', [])
+        centroid = cls.get_centroid(df, apices, **kwargs)
         df[formants] /= centroid
         return df
 
