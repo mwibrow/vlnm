@@ -2,8 +2,11 @@
 Centroid normalizers
 ~~~~~~~~~~~~~~~~~~~~
 
-Normalizers which make use of the speakers vowel centroid.
+Centroid normalizers are speaker intrinsic normalizers
+which calculate the centroid of a speaker's vowel space
+and use this to normalize the formant data.
 """
+
 import numpy as np
 
 from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
@@ -13,13 +16,73 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
     @staticmethod
     def get_apice_formants(df, apices, **kwargs):
-        """Calculate the formants for the apices of the speakers vowel space."""
+        r"""Calculate the formants for the apices of the speakers vowel space.
+
+        Parameters
+        ----------
+        df : DataFrame
+            The formant data for single speaker.
+        apices : list
+            A list of vowel labels denoting the apices of the vowel space.
+        **kwargs
+            Keyword arguments.
+
+        Keyword arguments
+        -----------------
+        formants : list
+            A list of columns in the data-frame containing the formant data.
+        vowel : :obj:`str`, optional
+            The column in the data-frame containing vowel labels
+
+        Returns
+        -------
+        :obj:`DataFrame`
+            A data-frame containing the mean formant values for each apice
+            in the speakers vowel space.
+            The columns of the data-frame will contain the formant labels
+            and the index will contain the apice labels.
+
+        """
         formants = kwargs['formants']
         vowel = kwargs.get('vowel', 'vowel')
         vowels_df = df[df[vowel].isin(apices)]
         grouped = vowels_df.groupby(vowel)
         apice_df = grouped.agg({f: np.mean for f in formants})
         return apice_df
+
+    @classmethod
+    def get_centroid(cls, df, apices, **kwargs):
+        r"""Calculate the speakers centroid.
+
+        Parameters
+        ----------
+        df : DataFrame
+            The formant data for single speaker.
+        apices : list
+            A list of vowel labels denoting the apices of the vowel space.
+        **kwargs
+            Keyword arguments which are passed on to the class method
+            `get_apice_formants`.
+            Sub-classes of this class may override this method
+            and use any other keywords passed.
+
+        Returns
+        -------
+        :obj:`pandas.Series`
+            Centroid data for each formant.
+        """
+        apice_df = cls.get_apice_formants(df, apices, **kwargs)
+        centroid = apice_df.mean(axis=0)
+        return centroid
+
+    @classmethod
+    def _norm(cls, df, **kwargs):
+        formants = kwargs.get('formants')
+        apices = kwargs.get('apices', [])
+        centroid = cls.get_centroid(apices, **kwargs)
+        df[formants] /= centroid
+        return df
+
 
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""
@@ -31,7 +94,9 @@ class WattFabriciusNormalizer(CentroidNormalizer):
 
     .. math::
 
-        S(F_j) = \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
+        S(F_j) = \frac{1}{3}\left
+            (F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}
+        \right)
 
     and
 
@@ -42,32 +107,30 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     """
     required_columns = ['speaker', 'vowel', 'f1', 'f2']
     required_keywords = ['fleece', 'trap']
-    groups = ['speaker']
 
-    @staticmethod
-    def get_centroid(df, apices, **kwargs):
+    def _normalize(self, df, groups=None, **kwargs):
+        apices = kwargs.get('apices')
+        if apices:
+            return super()._normalize(df, groups=groups, **kwargs)
+        trap = kwargs['trap']
+        fleece = kwargs['fleece']
+        return super()._normalize(
+            df, apices=[trap, fleece], groups=groups, **kwargs)
+
+    @classmethod
+    def get_centroid(cls, df, apices, **kwargs):
         """Calculate the speakers centroid."""
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
         fleece = kwargs['fleece']
 
-        apice_df = WattFabriciusNormalizer.get_apice_formants(
+        apice_df = cls.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
         centroid = apice_df.mean(axis=0)
         return centroid
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
-        trap = kwargs['trap']
-        fleece = kwargs['fleece']
-        apices = [trap, fleece]
-        centroid = WattFabriciusNormalizer.get_centroid(apices, **kwargs)
-        df[formants] /= centroid
-
-        return df
 
 WattFabricius1Normalizer = WattFabriciusNormalizer
 
@@ -101,16 +164,14 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     required_columns = ['speaker', 'vowel', 'f1', 'f2']
     required_keywords = ['fleece', 'trap']
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
+    @classmethod
+    def get_centroid(cls, df, apices, **kwargs):
+        """Calculate the speakers centroid."""
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        trap = kwargs['trap']
         fleece = kwargs['fleece']
-        apices = [trap, fleece]
 
-        apice_df = WattFabricius2Normalizer.get_apice_formants(
+        apice_df = cls.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
@@ -120,10 +181,8 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
                 return series[[fleece, 'goose']].mean()
             return series.mean()
 
-        centroids = apice_df.apply(_means)
-        df[formants] /= centroids
-
-        return df
+        centroid = apice_df.apply(_means)
+        return centroid
 
 
 class WattFabricius3Normalizer(WattFabriciusNormalizer):
@@ -153,20 +212,15 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
     where :math:`P` is the set of point vowels.
     """
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
-        trap = kwargs['trap']
-        fleece = kwargs['fleece']
-        apices = [trap, fleece]
-
-        apice_df = WattFabricius3Normalizer.get_apice_formants(
+    @classmethod
+    def get_centroid(cls, df, apices, **kwargs):
+        """Calculate the speakers centroid."""
+        apice_df = cls.get_apice_formants(
             df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.min(axis=0)
-        centroids = apice_df.mean(axis=0)
-        df[formants] /= centroids
 
-        return df
+        centroid = apice_df.mean(axis=0)
+        return centroid
 
 
 class BighamNormalizer(WattFabriciusNormalizer):
@@ -191,21 +245,8 @@ class BighamNormalizer(WattFabriciusNormalizer):
     required_columns = ['speaker', 'vowel']
     required_keyowrds = ['apices']
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
-        apices = kwargs['apices']
 
-        apice_df = BighamNormalizer.get_apice_formants(
-            df, apices, **kwargs)
-        centroids = apice_df.mean(axis=0)
-        # X /= Y / Z <=> X = X / Y * Z
-        df[formants] /= centroids / 100
-
-        return df
-
-
-class SchwaNormalizer(WattFabriciusNormalizer):
+class SchwaNormalizer(CentroidNormalizer):
     r"""
     .. math::
 
@@ -215,13 +256,13 @@ class SchwaNormalizer(WattFabriciusNormalizer):
     required_columns = ['speaker', 'vowel']
     required_keywords = ['schwa']
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs['formants']
+    def _normalize(self, df, groups=None, **kwargs):
         schwa = kwargs['schwa']
+        kwargs['apices'] = [schwa]
+        return super()._normalize(df, groups=groups, **kwargs)
 
-        apice_df = SchwaNormalizer.get_apice_formants(df, [schwa], **kwargs)
-        centroids = apice_df.mean(axis=0)
-        df[formants] = df[formants] / centroids - 1
-
+    @classmethod
+    def _norm(cls, df, **kwargs):
+        df = cls._norm(cls, df, **kwargs)
+        df -= 1
         return df
