@@ -22,8 +22,6 @@ class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53
 
-    {{columns}}
-    {{keywords}}
     """
     transform = hz_to_bark
 

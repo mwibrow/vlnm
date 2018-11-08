@@ -2,8 +2,6 @@
 Tests for the normalize module.
 """
 
-# pylint: disable=protected-access
-
 import unittest
 
 import numpy as np
@@ -243,7 +241,7 @@ class TestNearyNormalizer(unittest.TestCase):
         """Check output with exponential transform."""
         df = NearyNormalizer().normalize(
             self.df.copy(),
-            transform=True,
+            exp=True,
             **self.kwargs)
 
         self.assertEqual(len(df), len(self.df))
@@ -295,7 +293,6 @@ class TestNearyGMNormalizer(unittest.TestCase):
         """Check output for extrinsic normalizer."""
         df = NearyGMNormalizer().normalize(
             self.df.copy(),
-            method='extrinsic',
             **self.kwargs)
 
         self.assertEqual(len(df), len(self.df))
@@ -316,8 +313,7 @@ class TestNearyGMNormalizer(unittest.TestCase):
         """Check output for extrinsic normalizer with exponential transform."""
         df = NearyGMNormalizer().normalize(
             self.df.copy(),
-            method='extrinsic',
-            transform=True,
+            exp=True,
             **self.kwargs)
 
         self.assertEqual(len(df), len(self.df))

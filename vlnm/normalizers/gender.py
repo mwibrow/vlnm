@@ -70,9 +70,9 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     optional_keywords = ['male', 'female']
     groups = ['gender']
 
-    @staticmethod
-    def _prenormalize(df, **kwargs):
-        return NordstromNormalizer.get_f3_means(df, **kwargs)
+    @classmethod
+    def _prenormalize(cls, df, **kwargs):
+        return cls.get_f3_means(df, **kwargs)
 
     @staticmethod
     def get_f3_means(df, **kwargs):

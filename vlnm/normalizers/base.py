@@ -50,7 +50,7 @@ class Normalizer:
             constants={},
             groups=self.groups or [],
             rename=rename or '',
-            transform=kwargs.pop('transform', self.transform))
+            transform=kwargs.pop('transform', self.__class__.transform))
         self._validate(df, **nkwargs)
 
         self._prenormalize(df, **nkwargs)
@@ -143,6 +143,7 @@ class Normalizer:
     def _norm(df, **_kwargs):
         return df
 
+
 class SimpleTransformable:
     """Base class for normalizers which simply transform formants.
 
@@ -157,6 +158,7 @@ class SimpleTransformable:
             formants = kwargs.get('formants')
             df[formants] = transform(df[formants])
         return df
+
 
 class FormantIntrinsicNormalizer(Normalizer):
     """Base class for formant intrinsic normalizers.
