@@ -32,6 +32,22 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
             trap='a',
             apices=['i', 'a'])
 
+    def test_ensure_apices(self):
+        """Test the ensure_apices function"""
+        df = DataFrame(dict(
+            speaker=['s1', 's1'],
+            vowel=['fleece', 'trap'],
+            f1=[100., 250.],
+            f2=[400., 450.]
+        ))
+        kwargs = dict(
+            fleece='fleece',
+            trap='trap',
+            vowel='vowel')
+        self.normalizer().ensure_apices(df, kwargs)
+        self.assertIn('apices', kwargs)
+
+
     def test_apice_formants(self):
         """Test the get_apice_formants method."""
         df = DataFrame(dict(

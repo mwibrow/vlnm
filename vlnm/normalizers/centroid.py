@@ -90,6 +90,22 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] /= centroid
         return df
 
+    @staticmethod
+    def ensure_apices(_df, kwargs):
+        """Ensure the apice keyword argument is set.
+
+        Parameters
+        ----------
+        df : DataFrame
+            The formant data for single speaker.
+        **kwargs
+            Keyword arguments.
+        """
+        apices = kwargs.get('apices')
+        if not apices:
+            trap = kwargs['trap']
+            fleece = kwargs['fleece']
+            kwargs['apices'] = [trap, fleece]
 
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""
@@ -116,13 +132,8 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     required_keywords = ['fleece', 'trap']
 
     def _normalize(self, df, groups=None, **kwargs):
-        apices = kwargs.get('apices')
-        if apices:
-            return super()._normalize(df, groups=groups, **kwargs)
-        trap = kwargs['trap']
-        fleece = kwargs['fleece']
-        return super()._normalize(
-            df, apices=[trap, fleece], groups=groups, **kwargs)
+        self.ensure_apices(df, kwargs)
+        return super()._normalize(df, groups=groups, **kwargs)
 
     @classmethod
     def get_centroid(cls, df, apices, **kwargs):
@@ -257,7 +268,18 @@ class BighamNormalizer(CentroidNormalizer):
 
     """
     required_columns = ['speaker', 'vowel']
-    required_keywords = ['apices']
+
+    @staticmethod
+    def ensure_apices(df, kwargs):
+        """Ensure the apice keyword argument is set."""
+        apices = kwargs.get('apices')
+        if not apices:
+            apices = list(df[kwargs.get('vowel')].unique())
+            kwargs['apices'] = apices
+
+    def _normalize(self, df, groups=None, **kwargs):
+        self.ensure_apices(df, kwargs)
+        return super()._normalize(df, groups=groups, **kwargs)
 
 
 class SchwaNormalizer(CentroidNormalizer):

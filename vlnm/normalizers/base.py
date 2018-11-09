@@ -25,7 +25,7 @@ class Normalizer:
             f2=f2,
             f3=f3,
             formants=formants,
-            reanme=rename,
+            rename=rename,
             **kwargs)
         self.columns = []
 
@@ -40,10 +40,8 @@ class Normalizer:
         """
         nkwargs = self.kwargs.copy()
         nkwargs.update(kwargs)
-
         formants_spec = self._get_formants_spec(
             df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
-
         nkwargs.update(**formants_spec)
 
         nkwargs.update(
@@ -192,15 +190,15 @@ class FormantExtrinsicNormalizer(Normalizer):
 
     @staticmethod
     def _formant_iterator(**kwargs):
-        formant_list = [kwargs.get(f, [None]) for f in FORMANTS]
-        length = max(len(formant) for formant in formant_list)
+        formant_list = [kwargs.get(f) for f in FORMANTS]
+        length = max(len(formant) for formant in formant_list if formant)
         for item in formant_list:
-            item.extend(item[-1:] * (length - len(item)))
-
+            if item:
+                item.extend(item[-1:] * (length - len(item)))
         for i in range(length):
             formant_spec = {
                 formant: formant_list[j][i]
-                for j, formant in enumerate(FORMANTS)}
+                for j, formant in enumerate(FORMANTS) if formant_list[j]}
             formants = [value for value in formant_spec.values()]
             formant_spec.update(formants=formants)
             yield formant_spec

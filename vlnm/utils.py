@@ -113,7 +113,12 @@ def get_formants_spec(columns, **kwargs):
         for f in ['f0', 'f1', 'f2', 'f3']:
             if f in columns:
                 formants_spec[f] = [f]
-
+    if not formants_spec.get('formants'):
+        formants = []
+        for formant in formants_spec:
+            if formants_spec[formant]:
+                formants.extend(formants_spec[formant])
+        formants_spec['formants'] = formants
     return formants_spec
 
 def get_formant_columns(formant, columns):
