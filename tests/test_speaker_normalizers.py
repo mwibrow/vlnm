@@ -2,11 +2,8 @@
 Tests for the normalize module.
 """
 
-import unittest
-
 import numpy as np
 
-from vlnm.normalizers.base import Normalizer
 from vlnm.normalizers.speaker import (
     GerstmanNormalizer,
     LCENormalizer,
@@ -17,7 +14,8 @@ from vlnm.normalizers.speaker import (
 from tests.helpers import (
     assert_frame_equal,
     assert_series_equal,
-    generate_data_frame)
+    generate_data_frame,
+    Helper)
 
 
 def get_test_dataframe(speakers=2):
@@ -33,64 +31,6 @@ def get_test_dataframe(speakers=2):
 
 
 DATA_FRAME = get_test_dataframe()
-
-
-class Helper:
-    """Wrapper class around base test class"""
-
-    class SpeakerNormalizerTests(unittest.TestCase):
-        """Common tests for the speaker normalizers."""
-
-        normalizer = Normalizer
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.normalizer = self.__class__.normalizer
-
-        def setUp(self):
-            self.df = get_test_dataframe()
-            self.formants = ['f0', 'f1', 'f2', 'f3']
-            self.kwargs = dict(formants=self.formants)
-
-        def test_column_missing(self):
-            """
-            Missing speaker column raises ValueError.
-            """
-            for column in self.normalizer.required_columns:
-                df = self.df.copy()
-                df = df.drop(column, axis=1)
-                with self.assertRaises(ValueError):
-                    self.normalizer().normalize(df, **self.kwargs)
-
-        def test_incorrect_alias(self):
-            """
-            Missing aliased column raises ValueError.
-            """
-            df = self.df.copy()
-            with self.assertRaises(ValueError):
-                self.normalizer().normalize(df, speaker='talker', **self.kwargs)
-
-        def test_default_columns(self):
-            """Check default columns returned."""
-            expected = self.df.columns
-            actual = self.normalizer().normalize(
-                self.df, **self.kwargs).columns
-
-            expected = sorted(expected)
-            actual = sorted(actual)
-            self.assertListEqual(actual, expected)
-
-        def test_new_columns(self):
-            """Check new columns returned."""
-            rename = '{}\''
-            expected = (list(self.df.columns) +
-                        list(rename.format(f) for f in self.formants))
-            actual = self.normalizer().normalize(
-                self.df, rename=rename, **self.kwargs).columns
-
-            expected = sorted(expected)
-            actual = sorted(actual)
-            self.assertListEqual(actual, expected)
 
 
 class TestLCENormalizer(Helper.SpeakerNormalizerTests):
