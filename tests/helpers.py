@@ -13,6 +13,13 @@ import pandas.testing
 #     RequiredColumnAliasMissingError,
 #     RequiredKeywordMissingError)
 
+# There are issues wth pandas and pylint
+# See https://github.com/PyCQA/pylint/issues/2198
+#
+DataFrame = pd.DataFrame
+
+Series = pd.Series
+
 def assert_frame_equal(*args, **kwargs):
     """Wrapper around pandas testing helper"""
     return pandas.testing.assert_frame_equal(*args, **kwargs)
@@ -89,7 +96,6 @@ def get_test_dataframe(speakers=8):
 
 DATA_FRAME = get_test_dataframe()
 
-DataFrame = pd.DataFrame
 
 # class BaseTestCases:  # pylint: disable=too-few-public-methods
 #     """

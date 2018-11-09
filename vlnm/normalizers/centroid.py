@@ -222,7 +222,14 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
         """Calculate the speakers centroid."""
         apice_df = cls.get_apice_formants(
             df, apices, **kwargs)
-        apice_df.loc['goose'] = apice_df.min(axis=0)
+
+        formants = kwargs.get('formants')
+        vowel = kwargs.get('vowel', 'vowel')
+        def _agg(agg_df):
+            names = {f: agg_df[f].mean() for f in formants}
+            return pd.Series(names, index=formants)
+        # Minimum mean of all vowels (same as minimum mean of point vowels)
+        apice_df.loc['goose'] = df.groupby(vowel).apply(_agg).min(axis=0)
 
         centroid = apice_df.mean(axis=0)
         return centroid

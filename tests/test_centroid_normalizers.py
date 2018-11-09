@@ -12,7 +12,9 @@ from tests.test_speaker_normalizers import Helper
 from tests.helpers import (
     get_test_dataframe,
     assert_frame_equal,
-    DataFrame)
+    assert_series_equal,
+    DataFrame,
+    Series)
 
 
 class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
@@ -35,7 +37,7 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
             apices=['i', 'a'])
 
     def test_apice_formants(self):
-        """Check speaker parameter values for all speakers."""
+        """Test the get_apice_formants method."""
         df = DataFrame(dict(
             speaker=['s1', 's1'],
             vowel=['fleece', 'trap'],
@@ -52,89 +54,77 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
         expected.index.name = 'vowel'
         assert_frame_equal(actual, expected)
 
+    def test_get_centroid(self):
+        """Test get_centroid method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1', 's1', 's1'],
+            vowel=['fleece', 'fleece', 'trap', 'trap'],
+            f1=[100., 200., 200., 300.],
+            f2=[400., 500., 500., 600.]
+        ))
+        actual = self.normalizer.get_centroid(
+            df, ['fleece', 'trap'],
+            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
+
+        expected = Series(
+            dict(
+                f1=(150. + 250. + 150.) / 3,
+                f2=(450. + 550. + 150.) / 3),
+            dtype=actual.dtype)
+
+        assert_series_equal(actual, expected)
 
 
+class TestWattFabricius2Normalizer(TestWattFabriciusNormalizer):
+    """Tests for the WattFabricius2Normalizer Class. """
 
-# class TestWattFabricius2Normalizer(unittest.TestCase):
-#     """Tests for the WattFabricius2Normalizer Class. """
+    normalizer = WattFabricius2Normalizer
 
-#     normalizer = WattFabricius2Normalizer
-#     required_kwargs = dict(
-#         fleece='i',
-#         trap='a')
+    def test_get_centroid(self):
+        """Test get_centroid method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1', 's1', 's1'],
+            vowel=['fleece', 'fleece', 'trap', 'trap'],
+            f1=[100., 200., 200., 300.],
+            f2=[400., 500., 500., 600.]
+        ))
+        actual = self.normalizer.get_centroid(
+            df, ['fleece', 'trap'],
+            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
 
-#     def test_speaker_stats(self):
-#         """Check speaker parameter values for all speakers."""
-#         df = pd.DataFrame(dict(
-#             speaker=['s1', 's1'],
-#             vowel=['fleece', 'trap'],
-#             f1=[100., 250.],
-#             f2=[400., 450.]
-#         ))
-#         constants = {}
-#         formants = ['f1', 'f2']
-#         WattFabricius2Normalizer.speaker_stats(
-#             df,
-#             formants=formants,
-#             fleece='fleece',
-#             trap='trap',
-#             constants=constants)
+        expected = Series(
+            dict(
+                f1=(150. + 250. + 150.) / 3,
+                f2=(450. + 150.) / 2),
+            dtype=actual.dtype)
 
-#         expected = dict(
-#             f1_fleece=100.,
-#             f2_fleece=400.,
-#             f1_trap=250.,
-#             f2_trap=450.,
-#             f1_goose=100.,
-#             f2_goose=100.,
-#             f1_centroid=(100 + 250 + 100) / 3,
-#             f2_centroid=(400 + 100) / 2)
-
-#         self.assertDictEqual(
-#             constants,
-#             expected)
+        assert_series_equal(actual, expected)
 
 
-# class TestWattFabricius3Normalizer(unittest.TestCase):
-#     """Tests for the WattFabricius3Normalizer Class. """
+class TestWattFabricius3Normalizer(TestWattFabriciusNormalizer):
+    """Tests for the WattFabricius3Normalizer Class. """
 
-#     normalizer = WattFabricius3Normalizer
-#     required_kwargs = dict(
-#         fleece='i',
-#         trap='a',
-#         point_vowels=['i', 'a'])
+    normalizer = WattFabricius3Normalizer
 
-#     def test_speaker_stats(self):
-#         """Check speaker parameter values for all speakers."""
-#         df = pd.DataFrame(dict(
-#             speaker=['s1', 's1', 's1'],
-#             vowel=['fleece', 'trap', 'bath'],
-#             f1=[100., 250., 50.],
-#             f2=[400., 450., 300.]
-#         ))
-#         constants = {}
-#         formants = ['f1', 'f2']
-#         WattFabricius3Normalizer.speaker_stats(
-#             df,
-#             formants=formants,
-#             fleece='fleece',
-#             trap='trap',
-#             point_vowels=['fleece', 'trap', 'bath'],
-#             constants=constants)
+    def test_get_centroid(self):
+        """Test get_centroid method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1', 's1', 's1', 's1', 's1'],
+            vowel=['fleece', 'fleece', 'trap', 'trap', 'kit', 'kit'],
+            f1=[100., 200., 200., 300., 0., 100.],
+            f2=[400., 500., 500., 600., 300., 400.]
+        ))
+        actual = self.normalizer.get_centroid(
+            df, ['fleece', 'trap'],
+            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
 
-#         expected = dict(
-#             f1_fleece=100.,
-#             f2_fleece=400.,
-#             f1_trap=250.,
-#             f2_trap=450.,
-#             f1_goose=50.,
-#             f2_goose=300.,
-#             f1_centroid=(100 + 250 + 50) / 3,
-#             f2_centroid=(400 + 300) / 2)
+        expected = Series(
+            dict(
+                f1=(150. + 250. + 50.) / 3,
+                f2=(450. + 550. + 350.) / 3),
+            dtype=actual.dtype)
 
-#         self.assertDictEqual(
-#             constants,
-#             expected)
+        assert_series_equal(actual, expected)
 
 
 # class TestBighamNormalizer(unittest.TestCase):
