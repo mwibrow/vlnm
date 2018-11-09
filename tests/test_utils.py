@@ -197,7 +197,7 @@ class TestGetFormantsSpec(unittest.TestCase):
         Nothing specified returns dictionary with default keys.
         """
         columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'])
+        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
         actual = get_formants_spec(columns)
         self.assertDictEqual(actual, expected)
 
@@ -206,7 +206,7 @@ class TestGetFormantsSpec(unittest.TestCase):
         Fx specified as string returns dictionary with specified keys.
         """
         columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'])
+        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
         actual = get_formants_spec(columns, f0='f0', f1='f1')
         self.assertDictEqual(actual, expected)
 
@@ -215,7 +215,7 @@ class TestGetFormantsSpec(unittest.TestCase):
         Fx specified as list returns dictionary with specified keys.
         """
         columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'])
+        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
         actual = get_formants_spec(columns, f0=['f0'], f1=['f1'])
         self.assertDictEqual(actual, expected)
 
@@ -224,7 +224,8 @@ class TestGetFormantsSpec(unittest.TestCase):
         Fx specified as regex returns dictionary with specified keys.
         """
         columns = ['f0', 'f0@50', 'f1', 'f1@50']
-        expected = dict(f0=['f0', 'f0@50'], f1=['f1', 'f1@50'])
+        expected = dict(
+            f0=['f0', 'f0@50'], f1=['f1', 'f1@50'], formants=columns)
         actual = get_formants_spec(columns, f0='f0.*', f1='f1.*')
         self.assertDictEqual(actual, expected)
 
@@ -233,7 +234,7 @@ class TestGetFormantsSpec(unittest.TestCase):
         formants specified as dict returns dictionary with specified keys.
         """
         columns = ['f0', 'f0@50', 'f1', 'f1@50']
-        expected = dict(f0=['f0'], f1=['f1'])
+        expected = dict(f0=['f0'], f1=['f1'], formants=['f0', 'f1'])
         actual = get_formants_spec(columns, formats=dict(
             f0='f0', f1='f1'))
         self.assertDictEqual(actual, expected)
