@@ -169,30 +169,54 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
 
 
-# class TestSchwaNormalizer(unittest.TestCase):
-#     """Tests for the SchwaNormalizer Class. """
+class TestSchwaNormalizer(Helper.SpeakerNormalizerTests):
+    """Tests for the SchwaNormalizer Class. """
 
-#     normalizer = SchwaNormalizer
-#     required_kwargs = dict(
-#         schwa='e')
+    normalizer = SchwaNormalizer
 
-#     def test_speaker_stats(self):
-#         """Check speaker parameter values for all speakers."""
-#         schwa = 'e'
-#         df = self.df.copy()
-#         for speaker in df['speaker'].unique():
-#             speaker_df = df[df['speaker'] == speaker]
+    def setUp(self):
+        self.df = get_test_dataframe()
+        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.normalizer = self.__class__.normalizer
+        self.kwargs = dict(
+            formants=self.formants,
+            schwa='e')
 
-#             actual = {}
-#             expected = {}
-#             for formant in self.formants:
-#                 expected['{}_centroid'.format(formant)] = (
-#                     speaker_df[speaker_df['vowel'] == schwa][formant].mean())
 
-#             SchwaNormalizer.speaker_stats(
-#                 speaker_df,
-#                 constants=actual,
-#                 schwa=schwa,
-#                 **self.kwargs)
+    def test_apice_formants(self):
+        """Test the get_apice_formants method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1'],
+            vowel=['e', 'i'],
+            f1=[100., 250.],
+            f2=[400., 450.]
+        ))
+        actual = self.normalizer.get_apice_formants(
+            df, ['e'], vowel='vowel', formants=['f1', 'f2'])
 
-#             self.assertDictEqual(actual, expected)
+        expected = DataFrame(dict(
+            f1=df[df['vowel'] == 'e']['f1'],
+            f2=df[df['vowel'] == 'e']['f2']))
+        expected.index = ['e']
+        expected.index.name = 'vowel'
+        assert_frame_equal(actual, expected)
+
+
+    def test_get_centroid(self):
+        """Test the get_centroid method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1'],
+            vowel=['e', 'e'],
+            f1=[100., 200.],
+            f2=[400., 500.]
+        ))
+        actual = self.normalizer.get_centroid(
+            df, ['e'], vowel='vowel', formants=['f1', 'f2'])
+
+        expected = Series(
+            dict(
+                f1=(100. + 200.) / 2,
+                f2=(400. + 500.) / 2),
+            dtype=actual.dtype)
+
+        assert_series_equal(actual, expected)

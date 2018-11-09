@@ -14,6 +14,8 @@ from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
 class CentroidNormalizer(SpeakerIntrinsicNormalizer):
     """Base class for centroid based normalizers."""
 
+    required_columns = ['speaker', 'vowel']
+
     @staticmethod
     def get_apice_formants(df, apices, **kwargs):
         r"""Calculate the formants for the apices of the speakers vowel space.
@@ -273,8 +275,8 @@ class SchwaNormalizer(CentroidNormalizer):
         kwargs['apices'] = [schwa]
         return super()._normalize(df, groups=groups, **kwargs)
 
-    @classmethod
-    def _norm(cls, df, **kwargs):
-        df = cls._norm(cls, df, **kwargs)
-        df -= 1
+    def _norm(self, df, **kwargs):
+        df = super()._norm(df, **kwargs)
+        formants = kwargs.get('formants')
+        df[formants] -= 1.
         return df
