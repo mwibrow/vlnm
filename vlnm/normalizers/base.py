@@ -68,12 +68,13 @@ class Normalizer:
         return get_formants_spec(df.columns, **self.kwargs)
 
     def _validate(self, df, **kwargs):
+
         for keyword in self.required_keywords:
             if not keyword in kwargs:
                 raise ValueError('{} requires keyword {}'.format(
                     self.__class__.__name__, keyword))
         for column in self.required_columns:
-            column = kwargs.get(column, column)
+            column = kwargs.get(column, column) or column
             try:
                 if column.strip() not in df:
                     raise ValueError(

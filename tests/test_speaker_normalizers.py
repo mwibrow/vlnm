@@ -56,10 +56,11 @@ class Helper:
             """
             Missing speaker column raises ValueError.
             """
-            df = self.df.copy()
-            df = df.drop('speaker', axis=1)
-            with self.assertRaises(ValueError):
-                self.normalizer().normalize(df, **self.kwargs)
+            for column in self.normalizer.required_columns:
+                df = self.df.copy()
+                df = df.drop(column, axis=1)
+                with self.assertRaises(ValueError):
+                    self.normalizer().normalize(df, **self.kwargs)
 
         def test_incorrect_alias(self):
             """
