@@ -77,6 +77,7 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
             Centroid data for each formant.
         """
         apice_df = cls.get_apice_formants(df, apices, **kwargs)
+        print(apice_df)
         centroid = apice_df.mean(axis=0)
         return centroid
 
@@ -235,7 +236,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
         return centroid
 
 
-class BighamNormalizer(WattFabriciusNormalizer):
+class BighamNormalizer(CentroidNormalizer):
     r"""
 
     Normalise vowels according to Bigham 2006:
@@ -255,7 +256,7 @@ class BighamNormalizer(WattFabriciusNormalizer):
 
     """
     required_columns = ['speaker', 'vowel']
-    required_keyowrds = ['apices']
+    required_keywords = ['apices']
 
 
 class SchwaNormalizer(CentroidNormalizer):

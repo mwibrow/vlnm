@@ -22,10 +22,6 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
 
     normalizer = WattFabriciusNormalizer
 
-    required_kwargs = dict(
-        fleece='i',
-        trap='a')
-
     def setUp(self):
         self.df = get_test_dataframe()
         self.formants = ['f0', 'f1', 'f2', 'f3']
@@ -127,39 +123,50 @@ class TestWattFabricius3Normalizer(TestWattFabriciusNormalizer):
         assert_series_equal(actual, expected)
 
 
-# class TestBighamNormalizer(unittest.TestCase):
-#     """Tests for the BighamNormalizer Class. """
+class TestBighamNormalizer(TestWattFabriciusNormalizer):
+    """Tests for the BighamNormalizer Class. """
 
-#     normalizer = BighamNormalizer
-#     required_kwargs = dict(
-#         apices=['a', 'i', 'o', 'u'])
+    normalizer = BighamNormalizer
 
-#     def test_speaker_stats(self):
-#         """Check speaker parameter values for all speakers."""
-#         apices = ['a', 'i', 'o', 'u']
-#         df = self.df.copy()
-#         for speaker in df['speaker'].unique():
-#             speaker_df = df[df['speaker'] == speaker]
+    def test_apice_formants(self):
+        """Test the get_apice_formants method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1'],
+            vowel=['fleece', 'trap'],
+            f1=[100., 250.],
+            f2=[400., 450.]
+        ))
+        actual = self.normalizer.get_apice_formants(
+            df, ['fleece', 'trap'], vowel='vowel', formants=['f1', 'f2'])
 
-#             actual = {}
-#             expected = {}
-#             for formant in self.formants:
-#                 for apice in apices:
-#                     apice_df = speaker_df[speaker_df['vowel'] == apice]
-#                     expected['{}_{}'.format(formant, apice)] = (
-#                         apice_df[formant].mean())
+        expected = DataFrame(dict(
+            f1=df['f1'],
+            f2=df['f2']))
+        expected.index = ['fleece', 'trap']
+        expected.index.name = 'vowel'
+        assert_frame_equal(actual, expected)
 
-#                 expected['{}_centroid'.format(formant)] = (
-#                     sum(expected['{}_{}'.format(formant, apice)]
-#                         for apice in apices) / len(apices))
+    def test_get_centroid(self):
+        """Test the get_centroid method."""
+        df = DataFrame(dict(
+            speaker=['s1', 's1', 's1', 's1', 's1', 's1'],
+            vowel=['fleece', 'fleece', 'trap', 'trap', 'kit', 'kit'],
+            f1=[100., 200., 200., 300., 0., 100.],
+            f2=[400., 500., 500., 600., 300., 400.]
+        ))
 
-#             BighamNormalizer.speaker_stats(
-#                 speaker_df,
-#                 constants=actual,
-#                 apices=apices,
-#                 **self.kwargs)
+        actual = self.normalizer.get_centroid(
+            df, ['fleece', 'trap'],
+            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
 
-#             self.assertDictEqual(actual, expected)
+        expected = Series(
+            dict(
+                f1=(150. + 250.) / 2,
+                f2=(450. + 550.) / 2),
+            dtype=actual.dtype)
+
+        assert_series_equal(actual, expected)
+
 
 
 # class TestSchwaNormalizer(unittest.TestCase):
