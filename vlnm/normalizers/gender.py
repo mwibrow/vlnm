@@ -71,7 +71,7 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     """
     config = dict(
         columns=['f1', 'f3', 'gender'],
-        keywords=['male', 'female'],
+        keywords=['male', 'female', 'gender'],
         groups=['gender']
     )
 

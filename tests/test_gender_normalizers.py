@@ -74,6 +74,19 @@ class TestBladenNormalizer(unittest.TestCase):
             **self.kwargs)[self.formants]
         self.assertTrue(actual.equals(expected))
 
+    def test_default_gender_labels(self):
+        """Test default gender labels."""
+        normalizer = BladenNormalizer()
+        df = self.df.copy()
+        normalizer.normalize(df, **self.kwargs)
+
+        expected = dict(
+            female='F',
+            gender='gender',
+            male='M')
+        actual = {key: normalizer.options[key] for key in expected}
+        self.assertDictEqual(actual, expected)
+
 
 class TestNordstromNormalizer(unittest.TestCase):
     """
@@ -98,3 +111,16 @@ class TestNordstromNormalizer(unittest.TestCase):
         actual = NordstromNormalizer().normalize(
             df, gender='gender', female='F', male='M')
         self.assertTrue(actual is not None)
+
+    def test_default_gender_labels(self):
+        """Test default gender labels."""
+        normalizer = NordstromNormalizer()
+        df = self.df.copy()
+        normalizer.normalize(df, **self.kwargs)
+
+        expected = dict(
+            female='F',
+            gender='gender',
+            male='M')
+        actual = {key: normalizer.options[key] for key in expected}
+        self.assertDictEqual(actual, expected)
