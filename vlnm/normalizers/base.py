@@ -114,7 +114,6 @@ class Normalizer:
                     if not col in df:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
-
         self._prenormalize(df)
         norm_df = self._normalize(df, groups=self.config['groups'])
         self._postnormalize(norm_df)

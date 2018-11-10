@@ -87,7 +87,7 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
     def _norm(self, df):
         centroid = self.get_centroid(df, **self.params)
-        formants = self.params.get('formants')
+        formants = self.params['formants']
         df[formants] /= centroid
         return df
 
@@ -132,7 +132,8 @@ class WattFabriciusNormalizer(CentroidNormalizer):
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
         fleece = kwargs['fleece']
-
+        trap = kwargs['trap']
+        apices = apices or [fleece, trap]
         apice_df = get_apice_formants(df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
@@ -177,11 +178,11 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
         """Calculate the speakers centroid."""
-        apices = apices or []
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
         fleece = kwargs['fleece']
-
+        trap = kwargs['trap']
+        apices = apices or [fleece, trap]
         apice_df = get_apice_formants(df, apices, **kwargs)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
@@ -259,14 +260,15 @@ class BighamNormalizer(CentroidNormalizer):
 
     """
     config = dict(
+        keywords=['apices'],
         columns=['speaker', 'vowel']
     )
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'apices':
-            vowel = self._keyword_default(self, 'vowel')
+            vowel = self._keyword_default('vowel', df=None)
             return list(df[vowel].unique())
-        return super()._keyword_default(self, keyword, df=df)
+        return super()._keyword_default(keyword, df=df)
 
 
 class SchwaNormalizer(CentroidNormalizer):

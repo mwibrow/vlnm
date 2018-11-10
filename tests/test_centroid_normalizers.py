@@ -41,7 +41,7 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
         ))
         actual = self.normalizer.get_centroid(
             df, ['fleece', 'trap'],
-            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
+            fleece='fleece', trap='trap', vowel='vowel', formants=['f1', 'f2'])
 
         expected = Series(
             dict(
@@ -50,6 +50,19 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
             dtype=actual.dtype)
 
         assert_series_equal(actual, expected)
+
+    def test_default_keywords(self):
+        """Check default keywords assigned."""
+        df = self.df.copy()
+        df.loc[df['vowel'] == 'i', 'vowel'] = 'fleece'
+        df.loc[df['vowel'] == 'a', 'vowel'] = 'trap'
+        normalizer = self.normalizer()
+        normalizer.normalize(df)
+        expected = dict(
+            fleece='fleece',
+            trap='trap')
+        actual = {key: normalizer.options[key] for key in expected}
+        self.assertDictEqual(actual, expected)
 
 
 class TestWattFabricius2Normalizer(TestWattFabriciusNormalizer):
@@ -67,7 +80,7 @@ class TestWattFabricius2Normalizer(TestWattFabriciusNormalizer):
         ))
         actual = self.normalizer.get_centroid(
             df, ['fleece', 'trap'],
-            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
+            fleece='fleece', trap='trap', vowel='vowel', formants=['f1', 'f2'])
 
         expected = Series(
             dict(
@@ -120,7 +133,7 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
         actual = self.normalizer.get_centroid(
             df, ['fleece', 'trap'],
-            fleece='fleece', vowel='vowel', formants=['f1', 'f2'])
+            fleece='fleece', trap='trap', vowel='vowel', formants=['f1', 'f2'])
 
         expected = Series(
             dict(
@@ -130,7 +143,17 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
         assert_series_equal(actual, expected)
 
-
+    def test_default_keywords(self):
+        """Check default keywords assigned."""
+        df = self.df.copy()
+        df.loc[df['vowel'] == 'i', 'vowel'] = 'fleece'
+        df.loc[df['vowel'] == 'a', 'vowel'] = 'trap'
+        normalizer = self.normalizer()
+        normalizer.normalize(df)
+        expected = dict(
+            apices=list(df['vowel'].unique()))
+        actual = {key: normalizer.options[key] for key in expected}
+        self.assertDictEqual(actual, expected)
 
 class TestSchwaNormalizer(Helper.SpeakerNormalizerTests):
     """Tests for the SchwaNormalizer Class. """
