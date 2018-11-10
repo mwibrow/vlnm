@@ -5,7 +5,6 @@ Tests for registering normalizer classes
 import unittest
 
 import vlnm.normalizers
-from vlnm.decorators import Register
 from vlnm.normalizers import register_normalizer
 
 class _TestNormalizer:
@@ -32,23 +31,3 @@ class TestRegisterNormalizer(unittest.TestCase):
         self.assertDictEqual(
             actual,
             dict(test=_TestNormalizer))
-
-
-class TestRegisterDecorator(unittest.TestCase):
-    """
-    Test the Register decorator.
-    """
-
-    def test_default_register(self):
-        """Add an entry to the default register."""
-
-        vlnm.normalizers.NORMALIZERS = {}
-
-        @Register('test1')
-        class _TestRegister1:
-            def public_method(self):
-                """A public method for the linter."""
-
-        self.assertDictEqual(
-            vlnm.normalizers.NORMALIZERS,
-            dict(test1=_TestRegister1))

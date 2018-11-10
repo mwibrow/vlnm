@@ -91,13 +91,6 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] /= centroid
         return df
 
-    def _keyword_default(self, keyword, df=None):
-        if keyword == 'apices':
-            trap = self._keyword_default('trap')
-            fleece = self._keyword_default('fleece')
-            return [trap, fleece]
-        return super()._keyword_default(keyword, df)
-
 
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""

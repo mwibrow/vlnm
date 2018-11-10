@@ -121,7 +121,7 @@ class Normalizer:
 
     @staticmethod
     def _get_formants_spec(df, **kwargs):
-        """Derive the formant structure from the gien formants."""
+        """Derive the formant structure from the given formants."""
         if any(kwargs.get(f) for f in FORMANTS):
             _kwargs = kwargs.copy()
             _kwargs['formants'] = None
