@@ -6,28 +6,46 @@ from vlnm.utils import get_formants_spec
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
+
 class Normalizer:
     """Base normalizer class."""
 
-    transform = None
-    groups = []
-    required_columns = []
-    required_keywords = []
+    config = dict(
+        # Transform formant data.
+        transform=None,
+        # Group data by column before normalizing.
+        groups=[],
+        # Required columns for the normalizer.
+        columns=[],
+        # Keywords used by the normalizer.
+        keywords=[],
+        # Default options
+        options=dict())
 
     options = dict()
 
     def __init__(self, f0=None, f1=None, f2=None, f3=None,
                  formants=None, rename=None, **kwargs):
         kwargs.update(**self.options)
-        self.kwargs = dict(
-            f0=f0,
-            f1=f1,
-            f2=f2,
-            f3=f3,
+        self.default_options = dict(
+            f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants,
             rename=rename,
             **kwargs)
-        self.columns = []
+        self.options = {}
+        self.params = {}
+        self.default_config = self._get_config()
+        self.config = {}
+
+    def _get_config(self):
+        config = {}
+        for klass in type(self).mro():
+            try:
+                config.update({key: value for key, value in klass.config.items()
+                               if key not in config})
+            except AttributeError:
+                pass
+        return config
 
     def __call__(self, df, **kwargs):
         return self.normalize(df, **kwargs)
@@ -38,22 +56,35 @@ class Normalizer:
 
         Set up arguments and call the internal function _normalize.
         """
-        nkwargs = self.kwargs.copy()
-        nkwargs.update(kwargs)
+        self.config = self.default_config.copy()
+        self.config.update({key: kwargs.pop(key) for key in self.config
+                            if key in kwargs})
+        self.options = self.default_options.copy()
+        self.options.update(rename=rename, **kwargs)
+
         formants_spec = self._get_formants_spec(
             df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
-        nkwargs.update(**formants_spec)
+        self.options.update(**formants_spec)
 
-        nkwargs.update(
-            constants={},
-            groups=self.groups or [],
-            rename=rename or '',
-            transform=kwargs.pop('transform', self.__class__.transform))
-        self._validate(df, **nkwargs)
+        for keyword in self.config['keywords']:
+            if not keyword in self.options:
+                self.options[keyword] = self._keyword_default(keyword, df)
 
-        self._prenormalize(df, **nkwargs)
-        norm_df = self._normalize(df, **nkwargs)
-        self._postnormalize(norm_df, **nkwargs)
+        for column in self.config['columns']:
+            column = self.options.get(column, column) or column
+            try:
+                if not column in df:
+                    raise ValueError(
+                        'Column {} not in dataframe'.format(column))
+            except TypeError:
+                for col in column:
+                    if not col in df:
+                        raise ValueError(
+                            'Column {} not in dataframe'.format(col))
+
+        self._prenormalize(df)
+        norm_df = self._normalize(df, groups=self.config['groups'])
+        self._postnormalize(norm_df)
         return norm_df
 
     def _get_formants_spec(self, df, **kwargs):
@@ -63,66 +94,51 @@ class Normalizer:
             return get_formants_spec(df.columns, **_kwargs)
         elif kwargs.get('formant'):
             return get_formants_spec(df.columns, formants=kwargs['formants'])
-        return get_formants_spec(df.columns, **self.kwargs)
+        return get_formants_spec(df.columns, **self.options)
 
-    def _validate(self, df, **kwargs):
+    def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
+        if keyword in self.options:
+            return self.options[keyword]
+        return keyword
 
-        for keyword in self.required_keywords:
-            if not keyword in kwargs:
-                raise ValueError('{} requires keyword {}'.format(
-                    self.__class__.__name__, keyword))
-        for column in self.required_columns:
-            column = kwargs.get(column, column) or column
-            try:
-                if column.strip() not in df:
-                    raise ValueError(
-                        'Column `{}` not found in data frame'.format(column))
-            except AttributeError:
-                for col in column:
-                    if col not in df:
-                        raise ValueError(
-                            'Column `{}` not found in data frame'.format(col))
-
-
-    @staticmethod
-    def _prenormalize(df, **_kwargs):
+    def _prenormalize(self, df):  # pylint: disable=no-self-use
         """Actions performed before normalization."""
         return df
 
-    @staticmethod
-    def _postnormalize(df, **_kwargs):
+    def _postnormalize(self, df):  # pylint: disable=no-self-use
         """Actions performed after normalization."""
         return df
 
-    def _normalize(self, df, groups=None, **kwargs):
+    def _normalize(self, df, groups=None):
         if groups:
             norm_df = df.groupby(by=groups, as_index=False).apply(
-                lambda group_df, groups=groups[1:], kwargs=kwargs:
-                self._normalize(group_df, groups=groups[1:], **kwargs))
+                lambda group_df, groups=groups[1:]:
+                self._normalize(group_df, groups=groups[1:]))
             # norm_df = norm_df.reset_index(drop=True)
             return norm_df
-        for formant_spec in self._formant_iterator(**kwargs):
-            _kwargs = kwargs.copy()
-            _kwargs.update(**formant_spec)
+        for formant_spec in self._formant_iterator(**self.options):
+            self.params = self.options.copy()
+            self.params.update(**formant_spec)
 
             # Get the columns to subset the dataframe.
             subset = formant_spec['formants'][:]
-            for column in self.required_columns:
+            for column in self.config['columns']:
                 if column in formant_spec:
                     subset.extend(formant_spec[column])
                 else:
-                    subset.append(kwargs.get(column, column))
+                    subset.append(self.params.get(column, column))
 
             # Throw an error if column not in dataframe or just plough on?
             subset = list(
                 set(column for column in subset if column in df.columns))
-            norm_df = self._norm(df[subset].copy(), **_kwargs)
+
+            norm_df = self._norm(df[subset].copy())
 
             # Find new/renameable columns and rename.
             renameables = [column for column in norm_df
                            if column not in subset]
-            renameables.extend(_kwargs['formants'])
-            rename = kwargs.get('rename') or '{}'
+            renameables.extend(self.params['formants'])
+            rename = self.params.get('rename') or '{}'
             for column in renameables:
                 if column in norm_df:
                     df[rename.format(column)] = norm_df[column]
@@ -137,24 +153,22 @@ class Normalizer:
                 formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
-
-    @staticmethod
-    def _norm(df, **_kwargs):
+    def _norm(self, df):  # pylint: disable=no-self-use
+        """Implemented by subclasses"""
         return df
 
 
-class SimpleTransformable:
+class SimpleTransformable(Normalizer):
     """Base class for normalizers which simply transform formants.
 
     Provides a :code:`_norm` method which transforms
     all formants together.
     """
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        transform = kwargs.get('transform')
+    def _norm(self, df):
+        transform = self.params.get('transform', self.config.get('transform'))
         if transform:
-            formants = kwargs.get('formants')
+            formants = self.params.get('formants')
             df[formants] = transform(df[formants])
         return df
 
@@ -206,5 +220,8 @@ class FormantExtrinsicNormalizer(Normalizer):
 
 class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
     """Base class for speaker intrinsic normalizers."""
-    required_columns = ['speaker']
-    groups = ['speaker']
+
+    config = dict(
+        columns=['speaker'],
+        groups=['speaker']
+    )

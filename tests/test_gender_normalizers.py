@@ -9,6 +9,7 @@ from vlnm.normalizers.gender import (
     BladenNormalizer,
     NordstromNormalizer)
 from tests.helpers import (
+    assert_frame_equal,
     generate_data_frame)
 
 def get_test_dataframe(speakers=8):
@@ -53,7 +54,7 @@ class TestBladenNormalizer(unittest.TestCase):
         actual = normalizer.normalize(
             df,
             **self.kwargs)[self.formants]
-        self.assertTrue(actual.equals(expected))
+        assert_frame_equal(actual, expected)
 
     def test_gender_alias(self):
         """Test aliased gender column."""
@@ -90,22 +91,6 @@ class TestNordstromNormalizer(unittest.TestCase):
         self.df = df.copy()
         self.kwargs = {}
         self.formants = ['f0', 'f1', 'f2', 'f3']
-
-    def test_prenormalize(self):
-        """Calculate mu ratios."""
-        df = self.df
-        mu_male = df[(df['gender'] == 'M') & (df['f1'] > 600)]['f3'].mean()
-        mu_female = df[(df['gender'] == 'F') & (df['f1'] > 600)]['f3'].mean()
-
-        constants = {}
-        NordstromNormalizer.get_f3_means(
-            df,
-            constants=constants,
-            gender='gender',
-            male='M',
-            female='F')
-        self.assertEqual(constants['mu_female'], mu_female)
-        self.assertEqual(constants['mu_male'], mu_male)
 
     def test_output(self):
         """Test output of Nordstrom normalizer."""

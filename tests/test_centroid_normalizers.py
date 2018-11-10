@@ -11,7 +11,6 @@ from vlnm.normalizers.centroid import (
 from tests.test_speaker_normalizers import Helper
 from tests.helpers import (
     get_test_dataframe,
-    assert_frame_equal,
     assert_series_equal,
     DataFrame,
     Series)
@@ -31,40 +30,6 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
             fleece='i',
             trap='a',
             apices=['i', 'a'])
-
-    def test_ensure_apices(self):
-        """Test the ensure_apices function"""
-        df = DataFrame(dict(
-            speaker=['s1', 's1'],
-            vowel=['fleece', 'trap'],
-            f1=[100., 250.],
-            f2=[400., 450.]
-        ))
-        kwargs = dict(
-            fleece='fleece',
-            trap='trap',
-            vowel='vowel')
-        self.normalizer().ensure_apices(df, kwargs)
-        self.assertIn('apices', kwargs)
-
-
-    def test_apice_formants(self):
-        """Test the get_apice_formants method."""
-        df = DataFrame(dict(
-            speaker=['s1', 's1'],
-            vowel=['fleece', 'trap'],
-            f1=[100., 250.],
-            f2=[400., 450.]
-        ))
-        actual = self.normalizer.get_apice_formants(
-            df, ['fleece', 'trap'], vowel='vowel', formants=['f1', 'f2'])
-
-        expected = DataFrame(dict(
-            f1=df['f1'],
-            f2=df['f2']))
-        expected.index = ['fleece', 'trap']
-        expected.index.name = 'vowel'
-        assert_frame_equal(actual, expected)
 
     def test_get_centroid(self):
         """Test get_centroid method."""
@@ -144,24 +109,6 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
     normalizer = BighamNormalizer
 
-    def test_apice_formants(self):
-        """Test the get_apice_formants method."""
-        df = DataFrame(dict(
-            speaker=['s1', 's1'],
-            vowel=['fleece', 'trap'],
-            f1=[100., 250.],
-            f2=[400., 450.]
-        ))
-        actual = self.normalizer.get_apice_formants(
-            df, ['fleece', 'trap'], vowel='vowel', formants=['f1', 'f2'])
-
-        expected = DataFrame(dict(
-            f1=df['f1'],
-            f2=df['f2']))
-        expected.index = ['fleece', 'trap']
-        expected.index.name = 'vowel'
-        assert_frame_equal(actual, expected)
-
     def test_get_centroid(self):
         """Test the get_centroid method."""
         df = DataFrame(dict(
@@ -197,26 +144,6 @@ class TestSchwaNormalizer(Helper.SpeakerNormalizerTests):
         self.kwargs = dict(
             formants=self.formants,
             schwa='e')
-
-
-    def test_apice_formants(self):
-        """Test the get_apice_formants method."""
-        df = DataFrame(dict(
-            speaker=['s1', 's1'],
-            vowel=['e', 'i'],
-            f1=[100., 250.],
-            f2=[400., 450.]
-        ))
-        actual = self.normalizer.get_apice_formants(
-            df, ['e'], vowel='vowel', formants=['f1', 'f2'])
-
-        expected = DataFrame(dict(
-            f1=df[df['vowel'] == 'e']['f1'],
-            f2=df[df['vowel'] == 'e']['f2']))
-        expected.index = ['e']
-        expected.index.name = 'vowel'
-        assert_frame_equal(actual, expected)
-
 
     def test_get_centroid(self):
         """Test the get_centroid method."""

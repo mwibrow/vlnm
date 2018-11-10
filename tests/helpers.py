@@ -113,7 +113,8 @@ class Helper:
             """
             Missing speaker column raises ValueError.
             """
-            for column in self.normalizer.required_columns:
+            columns = self.normalizer().default_config['columns']
+            for column in columns:
                 df = self.df.copy()
                 df = df.drop(column, axis=1)
                 with self.assertRaises(ValueError):

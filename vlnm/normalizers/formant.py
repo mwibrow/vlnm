@@ -23,7 +23,7 @@ class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
             \right) - 0.53
 
     """
-    transform = hz_to_bark
+    config = dict(transform=hz_to_bark)
 
 
 class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
@@ -36,7 +36,7 @@ class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
 
     {{columns}}
     """
-    transform = hz_to_erb
+    config = dict(transform=hz_to_erb)
 
 class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
     r"""
@@ -47,7 +47,7 @@ class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
        F_i^N = \log_{10}\left(F_i\right)
 
     """
-    transform = np.log10
+    config = dict(transform=np.log10)
 
 
 class LogNormalizer(FormatIntrinsicTransformableNormalizer):
@@ -59,7 +59,7 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
        F_i^N = \log\left(F_i\right)
 
     """
-    transform = np.log
+    config = dict(transform=np.log)
 
 
 class MelNormalizer(FormatIntrinsicTransformableNormalizer):
@@ -72,4 +72,4 @@ class MelNormalizer(FormatIntrinsicTransformableNormalizer):
 
     {{columns}}
     """
-    transform = hz_to_mel
+    config = dict(transform=hz_to_mel)

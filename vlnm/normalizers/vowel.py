@@ -18,17 +18,18 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     :math:`B^\prime` is :math:`B_0` or :math:`B_1`
     depending on the context.
     """
-    required_keywords = ['f1', 'f2', 'f3']
-    transform = hz_to_bark
+    config = dict(
+        keywords=['f1', 'f2', 'f3'],
+        transform=hz_to_bark
+    )
 
-    @staticmethod
-    def _norm(df, **kwargs):
+    def _norm(self, df):
 
-        transform = kwargs.get('transform')
-        f0 = kwargs.get('f0')
-        f1 = kwargs.get('f1')
-        f2 = kwargs.get('f2')
-        f3 = kwargs.get('f3')
+        transform = self.config['transform']
+        f0 = self.params['f0']
+        f1 = self.params['f1']
+        f2 = self.params['f2']
+        f3 = self.params['f3']
 
         z0 = transform(df[f0]) if f0 in df else None
         z1 = transform(df[f1])

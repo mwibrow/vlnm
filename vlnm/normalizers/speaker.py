@@ -17,9 +17,8 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs.get('formants')
+    def _norm(self, df):
+        formants = self.params['formants']
         df[formants] = df[formants] / df[formants].max(axis=0)
         return df
 
@@ -32,9 +31,8 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs.get('formants', [])
+    def _norm(self, df):
+        formants = self.params['formants']
         fmin = df[formants].min(axis=0)
         fmax = df[formants].max(axis=0)
         df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
@@ -53,9 +51,8 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs.get('formants', [])
+    def _norm(self, df):
+        formants = self.params['formants']
         mean = df[formants].mean(axis=0)
         std = df[formants].std(axis=0)
         df[formants] = (df[formants] - mean) / std
@@ -75,15 +72,20 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
     """
+    config = dict(
+        keywords=['speaker', 'exp']
+    )
 
-    options = dict(exp=False)
+    def _keyword_default(self, keyword, df=None):
+        if keyword == 'exp':
+            return False
+        return super()._keyword_default(keyword, df=df)
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        formants = kwargs.get('formants', [])
+    def _norm(self, df):
+        formants = self.params['formants']
         logs = np.log(df[formants])
         df[formants] = np.log(df[formants]) - logs.mean(axis=0)
-        if kwargs.get('exp'):
+        if self.params['exp']:
             df[formants] = np.exp(df[formants])
         return df
 
@@ -102,12 +104,19 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
 
     """
 
-    options = dict(exp=False)
+    config = dict(
+        keywords=['speaker', 'exp']
+    )
 
-    def _norm(self, df, **kwargs):
-        formants = kwargs.get('formants', [])
+    def _keyword_default(self, keyword, df=None):
+        if keyword == 'exp':
+            return False
+        return super()._keyword_default(keyword, df=df)
+
+    def _norm(self, df):
+        formants = self.params['formants']
         logs = np.log(df[formants])
         df[formants] = logs - logs.mean(axis=0).mean()
-        if kwargs.get('exp'):
+        if self.params['exp']:
             df[formants] = np.exp(df[formants])
         return df

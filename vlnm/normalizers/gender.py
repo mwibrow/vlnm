@@ -25,24 +25,27 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
     Where :math:`I(s_k)` is an indicator function returning 1 if
     speaker :math:`k` is identified/identifying as female and 0 otherwise.
     """
-    required_columns = ['gender']
-    optional_keywords = ['male', 'female']
+    config = dict(
+        columns=['gender'],
+        keywords=['gender', 'male', 'female']
+    )
 
-    def _norm(self, df, **kwargs):
-        gender = kwargs.get('gender') or 'gender'
-        formants = kwargs.get('formants')
+    def _keyword_default(self, keyword, df=None):
+        if keyword == 'female':
+            return 'F'
+        elif keyword == 'male':
+            return 'M'
+        return super()._keyword_default(keyword, df=df)
 
-        female = kwargs.get('female', 'F')
-        male = kwargs.get('male', 'M')
-
-        is_female = lambda x: x == female if female else lambda x: x != male
-
+    def _norm(self, df):
+        gender = self.params['gender']
+        formants = self.params['formants']
+        female = self.params['female']
         indicator = np.repeat(
             np.atleast_2d(
-                (is_female(df[gender])).astype(float)),
+                (df[gender] == female).astype(float)),
             len(formants),
             axis=0).T
-
         return hz_to_bark(df[formants]) - indicator
 
 
@@ -66,44 +69,46 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
     """
-    required_columns = ['f1', 'f3', 'gender']
-    optional_keywords = ['male', 'female']
-    groups = ['gender']
+    config = dict(
+        columns=['f1', 'f3', 'gender'],
+        keywords=['male', 'female'],
+        groups=['gender']
+    )
 
-    @classmethod
-    def _prenormalize(cls, df, **kwargs):
-        return cls.get_f3_means(df, **kwargs)
+    def _keyword_default(self, keyword, df=None):
+        if keyword == 'female':
+            return 'F'
+        elif keyword == 'male':
+            return 'M'
+        return super()._keyword_default(keyword, df=df)
 
-    @staticmethod
-    def get_f3_means(df, **kwargs):
+    def _prenormalize(self, df):
+        return self.get_f3_means(df)
+
+    def get_f3_means(self, df):
         """Calculate the mean F3 for all speakers."""
-        constants = kwargs.get('constants')
-        gender = kwargs.get('gender')
-        female = kwargs.get('female', 'F')
-        male = kwargs.get('male', 'M')
+        gender = self.options['gender']
+        female = self.options['female']
 
-        is_female = lambda x: x == female if female else lambda x: x != male
-
+        constants = {}
         constants['mu_female'] = df[
-            is_female(df[gender]) & (df['f1'] > 600)]['f3'].mean()
+            (df[gender] == female) & (df['f1'] > 600)]['f3'].mean()
         constants['mu_male'] = df[
-            ~is_female(df[gender]) & (df['f1'] > 600)]['f3'].mean()
+            (df[gender] != female) & (df['f1'] > 600)]['f3'].mean()
+        self.options['constants'] = constants
         return df
 
-    @staticmethod
-    def _norm(df, **kwargs):
-        constants = kwargs['constants']
-        gender = kwargs['gender']
-        formants = formants = kwargs.get('formants')
 
-        female = kwargs.get('female', 'F')
-        male = kwargs.get('male', 'M')
+    def _norm(self, df):
+        constants = self.params['constants']
+        gender = self.params['gender']
+        formants = self.params['formants']
 
-        is_female = lambda x: x == female if female else lambda x: x != male
+        female = self.params['female']
 
         indicator = np.repeat(
             np.atleast_2d(
-                (is_female(df[gender])).astype(float)),
+                (df[gender] == female).astype(float)),
             len(formants),
             axis=0).T
 
