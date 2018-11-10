@@ -55,6 +55,37 @@ class Normalizer:
         """Normalize a dataframe.
 
         Set up arguments and call the internal function _normalize.
+
+        Parameters
+        ----------
+        df : DataFrame
+            The formant data.
+
+
+        Keyword arguments
+        -----------------
+        f0 : :obj:`str`
+            Column containing `f0` data. Defaults to :code:`'f0'` if not given.
+        f1 : :obj:`str`
+            Column containing `f1` data. Defaults to :code:`'f1'` if not given.
+        f2 : :obj:`str`
+            Column containing `f2` data. Defaults to :code:`'f2'` if not given.
+        f3 : :obj:`str`
+            Column containing `f3` data. Defaults to :code:`'f0'` if not given.
+        formants : list
+            A list of columns in the data-frame containing the formant data.
+            This will be ignored if one of the individual formant
+            columns is specified.
+        rename : :obj:`str`
+            A formant string to rename the output columns.
+            The characters :code:`{}` will be replaced by the orignal column,
+            so :code:`rename='{}_N'` will return columns suffixed with
+            :code:`_N` (e.g., :code:`f0_N`, :code:`f1_N`, etc.).
+
+        Returns
+        -------
+        A datafrmae
+
         """
         self.config = self.default_config.copy()
         self.config.update({key: kwargs.pop(key) for key in self.config
@@ -66,10 +97,12 @@ class Normalizer:
             df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
         self.options.update(**formants_spec)
 
+        # Check keywords.
         for keyword in self.config['keywords']:
             if not keyword in self.options:
                 self.options[keyword] = self._keyword_default(keyword, df)
 
+        # Check required columns are in the data frame.
         for column in self.config['columns']:
             column = self.options.get(column, column) or column
             try:
@@ -87,16 +120,19 @@ class Normalizer:
         self._postnormalize(norm_df)
         return norm_df
 
-    def _get_formants_spec(self, df, **kwargs):
+    @staticmethod
+    def _get_formants_spec(df, **kwargs):
+        """Derive the formant structure from the gien formants."""
         if any(kwargs.get(f) for f in FORMANTS):
             _kwargs = kwargs.copy()
             _kwargs['formants'] = None
             return get_formants_spec(df.columns, **_kwargs)
         elif kwargs.get('formant'):
             return get_formants_spec(df.columns, formants=kwargs['formants'])
-        return get_formants_spec(df.columns, **self.options)
+        return get_formants_spec(df.columns)
 
     def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
+        """Get default keyword arguments."""
         if keyword in self.options:
             return self.options[keyword]
         return keyword
