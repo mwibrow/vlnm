@@ -276,10 +276,10 @@ class SchwaNormalizer(CentroidNormalizer):
         keywords=['schwa']
     )
 
-    def _normalize(self, df, groups=None):
+    def _normalize(self, df):
         schwa = self.options['schwa']
         self.options['apices'] = [schwa]
-        return super()._normalize(df, groups=groups)
+        return super()._normalize(df)
 
     def _norm(self, df):
         df = super()._norm(df)

@@ -115,7 +115,7 @@ class Normalizer:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
         self._prenormalize(df)
-        norm_df = self._normalize(df, groups=self.config['groups'])
+        norm_df = self._normalize(df)
         self._postnormalize(norm_df)
         return norm_df
 
@@ -144,13 +144,7 @@ class Normalizer:
         """Actions performed after normalization."""
         return df
 
-    def _normalize(self, df, groups=None):
-        if groups:
-            norm_df = df.groupby(by=groups, as_index=False).apply(
-                lambda group_df, groups=groups[1:]:
-                self._normalize(group_df, groups=groups[1:]))
-            # norm_df = norm_df.reset_index(drop=True)
-            return norm_df
+    def _normalize(self, df):
         for formant_spec in self._formant_iterator(**self.options):
             self.params = self.options.copy()
             self.params.update(**formant_spec)
@@ -260,3 +254,8 @@ class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
         columns=['speaker'],
         groups=['speaker']
     )
+
+    def _normalize(self, df):
+        speaker = self.options.get('speaker', 'speaker')
+        return df.groupby(by=speaker, as_index=False).apply(
+            super()._normalize)
