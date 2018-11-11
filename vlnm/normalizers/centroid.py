@@ -9,7 +9,8 @@ and use this to normalize the formant data.
 
 import pandas as pd
 
-from vlnm.normalizers.speaker import SpeakerIntrinsicNormalizer
+from . import register_class
+from .speaker import SpeakerIntrinsicNormalizer
 
 
 def get_apice_formants(df, apices, **kwargs):
@@ -52,6 +53,7 @@ def get_apice_formants(df, apices, **kwargs):
     apice_df = grouped.agg(_agg)[formants]
     return apice_df
 
+
 class CentroidNormalizer(SpeakerIntrinsicNormalizer):
     """Base class for centroid based normalizers."""
 
@@ -92,6 +94,7 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         return df
 
 
+@register_class('wattfab')
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""
     .. math::
@@ -137,6 +140,7 @@ class WattFabriciusNormalizer(CentroidNormalizer):
 WattFabricius1Normalizer = WattFabriciusNormalizer
 
 
+@register_class('wattfab2')
 class WattFabricius2Normalizer(WattFabriciusNormalizer):
     r"""
     .. math::
@@ -189,6 +193,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
         return centroid
 
 
+@register_class('wattfab3')
 class WattFabricius3Normalizer(WattFabriciusNormalizer):
     r"""
     .. math::
@@ -233,6 +238,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
         return centroid
 
 
+@register_class('bigham')
 class BighamNormalizer(CentroidNormalizer):
     r"""
 
@@ -264,6 +270,7 @@ class BighamNormalizer(CentroidNormalizer):
         return super()._keyword_default(keyword, df=df)
 
 
+@register_class('schwa')
 class SchwaNormalizer(CentroidNormalizer):
     r"""
     .. math::

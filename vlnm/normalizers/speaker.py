@@ -5,9 +5,10 @@ Standardize normalizers
 
 import numpy as np
 
+from . import register_class
 from .base import SpeakerIntrinsicNormalizer
 
-
+@register_class('lce')
 class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
@@ -22,6 +23,8 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
         df[formants] = df[formants] / df[formants].max(axis=0)
         return df
 
+
+@register_class('gerstman')
 class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
@@ -38,6 +41,8 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
         return df
 
+
+@register_class('lobanov')
 class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
@@ -58,6 +63,8 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] = (df[formants] - mean) / std
         return df
 
+
+@register_class('neary')
 class NearyNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 
@@ -89,6 +96,8 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
             df[formants] = np.exp(df[formants])
         return df
 
+
+@register_class('nearygm')
 class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     r"""
 

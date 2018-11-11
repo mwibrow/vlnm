@@ -14,6 +14,13 @@ def register_normalizer(cls, *aliases, register=None):
     for alias in aliases:
         register[alias] = cls
 
+def register_class(name):
+    """Decorator for registering a normalizder class."""
+    def _decorator(cls):
+        register_normalizer(cls, name)
+        return cls
+    return _decorator
+
 def get_normalizer(method, register=None):
     """Return a normalizer."""
     register = register or NORMALIZERS
@@ -38,5 +45,5 @@ def get_normalizer(method, register=None):
 
 def list_normalizers(register=None):
     """Return a list of normalizers."""
-    register = register or NORMALIZERS
+    register = register if register is not None else NORMALIZERS
     return list(register.keys())

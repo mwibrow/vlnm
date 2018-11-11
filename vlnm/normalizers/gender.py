@@ -8,12 +8,14 @@ on the gender identified by the speaker.
 
 import numpy as np
 
+from vlnm.normalizers import register_class
 from vlnm.normalizers.base import (
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
 from vlnm.conversion import hz_to_bark
 
 
+@register_class('bladen')
 class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""
     .. math::
@@ -48,7 +50,7 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
             axis=0).T
         return hz_to_bark(df[formants]) - indicator
 
-
+@register_class('nordstrom')
 class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
     .. math::

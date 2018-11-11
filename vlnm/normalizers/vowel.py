@@ -3,10 +3,11 @@ Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+from . import register_class
 from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
 
-
+@register_class('barkdiff')
 class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     r"""
     .. math::

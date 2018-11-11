@@ -6,7 +6,10 @@ import os
 
 import pandas as pd
 
-from vlnm.normalizers import get_normalizer, list_normalizers
+from vlnm.normalizers import (
+    get_normalizer,
+    list_normalizers,
+    register_normalizer)
 
 from vlnm.normalizers.centroid import (
     WattFabricius1Normalizer,
