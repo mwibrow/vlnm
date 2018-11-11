@@ -14,16 +14,17 @@ def register_normalizer(cls, *aliases, register=None):
     for alias in aliases:
         register[alias] = cls
 
-def get_normalizer(method):
+def get_normalizer(method, register=None):
     """Return a normalizer."""
+    register = register or NORMALIZERS
     raw = method
     method = method.lower()
     if method:
-        normalizers = [name for name in NORMALIZERS
+        normalizers = [name for name in register
                        if name.lower().startswith(method)]
         if normalizers:
             if len(normalizers) == 1:
-                return NORMALIZERS[normalizers[0]]
+                return register[normalizers[0]]
             raise NameError(
                 'Found {count} normalizers matching {name}:'
                 '{matching}'.format(
@@ -33,8 +34,9 @@ def get_normalizer(method):
         raise NameError(
             'Unknown normalizer {name}'.format(
                 name=nameify([method], quote='\'')))
-    raise NameError('No normalizer specified')
+    raise ValueError('No normalizer specified')
 
-def list_normalizers():
+def list_normalizers(register=None):
     """Return a list of normalizers."""
-    return list(NORMALIZERS.keys())
+    register = register or NORMALIZERS
+    return list(register.keys())
