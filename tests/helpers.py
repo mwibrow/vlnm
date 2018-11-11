@@ -120,14 +120,29 @@ class Helper:
                 with self.assertRaises(ValueError):
                     self.normalizer().normalize(df, **self.kwargs)
 
-        def test_formant_as_list_missing(self):
+        def test_fx_spec(self):
             """
             Missing column raises value error.
             """
             df = self.df.copy()
-            df = df.drop('f0', axis=1)
-            with self.assertRaises(ValueError):
-                self.normalizer().normalize(df, f0=['f0'], **self.kwargs)
+            normalizer = self.normalizer()
+            normalizer.normalize(
+                df, f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
+
+        def test_fx_list_spec(self):
+            """
+            Missing column raises value error.
+            """
+            df = self.df.copy()
+            normalizer = self.normalizer()
+            normalizer.normalize(
+                df, f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
 
         def test_default_columns(self):
             """Check default columns returned."""
@@ -180,6 +195,11 @@ class Helper:
 
     class SpeakerNormalizerTests(TestNormalizerBase):
         """Common tests for the speaker normalizers."""
+
+        def setUp(self):
+            self.df = DATA_FRAME.copy()
+            self.formants = ['f0', 'f1', 'f2', 'f3']
+            self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
 
         def test_incorrect_alias(self):
             """

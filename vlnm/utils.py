@@ -92,9 +92,8 @@ def get_formants_spec(**kwargs):
         spec['formants'] = formants
         return spec
     if kwargs.get('formants'):
-        return dict(
-            f0=[None], f1=[None], f2=[None], f3=[None],
-            formants=kwargs['formants'])
+        if kwargs['formants'] != FORMANTS:
+            return dict(formants=kwargs['formants'])
     return dict(
         f0=['f0'],
         f1=['f1'],

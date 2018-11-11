@@ -42,6 +42,7 @@ class TestNameify(unittest.TestCase):
         No args returns empty string.
         """
         self.assertEqual('', nameify([]))
+
     def test_default(self):
         """
         Default args.
@@ -84,6 +85,15 @@ class TestNameify(unittest.TestCase):
         """
         items = [1, 2, 3, 4]
         expected = "'1', '2', '3', '4'"
+        actual = nameify(items, quote="'")
+        self.assertEqual(actual, expected)
+
+    def test_single_argument(self):
+        """
+        Single argument quoted with no junctions
+        """
+        items = [1]
+        expected = "'1'"
         actual = nameify(items, quote="'")
         self.assertEqual(actual, expected)
 
@@ -182,8 +192,17 @@ class TestGetFormantsSpec(unittest.TestCase):
         """
         Formants keyword should return only keyword.
         """
+        formants = ['f0', 'f1']
+        expected = dict(formants=formants)
+        actual = get_formants_spec(formants=formants)
+        self.assertDictEqual(actual, expected)
+
+    def test_formants_special(self):
+        """
+        Formants ['f0', 'f1', 'f2', 'f3'] returns full spec.
+        """
         formants = ['f0', 'f1', 'f2', 'f3']
         expected = dict(
-            f0=[None], f1=[None], f2=[None], f3=[None], formants=formants)
+            f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], formants=formants)
         actual = get_formants_spec(formants=formants)
         self.assertDictEqual(actual, expected)

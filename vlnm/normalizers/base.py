@@ -92,9 +92,8 @@ class Normalizer:
                             if key in kwargs})
         self.options = self.default_options.copy()
         self.options.update(rename=rename, **kwargs)
-
         formants_spec = self._get_formants_spec(
-            df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
+            f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
         self.options.update(**formants_spec)
 
         # Check keywords.
@@ -120,21 +119,19 @@ class Normalizer:
         return norm_df
 
     @staticmethod
-    def _get_formants_spec(df, **kwargs):
+    def _get_formants_spec(**kwargs):
         """Derive the formant structure from the given formants."""
         if any(kwargs.get(f) for f in FORMANTS):
             _kwargs = kwargs.copy()
             _kwargs['formants'] = None
-            return get_formants_spec(df.columns, **_kwargs)
-        elif kwargs.get('formant'):
-            return get_formants_spec(df.columns, formants=kwargs['formants'])
-        return get_formants_spec(df.columns)
+            return get_formants_spec(**_kwargs)
+        elif kwargs.get('formants'):
+            return get_formants_spec(formants=kwargs['formants'])
+        return get_formants_spec()
 
     def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
         """Get default keyword arguments."""
-        if keyword in self.options:
-            return self.options[keyword]
-        return keyword
+        return self.options.get(keyword) or keyword
 
     def _prenormalize(self, df):  # pylint: disable=no-self-use
         """Actions performed before normalization."""
@@ -176,10 +173,6 @@ class Normalizer:
     @staticmethod
     def _formant_iterator(**kwargs):
         formants = kwargs.get('formants')
-        if not formants:
-            formants = []
-            for f in FORMANTS:
-                formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
     def _norm(self, df):  # pylint: disable=no-self-use
@@ -212,10 +205,6 @@ class FormantIntrinsicNormalizer(Normalizer):
     @staticmethod
     def _formant_iterator(**kwargs):
         formants = kwargs.get('formants')
-        if not formants:
-            formants = []
-            for f in FORMANTS:
-                formants.extend(kwargs.get(f, []))
         yield dict(formants=formants)
 
 
