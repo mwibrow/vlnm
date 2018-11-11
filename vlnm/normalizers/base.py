@@ -3,10 +3,11 @@ Vowel normalizer module
 """
 
 from vlnm.utils import get_formants_spec
+from . import register_class
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
-
+@register_class('default')
 class Normalizer:
     """Base normalizer class."""
 
@@ -143,6 +144,9 @@ class Normalizer:
 
     def _normalize(self, df):
         for formant_spec in self._formant_iterator(**self.options):
+            formant_spec['formants'] = [
+                formant for formant in formant_spec['formants']
+                if formant in df.columns]
             self.params = self.options.copy()
             self.params.update(**formant_spec)
 
