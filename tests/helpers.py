@@ -111,7 +111,7 @@ class Helper:
 
         def test_column_missing(self):
             """
-            Missing speaker column raises ValueError.
+            Missing columns raises ValueError.
             """
             columns = self.normalizer().default_config['columns']
             for column in columns:
@@ -119,6 +119,15 @@ class Helper:
                 df = df.drop(column, axis=1)
                 with self.assertRaises(ValueError):
                     self.normalizer().normalize(df, **self.kwargs)
+
+        def test_formant_as_list_missing(self):
+            """
+            Missing column raises value error.
+            """
+            df = self.df.copy()
+            df = df.drop('f0', axis=1)
+            with self.assertRaises(ValueError):
+                self.normalizer().normalize(df, f0=['f0'], **self.kwargs)
 
         def test_default_columns(self):
             """Check default columns returned."""
@@ -142,6 +151,15 @@ class Helper:
             actual = sorted(actual)
             self.assertListEqual(actual, expected)
 
+        def test_call(self):
+            """Test calling the normalizer class."""
+            expected = self.df.columns
+            actual = self.normalizer()(
+                self.df, **self.kwargs).columns
+
+            expected = sorted(expected)
+            actual = sorted(actual)
+            self.assertListEqual(actual, expected)
 
     class TestFormantNormalizerBase(TestNormalizerBase):
         """Common tests for the formant normalizers."""

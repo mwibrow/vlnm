@@ -10,7 +10,6 @@ from vlnm.utils import (
     nameify,
     quote_item,
     str_or_list,
-    get_formant_columns,
     get_formants_spec)
 
 class TestMergeColumns(unittest.TestCase):
@@ -154,39 +153,6 @@ class TestStrOrList(unittest.TestCase):
         self.assertListEqual(actual, value)
 
 
-class TestGetFormantColumns(unittest.TestCase):
-    """
-    Test the get_formant_columns function.
-    """
-
-    def test_no_formant(self):
-        """
-        No formant returns empty list.
-        """
-        columns = ['f0', 'f1', 'f2', 'f3']
-        expected = []
-        actual = get_formant_columns([], columns)
-        self.assertListEqual(actual, expected)
-
-    def test_re(self):
-        """
-        Regular expression matches exactly.
-        """
-        columns = ['f0', 'f0@50', 'f1']
-        expected = ['f0', 'f0@50']
-        actual = get_formant_columns(r'f0.*', columns)
-        self.assertListEqual(actual, expected)
-
-    def test_list(self):
-        """
-        List of columns
-        """
-        columns = ['f0', 'f0@50', 'f1']
-        expected = ['f0', 'f0@50']
-        actual = get_formant_columns(['f0', 'f0@50'], columns)
-        self.assertListEqual(actual, expected)
-
-
 class TestGetFormantsSpec(unittest.TestCase):
     """
     Tests for the get_formant_spec function.
@@ -196,71 +162,28 @@ class TestGetFormantsSpec(unittest.TestCase):
         """
         Nothing specified returns dictionary with default keys.
         """
-        columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
-        actual = get_formants_spec(columns)
+        columns = ['f0', 'f1', 'f2', 'f3']
+        expected = dict(
+            f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], formants=columns)
+        actual = get_formants_spec()
         self.assertDictEqual(actual, expected)
 
     def test_fx_string(self):
         """
-        Fx specified as string returns dictionary with specified keys.
+        Coerce fx as string to list.
         """
         columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
-        actual = get_formants_spec(columns, f0='f0', f1='f1')
-        self.assertDictEqual(actual, expected)
-
-    def test_fx_list(self):
-        """
-        Fx specified as list returns dictionary with specified keys.
-        """
-        columns = ['f0', 'f1']
-        expected = dict(f0=['f0'], f1=['f1'], formants=columns)
-        actual = get_formants_spec(columns, f0=['f0'], f1=['f1'])
-        self.assertDictEqual(actual, expected)
-
-    def test_fx_regex(self):
-        """
-        Fx specified as regex returns dictionary with specified keys.
-        """
-        columns = ['f0', 'f0@50', 'f1', 'f1@50']
         expected = dict(
-            f0=['f0', 'f0@50'], f1=['f1', 'f1@50'], formants=columns)
-        actual = get_formants_spec(columns, f0='f0.*', f1='f1.*')
+            f0=['f0'], f1=['f1'], f2=[None], f3=[None], formants=columns)
+        actual = get_formants_spec(f0='f0', f1='f1')
         self.assertDictEqual(actual, expected)
-
-    def test_formants_dict(self):
-        """
-        formants specified as dict returns dictionary with specified keys.
-        """
-        columns = ['f0', 'f0@50', 'f1', 'f1@50']
-        expected = dict(f0=['f0'], f1=['f1'], formants=['f0', 'f1'])
-        actual = get_formants_spec(columns, formats=dict(
-            f0='f0', f1='f1'))
-        self.assertDictEqual(actual, expected)
-
-    def test_formants_regex(self):
-        """
-        formants specified as regex returns dictionary with formant key.
-        """
-        columns = ['f0', 'f0@50', 'f1', 'f1@50']
-        expected = dict(formants=['f0', 'f1', 'f0@50', 'f1@50'])
-        actual = get_formants_spec(columns, formants=r'f.*')
-        self.assertIn('formants', actual)
-        self.assertEqual(len(list(actual.keys())), 1)
-        self.assertListEqual(
-            sorted(actual['formants']),
-            sorted(expected['formants']))
 
     def test_formants_list(self):
         """
-        formants specified as list returns dictionary with formant key.
+        Formants keyword should return only keyword.
         """
-        columns = ['f0', 'f0@50', 'f1', 'f1@50']
-        expected = dict(formants=['f0', 'f1'])
-        actual = get_formants_spec(columns, formants=['f0', 'f1'])
-        self.assertIn('formants', actual)
-        self.assertEqual(len(list(actual.keys())), 1)
-        self.assertListEqual(
-            sorted(actual['formants']),
-            sorted(expected['formants']))
+        formants = ['f0', 'f1', 'f2', 'f3']
+        expected = dict(
+            f0=[None], f1=[None], f2=[None], f3=[None], formants=formants)
+        actual = get_formants_spec(formants=formants)
+        self.assertDictEqual(actual, expected)

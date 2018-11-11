@@ -2,7 +2,7 @@
 Misc. utilities.
 """
 
-import re
+FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 def quote_item(item, pre='', post=''):
     """Format an string item with quotes.
@@ -75,64 +75,29 @@ def str_or_list(value):
     return [value]
 
 
-def get_formants_spec(columns, **kwargs):
+def get_formants_spec(**kwargs):
     """Sanitize the user formant specification for normalizers."""
-    formants = kwargs.get('formants')
-    f0 = kwargs.get('f0')
-    f1 = kwargs.get('f1')
-    f2 = kwargs.get('f2')
-    f3 = kwargs.get('f3')
-    formants_spec = dict()
-
-    if any([f0, f1, f2, f3]):
-        if f0:
-            formants_spec['f0'] = get_formant_columns(f0, columns)
-        if f1:
-            formants_spec['f1'] = get_formant_columns(f1, columns)
-        if f2:
-            formants_spec['f2'] = get_formant_columns(f2, columns)
-        if f3:
-            formants_spec['f3'] = get_formant_columns(f3, columns)
-
-    elif formants:
-        try:
-            # dict
-            for key in formants.keys():
-                formants_spec[key] = get_formant_columns(
-                    formants_spec[key], columns)
-        except AttributeError:
-            try:
-                # re
-                formants_spec['formants'] = get_formant_columns(
-                    formants, columns) or []
-            except TypeError:
-                # list
-                formants_spec['formants'] = get_formant_columns(
-                    formants, columns)
-    else:
-        for f in ['f0', 'f1', 'f2', 'f3']:
-            if f in columns:
-                formants_spec[f] = [f]
-    if not formants_spec.get('formants'):
+    if any(kwargs.get(f) for f in FORMANTS):
+        fmap = {f:kwargs.get(f)
+                  if isinstance(kwargs.get(f), list) else [kwargs.get(f)]
+                for f in FORMANTS}
         formants = []
-        for formant in formants_spec:
-            if formants_spec[formant]:
-                formants.extend(formants_spec[formant])
-        formants_spec['formants'] = formants
-    return formants_spec
-
-def get_formant_columns(formant, columns):
-    """Get the formant columns."""
-    formant_columns = []
-    if formant:
-        try:
-            # re
-            pattern = re.compile(
-                r'^{}$'.format(re.sub(r'^\^+|\$+$', '', formant)))
-            formant_columns = [column for column in columns
-                               if pattern.match(column)]
-        except TypeError:
-            # list
-            for item in formant:
-                formant_columns.extend(get_formant_columns(item, columns))
-    return formant_columns
+        for f in fmap:
+            if fmap[f][0]:
+                formants.extend(fmap[f])
+        flen = max(len(f) for f in fmap.values())
+        for f in fmap:
+            fmap[f].extend(fmap[f][-1:] * (flen - len(fmap[f])))
+        spec = dict(**fmap)
+        spec['formants'] = formants
+        return spec
+    if kwargs.get('formants'):
+        return dict(
+            f0=[None], f1=[None], f2=[None], f3=[None],
+            formants=kwargs['formants'])
+    return dict(
+        f0=['f0'],
+        f1=['f1'],
+        f2=['f2'],
+        f3=['f3'],
+        formants=FORMANTS)
