@@ -8,7 +8,7 @@ from collections import OrderedDict
 import docutils.nodes
 
 from .nodes import (
-    boolean, ifelse, idem, join, emph, optional, ref, sentence
+    boolean, ifelse, idem, join, emph, optional, ref, sentence, text
 )
 
 from .formatters import (
@@ -35,6 +35,7 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
+            text['PhD Dissertation, '],
             sentence[field['school']]
         ]
 

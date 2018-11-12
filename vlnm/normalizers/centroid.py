@@ -110,6 +110,19 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     with :math:`/i/`, :math:`/a/`, and :math:`/u^\prime/` indicating
     the :smallcaps:`fleece`, :smallcaps:`trap`
     and (derived) :smallcaps:`goose` vowels, respectively.
+
+    Example
+    -------
+
+    .. console::
+        :code-only:
+
+        >>> import pandas as pd
+        >>> from vlnm import WattFabriciusNormalizer
+        >>> normalizer = WattFabriciusNormalizer()
+        >>> df = pd.read_csv('vowel_data.csv')
+        >>> norm_df = normalizer(df, fleece='i:', trap='a')
+
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
@@ -130,6 +143,41 @@ class WattFabriciusNormalizer(CentroidNormalizer):
         centroid = apice_df.mean(axis=0)
         return centroid
 
+    def normalize(self, df, fleece='fleece', trap='trap', **kwargs):
+        """
+        Normalize a dataframe.
+        Note that a :class:`WattFabriciusNormalizer` instance is `callable`,
+        and the call is forwarded to this method.
+
+        .. console::
+            :code-only:
+
+            normalizer = WattFabriciousNormalizer()
+            normalizer(df)
+            # Same as
+            normalizer.normalize(df)
+
+        Parameters
+        ----------
+
+        df : :class:`pandas.DataFrame`
+            Formant data.
+
+        fleece : :obj:`str`
+            Vowel label for the :smallcaps:`fleece` vowel.
+
+        trap : :obj:`str`
+            Vowel label for the :smallcaps:`trap` vowel.
+
+        **kwargs
+            Other keyword arguments passed on to the parent class.
+
+        Returns
+        -------
+        :class:`pandas.DataFrame`
+            A with the normalized formants.
+        """
+        return super().normalize(df, fleece=fleece, trap=trap, **kwargs)
 
 WattFabricius1Normalizer = WattFabriciusNormalizer
 
@@ -168,7 +216,6 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
-        """Calculate the speakers centroid."""
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
         fleece = kwargs['fleece']
@@ -210,14 +257,13 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 
     .. math::
 
-        F_j^{/u^\prime/} = \underset{\rho}{\text{argmin}} \mu_{F_k^{/\rho \in P/}}
+        F_j^{/u^\prime/} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}
 
     where :math:`P` is the set of point vowels.
     """
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
-        """Calculate the speakers centroid."""
         apice_df = get_apice_formants(df, apices or [], **kwargs)
 
         formants = kwargs.get('formants')
@@ -236,7 +282,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 class BighamNormalizer(CentroidNormalizer):
     r"""
 
-    Normalise vowels according to Bigham 2006:
+    Normalise vowels according to :citet:`bigham_2008`.
 
     .. math::
 
