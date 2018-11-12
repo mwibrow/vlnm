@@ -23,6 +23,17 @@ you can simply use the `normalize` function:
 
 .. console::
     :code-only:
+    :lexer: csv
+
+    speaker,f1,f2,vowel
+    S1-1,358,2210,heed
+    S1-1,397,1877,hid
+    S1-1,436,1885,head
+    S1-1,485,1545,had
+    S1-1,603,996,hard
+
+.. console::
+    :code-only:
 
     >>> from vlnm import normalize
     >>> normalize('input.csv', 'output.csv', method='lobanov')

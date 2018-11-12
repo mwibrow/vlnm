@@ -4,6 +4,7 @@ Console directive.
 
 from code import compile_command, InteractiveInterpreter
 from contextlib import redirect_stdout, redirect_stderr
+import csv
 from io import StringIO
 import os
 import re
@@ -71,13 +72,58 @@ class DataFrameLexer(RegexLexer):
         ]
     }
 
+def csv_row_callback(_lexer, match):
+    """Process a pandas dataframe row."""
+    row = next(csv.reader(
+        [match.group(1)], delimiter=',', quoting=csv.QUOTE_NONE))
+    first_row = match.start() == 0
+    start = match.start()
+    for i, column in enumerate(row):
+        if first_row:
+            yield start, token.Keyword, column
+        else:
+            try:
+                float(column)
+                yield start, token.Number, column
+            except ValueError:
+                if column.strip().lower() in ['na', 'nan']:
+                    yield start, token.Generic.Output, column
+                else:
+                    yield start, token.String, column
+        start += len(column)
+        if i < len(row) - 1:
+            yield start, token.Generic.Output, ','
+            start += 1
+    yield start, token.Generic.Output, '\n'
+    start += 1
+
+
+class CsvLexer(RegexLexer):
+    """Crude Csv datafrane lexer."""
+    name = 'csv'
+
+    tokens = {
+        'root': [
+            (r'(^.*?\n)', csv_row_callback)
+        ]
+    }
+
 lexers['pandas'] = DataFrameLexer(startinline=True)
+lexers['csv'] = CsvLexer(startinline=True)
 
 def dataframe(value):
     """Dataframe formatter."""
     if value:
         node = docutils.nodes.literal_block(value, value)
         node['language'] = 'pandas'
+        return node
+    return None
+
+def csvfile(value):
+    """csv formatter."""
+    if value:
+        node = docutils.nodes.literal_block(value, value)
+        node['language'] = 'csv'
         return node
     return None
 
@@ -107,12 +153,15 @@ class ConsoleDirective(Directive):
 
     option_spec = {
         'code-only': directives.flag,
-        'execute': directives.flag
+        'execute': directives.flag,
+        'lexer': directives.unchanged
     }
 
     def run(self):
         """Run directive"""
+        lexer = self.options.get('lexer') or 'python'
         self.arguments = ['python']
+
         execute = 'code-only' not in self.options
 
         env = self.state.document.settings.env
@@ -121,26 +170,29 @@ class ConsoleDirective(Directive):
             __doc__=None,
             __name__='__console__')
         interpreter = InteractiveInterpreter(locals=local_env)
+        if lexer == 'csv':
+            content = '\n'.join(self.content)
+            console = [csvfile(content)]
+        else:
+            items = [item for item in self.content]
+            console = []
+            for line in generate_statements(items, lexer):
+                statement, magic, code_object, code_magic = line
 
-        items = [item for item in self.content]
-        console = []
-        for line in generate_statements(items):
-            statement, magic, code_object, code_magic = line
+                cast = MAGICS.get(magic, MAGICS['default'])
+                result = cast(statement)
+                if result:
+                    console.append(result)
 
-            cast = MAGICS.get(magic, MAGICS['default'])
-            result = cast(statement)
-            if result:
-                console.append(result)
-
-            if execute:
-                stdout, stderr = run_code(interpreter, code_object)
-                cast = MAGICS.get(code_magic, MAGICS['console'])
-                output = cast(stdout[:-1])
-                if output:
-                    console.append(output)
-                output = MAGICS['console'](stderr[:-1])
-                if output:
-                    console.append(output)
+                if execute:
+                    stdout, stderr = run_code(interpreter, code_object)
+                    cast = MAGICS.get(code_magic, MAGICS['console'])
+                    output = cast(stdout[:-1])
+                    if output:
+                        console.append(output)
+                    output = MAGICS['console'](stderr[:-1])
+                    if output:
+                        console.append(output)
 
         parent = docutils.nodes.line_block(classes=['console'])
         for block in console:
@@ -161,12 +213,16 @@ def run_code(interpreter, code_object):
     stderr.close()
     return stdout_output, stderr_output
 
-def generate_statements(content):
+def generate_statements(content, lexer):
     """Generator for statements and code_objects.
     """
-    initial_prefix = '>>> '
-    continuation_prefix = '... '
+    if lexer == 'python':
+        initial_prefix = '>>> '
+        continuation_prefix = '... '
+    else:
+        initial_prefix = continuation_prefix = ''
     magic_prefix = '### '
+
     magic = ''
     code_magic = ''
     code_object = None
