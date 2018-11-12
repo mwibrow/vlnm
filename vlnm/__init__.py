@@ -95,7 +95,7 @@ def normalize(data, file_out=None, method='default', sep=',', **kwargs):
     """
     try:
         df = read_csv(data, sep=sep, header=0)
-    except ValueError:
+    except (TypeError, ValueError):
         df = data
 
     try:

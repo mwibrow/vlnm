@@ -180,7 +180,7 @@ class AuthorYearFormatter(Formatter):
                 optional[post_text],
                 optional[boolean[parenthesis], ')'],
                 ref[field['year_suffix']].format(
-                            entry=bibcache['watt_fabricius_2002'], docname=docname),
+                    entry=bibcache['watt_fabricius_2002'], docname=docname),
             ] for group in groups
         ]].format()
 
