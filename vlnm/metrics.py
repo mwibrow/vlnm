@@ -10,37 +10,10 @@ import pandas as pd
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
 
-def polygon_area(points, hull=True):
-    """Calculate the area of a polygon.
 
-    Parameters
-    ----------
-
-    points : :obj:`list` of :obj:`tuple`
-        A list of tuples, with each tuple representing
-        a point.
-        Note, that any data structure can be used
-        that can be indexex similarly (e.g., :class:`numpy.ndarray`).
-
-    hull : :obj:`bool`
-        If true (the default) the convex hull of the points
-        will be calculated first using :class:`scipy.spatial.ConvexHull`.
-
-    Return
-    ------
-    :obj:`float`
-        The area of the polygon.
-    """
-    if hull:
-        convex_hull = ConvexHull(points)
-        polygon = Polygon([points[vertex] for vertex in convex_hull.vertices])
-    else:
-        polygon = Polygon(points)
-    return polygon.area
-
-def vowel_space_area(
-        df, vowel='vowel', apices=None, formants=('f1', 'f2')):
-    """Calculate the vowel space area for a speaker.
+def vowel_space(
+        df, vowel='vowel', apices=None, formants=('f1', 'f2'), hull=True):
+    """Calculate the vowel space for a speaker.
 
     Parameters
     ----------
@@ -60,17 +33,27 @@ def vowel_space_area(
         The formant columns in the dataframe.
         Defaults to :code:`('f1', 'f2')`.
 
+    hull : :obj:`bool`
+        If :code:`True` (the default) a convex hull will be
+        fitted mean formant data for the apices, prior
+        to calculating the polygon exterior.
+
     Return
     ------
-    :obj:`float`
-        Area of the vowel space.
+    :obj:`shapely.geometry.Polygon`
+        Vowel space represented as a Polygon.
     """
     if apices:
         df = df[df[vowel].isin(apices)]
     subset = [vowel]
     subset.extend(formants)
     means = df[subset].groupby(vowel).mean().as_matrix()
-    return polygon_area(means)
+    if hull:
+        convex_hull = ConvexHull(means)
+        polygon = Polygon([means[vertex] for vertex in convex_hull.vertices])
+    else:
+        polygon = Polygon(means)
+    return polygon
 
 
 def scv(
@@ -108,8 +91,8 @@ def scv(
     def _area(group_df):
         return pd.DataFrame(dict(
             speaker=group_df['speaker'].unique(),
-            area=vowel_space_area(
-                group_df, vowel=vowel, apices=apices, formants=formants)
+            area=vowel_space(
+                group_df, vowel=vowel, apices=apices, formants=formants).area
         ))
     areas_df = df.groupby(speaker, as_index=False).apply(_area)
     return (areas_df.std() / areas_df.mean()) ** 2
