@@ -40,4 +40,8 @@ div.highlight-pandas + div.highlight-python {
     padding-top: 0.5em;
 }
 
+.small-caps {
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
 

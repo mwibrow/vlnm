@@ -152,7 +152,6 @@ class AuthorYearFormatter(Formatter):
         if len(keys) > 1 or starred:
             pre_text = post_text = ''
         groups = get_key_groups(keys, bibcache)
-        print(groups)
         return join(sep='; ')[[
             join[
                 ifelse[

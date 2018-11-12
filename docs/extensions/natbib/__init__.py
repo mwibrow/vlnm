@@ -12,7 +12,7 @@ from .formatters.authoryear import AuthorYearFormatter
 from .cache import CitationCache, BibliographyCache
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
-from .roles import CitationRole
+from .roles import CitationRole, small_caps_role
 # from .transforms import BibliographyTransform
 
 def init_app(app):
@@ -96,6 +96,7 @@ def setup(app):
     app.add_role('citets', CitationRole())
     app.add_role('citealt', CitationRole())
     app.add_role('cite', CitationRole())
+    app.add_role('smallcaps', small_caps_role)
     app.add_stylesheet('css/style.css')
     app.add_directive('bibliography', BibliographyDirective)
     # app.add_transform(BibliographyTransform)

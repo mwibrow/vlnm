@@ -5,6 +5,7 @@
     .. autofunction:: extract_citation
 """
 
+import docutils
 import re
 
 from sphinx.errors import SphinxError
@@ -74,3 +75,12 @@ class CitationRole(object):
             post_text=post_text
         ))
         return [node], []
+
+
+def small_caps_role(
+        typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
+        options=None, content=None): # pylint: disable=unused-argument
+    """
+    Role for small caps.
+    """
+    return [docutils.nodes.inline(text, text, classes=['small-caps'])], []

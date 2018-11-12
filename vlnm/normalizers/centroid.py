@@ -61,26 +61,7 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):
-        r"""Calculate the speakers centroid.
-
-        Parameters
-        ----------
-        df : DataFrame
-            The formant data for single speaker.
-        apices : list
-            A list of vowel labels denoting the apices of the vowel space.
-        **kwargs
-            Keyword arguments which are passed on to the class method
-            `get_apice_formants`.
-            Sub-classes of this class may override this method
-            and use any other keywords passed.
-
-        Returns
-        -------
-        :obj:`pandas.Series`
-            Centroid data for each formant.
-        """
+    def get_centroid(df, apices=None, **kwargs):  # pylint: disable=missing-docstring
         apices = apices or []
         apice_df = get_apice_formants(df, apices, **kwargs)
         centroid = apice_df.mean(axis=0)
@@ -99,11 +80,14 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
 
     The :class:`WattFabriciusNormalizer` normalizes vowel data
-    by dividing the vowel formants by a centroid calculated
-    from the `f1` and f2` data for the
-    `fleece`, `trap` and `goose` vowels, with
-    `f1` and `f2` for the  `goose` vowel being
-    set to the `f1` of the `fleece` vowel.
+    by dividing the componet formants for a vowel by a
+    the components of a centroid calculated
+    from the :math:`F_1` and :math:`F_2` data for the
+    :smallcaps:`fleece`, :smallcaps:`trap` and :smallcaps:`goose` vowels, with
+    the formants for the :smallcaps:`goose` vowel derived
+    from the other vowels by setting
+    :math:`F_1` and :math:`F_2` to the :math:`F_1`
+    of the :smallcaps:`fleece` vowel.
 
     .. math::
 
@@ -123,6 +107,9 @@ class WattFabriciusNormalizer(CentroidNormalizer):
 
         F_1^{/u^\prime/} = F_2^{/u^\prime/} = F_1^{/i/}
 
+    with :math:`/i/`, :math:`/a/`, and :math:`/u^\prime/` indicating
+    the :smallcaps:`fleece`, :smallcaps:`trap`
+    and (derived) :smallcaps:`goose` vowels, respectively.
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
@@ -131,7 +118,6 @@ class WattFabriciusNormalizer(CentroidNormalizer):
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
-        """Calculate the speakers centroid."""
         apices = apices or []
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
