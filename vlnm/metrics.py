@@ -1,8 +1,12 @@
 """
 Metrics
 ~~~~~~~
+
+The :module:`vlnm.metrics` module provides metrics
+for evaluating normalization methods.
 """
 
+import pandas as pd
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
 
@@ -69,7 +73,43 @@ def vowel_space_area(
     return polygon_area(means)
 
 
-def scv(df, speaker='speaker'):
+def scv(
+        df, speaker='speaker', vowel='vowel',
+        apices=None, formants=('f1', 'f2')):
+    """Squared coefficient of variation for vowel spaces.
+
+    Parameters
+    ----------
+
+    df : :class:`pandas.DataFrame`
+        Formant data for all speakers.
+
+    speaker : :obj:`str`
+        Data-frame column which contains the speaker labels.
+        Defaults to :code:`'speaker'`.
+
+    vowel : :obj:`str`
+        Data-frame column which contains the vowel labels.
+        Defaults to :code:`'vowel'`.
+
+    apices : :obj:`list`
+        List of vowel labels to use as the apices of the vowel space.
+        If not provided, all vowels will be used.
+
+    formants :obj:`tuple`
+        The formant columns in the dataframe.
+        Defaults to :code:`('f1', 'f2')`.
+
+    Return
+    ------
+    :obj:`float`
+        Square coefficient of variation for the vowel space.
     """
-    Squared coefficient of variation
-    """
+    def _area(group_df):
+        return pd.DataFrame(dict(
+            speaker=group_df['speaker'].unique(),
+            area=vowel_space_area(
+                group_df, vowel=vowel, apices=apices, formants=formants)
+        ))
+    areas_df = df.groupby(speaker, as_index=False).apply(_area)
+    return (areas_df.std() / areas_df.mean()) ** 2
