@@ -152,14 +152,18 @@ class AuthorYearFormatter(Formatter):
         if len(keys) > 1 or starred:
             pre_text = post_text = ''
         groups = get_key_groups(keys, bibcache)
+        print(groups)
         return join(sep='; ')[[
             join[
-                ref[
-                    authors(
-                        last_names_only=True,
-                        last_sep=' and ' if starred else ' & ',
-                        et_al=not starred)
-                ].format(entry=bibcache[group[0]], docname=docname),
+                ifelse[
+                    boolean[True], # Why
+                    ref[
+                        authors(
+                            last_names_only=True,
+                            last_sep=' and ' if starred else ' & ',
+                            et_al=not starred)
+                    ].format(entry=bibcache[group[0]], docname=docname),
+                ],
                 ' ',
                 optional[boolean[parenthesis], '('],
                 optional[pre_text],
@@ -174,7 +178,9 @@ class AuthorYearFormatter(Formatter):
                     for i, key in enumerate(group)
                 ]],
                 optional[post_text],
-                optional[boolean[parenthesis], ')']
+                optional[boolean[parenthesis], ')'],
+                ref[field['year_suffix']].format(
+                            entry=bibcache['watt_fabricius_2002'], docname=docname),
             ] for group in groups
         ]].format()
 

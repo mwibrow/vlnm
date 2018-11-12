@@ -1,14 +1,22 @@
 """
 Vowel normalizer module
 """
-
+import abc
 from vlnm.utils import get_formants_spec
 from . import register_class
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
+class AbstractNormalizer(type):
+    def __new__(mcs, classname, bases, cls_dict):
+        cls = super().__new__(mcs, classname, bases, cls_dict)
+        for name, member in cls_dict.items():
+            if not getattr(member, '__doc__'):
+                member.__doc__ = getattr(bases[-1], name).__doc__
+        return cls
+
 @register_class('default')
-class Normalizer:
+class Normalizer(object):
     """Base normalizer class."""
 
     config = dict(

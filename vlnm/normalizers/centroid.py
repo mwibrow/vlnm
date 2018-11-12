@@ -96,7 +96,15 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
 @register_class('wattfab')
 class WattFabriciusNormalizer(CentroidNormalizer):
-    r"""
+    r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
+
+    The :class:`WattFabriciusNormalizer` normalizes vowel data
+    by dividing the vowel formants by a centroid calculated
+    from the `f1` and f2` data for the
+    `fleece`, `trap` and `goose` vowels, with
+    `f1` and `f2` for the  `goose` vowel being
+    set to the `f1` of the `fleece` vowel.
+
     .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
@@ -257,6 +265,8 @@ class BighamNormalizer(CentroidNormalizer):
     Where :math:`Q` is the set of vowels at the apices
     of the speakers vowel space.
 
+    Parameters
+    ----------
     """
     config = dict(
         keywords=['apices'],
