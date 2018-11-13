@@ -329,21 +329,67 @@ class BighamNormalizer(CentroidNormalizer):
                 F_i^{[æ^\prime]}
             \right)
 
-    Where :math:`Q` is the set of vowels at the vertices
-    of the speakers vowel space.
+    .. list-table::
+        :header-rows: 1
+        :align: center
+
+        * - keyword
+          - SSE vowel
+        * - :smallcaps:`kit`
+          - :ipa:`ɪ`
+        * - :smallcaps:`goose`
+          - :ipa:`u`
+        * - :smallcaps:`fleece`
+          - :ipa:`i`
+        * - :smallcaps:`start`
+          - :ipa:`ɑ`
+        * - :smallcaps:`thought`
+          - :ipa:`ɔ`
+        * - :smallcaps:`trap`
+          - :ipa:`æ`
 
     Parameters
     ----------
+
+    apices : :obj:`dict`
+        A dictionary specifying labels for the required vowels
+        to construct the centroid (shown in the table above).
+        The keys for the dictionary should be from the
+        lexical set keywords :smallcaps:`kit`,
+        :smallcaps:`goose`, :smallcaps:`fleece`, :smallcaps:`start`,
+        :smallcaps:`thought`, and :smallcaps:`trap`,
+        and *all* keys need to be specified.
+        If this parameter is omitted, the normalizer will assume that the vowels
+        are already labeled according by the lexical set keywords.
+
+
+
     """
     config = dict(
         keywords=['apices'],
         columns=['speaker', 'vowel']
     )
 
+    @staticmethod
+    def get_centroid(df, apices=None, **kwargs):
+        apice_df = get_apice_formants(
+            df, list((apices or {}).keys()), **kwargs)
+
+        formants = kwargs.get('formants')
+        vowel = kwargs.get('vowel', 'vowel')
+        def _agg(agg_df):
+            names = {f: agg_df[f].mean() for f in formants}
+            return pd.Series(names, index=formants)
+        # Minimum mean of all vowels (same as minimum mean of point vowels)
+        apice_df.loc['goose'] = df.groupby(vowel).apply(_agg).min(axis=0)
+
+        centroid = apice_df.mean(axis=0)
+        return centroid
+
     def _keyword_default(self, keyword, df=None):
         if keyword == 'apices':
-            vowel = self._keyword_default('vowel', df=None)
-            return list(df[vowel].unique())
+            lexical_set = ['kit', 'goose', 'fleece', 'start', 'thought', 'trap']
+            return {key: key for key in lexical_set}
         return super()._keyword_default(keyword, df=df)
 
 

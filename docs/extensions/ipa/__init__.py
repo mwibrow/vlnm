@@ -26,7 +26,8 @@ def ipa_role(
                 node += nodes.math(r'^\prime', r'^\prime')
         return [node], []
 
-    return [nodes.inline(text, text, )], []
+    text = r'\mathstrut\mbox{' + text + r'}'
+    return [nodes.math(text, text, )], []
 
 def f_role(
         typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
