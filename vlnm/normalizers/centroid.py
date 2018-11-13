@@ -7,7 +7,9 @@ which calculate the centroid of a speaker's vowel space
 and use this to normalize the formant data.
 """
 
+import numpy as np
 import pandas as pd
+from scipy.spatial import ConvexHull
 
 from . import register_class
 from .speaker import SpeakerIntrinsicNormalizer
@@ -75,22 +77,44 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         return df
 
 
-class ConvexHullNormalizer(SpeakerIntrinsicNormalizer):
+class ConvexHullNormalizer(CentroidNormalizer):
     r"""Normalize using the barycenter of the speakers vowel space.
 
     The convex hull normalizer establishes the speaker's vowel
     space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
-    of `all` the speaker's vowels and using the barycenter to normalize
-    the formant data.
+    of `all` the speaker's vowels, and uses the barycenter of the points
+    that make-up the hull to normalize the formant data.
 
     .. math::
 
-        \mbox{H}(V) = \left\{
-            \sum_{i=1}^{|V|} \alpha_i v_i
-            :\,
-            \alpha_i \geq 0\, \mbox{ and } \sum_{i=1}^{|V|}\alpha_i = 1
-        \right\}
+        F_i^\prime = \frac{F_i}{S_i}
+
+    where
+
+    .. math::
+
+        S_i = \frac{1}{|H|}\sum_{h\in H}F_i(h)
+
+    Where :math:`H` is the the set of vowels which form the convex
+    hull of the vowel space and :math:`F_i(h)` is the `i`th
+    formant of the vowel :math:`h`.
     """
+
+    @staticmethod
+    def get_centroid(df, apices=None, **kwargs):  # pylint: disable=missing-docstring
+        vowel = kwargs.get('vowel')
+        formants = kwargs.get('formants')
+        subset = [vowel]
+        subset.extend(formants)
+        means = df[subset].groupby(vowel).mean().as_matrix()
+
+        hull = ConvexHull(means)
+        points = np.array([means[vertex] for vertex in hull.vertices])
+
+        centroid = points.mean(axis=1)
+        return centroid
+
+
 @register_class('wattfab')
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
