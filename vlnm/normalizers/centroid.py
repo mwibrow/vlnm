@@ -285,12 +285,33 @@ class BighamNormalizer(CentroidNormalizer):
     Normalise vowels according to :citet:`bigham_2008`.
 
     :citet:`bigham_2008` adapts :citet:`watt_fabricius_2002`
-    to construct the centroid from the
+    to calculate a barycentric centroid from a trapzeoid
+    constructed using the vowels
+    :ipa:`[i^\prime]`, :ipa:`[u^\prime]`
+    :ipa:`[ɑ^\prime]`, and :ipa:`[æ^\prime]`
+    derived as shown below:
 
-    - :ipa:`/ɪ/` for the maximum :F:`1`
-    - actual :F2: value for :ipa:`/u/`
-    - values for :ipa:`/ɑ/` and :ipa:`/ɔ/` averaged to provide value for :ipa:`/ɑ/`
-    - trapezoidal vowel space using values of :ipa:`/æ/`
+    .. list-table::
+        :header-rows: 1
+        :align: center
+
+        * - vowel
+          - F1
+          - F2
+        * - :ipa:`[i^\prime]`
+          - :math:`F_1^{[ɪ]}`
+          - :math:`F_2^{[i]}`
+        * - :ipa:`[u^\prime]`
+          - :math:`F_1^{[i]}`
+          - :math:`F_2^{[u]}`
+        * - :ipa:`[ɑ^\prime]`
+          - :math:`\frac{1}{2}(F_1^{[ɑ]} + F_1^{[ɔ]})`
+          - :math:`\frac{1}{2}(F_2^{[ɑ]} + F_2^{[ɔ]})`
+        * - :ipa:`[æ^\prime]`
+          - :math:`F_1^{[æ]}`
+          - :math:`F_2^{[æ]}`
+
+    Then the formants are normalized as follows:
 
     .. math::
 
@@ -300,9 +321,15 @@ class BighamNormalizer(CentroidNormalizer):
 
     .. math::
 
-        S(F_i) = \frac{1}{|q|}\sum_{q\in Q}F_i
+        S(F_i) = \frac{1}{4}
+            \left(
+                F_i^{[i^\prime]} +
+                F_i^{[u^\prime]} +
+                F_i^{[ɑ^\prime]} +
+                F_i^{[æ^\prime]}
+            \right)
 
-    Where :math:`Q` is the set of vowels at the apices
+    Where :math:`Q` is the set of vowels at the vertices
     of the speakers vowel space.
 
     Parameters
