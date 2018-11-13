@@ -284,6 +284,14 @@ class BighamNormalizer(CentroidNormalizer):
 
     Normalise vowels according to :citet:`bigham_2008`.
 
+    :citet:`bigham_2008` adapts :citet:`watt_fabricius_2002`
+    to construct the centroid from the
+
+    - :ipa:`/ɪ/` for the maximum :F:`1`
+    - actual :F2: value for :ipa:`/u/`
+    - values for :ipa:`/ɑ/` and :ipa:`/ɔ/` averaged to provide value for :ipa:`/ɑ/`
+    - trapezoidal vowel space using values of :ipa:`/æ/`
+
     .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}

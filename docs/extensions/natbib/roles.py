@@ -4,10 +4,9 @@
     .. autoclass:: CitationRole
     .. autofunction:: extract_citation
 """
-
-import docutils
 import re
 
+import docutils
 from sphinx.errors import SphinxError
 
 from .nodes import CitationNode

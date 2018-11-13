@@ -55,6 +55,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'ipa',
     'natbib',
     'plots',
     'console',

@@ -1,12 +1,13 @@
 
+
 p.reference {
     padding-left: 2rem;
     text-indent: -2rem;
     margin: 0.125rem !important;
 }
 
-.tt {
-    font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+.ipa {
+    font-family: 'Times New Roman', 'Georgia', serif;
 }
 
 .console {
