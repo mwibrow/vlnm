@@ -339,9 +339,7 @@ class BighamNormalizer(CentroidNormalizer):
         A dictionary specifying labels for the required vowels
         to construct the centroid (shown in the table above).
         The keys for the dictionary should be from the
-        lexical set keywords :smallcaps:`kit`,
-        :smallcaps:`goose`, :smallcaps:`fleece`, :smallcaps:`start`,
-        :smallcaps:`thought`, and :smallcaps:`trap`,
+        lexical set keywords (see table below)
         and *all* keys need to be specified.
 
         If this parameter is omitted, the normalizer will assume that the vowels
@@ -354,9 +352,9 @@ class BighamNormalizer(CentroidNormalizer):
         :align: center
         :class: centered
 
-        * - keyword
+        * - Keyword
           - SSE vowel
-          - Dictionary key
+          - Key
         * - :smallcaps:`kit`
           - :ipa:`ɪ`
           - ``kit``
