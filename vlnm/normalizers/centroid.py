@@ -82,7 +82,8 @@ class ConvexHullNormalizer(CentroidNormalizer):
 
     The convex hull normalizer establishes the speaker's vowel
     space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
-    of `all` the speaker's vowels, and uses the barycenter of the points
+    from the mean formants for `all` the speaker's vowels,
+    and uses the barycenter of the points
     that make-up the hull to normalize the formant data.
 
     .. math::
