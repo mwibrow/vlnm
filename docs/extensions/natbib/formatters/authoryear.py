@@ -68,6 +68,19 @@ class AuthorYearFormatter(Formatter):
         ]
 
     @staticmethod
+    def book_template():
+        """Template for book entry."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            join(sep='')[
+                emph[field['title']],
+                optional[volume, ', volume ', volume],
+                '.'
+            ],
+            sentence[field['publisher']]
+        ]
+
+    @staticmethod
     def sort_key():
         """Template for the key used to sort bibliography entries."""
         return join[authors, year, title]

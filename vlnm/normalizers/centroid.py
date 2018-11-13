@@ -329,6 +329,25 @@ class BighamNormalizer(CentroidNormalizer):
                 F_i^{[æ^\prime]}
             \right)
 
+
+
+    Parameters
+    ----------
+
+    apices : :obj:`dict`
+        A dictionary specifying labels for the required vowels
+        to construct the centroid (shown in the table above).
+        The keys for the dictionary should be from the
+        lexical set keywords :smallcaps:`kit`,
+        :smallcaps:`goose`, :smallcaps:`fleece`, :smallcaps:`start`,
+        :smallcaps:`thought`, and :smallcaps:`trap`,
+        and *all* keys need to be specified.
+
+        If this parameter is omitted, the normalizer will assume that the vowels
+        are already labeled according to the lexical set keywords
+        (taken from :citealp:`wells_1982`):
+
+
     .. list-table::
         :header-rows: 1
         :align: center
@@ -348,22 +367,9 @@ class BighamNormalizer(CentroidNormalizer):
         * - :smallcaps:`trap`
           - :ipa:`æ`
 
-    Parameters
-    ----------
-
-    apices : :obj:`dict`
-        A dictionary specifying labels for the required vowels
-        to construct the centroid (shown in the table above).
-        The keys for the dictionary should be from the
-        lexical set keywords :smallcaps:`kit`,
-        :smallcaps:`goose`, :smallcaps:`fleece`, :smallcaps:`start`,
-        :smallcaps:`thought`, and :smallcaps:`trap`,
-        and *all* keys need to be specified.
-        If this parameter is omitted, the normalizer will assume that the vowels
-        are already labeled according by the lexical set keywords.
-
-
-
+    Returns
+    -------
+    `pandas.DataFrame`
     """
     config = dict(
         keywords=['apices'],
