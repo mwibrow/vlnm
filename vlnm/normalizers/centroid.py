@@ -291,9 +291,10 @@ class BighamNormalizer(CentroidNormalizer):
     :ipa:`[ɑ^\prime]`, and :ipa:`[æ^\prime]`
     derived as shown below:
 
-    .. list-table::
+    .. list-table:: Construction of derived vowels
         :header-rows: 1
         :align: center
+        :class: centered
 
         * - vowel
           - F1
@@ -348,24 +349,32 @@ class BighamNormalizer(CentroidNormalizer):
         (taken from :citealp:`wells_1982`):
 
 
-    .. list-table::
+    .. list-table:: Lexical set keywords with corresponding dictionary keys
         :header-rows: 1
         :align: center
+        :class: centered
 
         * - keyword
           - SSE vowel
+          - Dictionary key
         * - :smallcaps:`kit`
           - :ipa:`ɪ`
+          - ``kit``
         * - :smallcaps:`goose`
           - :ipa:`u`
+          - ``goose``
         * - :smallcaps:`fleece`
           - :ipa:`i`
+          - ``fleece``
         * - :smallcaps:`start`
           - :ipa:`ɑ`
+          - ``fleece``
         * - :smallcaps:`thought`
           - :ipa:`ɔ`
+          - ``thought``
         * - :smallcaps:`trap`
           - :ipa:`æ`
+          - ``trap``
 
     Returns
     -------

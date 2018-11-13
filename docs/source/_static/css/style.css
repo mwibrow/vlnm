@@ -45,3 +45,7 @@ div.highlight-pandas + div.highlight-python {
     text-transform: uppercase;
     font-size: 0.8em;
 }
+
+.centered td, .centered th {
+    text-align: center !important;
+}
