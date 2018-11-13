@@ -75,6 +75,22 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         return df
 
 
+class ConvexHullNormalizer(SpeakerIntrinsicNormalizer):
+    r"""Normalize using the barycenter of the speakers vowel space.
+
+    The convex hull normalizer establishes the speaker's vowel
+    space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
+    of `all` the speaker's vowels and using the barycenter to normalize
+    the formant data.
+
+    .. math::
+
+        \mbox{H}(V) = \left\{
+            \sum_{i=1}^{|V|} \alpha_i v_i
+            :\,
+            \alpha_i \geq 0\, \mbox{ and } \sum_{i=1}^{|V|}\alpha_i = 1
+        \right\}
+    """
 @register_class('wattfab')
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
@@ -344,7 +360,7 @@ class BighamNormalizer(CentroidNormalizer):
 
         If this parameter is omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords
-        (taken from :citealp:`wells_1982`):
+        taken from :citet:`wells_1982`:
 
 
     .. list-table:: Lexical set keywords with corresponding dictionary keys
@@ -354,7 +370,7 @@ class BighamNormalizer(CentroidNormalizer):
 
         * - Keyword
           - SSE vowel
-          - Key
+          - Dictionary key
         * - :smallcaps:`kit`
           - :ipa:`ɪ`
           - ``kit``
@@ -377,6 +393,29 @@ class BighamNormalizer(CentroidNormalizer):
     Returns
     -------
     `pandas.DataFrame`
+        The normalized data.
+
+    Example
+    -------
+
+    .. console::
+        :code-only:
+
+        import pandas as pd
+        from vlnm import BighamNormalizer
+        apices=dict(
+            kit='hid',
+            goose='whod',
+            fleece='heed',
+            start='heart',
+            thought='hoard',
+            trap='had')
+        normalizer = BighamNormalizer(apices)
+        df = pd.read_csv('hawkins_midgely_2005.csv')
+        df_norm = normalizer(df)
+
+        df_norm.head()
+
     """
     config = dict(
         keywords=['apices'],
