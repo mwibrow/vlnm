@@ -133,16 +133,9 @@ class ConvexHullNormalizer(CentroidNormalizer):
     Parameters
     ----------
 
-    formants: :obj:`list`
-        A list of DataFrame columns which contains the formant data.
-        If not specified, (or overridden in the `normalize` method)
-        the normalizer will use any columns n the DataFrame that are in the list
-        ``['f0', 'f1', 'f2', 'f3']``.
-
+    {{formants}}
     {{speaker}}
-
     {{vowel}}
-
     {{kwargs}}
 
     Returns
