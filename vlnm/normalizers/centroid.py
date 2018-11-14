@@ -11,9 +11,39 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import ConvexHull
 
+from ..docstrings import docstring
 from . import register_class
 from .speaker import SpeakerIntrinsicNormalizer
 
+LEXICAL_SET = [
+    'kit',
+    'dress',
+    'trap',
+    'lot',
+    'strut',
+    'foot',
+    'bath',
+    'cloth',
+    'nurse',
+    'fleece',
+    'face',
+    'palm',
+    'thought',
+    'goat',
+    'goose',
+    'price',
+    'choice',
+    'mouth',
+    'near',
+    'square',
+    'start',
+    'north',
+    'force',
+    'cure',
+    'happy',
+    'letter',
+    'comma'
+]
 
 def get_apice_formants(df, apices, **kwargs):
     r"""Calculate the formants for the apices of the speakers vowel space.
@@ -76,7 +106,7 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] /= centroid
         return df
 
-
+@docstring
 class ConvexHullNormalizer(CentroidNormalizer):
     r"""Normalize using the barycenter of the speakers vowel space.
 
@@ -97,9 +127,34 @@ class ConvexHullNormalizer(CentroidNormalizer):
         S_i = \frac{1}{|H|}\sum_{h\in H}F_i(h)
 
     Where :math:`H` is the the set of vowels which form the convex
-    hull of the vowel space and :math:`F_i(h)` is the `i`th
-    formant of the vowel :math:`h`.
+    hull of the vowel space and :math:`F_i(h)` is the :math:`i^{th}`
+    formant of vowel :math:`h`.
+
+    Parameters
+    ----------
+
+    formants: :obj:`list`
+        A list of DataFrame columns which contains the formant data.
+        If not specified, (or overridden in the `normalize` method)
+        the normalizer will use any columns n the DataFrame that are in the list
+        ``['f0', 'f1', 'f2', 'f3']``.
+
+    {{speaker}}
+
+    {{vowel}}
+
+    {{kwargs}}
+
+    Returns
+    -------
+    {{normalized_data}}
+
     """
+
+    def __init__(
+            self, formants=None, speaker='speaker', vowel='vowel', **kwargs):
+        super().__init__(
+            formants=formants, speaker=speaker, vowel=vowel, **kwargs)
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):  # pylint: disable=missing-docstring
@@ -139,16 +194,16 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     .. math::
 
         S(F_j) = \frac{1}{3}\left
-            (F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}
+            (F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}
         \right)
 
     and
 
     .. math::
 
-        F_1^{/u^\prime/} = F_2^{/u^\prime/} = F_1^{/i/}
+        F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}
 
-    with :math:`/i/`, :math:`/a/`, and :math:`/u^\prime/` indicating
+    with :math:`[i]`, :math:`[a]`, and :math:`[u^\prime]` indicating
     the :smallcaps:`fleece`, :smallcaps:`trap`
     and (derived) :smallcaps:`goose` vowels, respectively.
 
@@ -235,10 +290,10 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     .. math::
 
         S(F_j) = \begin{cases}
-            \frac{1}{2}\left(F_j^{/i/} + F_j^{/u^\prime/}\right)
+            \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
             & \text{when } j = 2
             \\
-            \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
+            \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
             & \text{otherwise}
         \end{cases}
 
@@ -246,7 +301,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
     .. math::
 
-        F_1^{/u^\prime/} = F_2^{/u^\prime/} = F_1^{/i/}
+        F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}
 
     """
 
@@ -287,10 +342,10 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
     .. math::
 
         S(F_j) = \begin{cases}
-            \frac{1}{2}\left(F_j^{/i/} + F_j^{/u^\prime/}\right)
+            \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
             & \text{when } j = 2
             \\
-            \frac{1}{3}\left(F_j^{/i/} + F_j^{/a/} + F_j^{/u^\prime/}\right)
+            \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
             & \text{otherwise}
         \end{cases}
 
@@ -298,7 +353,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 
     .. math::
 
-        F_j^{/u^\prime/} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}
+        F_j^{[u^\prime]} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}
 
     where :math:`P` is the set of point vowels.
     """
@@ -375,6 +430,25 @@ class BighamNormalizer(CentroidNormalizer):
 
     Parameters
     ----------
+    f1 : :obj:`str`
+        The DataFrame column which contains the :math:`F_1` data.
+        If not given (or overridden in the `normalize` method)
+        defaults to ``'f1'``.
+
+    f2 : :obj:`str`
+        The DataFrame column which contains the :math:`F_2` data.
+        If not given (or overridden in the `normalize` method)
+        defaults to ``'f2'``.
+
+    speaker: :obj:`str`
+        The DataFrame column which contains the speaker labels.
+        If not given (or overridden in the `normalize` method)
+        defaults to ``'speaker'``.
+
+    vowel: :obj:`str`
+        The DataFrame column which contains the vowel labels.
+        If not given (or overridden in the `normalize` method)
+        defaults to ``'vowel'``.
 
     apices : :obj:`dict`
         A dictionary specifying labels for the required vowels
@@ -394,7 +468,7 @@ class BighamNormalizer(CentroidNormalizer):
         :class: centered
 
         * - Keyword
-          - SSE vowel
+          - SSBE vowel
           - Dictionary key
         * - :smallcaps:`kit`
           - :ipa:`ɪ`
@@ -414,6 +488,9 @@ class BighamNormalizer(CentroidNormalizer):
         * - :smallcaps:`trap`
           - :ipa:`æ`
           - ``trap``
+
+    kwargs :
+        Other keyword arguments passed to the parent class.
 
     Returns
     -------
@@ -443,22 +520,35 @@ class BighamNormalizer(CentroidNormalizer):
 
     """
     config = dict(
-        keywords=['apices'],
-        columns=['speaker', 'vowel']
+        keywords=['apices', 'f1', 'f2'],
+        columns=['speaker', 'vowel', 'f1', 'f2']
     )
+
+    def __init__(
+            self, f1='f1', f2='f2', speaker='speaker',
+            vowel='vowel', apices=None, **kwargs):
+        super().__init__(
+            apices=apices, f1=f1, f2=f2,
+            speaker=speaker, vowel=vowel, **kwargs)
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
         apice_df = get_apice_formants(
             df, list((apices or {}).keys()), **kwargs)
 
-        formants = kwargs.get('formants')
-        vowel = kwargs.get('vowel', 'vowel')
-        def _agg(agg_df):
-            names = {f: agg_df[f].mean() for f in formants}
-            return pd.Series(names, index=formants)
-        # Minimum mean of all vowels (same as minimum mean of point vowels)
-        apice_df.loc['goose'] = df.groupby(vowel).apply(_agg).min(axis=0)
+        f1 = kwargs.get('f1')
+
+        centroid_df = apice_df.copy()
+
+        kit, goose, fleece, start, thought = (
+            apices['kit'], apices['goose'], apices['fleece'],
+            apices['start'], apices['thought'])
+
+        centroid_df.loc[fleece, f1] = centroid_df.loc[kit, f1]
+        centroid_df.loc[goose, f1] = centroid_df.loc[fleece, f1]
+        centroid_df.loc[start] = centroid_df.loc[[start, thought]].mean(axis=0)
+
+        centroid_df.drop([kit, thought], axis=0, inplace=True)
 
         centroid = apice_df.mean(axis=0)
         return centroid
@@ -475,7 +565,7 @@ class SchwaNormalizer(CentroidNormalizer):
     r"""
     .. math::
 
-        F_i^\prime = \frac{F_i}{F_{i[/ə/]}} - 1
+        F_i^\prime = \frac{F_i}{F_{i}^{[ə]}} - 1
 
     """
     config = dict(
