@@ -6,45 +6,46 @@ REPLACEMENTS = dict(
     f0=r"""
     f0 : :obj:`str`
         The DataFrame column which contains the :math:`F_1` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f0'``.
+        If not given, defaults to ``'f0'``.
     """,
     f1=r"""
     f1 : :obj:`str`
         The DataFrame column which contains the :math:`F_1` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f1'``.
+        If not given, defaults to ``'f1'``.
     """,
     f2=r"""
     f2 : :obj:`str`
         The DataFrame column which contains the :math:`F_2` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f2'``.
+        If not given, defaults to ``'f2'``.
     """,
     f3=r"""
     f3 : :obj:`str`
         The DataFrame column which contains the :math:`F_3` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f3'``.
+        If not given, defaults to ``'f3'``.
     """,
     formants=r"""
     formants : :obj:`list`
         A list of DataFrame columns which contains the formant data.
-        If not given (or overridden in the `normalize` method)
-        defaults any DataFrame columns found in the list
+        If not given, defaults any DataFrame columns found in the list
         ``['f0', 'f1', 'f2', 'f3]``.
     """,
     speaker=r"""
     speaker: :obj:`str`
         The DataFrame column which contains the speaker labels.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'speaker'``.
+        If not given, defaults to ``'speaker'``.
     """,
     vowel=r"""
     vowel: :obj:`str`
         The DataFrame column which contains the vowel labels.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'vowel'``.
+        If not given, defaults to ``'vowel'``.
+    """,
+    rename=r"""
+    rename: :obj:`str`
+        Rename output columns according to the
+        specified pattern. The characters ``{}`` will
+        be replaced with the default output column,
+        so using ``rename='{}_N'`` will suffix all
+        output columns with ``_N`.
     """,
     kwargs=r"""
     **kwargs
