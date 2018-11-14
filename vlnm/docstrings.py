@@ -41,7 +41,7 @@ REPLACEMENTS = dict(
     """,
     rename=r"""
     rename: :obj:`str`
-        Rename output columns according to the
+        If given, rename output columns according to the
         specified pattern. The characters ``{}`` will
         be replaced with the default output column,
         so using ``rename='{}_N'`` will suffix all
