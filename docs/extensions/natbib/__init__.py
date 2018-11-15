@@ -39,8 +39,7 @@ def process_bibliographies(app, doctree, docname):
         formatter = AuthorYearFormatter(env)
 
         node = docutils.nodes.paragraph()
-        keys = formatter.sort_keys(keys, bibcache)
-
+        keys = formatter.sort_keys(list(set(keys)), bibcache)
         year_suffixes = formatter.resolve_ties(keys, bibcache)
         for key in year_suffixes:
             bibcache[key].fields['year_suffix'] = year_suffixes[key]
