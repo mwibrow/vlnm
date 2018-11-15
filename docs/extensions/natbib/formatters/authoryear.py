@@ -46,7 +46,8 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
-            sentence[field['booktitle']]
+            sentence[field['booktitle']],
+            optional[sentence[pages]]
         ]
 
     @staticmethod

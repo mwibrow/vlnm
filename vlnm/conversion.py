@@ -8,51 +8,84 @@ from .docstrings import docstring
 
 
 @docstring
-def hz_to_bark(frq):
-    r"""Convert Hz to Bark scale according to :citet:`traunmuller_1990`.
+def hz_to_bark(frq, method='traunmuller'):
+    r"""Convert Hz to Bark scale according to
 
-    .. math::
+    Parameters
+    ----------
 
-        f^\prime = 26.81 \left(\frac{f}{f + 1960}\right)
+    frq : :obj:`numpy.ndarray` | :obj:`pandas.DataFrame`
+        The frequency data to convert.
 
-    {{hz_to_bark}}
+    method : :obj:`str`
+        The conversion method used, from the list below.
+        If not given, defaults to ``'traumuller'``.
+
+        - ``'syrdal'`` conversion from :citet:`syrdal_gopal_1986`.
+
+            .. math::
+
+                F^\prime = 13 \arctan\left( 0.76\frac{F_c}{1000} \right) +
+                    3.5 \arctan \left( \frac{F_c}{7500} \right)^2
+
+            where
+
+            .. math::
+
+                F_c = \begin{cases}
+                    150 & \mbox{when } F < 150
+                    \\
+                    F - 0.2(F - 150) & \mbox{when } 150 \leq F < 200
+                    \\
+                    F - 0.2(250 - F) & \mbox{when } 200\leq F < 250
+                    \\
+                    F & \mbox{otherwise}
+                    \end{cases}
+
+        - ``'traumuller'`` conversion from :citet:`traunmuller_1990`.
+
+        .. math::
+
+            F^\prime = 26.81 \left(\frac{F}{F + 1960}\right)
+
+        - ``'volk'`` conversion from :citet:`volk_2015`.
+
+        .. math::
+
+            F^\prime  = 32.12 \left(
+                1 - \left(1 +
+                    \left(\frac{F}{873.47}\right)^{1.18}
+                \right)^{-0.4}
+            \right)
+
+        - ``'zwicker'`` conversion from :citet:`zwicker_terhardt_1980`.
+
+        .. math::
+
+            F^\prime = 13 \arctan\left( 0.76\frac{F}{1000} \right) +
+            3.5 \arctan \left( \frac{F}{7500} \right)^2
+
+    Return
+    ------
+    :obj:`numpy.ndarray` | :obj:`pandas.DataFrame`
+        The converted data.
     """
-    return hz_to_bark_traunmuller(frq)
+    if method == 'greenwood':
+        return 11.9 * np.log10(frq / 165.4 + 0.88)
+    elif method == 'syrdal':
+        frq[frq < 150.] = 150.
+        frq[(frq >= 150.) & (frq < 200)] = frq - (0.2 * (frq - 150.))
+        frq[(frq >= 200.) & (frq < 250)] = frq - (0.2 * (250. - frq))
+        return hz_to_bark(frq, method='zwicker')
+    elif method == 'traunmuller':
+        return 26.81 * frq / (frq + 1960) - 0.53
+    elif method == 'volk':
+        return 32.12 * (1. - (1. + (frq / 873.47) ** 1.18) ** -0.4)
+    elif method == 'zwicker':
+        return (13 * np.arctan(0.00076 * frq) +
+                3.5 * np.arctan(frq / 7500.) ** 2)
+    raise ValueError('Unknown method: {}'.format(method))
 
-def hz_to_bark_zwicker(frq):
-    r"""Convert Hz to Bark scale according to :citet:`zwicker_terhardt_1980`.
-
-    .. math::
-
-        f^\prime = 13 \arctan\left( 0.76\frac{f}{1000} \right) +
-         3.5 \arctan \left( \frac{f}{7500} \right)^2
-
-
-    """
-    return (13 * np.arctan(0.00076 * frq) +
-            3.5 * np.arctan(frq / 7500.) ** 2)
-
-def hz_to_bark_greenwood(frq):
-    return 11.9 * np.log10(frq / 165.4 + 0.88)
-
-def hz_to_bark_volk(frq):
-    r"""Convert Hz to Bark scale according to :citet:`volk_2015`.
-
-    .. math::
-
-        f^\prime  = 32.12 \left(
-            1 - \left(1 +
-                \left(\frac{f}{873.47}\right)^{1.18}
-            \right)^{-0.4}
-        \right)
-
-
-    """
-
-    return 32.12 * (1. - (1. + (frq / 873.47) ** 1.18) ** -0.4)
-
-def hz_to_bark_traunmuller(frq):
-    return 26.81 * frq / (frq + 1960) - 0.53
 
 def hz_to_mel(frq):
     r"""
