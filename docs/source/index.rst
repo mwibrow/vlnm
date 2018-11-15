@@ -17,6 +17,7 @@ Vowel normalization for python.
    quickstart
    api
    normalizers
+   conversion
    license
    bibliography
 

@@ -54,6 +54,18 @@ REPLACEMENTS = dict(
     normalized_data=r"""
     `pandas.DataFrame`
         The normalized data.
+    """,
+    hz_to_bark=r"""
+    Parameters
+    ----------
+    frq:
+        A numpy array-compatible data structure
+        (e.g., ``numpy.ndarray``, ``pandas.DataFrame``, etc.).
+
+    Returns
+    -------
+    Array-like
+        The frequency data on the Bark scale.
     """)
 
 def docstring(cls):
