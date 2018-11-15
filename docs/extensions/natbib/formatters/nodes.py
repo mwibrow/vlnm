@@ -370,6 +370,21 @@ class Idempotent(Node):
         """Format this node instance."""
         return self.children[0]
 
+class Link(Node):
+    """LinkNode."""
+
+    def format(self, **kwargs):
+        """Format this node instance."""
+        url = self.children[0].format(**kwargs).astext()
+        if len(self.children) > 1:
+            link_text = self.children[1].format(**kwargs).astext()
+        else:
+            link_text = url
+        ref_node = docutils.nodes.reference(
+            link_text, link_text, classes=['xref'], internal=False, refuri=url)
+        return ref_node
+
+
 # pylint: disable=C0103
 boolean = Boolean()
 call = Call()
@@ -380,6 +395,7 @@ idem = Idempotent()
 ifelse = IfElse()
 inline = InLine()
 join = Join()
+link = Link()
 optional = Optional()
 ref = Reference()
 sentence = Sentence()

@@ -2,27 +2,73 @@
 Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+from typing import Callable, List, Union
+
+import pandas
 
 from . import register_class
 from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
+from ..docstrings import docstring
 
+@docstring
 @register_class('barkdiff')
 class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     r"""
+    Normalize formant data according to :citet:`syrdal_gopal_1986`.
+
+    Vowels are normalized by converting formants to the
+    Bark scale, and subtracing
+
     .. math::
 
-        F_{i}^N = B_i - B^\prime
+        F_{i}^\prime = B_i - B^\prime
 
     Where :math:`B_i` is a function converting the ith
     frequency measured in hertz to the Bark scale, and
     :math:`B^\prime` is :math:`B_0` or :math:`B_1`
     depending on the context.
+
+    Parameters
+    ----------
+
+    {{f0}}
+    {{f1}}
+    {{f2}}
+    {{f3}}
+    {{formants}}
+    {{rename}}
+
+    transform: :obj:`function`
+        A function to replace the conversion from the Hz scale
+        to the bark scale.
+        It should take a DataFrame as its only argument
+        containing only the formant data, and return a DataFrame
+        with the same columns containing the transformed data.
+
+        If not specifiied this uses the `hz_to_bark` function
+        which implements the conversion given in :citet:`traunmuller_1990`.
+
+    Example
+    -------
     """
     config = dict(
         keywords=['f1', 'f2', 'f3'],
         transform=hz_to_bark
     )
+
+    def __init__(
+            self,
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            formants: List[str] = None,
+            rename: str = None,
+            transform: Callable[[pandas.DataFrame], pandas.DataFrame] = None):
+        super().__init__(
+            self, f0=f0, f1=f1, f2=f2, f3=f3,
+            formants=formants, rename=rename, transform=transform)
 
     def _norm(self, df):
 

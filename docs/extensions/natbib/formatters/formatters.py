@@ -10,7 +10,7 @@ import docutils.nodes
 
 from .nodes import (
     boolean, call, emph, field,
-    formatted_node, join, optional, sentence, words,
+    formatted_node, join, link, optional, sentence, words,
     Node)
 
 def latex_decode(text):
@@ -161,4 +161,9 @@ volume = join[
         field['number'],
         '(', field['number'], ')'
     ]
+]
+
+doi = link[
+    join['https://www.doi.org/', field['doi']],
+    join['doi:', field['doi']]
 ]

@@ -13,7 +13,7 @@ from .nodes import (
 
 from .formatters import (
     Formatter,
-    authors, editors, field, journal, pages, title, volume, year)
+    authors, doi, editors, field, journal, pages, title, volume, year)
 
 class AuthorYearFormatter(Formatter):
     """
@@ -26,7 +26,8 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             title,
-            join[journal, ', ', volume, ' ', pages, '.']
+            join[journal, ', ', volume, ' ', pages, '.'],
+            optional[field['doi'], doi]
         ]
 
     @staticmethod

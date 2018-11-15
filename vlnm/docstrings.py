@@ -4,22 +4,22 @@ Module for inserting common documentation snippits into docstrings.
 
 REPLACEMENTS = dict(
     f0=r"""
-    f0 : :obj:`str`
-        The DataFrame column which contains the :math:`F_1` data.
+    f0 : :obj:`str` | :obj:`list`
+        The DataFrame column which contains the :math:`F_0` data.
         If not given, defaults to ``'f0'``.
     """,
     f1=r"""
-    f1 : :obj:`str`
+    f1 : :obj:`str` | :obj:`list`
         The DataFrame column which contains the :math:`F_1` data.
         If not given, defaults to ``'f1'``.
     """,
     f2=r"""
-    f2 : :obj:`str`
+    f2 : :obj:`str` | :obj:`list`
         The DataFrame column which contains the :math:`F_2` data.
         If not given, defaults to ``'f2'``.
     """,
     f3=r"""
-    f3 : :obj:`str`
+    f3 : :obj:`str` | :obj:`list`
         The DataFrame column which contains the :math:`F_3` data.
         If not given, defaults to ``'f3'``.
     """,
@@ -45,7 +45,7 @@ REPLACEMENTS = dict(
         specified pattern. The characters ``{}`` will
         be replaced with the default output column,
         so using ``rename='{}_N'`` will suffix all
-        output columns with ``_N`.
+        output columns with ``_N``.
     """,
     kwargs=r"""
     **kwargs
