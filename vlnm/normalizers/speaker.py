@@ -1,38 +1,95 @@
 """
-Standardize normalizers
-~~~~~~~~~~~~~~~~~~~~~~~
+Speaker-based normalizers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 """
+from typing import List
 
 import numpy as np
+import pandas as pd
 
+from ..docstrings import docstring
 from . import register_class
 from .base import SpeakerIntrinsicNormalizer
 
+@docstring
 @register_class('lce')
 class LCENormalizer(SpeakerIntrinsicNormalizer):
-    r"""
+    r"""Normalize by dividing formants by their mamximum value for a speaker.
+
+    Formants are normalized by "linear compression or expansion"
+    :citep:`{% lobanov_1971 %} p.607`:
 
     .. math::
 
         F_i^\prime = \frac{F_i}{\max{F_i}}
 
+    Parameters
+    ----------
+    {{speaker}}
+    {{formants}}
+    {{rename}}
     """
+
+    def __init__(
+            self, speaker: str = 'speaker', formants: List[str] = None,
+            rename: str = None, **kwargs):
+        super().__init__(
+            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
+
+    @docstring
+    def normalize(
+            self, df: pd.DataFrame, speaker: str = 'speaker',
+            formants: List[str] = None, rename: str = None,
+            **kwargs) -> pd.DataFrame:
+        """
+        Normalize formant data in a DataFrame.
+
+        Parameters
+        ----------
+        df :
+            The formant data to normalize.
+        speaker:
+            See constructor parameters.
+        formants:
+            See constructor parameters.
+        rename:
+            See constrictor parameters.
+
+        """
+        return super().normalize(df, formants=formants, rename=rename, **kwargs)
+
 
     def _norm(self, df):
         formants = self.params['formants']
         df[formants] = df[formants] / df[formants].max(axis=0)
         return df
 
-
+@docstring
 @register_class('gerstman')
 class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
-    r"""
+    r"""Normalize formants according to :citet:`gerstman_1968`.
+
+    Formants are normalized by subtracting the speaker's minimum value
+    for the formant and then divided by the speaker's range for
+    the formant. These value are then multipled by :math:`999`.
 
     .. math::
 
-        F_i^\prime = \frac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^\prime = 999 \frac{F_i - \min{F_i}}{\max{F_i}}
 
+    Parameters
+    ----------
+    {{speaker}}
+    {{formants}}
+    {{rename}}
     """
+
+    def __init__(
+            self, speaker: str = 'speaker', formants: List[str] = None,
+            rename: str = None, **kwargs):
+        super().__init__(
+            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     def _norm(self, df):
         formants = self.params['formants']
@@ -41,10 +98,12 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] = 999 * (df[formants] - fmin) / (fmax - fmin)
         return df
 
-
+@docstring
 @register_class('lobanov')
 class LobanovNormalizer(SpeakerIntrinsicNormalizer):
-    r"""
+    r"""Normalize formants using their z-score for a given speaker.
+
+    This uses the formulat given in :citet:`{% lobanov_1971 %} p.607`:
 
     .. math::
 
@@ -54,8 +113,35 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     mean and standard deviation (respectively) of the
     formant :math:`F_i` for a given speaker.
 
+    Parameters
+    ----------
+    {{formants}}
+    {{rename}}
     """
 
+    def __init__(
+            self, speaker: str = 'speaker', formants: List[str] = None,
+            rename: str = None, **kwargs):
+        super().__init__(
+            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, formants: List[str] = None,
+                  rename: str = None, **kwargs) -> pd.DataFrame:
+        """
+        Normalize formant data in a DataFrame.
+
+        Parameters
+        ----------
+        df :
+            The formant data to normalize.
+        formants:
+            See constructor parameters.
+        rename:
+            See constrictor parameters.
+
+        """
+        return super().normalize(df, formants=formants, rename=rename, **kwargs)
     def _norm(self, df):
         formants = self.params['formants']
         mean = df[formants].mean(axis=0)
@@ -82,6 +168,10 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     config = dict(
         keywords=['speaker', 'exp']
     )
+
+    def __init__(
+            self, formants: List[str] = None, rename: str = None, **kwargs):
+        super().__init__(self, formants=formants, rename=rename, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'exp':

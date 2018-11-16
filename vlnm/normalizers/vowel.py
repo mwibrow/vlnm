@@ -18,16 +18,15 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     Normalize formant data according to :citet:`syrdal_gopal_1986`.
 
     Vowels are normalized by converting formants to the
-    Bark scale, and subtracing
+    Bark scale, calculating the difference :math:`Z` between
+    consecutive formants:
 
     .. math::
 
-        F_{i}^\prime = B_i - B^\prime
+        Z_{i}^\prime = B(F_i) - B(F_{i-1})\mbox{ for } 1 \leq i \leq 3
 
-    Where :math:`B_i` is a function converting the ith
-    frequency measured in hertz to the Bark scale, and
-    :math:`B^\prime` is :math:`B_0` or :math:`B_1`
-    depending on the context.
+    Where :math:`B` is a function converting the ith
+    frequency measured in hertz to the Bark scale.
 
     Parameters
     ----------
@@ -73,8 +72,8 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
         z3 = transform(df[f3])
 
         if z0 is not None:
-            df['z1-z0'] = z1 - z0
-        df['z2-z1'] = z2 - z1
-        df['z3-z2'] = z3 - z2
+            df['z1'] = z1 - z0
+        df['z2'] = z2 - z1
+        df['z3'] = z3 - z2
 
         return df

@@ -292,7 +292,6 @@ def process_docstring(app, what, name, obj, options, lines):
                         # prevents it being interpreted.
                         lines.append('')
                         insert_index += 1
-
                     lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
             else:
                 searchfor = ':param {}:'.format(argname)

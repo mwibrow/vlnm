@@ -1,5 +1,9 @@
 """
-Miscellaeneous conversion functions.
+Conversion
+~~~~~~~~~~
+
+This module contains miscellaeneous functions for converting
+from Hz to other scales.
 """
 
 import numpy as np
