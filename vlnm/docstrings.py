@@ -4,27 +4,27 @@ Module for inserting common documentation snippits into docstrings.
 
 REPLACEMENTS = dict(
     f0=r"""
-    f0 : :obj:`str` | :obj:`list`
+    f0 :
         The DataFrame column which contains the :math:`F_0` data.
         If not given, defaults to ``'f0'``.
     """,
     f1=r"""
-    f1 : :obj:`str` | :obj:`list`
+    f1 :
         The DataFrame column which contains the :math:`F_1` data.
         If not given, defaults to ``'f1'``.
     """,
     f2=r"""
-    f2 : :obj:`str` | :obj:`list`
+    f2 :
         The DataFrame column which contains the :math:`F_2` data.
         If not given, defaults to ``'f2'``.
     """,
     f3=r"""
-    f3 : :obj:`str` | :obj:`list`
+    f3 :
         The DataFrame column which contains the :math:`F_3` data.
         If not given, defaults to ``'f3'``.
     """,
     formants=r"""
-    formants : :obj:`list`
+    formants :
         A list of DataFrame columns which contains the formant data.
         If not given, defaults any DataFrame columns found in the list
         ``['f0', 'f1', 'f2', 'f3]``.
@@ -40,7 +40,7 @@ REPLACEMENTS = dict(
         If not given, defaults to ``'vowel'``.
     """,
     rename=r"""
-    rename: :obj:`str`
+    rename:
         If given, rename output columns according to the
         specified pattern. The characters ``{}`` will
         be replaced with the default output column,

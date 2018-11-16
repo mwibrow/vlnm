@@ -4,24 +4,20 @@ Miscellaeneous conversion functions.
 
 import numpy as np
 
-from .docstrings import docstring
-
-
-@docstring
-def hz_to_bark(frq, method='traunmuller'):
-    r"""Convert Hz to Bark scale according to
+def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
+    r"""Convert from Hz to Bark scale.
 
     Parameters
     ----------
 
-    frq : :obj:`numpy.ndarray` | :obj:`pandas.DataFrame`
+    frq :
         The frequency data to convert.
 
-    method : :obj:`str`
+    method :
         The conversion method used, from the list below.
         If not given, defaults to ``'traumuller'``.
 
-        - ``'syrdal'`` conversion from :citet:`syrdal_gopal_1986`.
+        - ``'syrdal'`` conversion from :citet:`syrdal_gopal_1986`:
 
             .. math::
 
@@ -42,13 +38,13 @@ def hz_to_bark(frq, method='traunmuller'):
                     F & \mbox{otherwise}
                     \end{cases}
 
-        - ``'traumuller'`` conversion from :citet:`traunmuller_1990`.
+        - ``'traumuller'`` conversion from :citet:`traunmuller_1990`:
 
         .. math::
 
             F^\prime = 26.81 \left(\frac{F}{F + 1960}\right)
 
-        - ``'volk'`` conversion from :citet:`volk_2015`.
+        - ``'volk'`` conversion from :citet:`volk_2015`:
 
         .. math::
 
@@ -58,7 +54,7 @@ def hz_to_bark(frq, method='traunmuller'):
                 \right)^{-0.4}
             \right)
 
-        - ``'zwicker'`` conversion from :citet:`zwicker_terhardt_1980`.
+        - ``'zwicker'`` conversion from :citet:`zwicker_terhardt_1980`:
 
         .. math::
 
@@ -67,7 +63,7 @@ def hz_to_bark(frq, method='traunmuller'):
 
     Return
     ------
-    :obj:`numpy.ndarray` | :obj:`pandas.DataFrame`
+    :py:class:`numpy.ndarray`
         The converted data.
     """
     if method == 'greenwood':
@@ -87,25 +83,49 @@ def hz_to_bark(frq, method='traunmuller'):
     raise ValueError('Unknown method: {}'.format(method))
 
 
-def hz_to_mel(frq):
-    r"""
-    Convert Hz to mel scale.
+def hz_to_mel(frq: np.ndarray) -> np.ndarray:
+    r"""Convert from Hz to mel scale.
+
+    The formula used here is the 'natural-log' equivalent
+    of the formula given in :citet:`{% oshaughnessy_1987 %}, p.150`:
 
     .. math::
 
-       M = 1127\log\left(1 + \frac{f}{700}\right)
+       F^\prime = 1127\log\left(1 + \frac{f}{700}\right)
 
+    Parameters
+    ----------
+
+    frq :
+        The frequency data to convert.
+
+    Return
+    ------
+    :py:class:`numpy.ndarray`
+        The converted data.
     """
     return 1127. * np.log(1. + frq / 700.)
 
 
-def hz_to_erb(frq):
+def hz_to_erb(frq: np.ndarray) -> np.ndarray:
     r"""
     Convert Hz to approximate ERB scale.
 
+    Taken from :citet:`{% moore_glasberg_1996 %}, p.336`:
+
     .. math::
 
-       E = 21.4\log\left(1 + 0.00437f\right)
+       F^\prime = 21.4\log\left(1 + 0.00437f\right)
 
+    Parameters
+    ----------
+
+    frq :
+        The frequency data to convert.
+
+    Return
+    ------
+    :py:class:`numpy.ndarray`
+        The converted data.
     """
     return 21.4 * np.log(1 + 0.00437 * frq)

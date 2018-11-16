@@ -4,7 +4,7 @@ Vowel intrinsic normalizers
 """
 from typing import Callable, List, Union
 
-import pandas
+import numpy
 
 from . import register_class
 from .base import FormantExtrinsicNormalizer
@@ -38,22 +38,10 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     {{f3}}
     {{formants}}
     {{rename}}
-
-    transform: :obj:`function`
-        A function to replace the conversion from the Hz scale
-        to the bark scale.
-        It should take a DataFrame as its only argument
-        containing only the formant data, and return a DataFrame
-        with the same columns containing the transformed data.
-
-        If not specifiied this uses the `hz_to_bark` function
-        which implements the conversion given in :citet:`traunmuller_1990`.
-
-    Example
-    -------
+    transform:
     """
     config = dict(
-        keywords=['f1', 'f2', 'f3'],
+        keywords=['f0', 'f1', 'f2', 'f3'],
         transform=hz_to_bark
     )
 
@@ -65,10 +53,11 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
             rename: str = None,
-            transform: Callable[[pandas.DataFrame], pandas.DataFrame] = None):
+            transform: Callable[[numpy.ndarray], numpy.ndarray] = None):
         super().__init__(
             self, f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants, rename=rename, transform=transform)
+
 
     def _norm(self, df):
 

@@ -53,14 +53,14 @@ release = '0.0.0'
 extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
-    'sphinx_autodoc_typehints',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'ipa',
     'natbib',
     'plots',
     'console',
-    'tables'
+    'tables',
+    'typehints'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

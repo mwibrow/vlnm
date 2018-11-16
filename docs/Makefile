@@ -1,7 +1,7 @@
 
 SRCDIR=source
 BLDDIR=build
-EXTENSIONS=-z ./extensions/plots -z ./extensions/natbib -z ./extensions/console -z ./extensions/tables -z ./extensions/ipa
+EXTENSIONS=-z ./extensions
 WATCH=-z ../vlnm -z ./$(SRCDIR) $(EXTENSIONS)
 CMDOPT=-E -a -d $(BLDDIR)/.doctrees
 
