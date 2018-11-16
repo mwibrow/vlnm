@@ -54,7 +54,7 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
         formants:
             See constructor parameters.
         rename:
-            See constrictor parameters.
+            See constructor parameters.
 
         """
         return super().normalize(df, formants=formants, rename=rename, **kwargs)
