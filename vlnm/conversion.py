@@ -91,7 +91,7 @@ def hz_to_mel(frq: np.ndarray) -> np.ndarray:
 
     .. math::
 
-       F^\prime = 1127\log\left(1 + \frac{f}{700}\right)
+       F^\prime = 1127\log\left(1 + \frac{F}{700}\right)
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def hz_to_erb(frq: np.ndarray) -> np.ndarray:
 
     .. math::
 
-       F^\prime = 21.4\log\left(1 + 0.00437f\right)
+       F^\prime = 21.4\log\left(1 + 0.00437F\right)
 
     Parameters
     ----------
@@ -135,7 +135,7 @@ def hz_to_log(frq: np.ndarray) -> np.ndarray:
 
     .. math::
 
-       F^\prime = \log\left(f\right)
+       F^\prime = \log\left(F\right)
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ def hz_to_log10(frq: np.ndarray) -> np.ndarray:
 
     .. math::
 
-       F^\prime = \log_{10}\left(f\right)
+       F^\prime = \log_{10}\left(F\right)
 
     Parameters
     ----------
