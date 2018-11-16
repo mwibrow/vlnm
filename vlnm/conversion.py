@@ -108,10 +108,9 @@ def hz_to_mel(frq: np.ndarray) -> np.ndarray:
 
 
 def hz_to_erb(frq: np.ndarray) -> np.ndarray:
-    r"""
-    Convert Hz to approximate ERB scale.
+    r"""Convert Hz to approximate ERB scale.
 
-    Taken from :citet:`{% moore_glasberg_1996 %}, p.336`:
+    Formula taken from :citet:`{% moore_glasberg_1996 %}, p.336`:
 
     .. math::
 
@@ -129,3 +128,45 @@ def hz_to_erb(frq: np.ndarray) -> np.ndarray:
         The converted data.
     """
     return 21.4 * np.log(1 + 0.00437 * frq)
+
+
+def hz_to_log(frq: np.ndarray) -> np.ndarray:
+    r"""Convert Hz to the natural logarithmic scale.
+
+    .. math::
+
+       F^\prime = \log\left(f\right)
+
+    Parameters
+    ----------
+
+    frq :
+        The frequency data to convert.
+
+    Return
+    ------
+    :py:class:`numpy.ndarray`
+        The converted data.
+    """
+    return np.log(frq)
+
+
+def hz_to_log10(frq: np.ndarray) -> np.ndarray:
+    r"""Convert Hz to the base-10 logarithmic scale.
+
+    .. math::
+
+       F^\prime = \log_{10}\left(f\right)
+
+    Parameters
+    ----------
+
+    frq :
+        The frequency data to convert.
+
+    Return
+    ------
+    :py:class:`numpy.ndarray`
+        The converted data.
+    """
+    return np.log(frq)
