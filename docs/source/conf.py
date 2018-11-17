@@ -200,3 +200,4 @@ epub_exclude_files = ['search.html']
 pd.set_option('display.max_columns', None)
 add_module_names = False
 napoleon_use_param = True
+

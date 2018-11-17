@@ -32,10 +32,10 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     Parameters
     ----------
 
-    {{f0}}
-    {{f1}}
-    {{f2}}
-    {{f3}}
+    {% f0 %}
+    {% f1 %}
+    {% f2 %}
+    {% f3 %}
     {% formants %}
     {% rename %}
     transform:

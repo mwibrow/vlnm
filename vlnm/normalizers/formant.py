@@ -7,22 +7,24 @@ import numpy as np
 from vlnm.normalizers import register_class
 from vlnm.normalizers.base import FormatIntrinsicTransformableNormalizer
 
-from vlnm.conversion import (
+from ..conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
+from ..docstrings import docstring
 
 
 @register_class('bark')
 class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
-    r"""
-    Normalise vowels using the Bark scale.
+    r"""Normalise vowels using the Bark scale.
 
     .. math::
 
         F_i^N =  26.81 \ln\left(
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53
+
+    For parameter values see the :py:class:`base.Normalizer` documentation.
 
     """
     config = dict(transform=hz_to_bark)
@@ -37,7 +39,7 @@ class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = 21.4 \ln\left(1 + 0.00437{F_i}\right)
 
-    {% columns %}
+    For parameter values see the :py:class:`base.Normalizer` documentation.
     """
     config = dict(transform=hz_to_erb)
 
@@ -51,6 +53,7 @@ class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = \log_{10}\left(F_i\right)
 
+    For parameter values see the :py:class:`base.Normalizer` documentation.
     """
     config = dict(transform=np.log10)
 
@@ -64,6 +67,7 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = \log\left(F_i\right)
 
+    For parameter values see the :py:class:`base.Normalizer` documentation.
     """
     config = dict(transform=np.log)
 
@@ -76,6 +80,6 @@ class MelNormalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = 1127 \ln\left(1 + \frac{F_i}{700}\right)
 
-    {% columns %}
+    For parameter values see the :py:class:`base.Normalizer` documentation.
     """
     config = dict(transform=hz_to_mel)
