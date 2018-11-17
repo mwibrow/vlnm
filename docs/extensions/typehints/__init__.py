@@ -91,7 +91,7 @@ class Formatter:
         args = ', '.join(strip_role(self.format_annotation(param))
                          for param in params[:-1])
         return_type = strip_role(self.format_annotation(params[-1]))
-        return ':py:class:`callable({}): {}`'.format(args, return_type)
+        return ':py:class:`callable({}) returns {}`'.format(args, return_type)
 
     def format_dataframe(self, _):  # pylint: disable=no-self-use
         """Format dataframe."""

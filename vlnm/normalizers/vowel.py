@@ -4,6 +4,7 @@ Vowel intrinsic normalizers
 """
 from typing import Callable, List, Union
 
+import pandas as pd
 import numpy
 
 from . import register_class
@@ -38,6 +39,9 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     {{formants}}
     {{rename}}
     transform:
+        Replace the default `hz_to_bark` transform with an alternative.
+
+
     """
     config = dict(
         keywords=['f0', 'f1', 'f2', 'f3'],
@@ -57,6 +61,43 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             self, f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants, rename=rename, transform=transform)
 
+    @docstring
+    def normalize(
+            self,
+            df,
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            formants: List[str] = None,
+            rename: str = None,
+            transform: Callable[[numpy.ndarray], numpy.ndarray] = None,
+            **kwargs) -> pd.DataFrame:
+        r"""Normalize formant data.
+
+        Parameters
+        ----------
+        df :
+            DataFrame containing formant data.
+        {{f0}}
+        {{f1}}
+        {{f2}}
+        {{f3}}
+        {{formants}}
+        {{rename}}
+        transform:
+            Replace the default `hz_to_bark` transform with an alternative.
+        {{kwargs}}
+
+        Return
+        ------
+        :
+
+            A dataframe containing the normalized formants.
+        """
+        return super().normalize(
+            df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants,
+            rename=rename, transform=transform, **kwargs)
 
     def _norm(self, df):
 

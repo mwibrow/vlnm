@@ -1,6 +1,8 @@
 """
 Module for inserting common documentation snippits into docstrings.
 """
+import re
+import types
 
 REPLACEMENTS = dict(
     f0=r"""
@@ -68,11 +70,42 @@ REPLACEMENTS = dict(
         The frequency data on the Bark scale.
     """)
 
-def docstring(cls):
-    """Decorator for replacing docstrings."""
 
-    docs = cls.__doc__
-    for key, value in REPLACEMENTS.items():
-        docs = docs.replace(r'{{'+key+r'}}', value.strip())
-    cls.__doc__ = docs
-    return cls
+WSP_RE = re.compile(r'^(\s*)')
+
+def reindent(text, indent=0):
+    """Reindint a multi line string."""
+    lines = text.split('\n')
+    while not lines[0]:
+        lines = lines[1:]
+    while not lines[-1]:
+        lines = lines[-1:]
+    whitespace = [len(WSP_RE.match(line).group(1))
+                  for line in lines]
+    min_indent = min(
+        space for line, space in zip(lines, whitespace) if line.strip())
+    reindented = []
+    for i, line in enumerate(lines):
+        if line.strip() and whitespace[i] > 0:
+            line = re.sub(
+                r'^\s+', ' ' * (whitespace[i] - min_indent + indent), line)
+        reindented.append(line)
+    return '\n'.join(reindented)
+
+
+SUBS_RE = re.compile(r'^(\s*)\{\{([^}]+)}}')
+
+def docstring(obj):
+    """Replace element in docstrings."""
+    lines = obj.__doc__.split('\n')
+    docs = []
+    for line in lines:
+        match = SUBS_RE.match(line)
+        if match:
+            indent, key = match.groups()
+            replacement = REPLACEMENTS.get(key)
+            if replacement:
+                line = reindent(replacement, indent=len(indent))
+        docs.append(line)
+    obj.__doc__ = '\n'.join(docs)
+    return obj
