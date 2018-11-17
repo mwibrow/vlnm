@@ -26,8 +26,8 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
 
         Z_{i}^\prime = B(F_i) - B(F_{i-1})\mbox{ for } 1 \leq i \leq 3
 
-    Where :math:`B` is a function converting the ith
-    frequency measured in hertz to the Bark scale.
+    Where :math:`B` is a function converting the :math:`i\mbox{th}`
+    formant measured in hertz to the Bark scale.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     {{formants}}
     {{rename}}
     transform:
-        Replace the default `hz_to_bark` transform with an alternative.
+        Replace the default `hz_to_bark` transform.
 
 
     """
@@ -79,25 +79,21 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
         ----------
         df :
             DataFrame containing formant data.
-        {{f0}}
-        {{f1}}
-        {{f2}}
-        {{f3}}
-        {{formants}}
-        {{rename}}
-        transform:
-            Replace the default `hz_to_bark` transform with an alternative.
-        {{kwargs}}
 
-        Return
-        ------
+        Other parameters
+        ----------------
+        :
+            For the other parameters see the constructor.
+
+        Returns
+        -------
         :
 
             A dataframe containing the normalized formants.
         """
         return super().normalize(
             df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants,
-            rename=rename, transform=transform, **kwargs)
+            rename=rename, transform=transform)
 
     def _norm(self, df):
 

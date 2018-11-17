@@ -18,7 +18,8 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
     Formants are normalized by "linear compression or expansion"
-    :citep:`{% lobanov_1971 %} p.607`:
+    :citep:`{% lobanov_1971 %} p.607`, that is by dividing
+    each formant for a given speaker by it's maximum value for that speaker:
 
     .. math::
 
@@ -42,22 +43,9 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
             self, df: pd.DataFrame, speaker: str = 'speaker',
             formants: List[str] = None, rename: str = None,
             **kwargs) -> pd.DataFrame:
-        """
-        Normalize formant data in a DataFrame.
-
-        Parameters
-        ----------
-        df :
-            The formant data to normalize.
-        speaker:
-            See constructor parameters.
-        formants:
-            See constructor parameters.
-        rename:
-            See constructor parameters.
-
-        """
-        return super().normalize(df, formants=formants, rename=rename, **kwargs)
+        """{{normalize}}"""
+        return super().normalize(
+            df, speaker=speaker, formants=formants, rename=rename, **kwargs)
 
 
     def _norm(self, df):
@@ -103,7 +91,7 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
-    This uses the formulat given in :citet:`{% lobanov_1971 %} p.607`:
+    This uses the formula given in :citet:`{% lobanov_1971 %} p.607`:
 
     .. math::
 
@@ -128,19 +116,7 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     @docstring
     def normalize(self, df: pd.DataFrame, formants: List[str] = None,
                   rename: str = None, **kwargs) -> pd.DataFrame:
-        """
-        Normalize formant data in a DataFrame.
-
-        Parameters
-        ----------
-        df :
-            The formant data to normalize.
-        formants:
-            See constructor parameters.
-        rename:
-            See constrictor parameters.
-
-        """
+        """{{normalize}}"""
         return super().normalize(df, formants=formants, rename=rename, **kwargs)
     def _norm(self, df):
         formants = self.params['formants']

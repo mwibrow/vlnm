@@ -3,6 +3,8 @@
 
     Adapted from https://github.com/agronholm/sphinx-autodoc-typehints
 """
+
+# pylint: disable=all
 import inspect
 import re
 import typing
@@ -91,7 +93,7 @@ class Formatter:
         args = ', '.join(strip_role(self.format_annotation(param))
                          for param in params[:-1])
         return_type = strip_role(self.format_annotation(params[-1]))
-        return ':py:class:`callable({}) returns {}`'.format(args, return_type)
+        return ':py:class:`callable({})` returns :py:class:`{}`'.format(args, return_type)
 
     def format_dataframe(self, _):  # pylint: disable=no-self-use
         """Format dataframe."""

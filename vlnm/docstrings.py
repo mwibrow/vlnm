@@ -2,33 +2,29 @@
 Module for inserting common documentation snippits into docstrings.
 """
 import re
-import types
 
 REPLACEMENTS = dict(
     f0=r"""
     f0 :
         The DataFrame column which contains the :math:`F_0` data.
-        If not given, defaults to ``'f0'``.
     """,
     f1=r"""
     f1 :
         The DataFrame column which contains the :math:`F_1` data.
-        If not given, defaults to ``'f1'``.
     """,
     f2=r"""
     f2 :
         The DataFrame column which contains the :math:`F_2` data.
-        If not given, defaults to ``'f2'``.
     """,
     f3=r"""
     f3 :
         The DataFrame column which contains the :math:`F_3` data.
-        If not given, defaults to ``'f3'``.
     """,
     formants=r"""
     formants :
         A list of DataFrame columns which contains the formant data.
-        If not given, defaults any DataFrame columns found in the list
+        If not given, the normalizer will use
+        any DataFrame columns found in the list
         ``['f0', 'f1', 'f2', 'f3]``.
     """,
     speaker=r"""
@@ -68,6 +64,24 @@ REPLACEMENTS = dict(
     -------
     Array-like
         The frequency data on the Bark scale.
+    """,
+    normalize=r"""
+    Normalize formant data in a DataFrame.
+
+        Parameters
+        ----------
+        df :
+            The formant data to normalize.
+
+        Other parameters
+        ----------------
+        :
+            For other parameters see the documentation for the constructor.
+
+        Returns
+        -------
+        :
+            The normalized data.
     """)
 
 
