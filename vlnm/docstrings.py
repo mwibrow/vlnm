@@ -107,7 +107,7 @@ def reindent(text, indent=0):
     return '\n'.join(reindented)
 
 
-SUBS_RE = re.compile(r'^(\s*)\{\{([^}]+)}}')
+SUBS_RE = re.compile(r'^(\s*)\{%([^%]+)%\}')
 
 def docstring(obj):
     """Replace element in docstrings."""
@@ -117,6 +117,7 @@ def docstring(obj):
         match = SUBS_RE.match(line)
         if match:
             indent, key = match.groups()
+            key = key.strip()
             replacement = REPLACEMENTS.get(key)
             if replacement:
                 line = reindent(replacement, indent=len(indent))

@@ -133,10 +133,10 @@ class ConvexHullNormalizer(CentroidNormalizer):
     Parameters
     ----------
 
-    {{formants}}
-    {{speaker}}
-    {{vowel}}
-    {{kwargs}}
+    {% formants %}
+    {% speaker %}
+    {% vowel %}
+    {% kwargs %}
 
     Returns
     -------

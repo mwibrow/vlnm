@@ -37,7 +37,7 @@ class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = 21.4 \ln\left(1 + 0.00437{F_i}\right)
 
-    {{columns}}
+    {% columns %}
     """
     config = dict(transform=hz_to_erb)
 
@@ -76,6 +76,6 @@ class MelNormalizer(FormatIntrinsicTransformableNormalizer):
 
        F_i^N = 1127 \ln\left(1 + \frac{F_i}{700}\right)
 
-    {{columns}}
+    {% columns %}
     """
     config = dict(transform=hz_to_mel)

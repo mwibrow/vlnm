@@ -36,8 +36,8 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     {{f1}}
     {{f2}}
     {{f3}}
-    {{formants}}
-    {{rename}}
+    {% formants %}
+    {% rename %}
     transform:
         Replace the default `hz_to_bark` transform.
 
