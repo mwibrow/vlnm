@@ -125,10 +125,10 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
         df[formants] = (df[formants] - mean) / std
         return df
 
-
+@docstring
 @register_class('neary')
 class NearyNormalizer(SpeakerIntrinsicNormalizer):
-    r"""
+    r"""Normalize formants by subtracting log-transformed means for a speaker.
 
     .. math::
 
@@ -140,19 +140,40 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,
     and :math:`m = n = i` or :math:`m = 0` and :math:`n = 3`
 
+    Parameters
+    ----------
+
+    {{formants}}
+
+    exp:
+        If `True` transform the normalized formants
+        using the exponential function with base :math:`e`.
+
+    {{rename}}
+
     """
     config = dict(
         keywords=['speaker', 'exp']
     )
 
     def __init__(
-            self, formants: List[str] = None, rename: str = None, **kwargs):
-        super().__init__(self, formants=formants, rename=rename, **kwargs)
+            self, formants: List[str] = None, exp: bool = False,
+            rename: str = None, **kwargs):
+        super().__init__(
+            self, formants=formants, exp=exp, rename=rename, **kwargs)
+
+    def normalize(
+            self, formants: List[str] = None, exp: bool = False,
+            rename: str = None, **kwargs):
+        """{{normalize}}"""
+        return super().normalize(
+            formants=formants, exp=exp, rename=rename, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'exp':
             return False
         return super()._keyword_default(keyword, df=df)
+
 
     def _norm(self, df):
         formants = self.params['formants']
@@ -163,6 +184,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
         return df
 
 
+@docstring
 @register_class('nearygm')
 class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     r"""
