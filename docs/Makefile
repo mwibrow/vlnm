@@ -1,4 +1,3 @@
-
 SRCDIR=source
 BLDDIR=build
 EXTENSIONS=-z ./extensions
@@ -13,3 +12,6 @@ html:
 
 watch:
 	sphinx-autobuild $(WATCH) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+
+api-doc:
+	sphinx-apidoc -f -o $(SRCDIR)/api ../vlnm

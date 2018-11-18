@@ -153,6 +153,7 @@ class ConsoleDirective(Directive):
 
     option_spec = {
         'code-only': directives.flag,
+        'script': directives.flag,
         'execute': directives.flag,
         'lexer': directives.unchanged
     }
@@ -163,8 +164,12 @@ class ConsoleDirective(Directive):
         self.arguments = ['python']
 
         execute = 'code-only' not in self.options
-
         env = self.state.document.settings.env
+
+
+
+        curdir = os.curdir
+        os.chdir(env.relfn2path('')[1])
         local_env = dict(
             __file__=os.path.normpath(env.relfn2path('.')[1]),
             __doc__=None,
@@ -176,15 +181,14 @@ class ConsoleDirective(Directive):
         else:
             items = [item for item in self.content]
             console = []
-            for line in generate_statements(items, lexer):
+            for line in generate_statements(items, lexer, self.options):
                 statement, magic, code_object, code_magic = line
 
                 cast = MAGICS.get(magic, MAGICS['default'])
                 result = cast(statement)
                 if result:
                     console.append(result)
-
-                if execute:
+                if execute and code_magic != 'code':
                     stdout, stderr = run_code(interpreter, code_object)
                     cast = MAGICS.get(code_magic, MAGICS['console'])
                     output = cast(stdout[:-1])
@@ -193,6 +197,7 @@ class ConsoleDirective(Directive):
                     output = MAGICS['console'](stderr[:-1])
                     if output:
                         console.append(output)
+        os.chdir(curdir)
 
         parent = docutils.nodes.line_block(classes=['console'])
         for block in console:
@@ -213,10 +218,10 @@ def run_code(interpreter, code_object):
     stderr.close()
     return stdout_output, stderr_output
 
-def generate_statements(content, lexer):
+def generate_statements(content, lexer, options):
     """Generator for statements and code_objects.
     """
-    if lexer == 'python':
+    if lexer == 'python' and not 'script' in options:
         initial_prefix = '>>> '
         continuation_prefix = '... '
     else:

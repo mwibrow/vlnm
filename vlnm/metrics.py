@@ -2,46 +2,52 @@
 Metrics
 ~~~~~~~
 
-The :module:`vlnm.metrics` module provides metrics
+The `vlnm.metrics` module provides metrics
 for evaluating normalization methods.
 """
 
 import pandas as pd
 from scipy.spatial import ConvexHull
+import shapely
 from shapely.geometry import Polygon
 
 
 def vowel_space(
-        df, vowel='vowel', apices=None, formants=('f1', 'f2'), hull=True):
+        df: pd.DataFrame,
+        vowel: str = 'vowel',
+        apices: dict = None,
+        formants: tuple = ('f1', 'f2'),
+        hull: bool = True) -> shapely.geometry.Polygon:
     """Calculate the vowel space for a speaker.
 
     Parameters
     ----------
 
-    df : :class:`pandas.DataFrame`
+    df:
         Formant data for a `single` speaker.
 
-    vowel : :obj:`str`
+    vowel:
         Data-frame column which contains the vowel labels.
         Defaults to :code:`'vowel'`.
 
-    apices : :obj:`list`
+    apices:
         List of vowel labels to use as the apices of the vowel space.
         If not provided, all vowels will be used.
 
-    formants :obj:`tuple`
+    formants:
         The formant columns in the dataframe.
         Defaults to :code:`('f1', 'f2')`.
 
-    hull : :obj:`bool`
+    hull:
         If :code:`True` (the default) a convex hull will be
         fitted mean formant data for the apices, prior
         to calculating the polygon exterior.
 
-    Return
-    ------
-    :obj:`shapely.geometry.Polygon`
+    Returns
+    -------
+    :
         Vowel space represented as a Polygon.
+
     """
     if apices:
         df = df[df[vowel].isin(apices)]
@@ -57,40 +63,44 @@ def vowel_space(
 
 
 def scv(
-        df, speaker='speaker', vowel='vowel',
-        apices=None, formants=('f1', 'f2')):
+        df: pd.DataFrame,
+        vowel: str = 'vowel',
+        speaker: str = 'speaker',
+        apices: dict = None,
+        formants: tuple = ('f1', 'f2')) -> shapely.geometry.Polygon:
     """Squared coefficient of variation for vowel spaces.
 
     Parameters
     ----------
 
-    df : :class:`pandas.DataFrame`
+    df:
         Formant data for all speakers.
 
-    speaker : :obj:`str`
+    speaker:
         Data-frame column which contains the speaker labels.
         Defaults to :code:`'speaker'`.
 
-    vowel : :obj:`str`
+    vowel:
         Data-frame column which contains the vowel labels.
         Defaults to :code:`'vowel'`.
 
-    apices : :obj:`list`
+    apices:
         List of vowel labels to use as the apices of the vowel space.
         If not provided, all vowels will be used.
 
-    formants :obj:`tuple`
+    formants:
         The formant columns in the dataframe.
         Defaults to :code:`('f1', 'f2')`.
 
-    Return
+    Returns
     ------
     :obj:`float`
         Square coefficient of variation for the vowel space.
+
     """
     def _area(group_df):
         return pd.DataFrame(dict(
-            speaker=group_df['speaker'].unique(),
+            speaker=group_df[speaker].unique(),
             area=vowel_space(
                 group_df, vowel=vowel, apices=apices, formants=formants).area
         ))

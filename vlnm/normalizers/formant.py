@@ -11,7 +11,6 @@ from ..conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
-from ..docstrings import docstring
 
 
 @register_class('bark')

@@ -1,4 +1,2 @@
 API
 ===
-
-.. automodule:: vlnm

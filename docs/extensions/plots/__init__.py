@@ -21,14 +21,13 @@ class PlotDirective(Directive):
     def run(self):
         """Run directive"""
         code = u'\n'.join(self.content)
-
         matplotlib.use('svg')
         context = dict(plt=None)
         exec(code, context)  # pylint: disable=exec-used
         plt = context['plt']
 
         output = BytesIO()
-        plt.savefig(output, format='png')
+        plt.savefig(output, format='png', bbox_inches='tight')
         output.seek(0)
         image_data = base64.b64encode(output.getvalue()).decode('ascii')
         image_uri = u'data:image/png;base64,{}'.format(image_data)

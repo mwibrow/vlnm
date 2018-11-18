@@ -12,3 +12,14 @@
 
 .. |numpy| replace:: NumPy_
 .. _NumPy: http://www.numpy.org/
+
+.. |matplotlib| replace:: Matplotlib_
+.. _Matplotlib: https://matplotlib.org/
+
+.. |f0| replace:: :math:`F_0`
+.. |f1| replace:: :math:`F_1`
+.. |f2| replace:: :math:`F_2`
+.. |f3| replace:: :math:`F_3`
+
+.. |param-f0| replace:: f0:
+        The F0 parameter
