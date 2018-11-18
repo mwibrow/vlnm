@@ -11,9 +11,11 @@ plots will require familiarity with |matplotlib|.
 
 from typing import List
 
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import numpy as np
+import scipy.stats as st
 
 class VowelPlot:
     """Class for managing vowel plots.
@@ -224,3 +226,29 @@ class VowelPlot:
             Passed on to `matplotlib.axes.Axes.legend`.
         """
         self.axis.legend(*args, **kwargs)
+
+    def ellipses(
+            self,
+            df: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            vowel: str = None,
+            vowels: List[str] = None,
+            confidence: float = 0.95,
+            **kwargs):
+
+        cov = np.cov(df[x], df[y])
+        eigenvalues, eignvectors = np.linalg.eig(cov)
+
+        angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180
+        alpha = st.chi2(df=2).ppf(0.95)
+        width, height = 2 * np.sqrt(alpha * eigenvalues)
+        ellipse = mpatches.Ellipse(
+            xy=(x.mean(), y.mean()),
+            width=width,
+            height=height,
+            angle=angle,
+            fill=False)
+        pass
+
+
