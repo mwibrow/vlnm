@@ -9,7 +9,7 @@ the |matplotlib| library, and advanced customation of vowel
 plots will require familiarity with |matplotlib|.
 """
 
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -233,22 +233,80 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             vowel: str = None,
-            vowels: List[str] = None,
+            include: List[str] = None,
+            exclude: List[str] = None,
             confidence: float = 0.95,
             **kwargs):
+        """Add confidence-interval-based ellipsed around formant data.
 
-        cov = np.cov(df[x], df[y])
-        eigenvalues, eignvectors = np.linalg.eig(cov)
+        Parameters
+        ----------
+        df:
+            The DataFrame containing the formant data.
+        x:
+            The DataFrame column containing the x-coordinates of the data.
+        y:
+            The DataFrame column containing the y-coordinates of the data.
+        vowel:
+            The DataFrame column containing the vowel categories/labels.
+        include:
+            Labels of vowel labels to include in the plot.
+            If not given, all vowels will be used.
+        exclude:
+            Vowel labels to exclude from the plot.
+        confidence:
+            Confidence level (under the assumption that the data
+            is normally distributed) to calculate the
+            the percentile from the Chi-squared distribution.
+            Values shoule be in the range :math:`0` to :math:`1`.
+        """
+        df = df or self.kwargs.get('df')
+        x = x or self.kwargs.get('x', 'f2')
+        y = y or self.kwargs.get('y', 'f1')
+        vowel = vowel or self.kwargs.get('vowel', 'vowel')
+        vowels = df['vowel'].unique()
+        if include:
+            vowels = [vwl for vwl in vowels if vwl in include]
+        if exclude:
+            vowels = [vwl for vwl in vowels if not vwl in exclude]
+        df = df[df[vowel].isin(vowels)]
 
-        angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180
-        alpha = st.chi2(df=2).ppf(0.95)
-        width, height = 2 * np.sqrt(alpha * eigenvalues)
-        ellipse = mpatches.Ellipse(
-            xy=(x.mean(), y.mean()),
-            width=width,
-            height=height,
-            angle=angle,
-            fill=False)
-        pass
+        grouped = df.groupby('vowel', as_index=False)
+        for _, group_df in grouped:
+            width, height, angle = get_confidence_ellipse_params(
+                group_df[x], group_df[y], confidence)
+            ellipse = mpatches.Ellipse(
+                xy=(group_df[x].mean(), group_df[y].mean()),
+                width=width,
+                height=height,
+                angle=angle,
+                fill=False)
+            self.axis.add_artist(ellipse)
 
+def get_confidence_ellipse_params(
+        x: List[float],
+        y: List[float],
+        confidence: float = 0.95) -> Tuple[float, float, float]:
+    """Calculate parameters for a 2D 'confidence ellipse'
 
+    Parameters
+    ----------
+    x:
+        Data for the x-coordinates.
+    y:
+        Data for the y-coordinates.
+    confidence:
+        Confidence level in the range :math:`0` to :math:`1`.
+
+    Returns
+    -------
+    :
+        A tuple the width, height, and angle (in degrees)
+        of the required ellipse.
+    """
+    cov = np.cov(x, y)
+    eigenvalues, eignvectors = np.linalg.eig(cov)
+    angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180
+    alpha = st.chi2(df=2).ppf(confidence)
+    width, height = 2 * np.sqrt(alpha * eigenvalues)
+    return width, height, angle

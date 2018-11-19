@@ -267,11 +267,12 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
+            speaker: str = None,
             exp: bool = False,
             rename: str = None):
         super().__init__(
             f1=f1, f2=f2, f3=f3, formants=formants,
-            exp=exp, rename=rename)
+            speaker=speaker, exp=exp, rename=rename)
 
     @docstring
     def normalize(
@@ -280,13 +281,14 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
+             speaker: str = None,
             exp: bool = False,
             rename: str = None,
             **kwargs):
         """{% normalize %}"""
         return super().normalize(
             df, f1=f1, f2=f2, f3=f3, formants=formants,
-            exp=exp, rename=rename, **kwargs)
+            speaker=speaker, exp=exp, rename=rename, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'exp':
