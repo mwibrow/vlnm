@@ -9,8 +9,9 @@ the |matplotlib| library, and advanced customation of vowel
 plots will require familiarity with |matplotlib|.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
+import matplotlib
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -235,6 +236,7 @@ class VowelPlot:
             vowel: str = None,
             include: List[str] = None,
             exclude: List[str] = None,
+            color: Union[str, matplotlib.colors.Colormap, list, dict] = None,
             confidence: float = 0.95,
             **kwargs):
         """Add confidence-interval-based ellipsed around formant data.
@@ -254,11 +256,22 @@ class VowelPlot:
             If not given, all vowels will be used.
         exclude:
             Vowel labels to exclude from the plot.
+        colors:
+
         confidence:
             Confidence level (under the assumption that the data
             is normally distributed) to calculate the
             the percentile from the Chi-squared distribution.
             Values shoule be in the range :math:`0` to :math:`1`.
+
+        Other parameters
+        ----------------
+            All other parameters are passed on to the constructor
+            of the :class:`matplotlib.patches.Ellipse` constructor
+            See the documentation for the `Ellipse class`__.
+
+        .. _Ellipse: https://matplotlib.org/api/_as_gen/matplotlib.patches.Ellipse.html
+        __ Ellipse _
         """
         df = df or self.kwargs.get('df')
         x = x or self.kwargs.get('x', 'f2')
@@ -280,7 +293,7 @@ class VowelPlot:
                 width=width,
                 height=height,
                 angle=angle,
-                fill=False)
+                **kwargs)
             self.axis.add_artist(ellipse)
 
 def get_confidence_ellipse_params(
@@ -310,3 +323,10 @@ def get_confidence_ellipse_params(
     alpha = st.chi2(df=2).ppf(confidence)
     width, height = 2 * np.sqrt(alpha * eigenvalues)
     return width, height, angle
+
+
+def get_colors(colors, levels=1):
+    """
+
+    If colors is the name of a known colormap
+    """
