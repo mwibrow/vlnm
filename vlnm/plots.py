@@ -21,9 +21,9 @@ import numpy as np
 import scipy.stats as st
 
 Color = Union[str, tuple]
-Colors = Union[Color, Dict[str, Color], List[Color], ListedColormap]
+Colors = Union[Color, List[Color], ListedColormap]
 Marker = Union[str, tuple, Path]
-Markers = Union[Marker, Dict[str, Marker], List[Marker]]
+Markers = Union[Marker, List[Marker]]
 
 
 class Context(dict):
@@ -54,6 +54,7 @@ class VowelPlot:
             vowel: Union[str, int] = None,
             color: Union[str, int] = None,
             label: Union[str, int] = None,
+            marker: Union[str, int] = None,
             width: str = None,
             height: str = None,
             rows: str = 1,
@@ -154,8 +155,15 @@ class VowelPlot:
             df = df.groupby(category, as_index=False).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
 
+        categories = sorted(data[category].unique())
         colors = kwargs.pop('colors', context.get('colors'))
+        color_map = get_color_map(colors, categories)
         markers = kwargs.pop('markers', context.get('markers'))
+        marker_map = get_marker_map(markers, categories)
+
+        grouped = df.groupby(category, as_index=False)
+        for category, group_df in grouped:
+            pass
 
     def scatter_(
             self,
@@ -415,21 +423,78 @@ def get_confidence_ellipse_params(
     return width, height, angle
 
 
-def get_colors(colors, levels=1) -> List[Color]:
-    """
+def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:
+    """Generate a list of colors.
 
+    colors:
+        The source of the color list.
+    levels:
+        The number of levels in the color list.
     """
-    if isinstance(color, str):
-        return matplotlib.colors.ListedColormap([])
+    if isinstance(colors, list):
+        return colors
+    elif isinstance(colors, Colormap):
+        if len(colors.colors) != levels:
+            cmap = plt.get_cmap(colors.name, lut=levels)
+        return cmap.colors
+    else:
+        try:
+            cmap = plt.get_cmap(colors, lut=levels)
+            if len(cmap.colors) != levels:
+                cmap = plt.get_cmap(cmap.name, lut=levels)
+            return cmap.colors
+        except ValueError:
+            return [colors]
 
-def get_colormap(colormap, levels=1) -> matplotlib.colors.Colormap:
-    """Return a colormap from a colormap with
+def get_color_map(
+        colors: Colors, categories: List[str]) -> Dict[str, Color]:
+    """Get a category-color mapping.
 
+    Parameters
+    ----------
+    colors:
+        Color specification.
+    categories:
+        A list of (vowel) categories.
+
+    Returns
+    -------
+    :
+        A dictionary mapping category labels to colors.
     """
-    try:
-        cmap = plt.get_cmap(colormap, lut=levels)
-        if len(cmap.colors) != levels:
-            cmap = plt.get_cmap(cmap.name, lut=levels)
-    except TypeError:
-        cmap = matplotlib.colors.ListedColormap(cmap)
-    return cmap
+    color_list = get_color_list(colors, len(categories))
+
+    color_map = {}
+    for i, category in enumerate(categories):
+        color_map[category] = color_list[i % len(color_list)]
+
+    return color_map
+
+def get_marker_map(
+        markers: Markers, categories: List[str]) -> Dict[str, Marker]:
+    """Get a category-marker mapping.
+
+    Parameters
+    ----------
+    markers:
+        Marker specification.
+    categories:
+        A list of (vowel) categories.
+
+    Returns
+    -------
+    :
+        A dictionary mapping category labels to markers.
+    """
+    if isinstance(markers, list):
+        marker_list = markers
+    else:
+        marker_list = [markers]
+    marker_map = {}
+    for i, category in enumerate(categories):
+        marker_map[category] = marker_list[i % len(marker_list)]
+
+    return marker_map
+
+
+
