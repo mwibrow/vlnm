@@ -465,16 +465,16 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=10
+max-args=16
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=16
 
 # Maximum number of boolean expressions in a if statement
-max-bool-expr=5
+max-bool-expr=4
 
 # Maximum number of branch for function / method body
-max-branches=12
+max-branches=16
 
 # Maximum number of locals for function / method body
 max-locals=20
