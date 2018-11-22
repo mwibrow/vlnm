@@ -14,26 +14,35 @@ from typing import Dict, List, Tuple, Union, Type
 import matplotlib
 from matplotlib.colors import Colormap, ListedColormap
 from matplotlib import Path
+from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy.stats as st
 
+
+# pylint: disable=C0103
 Color = Union[str, tuple]
-Colors = Union[Color, List[Color], ListedColormap]
-Marker = Union[str, tuple, Path]
-Markers = Union[Marker, List[Marker]]
+Colors = Union[List[Color], ListedColormap]
+Mark = Union[str, tuple, Path]
+Marks = List[Marker]
+Font = Union[str, FontProperties]
+Fonts = List[Font]
 
-
-class Context(dict):
+class Columns(dict):
     """Class for creating a vowel context.
 
     """
     def __init__(
             self,
-            **kwargs):
-        super().__init__(**kwargs)
+            x: Union[str, int] = None,
+            y: Union[str, int] = None,
+            color: Union[str, int] = None,
+            marker: Union[str, int] = None,
+            label: Union[str, int] = None):
+        super().__init__(
+            x=x, y=y, color=color, marker=marker, label=label)
 
     def merge(self, other: Context):
         self.update(
@@ -48,13 +57,6 @@ class VowelPlot:
 
     def __init__(
             self,
-            data: pd.DataFrame = None,
-            x: Union[str, int] = None,
-            y: Union[str, int] = None,
-            vowel: Union[str, int] = None,
-            color: Union[str, int] = None,
-            label: Union[str, int] = None,
-            marker: Union[str, int] = None,
             width: str = None,
             height: str = None,
             rows: str = 1,
@@ -65,12 +67,6 @@ class VowelPlot:
         self.figure = plt.figure(figsize=figsize)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.cols = rows, cols
-        self.data = data
-        self.mappings = dict(
-            x=x, y=y, vowel=vowel, color=color, marker=marker, label=label)
-        self.context = Context(
-            data=data, x=x, y=y, vowel=vowel, color=color, marker=marker,
-            label=label)
         self.kwargs = kwargs
 
         self.axis = None
@@ -96,30 +92,25 @@ class VowelPlot:
     def markers(
             self,
             data: pd.DataFrame = None,
-            x: Union[str, int] = None,
-            y: Union[str, int] = None,
-            vowel: Union[str, int] = None,
-            color: Union[str, int] = None,
-            marker: Union[str, int] = None,
+            columns: Dict[str, Union[str, int]],
+            color: Color,
+            colors: Colors,
+            marker: Marker,
+            markers: Markers,
             #
-            which: str = 'all',
+            where: str = 'all',
+            legend: bool = False,
             **kwargs):
         """Add markers to the vowel plot.
 
-        with VowelPlot(data=df) as plot.
-            plot.markers(
-                x='f1', y='f2', color='vowels',
-                colors,
-                markers=['.]
-                )
         Parameters
         ----------
 
         data:
             DataFrame containing the formant data.
-        mapping:
+        columns:
             A mapping between DataFrame columns and vowel-plot parameters.
-        which:
+        where:
             One of:
                 - ``'all'``: all rows in the DataFrame will be used.
                 - ``'mean'``: The means for each category will be used.
@@ -129,19 +120,29 @@ class VowelPlot:
         legend:
             Whether to add the markers to the legend.
             Will be ignored if labels are used as markers.
+        color:
+            Shorthand for ``colors=[<value>]``
         colors:
             Colors to be used for each vowel category.
             This will be converted into a list of colors
             which will be recycled if there are more vowels
             than colors.
-        markers:
-            Markers to be used for each vowel category.
-            This will be converted into a list of markers
-            which will be recycled if there are more markers
-            than colors.
-
+        mark:
+            Shorthand for ``marks=[<value>]
+        marks:
+            Marks to be used for each vowel category.
+            This will be converted into a list of marks
+            which will be recycled if there are more vowels
+            than marks.
+        label:
+            Shorthand for ``labels=[<value>]``
+        labels:
+            Label (font) properties to be used for each vowel category.
+            This will be converted into a list of properties
+            which will be recycled if there are more vowels
+            than properties.
         """
-        context = self.context.copy()
+
         context.merge(dict(
             data=data, x=x, y=y, vowel=vowel, color=color, marker=marker))
         category = (context['vowel'] or context['color'] or context['marker'])
