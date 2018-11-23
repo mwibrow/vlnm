@@ -12,11 +12,13 @@ plots will require familiarity with |matplotlib|.
 from typing import Dict, List, Tuple, Union, Type
 
 import matplotlib
+from matplotlib.axes import Axes
 from matplotlib.colors import Colormap, ListedColormap
+from matplotlib.cm import get_cmap
+from matplotlib.figure import Figure
 from matplotlib import Path
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy.stats as st
@@ -25,30 +27,11 @@ import scipy.stats as st
 # pylint: disable=C0103
 Color = Union[str, tuple]
 Colors = Union[List[Color], ListedColormap]
-Mark = Union[str, tuple, Path]
-Marks = List[Marker]
+Marker = Union[str, tuple, Path]
+Markers = List[Marker]
 Font = Union[str, FontProperties]
 Fonts = List[Font]
 
-class Columns(dict):
-    """Class for creating a vowel context.
-
-    """
-    def __init__(
-            self,
-            x: Union[str, int] = None,
-            y: Union[str, int] = None,
-            color: Union[str, int] = None,
-            marker: Union[str, int] = None,
-            label: Union[str, int] = None):
-        super().__init__(
-            x=x, y=y, color=color, marker=marker, label=label)
-
-    def merge(self, other: Context):
-        self.update(
-            {key: value for key, value in other.items
-             if value is not None})
-        return self
 
 class VowelPlot:
     """Class for managing vowel plots.
@@ -57,6 +40,8 @@ class VowelPlot:
 
     def __init__(
             self,
+            data: pd.DataFrame = None,
+            columns: Dict[str, Union[str, int]] = None,
             width: str = None,
             height: str = None,
             rows: str = 1,
@@ -64,14 +49,16 @@ class VowelPlot:
             **kwargs):
 
         figsize = (width, height) if width and height else None
-        self.figure = plt.figure(figsize=figsize)
+        self.figure = Figure(figsize=figsize)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.cols = rows, cols
         self.kwargs = kwargs
 
+        self.data = data
+        self.columns = columns or {}
         self.axis = None
 
-    def subplot(self, index: int = None) -> plt.Axes:
+    def subplot(self, index: int = None) -> Axes:
         """Get the axis for a subplot."""
         axes = self.figure.get_axes()
         if len(axes) < self.rows * self.cols:
@@ -92,14 +79,15 @@ class VowelPlot:
     def markers(
             self,
             data: pd.DataFrame = None,
-            columns: Dict[str, Union[str, int]],
-            color: Color,
-            colors: Colors,
-            marker: Marker,
-            markers: Markers,
+            columns: Dict[str, Union[str, int]] = None,
+            color: Color = 'black',
+            colors: Colors = None,
+            marker: Marker = '.',
+            markers: Markers = None,
             #
             where: str = 'all',
             legend: bool = False,
+            size: float = None,
             **kwargs):
         """Add markers to the vowel plot.
 
@@ -134,105 +122,48 @@ class VowelPlot:
             This will be converted into a list of marks
             which will be recycled if there are more vowels
             than marks.
-        label:
-            Shorthand for ``labels=[<value>]``
-        labels:
-            Label (font) properties to be used for each vowel category.
-            This will be converted into a list of properties
-            which will be recycled if there are more vowels
-            than properties.
+        size:
+            Size of markers. Note, this does *not* affect
+            the font size.
         """
 
-        context.merge(dict(
-            data=data, x=x, y=y, vowel=vowel, color=color, marker=marker))
-        category = (context['vowel'] or context['color'] or context['marker'])
-        df = context['data']
+        context = self.columns.copy()
+        context.update(columns)
+        category = (
+            context.get('vowel') or context.get('color') or
+            context.get('marks'))
+        df = data or self.data
         x = context['x']
         y = context['y']
-        if which == 'mean':
+        if where == 'mean':
             df = df.groupby(category, as_index=False).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
-        elif which == 'median':
+        elif where == 'median':
             df = df.groupby(category, as_index=False).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
 
         categories = sorted(data[category].unique())
-        colors = kwargs.pop('colors', context.get('colors'))
-        color_map = get_color_map(colors, categories)
-        markers = kwargs.pop('markers', context.get('markers'))
-        marker_map = get_marker_map(markers, categories)
+        color_map = get_color_map(colors or color, categories)
+
+        marker_map = get_marker_map(markers or marker, categories)
 
         grouped = df.groupby(category, as_index=False)
+
+        # Remove the matplotlib keys that this method handles.
+        kwargs.pop('c')
+        kwargs.pop('cmap')
+        kwargs.pop('s')
+
         for category, group_df in grouped:
-            pass
-
-    def scatter_(
-            self,
-            df: pd.DataFrame = None,
-            x: str = None,
-            y: str = None,
-            vowel: str = None,
-            vowels: List = None,
-            which: str = 'each',
-            legend: bool = True,
-            colormap: str = 'tab20',
-            **kwargs):
-        """Add a scatter plot to the vowel plot.
-
-        Paramters
-        ---------
-
-        df:
-            DataFrame,
-        x:
-            Column containing the x-axis data.
-        y:
-            Column containing the y-axis data.
-        vowel:
-            Column containing the vowel categories/labels.
-        vowels:
-            List of vowel categories to subset the data.
-        which:
-            One of ``'each'`` (every row will be plotted)
-            or ``'mean'`` (mean formant data per vowel).
-        legend:
-            Whether to add the vowel categories to the legend.
-        colormap:
-            Name of a color-map to use for coloring the
-            scatter marks.
-        """
-
-        df = df or self.kwargs.get('df')
-        x = x or self.kwargs.get('x')
-        y = y or self.kwargs.get('y')
-        vowel = vowel or self.kwargs.get('vowel')
-
-        vowels = vowels or self.kwargs.get('vowels', sorted(df[vowel].unique()))
-
-        if which == 'mean':
-            df = df.groupby(vowel, as_index=False).mean()
-
-        try:
-            cmap = plt.cm.get_cmap(colormap, len(vowels))
-        except TypeError:
-            cmap = colormap
-
-        for i, label in enumerate(vowels):
-            index = df[vowel] == label
+            marker = marker_map.get(category, '')
+            color = color_map.get(category)
+            if legend:
+                kwargs['label'] = category
             self.axis.scatter(
-                df.loc[index, x], df.loc[index, y],
-                c=[cmap(i)],
-                label=label,
+                group_df[x], group_df[y], s=size, c=color, marker=marker,
                 **kwargs)
-        if legend:
-            self.axis.legend()
-            self.axis.legend(
-                bbox_to_anchor=(1, 1), loc=0, borderaxespad=0., frameon=False)
 
-        if not self.axis.xaxis_inverted():
-            self.axis.invert_xaxis()
-        if not self.axis.yaxis_inverted():
-            self.axis.invert_yaxis()
+
 
 
     def labels(
@@ -435,15 +366,16 @@ def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:
     if isinstance(colors, list):
         return colors
     elif isinstance(colors, Colormap):
-        if len(colors.colors) != levels:
-            cmap = plt.get_cmap(colors.name, lut=levels)
-        return cmap.colors
+        cmap = colors
+        if len(cmap.colors) != levels:
+            cmap = get_cmap(colors.name, lut=levels)
+        return list(cmap.colors)
     else:
         try:
-            cmap = plt.get_cmap(colors, lut=levels)
+            cmap = get_cmap(colors, lut=levels)
             if len(cmap.colors) != levels:
-                cmap = plt.get_cmap(cmap.name, lut=levels)
-            return cmap.colors
+                cmap = get_cmap(cmap.name, lut=levels)
+            return list(cmap.colors)
         except ValueError:
             return [colors]
 
@@ -464,11 +396,11 @@ def get_color_map(
         A dictionary mapping category labels to colors.
     """
     color_list = get_color_list(colors, len(categories))
-
+    if not color_list:
+        color_list = [None for _ in categories]
     color_map = {}
     for i, category in enumerate(categories):
         color_map[category] = color_list[i % len(color_list)]
-
     return color_map
 
 def get_marker_map(
@@ -496,6 +428,3 @@ def get_marker_map(
         marker_map[category] = marker_list[i % len(marker_list)]
 
     return marker_map
-
-
-
