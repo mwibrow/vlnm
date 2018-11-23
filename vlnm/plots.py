@@ -347,6 +347,12 @@ def get_confidence_ellipse_params(
         A tuple the width, height, and angle (in degrees)
         of the required ellipse.
     """
+    x = np.array(x)
+    y = np.array(y)
+    if x.size != y.size:
+        raise ValueError('Ellipse data must be the same shape.')
+    elif x.size < 3 or y.size < 3:
+        raise ValueError('Too little data to calculate ellipse')
     cov = np.cov(x, y)
     eigenvalues, eignvectors = np.linalg.eig(cov)
     angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180

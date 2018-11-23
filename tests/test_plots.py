@@ -77,3 +77,30 @@ class TestGetColorMap(unittest.TestCase):
         expected = dict(had='red', head='green', hod='red')
         actual = get_color_map(['red', 'green'], ['had', 'head', 'hod'])
         self.assertDictEqual(actual, expected)
+
+
+class TestGetConfidenceEllipseParams(unittest.TestCase):
+    """Tests for the get_confidence_ellipse_params."""
+
+    def test_no_data(self):
+        """No data raises error."""
+        with self.assertRaises(ValueError):
+            get_confidence_ellipse_params([], [])
+
+    def test_different_size_data(self):
+        """Different sized data raises error."""
+        with self.assertRaises(ValueError):
+            get_confidence_ellipse_params([0, 1], [0, 1, 2])
+
+    def test_too_little_data(self):
+        """Too little data raises error."""
+        with self.assertRaises(ValueError):
+            get_confidence_ellipse_params([0, 1], [0, 1])
+
+    def test_data(self):
+        """Sunny day test."""
+        width, height, angle = get_confidence_ellipse_params(
+            [-1, -2, 1, 2], [-2, -1, 2, 1])
+        self.assertAlmostEqual(width, 12, delta=0.01)
+        self.assertAlmostEqual(height, 4, delta=0.01)
+        self.assertAlmostEqual(angle, 45, 2)
