@@ -49,16 +49,26 @@ class Normalizer(object):
             formants: List[str] = None,
             rename: str = None,
             **kwargs):
-        kwargs.update(**self.options)
-        self.default_options = dict(
+        # Class configuration.
+        self.default_config = self._get_config()
+
+        # Constructor options.
+        self.default_options = self.options.copy()
+        self.default_options.update(
             f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants,
             rename=rename,
             **kwargs)
-        self.options = {}
-        self.params = {}
-        self.default_config = self._get_config()
+
+        # Configuration and options set up in normalize method.
+        # Will be merging of default configuration and options
+        # with arguments passed to normalize method.
         self.config = {}
+        self.options = {}
+
+        # Parameters (configuration and options) supplied to _norm method.
+        self.params = {}
+
 
     def _get_config(self):
         config = {}
