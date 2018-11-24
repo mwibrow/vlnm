@@ -25,9 +25,9 @@ import scipy.stats as st
 
 
 # pylint: disable=C0103
-Color = Union[str, Tuple(float, float, float, float)]
+Color = Union[str, Tuple[float, float, float, float]]
 Colors = Union[List[Color], ListedColormap]
-Marker = Union[str, Tuple(int, int, int), List[Tuple[float, float]], Path]
+Marker = Union[str, Tuple[int, int, int], List[Tuple[float, float]], Path]
 Markers = List[Marker]
 Font = Union[str, FontProperties]
 Fonts = List[Font]
@@ -458,7 +458,7 @@ def get_font_map(
     """
     font_list = get_font_list(fonts)
     if not font_list:
-        font_list = [None]
+        font_list = [FontProperties()]
     font_map = {}
     for i, category in enumerate(categories):
         font_map[category] = font_list[i % len(font_list)]
@@ -486,7 +486,7 @@ def get_marker_map(
         marker_list = [markers]
 
     if not marker_list:
-        market_list = [None]
+        marker_list = [None]
 
     marker_map = {}
     for i, category in enumerate(categories):
