@@ -582,14 +582,13 @@ class BighamNormalizer(CentroidNormalizer):
 
         centroid_df = apice_df.copy()
 
-        centroid_df.loc['fleece', f1] = centroid_df.loc['kit', f1]
         centroid_df.loc['goose', f1] = centroid_df.loc['fleece', f1]
+        centroid_df.loc['fleece', f1] = centroid_df.loc['kit', f1]
         centroid_df.loc['start'] = centroid_df.loc[
             ['start', 'thought']].mean(axis=0)
 
         centroid_df.drop(['kit', 'thought'], axis=0, inplace=True)
-
-        centroid = apice_df.mean(axis=0)
+        centroid = centroid_df.mean(axis=0)
         return centroid
 
     def _keyword_default(self, keyword: str, df: pd.DataFrame = None) -> Any:

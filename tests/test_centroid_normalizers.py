@@ -157,6 +157,19 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
             f2=[500., 510., 520., 530., 540., 550.,
                 600., 610., 620., 630., 640., 650.]
         ))
+        df = self.df[self.df['speaker'] == 'S1'].copy()
+        self.s1_centroid = dict(
+            f1=(df[df['vowel'] == 'kit']['f1'].values +
+                df[df['vowel'] == 'fleece']['f1'].values +
+                df[df['vowel'] == 'start']['f1'].values / 2 +
+                df[df['vowel'] == 'thought']['f1'].values / 2 +
+                df[df['vowel'] == 'trap']['f1'].values) / 4,
+            f2=(df[df['vowel'] == 'fleece']['f2'].values +
+                df[df['vowel'] == 'goose']['f2'].values +
+                df[df['vowel'] == 'start']['f2'].values / 2 +
+                df[df['vowel'] == 'thought']['f2'].values / 2 +
+                df[df['vowel'] == 'trap']['f2'].values) / 4)
+
         self.formants = ['f1', 'f2']
         self.kwargs = dict(formants=self.formants)
 
@@ -187,6 +200,8 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
     def test_get_centroid(self):
         """Test get_centroid method."""
         df = self.df.copy()
+        df = df[df['speaker'] == 'S1']
+
         actual = self.normalizer.get_centroid(
             df,
             dict(
@@ -198,13 +213,9 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
                 trap='trap'),
             vowel='vowel',
             f1='f1', f2='f2')
-        expected = Series(
-            dict(
-                f1=275.,
-                f2=575.),
-            dtype=actual.dtype)
-
-        assert_series_equal(actual, expected)
+        expected = self.s1_centroid
+        self.assertEqual(actual['f1'], expected['f1'])
+        self.assertEqual(actual['f2'], expected['f2'])
 
 
 class TestSchwaNormalizer(Helper.SpeakerNormalizerTests):
