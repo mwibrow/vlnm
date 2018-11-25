@@ -51,7 +51,8 @@ def get_apice_formants(
         df: pd.DataFrame,
         apices: Dict[str, str],
         vowel: str,
-        formants: List[str]) -> pd.DataFrame:
+        formants: List[str],
+        **_kwargs) -> pd.DataFrame:
     r"""Helper function for extracting formant means for vowel space apices.
 
     Parameters
@@ -76,8 +77,6 @@ def get_apice_formants(
         and the index will contain the apice labels.
 
     """
-
-    secipa = {value: key for key, value in apices.items()}
     vowels = list(apices.values())
     vowels_df = df[df[vowel].isin(vowels)]
     grouped = vowels_df.groupby(vowel)
@@ -87,24 +86,27 @@ def get_apice_formants(
         return pd.Series(names, index=formants)
 
     apice_df = grouped.agg(_agg)[formants]
-    apice_df.index = apice_df.index.map(secipa)
     apice_df.sort_index(inplace=True)
+
     return apice_df
 
 
 class CentroidNormalizer(SpeakerIntrinsicNormalizer):
     """Base class for centroid based normalizers."""
 
-    required_columns = ['speaker', 'vowel']
-
+    config = dict(
+        columns=['speaker', 'vowel'],
+        keywords=['speaker', 'vowel', 'apices'])
 
     @staticmethod
     def get_centroid(
             df: pd.DataFrame,
-            apices: List[str] = None,
+            apices: Dict[str, str] = None,
             **kwargs):  # pylint: disable=missing-docstring
-        apices = apices or []
-        apice_df = get_apice_formants(df, apices, **kwargs)
+        apices = apices or {}
+        formants = kwargs.get('formants', [])
+        vowel = kwargs.get('vowel', 'vowel')
+        apice_df = get_apice_formants(df, apices, vowel, formants)
         centroid = apice_df.mean(axis=0)
         return centroid
 
@@ -229,19 +231,24 @@ class WattFabriciusNormalizer(CentroidNormalizer):
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
-        apices = apices or []
+        apices = apices or dict(fleece='fleece', trap='trap')
+        formants = kwargs.get('formants', ['f1', 'f2'])
+        vowel = kwargs.get('vowel', 'vowel')
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        fleece = kwargs['fleece']
-        trap = kwargs['trap']
-        apices = apices or [fleece, trap]
-        apice_df = get_apice_formants(df, apices, **kwargs)
+
+        fleece = apices['fleece']
+        apice_df = get_apice_formants(df, apices, vowel, formants)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
         centroid = apice_df.mean(axis=0)
         return centroid
 
-    def normalize(self, df, fleece='fleece', trap='trap', **kwargs):
+    def normalize(
+            self,
+            df: pd.DataFrame,
+            apices: Dict[str, str] = None,
+            **kwargs) -> pd.DataFrame:
         """
         Normalize a dataframe.
         Note that a :class:`WattFabriciusNormalizer` instance is `callable`,
@@ -261,6 +268,7 @@ class WattFabriciusNormalizer(CentroidNormalizer):
         df : :class:`pandas.DataFrame`
             Formant data.
 
+        apices
         fleece : :obj:`str`
             Vowel label for the :smallcaps:`fleece` vowel.
 
@@ -275,7 +283,8 @@ class WattFabriciusNormalizer(CentroidNormalizer):
         :class:`pandas.DataFrame`
             A with the normalized formants.
         """
-        return super().normalize(df, fleece=fleece, trap=trap, **kwargs)
+        apices = apices or dict(fleece='fleece', trap='trap')
+        return super().normalize(df, apices=apices, **kwargs)
 
 WattFabricius1Normalizer = WattFabriciusNormalizer
 
@@ -314,12 +323,14 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
+        apices = apices or dict(fleece='fleece', trap='trap')
+        formants = kwargs.get('formants', ['f1', 'f2'])
+        vowel = kwargs.get('vowel', 'vowel')
+
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        fleece = kwargs['fleece']
-        trap = kwargs['trap']
-        apices = apices or [fleece, trap]
-        apice_df = get_apice_formants(df, apices, **kwargs)
+        fleece = apices['fleece']
+        apice_df = get_apice_formants(df, apices, vowel, formants)
         apice_df.loc['goose'] = apice_df.loc[fleece]
         apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
 
@@ -362,13 +373,14 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
-        apice_df = get_apice_formants(df, apices or [], **kwargs)
-
         formants = kwargs.get('formants')
         vowel = kwargs.get('vowel', 'vowel')
+        apice_df = get_apice_formants(df, apices or {}, vowel, formants)
+
         def _agg(agg_df):
             names = {f: agg_df[f].mean() for f in formants}
             return pd.Series(names, index=formants)
+
         # Minimum mean of all vowels (same as minimum mean of point vowels)
         apice_df.loc['goose'] = df.groupby(vowel).apply(_agg).min(axis=0)
 
@@ -584,7 +596,7 @@ class SchwaNormalizer(CentroidNormalizer):
 
     def _normalize(self, df):
         schwa = self.options['schwa']
-        self.options['apices'] = [schwa]
+        self.options['apices'] = {'letter': schwa}
         return super()._normalize(df)
 
     def _norm(self, df):
