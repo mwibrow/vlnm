@@ -113,7 +113,7 @@ class Helper:
             """
             Missing columns raises ValueError.
             """
-            columns = self.normalizer().default_config['columns']
+            columns = self.normalizer().config['columns']
             for column in columns:
                 df = self.df.copy()
                 df = df.drop(column, axis=1)

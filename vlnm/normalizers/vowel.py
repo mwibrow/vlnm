@@ -58,7 +58,7 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             rename: str = None,
             transform: Callable[[numpy.ndarray], numpy.ndarray] = None):
         super().__init__(
-            self, f0=f0, f1=f1, f2=f2, f3=f3,
+            f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants, rename=rename, transform=transform)
 
     @docstring

@@ -27,18 +27,12 @@ class Normalizer(object):
     """
 
     config = dict(
-        # Transform formant data.
-        transform=None,
-        # Group data by column before normalizing.
-        groups=[],
         # Required columns for the normalizer.
         columns=[],
         # Keywords used by the normalizer.
         keywords=[],
         # Default options
         options=dict())
-
-    options = dict()
 
     def __init__(
             self,
@@ -50,20 +44,17 @@ class Normalizer(object):
             rename: str = None,
             **kwargs):
         # Class configuration.
-        self.default_config = self._get_config()
+        self.config = self._get_config()
 
         # Constructor options.
-        self.default_options = self.options.copy()
+        self.default_options = self.config.get('options', {}).copy()
         self.default_options.update(
             f0=f0, f1=f1, f2=f2, f3=f3,
             formants=formants,
             rename=rename,
             **kwargs)
 
-        # Configuration and options set up in normalize method.
-        # Will be merging of default configuration and options
-        # with arguments passed to normalize method.
-        self.config = {}
+        # Options set up in normalize method.
         self.options = {}
 
         # Parameters (configuration and options) supplied to _norm method.
@@ -87,11 +78,11 @@ class Normalizer(object):
     def normalize(self, df, f0=None, f1=None, f2=None, f3=None,
                   formants=None, rename=None, **kwargs):
         """{% normalize %}"""
-        self.config = self.default_config.copy()
-        self.config.update({key: kwargs.pop(key) for key in self.config
-                            if key in kwargs})
         self.options = self.default_options.copy()
-        self.options.update(rename=rename, **kwargs)
+        self.options.update(
+            rename=rename,
+            **{key: value for key, value in kwargs.items()
+               if value is not None})
         formants_spec = self._get_formants_spec(
             f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
         self.options.update(**formants_spec)
@@ -243,8 +234,7 @@ class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
     """Base class for speaker intrinsic normalizers."""
 
     config = dict(
-        columns=['speaker'],
-        groups=['speaker']
+        columns=['speaker']
     )
 
     def _normalize(self, df):
