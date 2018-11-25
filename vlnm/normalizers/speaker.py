@@ -181,6 +181,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
     """
     config = dict(
+        columns=['speaker', 'f1', 'f2', 'f3'],
         keywords=['speaker', 'exp']
     )
 
@@ -198,12 +199,13 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
     @docstring
     def normalize(
-            self, df: pd.DataFrame,
+            self,
+            df: pd.DataFrame,
             formants: List[str] = None, exp: bool = False,
             rename: str = None, **kwargs):
         """{% normalize %}"""
         return super().normalize(
-            formants=formants, exp=exp, rename=rename, **kwargs)
+            df, formants=formants, exp=exp, rename=rename, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'exp':
@@ -276,12 +278,13 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
 
     @docstring
     def normalize(
-            self, df: pd.DataFrame,
+            self,
+            df: pd.DataFrame,
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
-             speaker: str = None,
+            speaker: str = None,
             exp: bool = False,
             rename: str = None,
             **kwargs):

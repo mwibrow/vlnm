@@ -238,6 +238,6 @@ class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
     )
 
     def _normalize(self, df):
-        speaker = self.options.get('speaker', 'speaker')
+        speaker = self.options.get('speaker') or 'speaker'
         return df.groupby(by=speaker, as_index=False).apply(
             super()._normalize)
