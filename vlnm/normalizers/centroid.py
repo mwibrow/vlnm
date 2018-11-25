@@ -48,24 +48,24 @@ LEXICAL_SET = [
 ]
 
 def get_apice_formants(
-        df: pd.DataFrame, apices: List[str], **kwargs) -> pd.DataFrame:
+        df: pd.DataFrame,
+        apices: Dict[str, str],
+        vowel: str,
+        formants: List[str]) -> pd.DataFrame:
     r"""Calculate the formants for the apices of the speakers vowel space.
 
     Parameters
     ----------
     df : DataFrame
         The formant data for single speaker.
-    apices : list
-        A list of vowel labels denoting the apices of the vowel space.
-    **kwargs
-        Keyword arguments.
-
-    Keyword arguments
-    -----------------
-    formants : list
-        A list of columns in the data-frame containing the formant data.
+    apices :
+        A dictionary whose keys are the lexical set keywords for apices
+        of the vowel space, and whose values are the vowel labels in
+        the DataFrame.
     vowel : :obj:`str`, optional
         The column in the data-frame containing vowel labels
+    formants : list
+        A list of columns in the data-frame containing the formant data.
 
     Returns
     -------
@@ -76,8 +76,8 @@ def get_apice_formants(
         and the index will contain the apice labels.
 
     """
-    formants = kwargs['formants']
-    vowel = kwargs.get('vowel', 'vowel')
+
+    secipa = {value: key for key, value in apices.items()}
     vowels_df = df[df[vowel].isin(apices)]
     grouped = vowels_df.groupby(vowel)
 
@@ -86,6 +86,7 @@ def get_apice_formants(
         return pd.Series(names, index=formants)
 
     apice_df = grouped.agg(_agg)[formants]
+    apice_df.index = apice_df.index.map(secipa)
     return apice_df
 
 
