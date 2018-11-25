@@ -535,7 +535,15 @@ class BighamNormalizer(CentroidNormalizer):
     """
     config = dict(
         keywords=['apices', 'f1', 'f2'],
-        columns=['speaker', 'vowel', 'f1', 'f2']
+        columns=['speaker', 'vowel', 'f1', 'f2'],
+        options=dict(
+            apices=dict(
+            kit='kit',
+            goose='goose',
+            fleece='fleece',
+            start='start',
+            thought='thought',
+            trap='trap'))
     )
 
     def __init__(
@@ -554,10 +562,12 @@ class BighamNormalizer(CentroidNormalizer):
     def get_centroid(
             df: pd.DataFrame,
             apices: Dict[str, str] = None, **kwargs):
-        apice_df = get_apice_formants(
-            df, list((apices or {}).keys()), **kwargs)
 
         f1 = kwargs.get('f1')
+        f2 = kwargs.get('f2')
+        formants = [f1, f2]
+        vowel = kwargs.get('vowel')
+        apice_df = get_apice_formants(df, apices, vowel, formants)
 
         centroid_df = apice_df.copy()
 

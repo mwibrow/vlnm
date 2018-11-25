@@ -155,10 +155,11 @@ class TestWattFabricius3Normalizer(TestWattFabriciusNormalizer):
         assert_series_equal(actual, expected)
 
 
-# class TestBighamNormalizer(TestWattFabriciusNormalizer):
-#     """Tests for the BighamNormalizer Class. """
+class TestBighamNormalizer(TestWattFabriciusNormalizer):
+    """Tests for the BighamNormalizer Class. """
 
-#     normalizer = BighamNormalizer
+    normalizer = BighamNormalizer
+
 
 #     def test_get_centroid(self):
 #         """Test the get_centroid method."""
