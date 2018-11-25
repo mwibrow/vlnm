@@ -122,7 +122,7 @@ class Helper:
 
         def test_fx_spec(self):
             """
-            Missing column raises value error.
+            Specify formants using individual keys.
             """
             df = self.df.copy()
             normalizer = self.normalizer()
