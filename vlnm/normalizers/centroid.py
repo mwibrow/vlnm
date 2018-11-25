@@ -231,7 +231,7 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['fleece', 'trap']
+        keywords=['apices']
     )
 
     @staticmethod
@@ -321,7 +321,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['fleece', 'trap']
+        keywords=['apices']
     )
 
     @staticmethod
@@ -553,16 +553,32 @@ class BighamNormalizer(CentroidNormalizer):
             apices=apices, f1=f1, f2=f2,
             speaker=speaker, vowel=vowel, **kwargs)
 
+    def normalize(
+            self,
+            df: pd.DataFrame,
+            f1: 'str' = None,
+            f2: 'str' = None,
+            apices: Dict[str, str] = None,
+            speaker: 'str' = None,
+            vowel: 'str' = None,
+            rename: 'str' = None,
+            **_kwargs):
+        return super().normalize(
+            df, f1=f1, f2=f2, apices=apices,
+            speaker=speaker, vowel=vowel, rename=rename)
+
     @staticmethod
     def get_centroid(
             df: pd.DataFrame,
             apices: Dict[str, str] = None, **kwargs):
+
 
         f1 = kwargs.get('f1')
         f2 = kwargs.get('f2')
         formants = [f1, f2]
         vowel = kwargs.get('vowel')
         apice_df = get_apice_formants(df, apices, vowel, formants)
+
 
         centroid_df = apice_df.copy()
 

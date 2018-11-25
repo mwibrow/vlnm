@@ -19,6 +19,7 @@ from tests.helpers import (
     DataFrame,
     Series)
 
+
 class TestGetApiceFormants(unittest.TestCase):
     """Tests for the get_apice_formants function."""
 
@@ -89,19 +90,6 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
 
         assert_series_equal(actual, expected)
 
-    def test_default_keywords(self):
-        """Check default keywords assigned."""
-        df = self.df.copy()
-        df.loc[df['vowel'] == 'i', 'vowel'] = 'fleece'
-        df.loc[df['vowel'] == 'a', 'vowel'] = 'trap'
-        normalizer = self.normalizer()
-        normalizer.normalize(df)
-        expected = dict(
-            fleece='fleece',
-            trap='trap')
-        actual = {key: normalizer.options[key] for key in expected}
-        self.assertDictEqual(actual, expected)
-
 
 class TestWattFabricius2Normalizer(TestWattFabriciusNormalizer):
     """Tests for the WattFabricius2Normalizer Class. """
@@ -160,40 +148,64 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
     normalizer = BighamNormalizer
 
+    def setUp(self):
+        self.df = DataFrame(dict(
+            speaker=['S1'] * 6 + ['S2'] * 6,
+            vowel=['kit', 'goose', 'fleece', 'start', 'thought', 'trap'] * 2,
+            f1=[200., 210., 220., 230., 240., 250.,
+                300., 310., 320., 330., 340., 350.],
+            f2=[500., 510., 520., 530., 540., 550.,
+                600., 610., 620., 630., 640., 650.]
+        ))
+        self.formants = ['f1', 'f2']
+        self.kwargs = dict(formants=self.formants)
 
-#     def test_get_centroid(self):
-#         """Test the get_centroid method."""
+    def test_fx_spec(self):
+        """
+        Specify formants using individual keys.
+        """
+        df = self.df.copy()
+        normalizer = self.normalizer()
+        normalizer.normalize(
+            df, f1='f1', f2='f2', **self.kwargs)
+        self.assertListEqual(
+            normalizer.params['formants'],
+            ['f1', 'f2'])
 
-#         df = DataFrame(dict(
-#             speaker=['s1', 's1', 's1', 's1', 's1', 's1'],
-#             vowel=['fleece', 'fleece', 'trap', 'trap', 'kit', 'kit'],
-#             f1=[100., 200., 200., 300., 0., 100.],
-#             f2=[400., 500., 500., 600., 300., 400.]
-#         ))
+    def test_fx_list_spec(self):
+        """
+        Specify formants using individual keys as list.
+        """
+        df = self.df.copy()
+        normalizer = self.normalizer()
+        normalizer.normalize(
+            df, f1=['f1'], f2=['f2'], **self.kwargs)
+        self.assertListEqual(
+            normalizer.params['formants'],
+            ['f1', 'f2'])
 
-#         actual = self.normalizer.get_centroid(
-#             df, ['fleece', 'trap'],
-#             fleece='fleece', trap='trap', vowel='vowel', formants=['f1', 'f2'])
+    def test_get_centroid(self):
+        """Test get_centroid method."""
+        df = self.df.copy()
+        actual = self.normalizer.get_centroid(
+            df,
+            dict(
+                fleece='fleece',
+                goose='goose',
+                kit='kit',
+                start='start',
+                thought='thought',
+                trap='trap'),
+            vowel='vowel',
+            f1='f1', f2='f2')
+        expected = Series(
+            dict(
+                f1=275.,
+                f2=575.),
+            dtype=actual.dtype)
 
-#         expected = Series(
-#             dict(
-#                 f1=(150. + 250.) / 2,
-#                 f2=(450. + 550.) / 2),
-#             dtype=actual.dtype)
+        assert_series_equal(actual, expected)
 
-#         assert_series_equal(actual, expected)
-
-#     def test_default_keywords(self):
-#         """Check default keywords assigned."""
-#         df = self.df.copy()
-#         df.loc[df['vowel'] == 'i', 'vowel'] = 'fleece'
-#         df.loc[df['vowel'] == 'a', 'vowel'] = 'trap'
-#         normalizer = self.normalizer()
-#         normalizer.normalize(df)
-#         expected = dict(
-#             apices=list(df['vowel'].unique()))
-#         actual = {key: normalizer.options[key] for key in expected}
-#         self.assertDictEqual(actual, expected)
 
 class TestSchwaNormalizer(Helper.SpeakerNormalizerTests):
     """Tests for the SchwaNormalizer Class. """
