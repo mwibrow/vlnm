@@ -73,10 +73,12 @@ def get_apice_formants(
     :obj:`DataFrame`
         A data-frame containing the mean formant values for each apice
         in the speakers vowel space.
-        The columns of the data-frame will contain the formant labels
+        The columns of the data-frame will contain the formant means
         and the index will contain the apice labels.
 
     """
+    if not apices:
+        apices = {key: key for key in  df[vowel].unique()}
     vowels = list(apices.values())
     vowels_df = df[df[vowel].isin(vowels)]
     grouped = vowels_df.groupby(vowel)
@@ -86,7 +88,10 @@ def get_apice_formants(
         return pd.Series(names, index=formants)
 
     apice_df = grouped.agg(_agg)[formants]
-    apice_df.sort_index(inplace=True)
+
+    # Rename the index using the apice map keys.
+    secipa = {value: key for key, value in apices.items()}
+    apice_df.index = apice_df.index.map(secipa)
 
     return apice_df
 
@@ -232,15 +237,13 @@ class WattFabriciusNormalizer(CentroidNormalizer):
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
         apices = apices or dict(fleece='fleece', trap='trap')
-        formants = kwargs.get('formants', ['f1', 'f2'])
         vowel = kwargs.get('vowel', 'vowel')
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-
-        fleece = apices['fleece']
+        formants = [f1, f2]
         apice_df = get_apice_formants(df, apices, vowel, formants)
-        apice_df.loc['goose'] = apice_df.loc[fleece]
-        apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
+        apice_df.loc['goose'] = apice_df.loc['fleece']
+        apice_df.loc['goose', f2] = apice_df.loc['fleece', f1]
         centroid = apice_df.mean(axis=0)
         return centroid
 
@@ -324,19 +327,19 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
         apices = apices or dict(fleece='fleece', trap='trap')
-        formants = kwargs.get('formants', ['f1', 'f2'])
         vowel = kwargs.get('vowel', 'vowel')
-
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
-        fleece = apices['fleece']
+
+        formants = [f1, f2]
+
         apice_df = get_apice_formants(df, apices, vowel, formants)
-        apice_df.loc['goose'] = apice_df.loc[fleece]
-        apice_df.loc['goose', f2] = apice_df.loc[fleece, f1]
+        apice_df.loc['goose'] = apice_df.loc['fleece']
+        apice_df.loc['goose', f2] = apice_df.loc['fleece', f1]
 
         def _means(series):
             if series.name == f2:
-                return series[[fleece, 'goose']].mean()
+                return series[['fleece', 'goose']].mean()
             return series.mean()
 
         centroid = apice_df.apply(_means)
@@ -536,15 +539,7 @@ class BighamNormalizer(CentroidNormalizer):
     config = dict(
         keywords=['apices', 'f1', 'f2'],
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        options=dict(
-            apices=dict(
-            kit='kit',
-            goose='goose',
-            fleece='fleece',
-            start='start',
-            thought='thought',
-            trap='trap'))
-    )
+        options={})
 
     def __init__(
             self,
@@ -571,20 +566,17 @@ class BighamNormalizer(CentroidNormalizer):
 
         centroid_df = apice_df.copy()
 
-        kit, goose, fleece, start, thought = (
-            apices['kit'], apices['goose'], apices['fleece'],
-            apices['start'], apices['thought'])
+        centroid_df.loc['fleece', f1] = centroid_df.loc['kit', f1]
+        centroid_df.loc['goose', f1] = centroid_df.loc['fleece', f1]
+        centroid_df.loc['start'] = centroid_df.loc[
+            ['start', 'thought']].mean(axis=0)
 
-        centroid_df.loc[fleece, f1] = centroid_df.loc[kit, f1]
-        centroid_df.loc[goose, f1] = centroid_df.loc[fleece, f1]
-        centroid_df.loc[start] = centroid_df.loc[[start, thought]].mean(axis=0)
-
-        centroid_df.drop([kit, thought], axis=0, inplace=True)
+        centroid_df.drop(['kit', 'thought'], axis=0, inplace=True)
 
         centroid = apice_df.mean(axis=0)
         return centroid
 
-    def _keyword_default(self, keyword: str, df: pd.DataFrame=None) -> Any:
+    def _keyword_default(self, keyword: str, df: pd.DataFrame = None) -> Any:
         if keyword == 'apices':
             lexical_set = ['kit', 'goose', 'fleece', 'start', 'thought', 'trap']
             return {key: key for key in lexical_set}

@@ -48,7 +48,7 @@ class TestGetApiceFormants(unittest.TestCase):
         expected = DataFrame(dict(
             f1=[325., 425.],
             f2=[525., 625.]
-        ), index=['heed', 'had'])
+        ), index=['fleece', 'trap'])
         expected.index.name = 'hvd'
         actual = get_apice_formants(
             df, dict(fleece='heed', trap='had'), 'hvd', ['f1', 'f2'])
