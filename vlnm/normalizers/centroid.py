@@ -52,19 +52,19 @@ def get_apice_formants(
         apices: Dict[str, str],
         vowel: str,
         formants: List[str]) -> pd.DataFrame:
-    r"""Calculate the formants for the apices of the speakers vowel space.
+    r"""Helper function for extracting formant means for vowel space apices.
 
     Parameters
     ----------
-    df : DataFrame
+    df :
         The formant data for single speaker.
     apices :
         A dictionary whose keys are the lexical set keywords for apices
         of the vowel space, and whose values are the vowel labels in
         the DataFrame.
-    vowel : :obj:`str`, optional
+    vowel :
         The column in the data-frame containing vowel labels
-    formants : list
+    formants :
         A list of columns in the data-frame containing the formant data.
 
     Returns
@@ -78,7 +78,8 @@ def get_apice_formants(
     """
 
     secipa = {value: key for key, value in apices.items()}
-    vowels_df = df[df[vowel].isin(apices)]
+    vowels = list(apices.values())
+    vowels_df = df[df[vowel].isin(vowels)]
     grouped = vowels_df.groupby(vowel)
 
     def _agg(agg_df):
@@ -87,6 +88,7 @@ def get_apice_formants(
 
     apice_df = grouped.agg(_agg)[formants]
     apice_df.index = apice_df.index.map(secipa)
+    apice_df.sort_index(inplace=True)
     return apice_df
 
 

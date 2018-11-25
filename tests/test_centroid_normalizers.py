@@ -2,7 +2,10 @@
 Tests for 'centroid' normalizers
 """
 
+import unittest
+
 from vlnm.normalizers.centroid import (
+    get_apice_formants,
     BighamNormalizer,
     SchwaNormalizer,
     WattFabriciusNormalizer,
@@ -11,9 +14,45 @@ from vlnm.normalizers.centroid import (
 from tests.test_speaker_normalizers import Helper
 from tests.helpers import (
     get_test_dataframe,
+    assert_frame_equal,
     assert_series_equal,
     DataFrame,
     Series)
+
+class TestGetApiceFormants(unittest.TestCase):
+    """Tests for the get_apice_formants function."""
+
+    def test_output(self):
+        """Simple output is correct."""
+        df = DataFrame(dict(
+            vowel=['fleece', 'fleece', 'trap', 'trap'],
+            f1=[300., 350., 400., 450.],
+            f2=[500., 550., 600., 650.]
+        ))
+        expected = DataFrame(dict(
+            f1=[325., 425.],
+            f2=[525., 625.]
+        ), index=['fleece', 'trap'])
+        expected.index.name = 'vowel'
+        actual = get_apice_formants(
+            df, dict(fleece='fleece', trap='trap'), 'vowel', ['f1', 'f2'])
+        self.assertIsNone(assert_frame_equal(actual, expected))
+
+    def test_apice_spec(self):
+        """Non-defualt apices processed correctly."""
+        df = DataFrame(dict(
+            hvd=['heed', 'heed', 'had', 'had'],
+            f1=[300., 350., 400., 450.],
+            f2=[500., 550., 600., 650.]
+        ))
+        expected = DataFrame(dict(
+            f1=[325., 425.],
+            f2=[525., 625.]
+        ), index=['fleece', 'trap'])
+        expected.index.name = 'hvd'
+        actual = get_apice_formants(
+            df, dict(fleece='heed', trap='had'), 'hvd', ['f1', 'f2'])
+        self.assertIsNone(assert_frame_equal(actual, expected))
 
 
 class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
