@@ -124,6 +124,7 @@ class TestBighamNormalizer(TestWattFabriciusNormalizer):
 
     def test_get_centroid(self):
         """Test the get_centroid method."""
+
         df = DataFrame(dict(
             speaker=['s1', 's1', 's1', 's1', 's1', 's1'],
             vowel=['fleece', 'fleece', 'trap', 'trap', 'kit', 'kit'],

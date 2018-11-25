@@ -7,6 +7,8 @@ which calculate the centroid of a speaker's vowel space
 and use this to normalize the formant data.
 """
 
+from typing import Any, Dict, List
+
 import numpy as np
 import pandas as pd
 from scipy.spatial import ConvexHull
@@ -45,7 +47,8 @@ LEXICAL_SET = [
     'comma'
 ]
 
-def get_apice_formants(df, apices, **kwargs):
+def get_apice_formants(
+        df: pd.DataFrame, apices: List[str], **kwargs) -> pd.DataFrame:
     r"""Calculate the formants for the apices of the speakers vowel space.
 
     Parameters
@@ -93,7 +96,10 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):  # pylint: disable=missing-docstring
+    def get_centroid(
+            df: pd.DataFrame,
+            apices: List[str] = None,
+            **kwargs):  # pylint: disable=missing-docstring
         apices = apices or []
         apice_df = get_apice_formants(df, apices, **kwargs)
         centroid = apice_df.mean(axis=0)
@@ -518,14 +524,21 @@ class BighamNormalizer(CentroidNormalizer):
     )
 
     def __init__(
-            self, f1='f1', f2='f2', speaker='speaker',
-            vowel='vowel', apices=None, **kwargs):
+            self,
+            f1: str = 'f1',
+            f2: str = 'f2',
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            apices: Dict[str, str] = None,
+            **kwargs):
         super().__init__(
             apices=apices, f1=f1, f2=f2,
             speaker=speaker, vowel=vowel, **kwargs)
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):
+    def get_centroid(
+            df: pd.DataFrame,
+            apices: Dict[str, str] = None, **kwargs):
         apice_df = get_apice_formants(
             df, list((apices or {}).keys()), **kwargs)
 
@@ -546,7 +559,7 @@ class BighamNormalizer(CentroidNormalizer):
         centroid = apice_df.mean(axis=0)
         return centroid
 
-    def _keyword_default(self, keyword, df=None):
+    def _keyword_default(self, keyword: str, df: pd.DataFrame=None) -> Any:
         if keyword == 'apices':
             lexical_set = ['kit', 'goose', 'fleece', 'start', 'thought', 'trap']
             return {key: key for key in lexical_set}
