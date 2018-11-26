@@ -2,18 +2,24 @@
 Tests for the plots module.
 """
 
+import os
 import unittest
+from unittest.mock import MagicMock, Mock, patch
 
+import matplotlib
 from matplotlib.cm import get_cmap
 from matplotlib.font_manager import FontManager, FontProperties
 import numpy as np
+import pandas as pd
 
 from vlnm.plots import (
     get_color_map,
     get_confidence_ellipse,
     get_font_map,
-    get_marker_map)
+    get_marker_map,
+    VowelPlot)
 
+from tests import FIXTURES
 
 class TestGetColorMap(unittest.TestCase):
     """
@@ -208,3 +214,23 @@ class TestGetFontMap(unittest.TestCase):
             hod=font_properties[0])
         actual = get_color_map(font_properties, ['had', 'head', 'hod'])
         self.assertDictEqual(actual, expected)
+
+
+class TestVowelPlot(unittest.TestCase):
+    """Tests for the VowelPlot class."""
+
+
+    def setUp(self):
+        self.df = pd.read_csv(
+            os.path.join(FIXTURES, 'hawkins_midgely_2005.csv'))
+        figure = MagicMock()
+        figure.get_size_inches = Mock(return_value=(4, 3))
+        self.figure = figure
+
+
+    @patch('vlnm.plots._create_figure')
+    def test_init(self, mock_create_figure):
+        """Test initialisation."""
+        mock_create_figure.return_value = self.figure
+        VowelPlot(width=4, height=3)
+        mock_create_figure.assert_called_with(figsize=(4, 3))

@@ -32,6 +32,8 @@ Markers = List[Marker]
 Font = Union[str, FontProperties]
 Fonts = List[Font]
 
+def _create_figure(*args, **kwargs):
+    return Figure(*args, **kwargs)
 
 class VowelPlot:
     """Class for managing vowel plots.
@@ -39,31 +41,36 @@ class VowelPlot:
     Parameters
     ----------
     data:
-            DataFrame containing the formant data.
-        x:
-            The DataFrame column which contains the x-coordinates.
-        y:
-            The DataFrame column which contains the y-coordinates.
-        vowel:
-            The DataFrame column which contains the vowel categories/labels.
-        color:
-            Colors to be used for each vowel category.
-            This will be converted into a list of colors
-            which will be recycled if there are more vowels
-            than colors.
-        marker:
-            Marks to be used for each vowel category.
-            This will be converted into a list of marks
-            which will be recycled if there are more vowels
-            than marks.
-        width:
-            Width of the figure in inches.
-        height:
-            Height of the figure in inches.
-        rows:
-            Number of rows in the figure (for subplots).
-        columns:
-            Number of columns in the figure (for subplots).
+        DataFrame containing the formant data.
+    x:
+        The DataFrame column which contains the x-coordinates.
+    y:
+        The DataFrame column which contains the y-coordinates.
+    vowel:
+        The DataFrame column which contains the vowel categories/labels.
+    color:
+        Colors to be used for each vowel category.
+        This will be converted into a list of colors
+        which will be recycled if there are more vowels
+        than colors.
+    marker:
+        Marks to be used for each vowel category.
+        This will be converted into a list of marks
+        which will be recycled if there are more vowels
+        than marks.
+    width:
+        Width of the figure in inches.
+    height:
+        Height of the figure in inches.
+    rows:
+        Number of rows in the figure (for subplots).
+    columns:
+        Number of columns in the figure (for subplots).
+
+    Other Parameters
+    ----------------
+    Other parmaeters are passed to the constructor of
+    :py:class:`matplotlib.figure.Figure`.
 
     """
 
@@ -79,10 +86,11 @@ class VowelPlot:
             width: str = None,
             height: str = None,
             rows: str = 1,
-            columns: str = 1):
+            columns: str = 1,
+            **kwargs):
 
         figsize = (width, height) if width and height else None
-        self.figure = Figure(figsize=figsize)
+        self.figure = _create_figure(figsize=figsize, **kwargs)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
