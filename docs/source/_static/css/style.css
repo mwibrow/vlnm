@@ -1,4 +1,9 @@
 
+@media screen and (min-width: 1080px) {
+    div.document {
+        width: 1040px;
+    }
+}
 
 p.reference {
     padding-left: 2rem;

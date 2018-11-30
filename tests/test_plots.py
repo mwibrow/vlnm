@@ -6,7 +6,6 @@ import os
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
-import matplotlib
 from matplotlib.cm import get_cmap
 from matplotlib.font_manager import FontManager, FontProperties
 import numpy as np
@@ -219,14 +218,12 @@ class TestGetFontMap(unittest.TestCase):
 class TestVowelPlot(unittest.TestCase):
     """Tests for the VowelPlot class."""
 
-
     def setUp(self):
         self.df = pd.read_csv(
             os.path.join(FIXTURES, 'hawkins_midgely_2005.csv'))
         figure = MagicMock()
         figure.get_size_inches = Mock(return_value=(4, 3))
         self.figure = figure
-
 
     @patch('vlnm.plots._create_figure')
     def test_init(self, mock_create_figure):
