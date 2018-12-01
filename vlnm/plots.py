@@ -106,7 +106,7 @@ class VowelPlot:
             self.axis = self.figure.add_subplot(
                 self.rows, self.columns, len(axes) + 1)
         else:
-            self.axis = axes[index]
+            self.axis = axes[index or 0]
         return self.axis
 
     def __enter__(self):

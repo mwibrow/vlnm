@@ -215,19 +215,62 @@ class TestGetFontMap(unittest.TestCase):
         self.assertDictEqual(actual, expected)
 
 
+def mock_axis() -> MagicMock:
+    """Make a mock axis."""
+    axis = MagicMock()
+    axis.scatter = Mock()
+    axis.annotation = Mock()
+    axis.add_artist = Mock()
+    return axis
+
 class TestVowelPlot(unittest.TestCase):
     """Tests for the VowelPlot class."""
 
     def setUp(self):
         self.df = pd.read_csv(
             os.path.join(FIXTURES, 'hawkins_midgely_2005.csv'))
-        figure = MagicMock()
-        figure.get_size_inches = Mock(return_value=(4, 3))
-        self.figure = figure
+
 
     @patch('vlnm.plots._create_figure')
-    def test_init(self, mock_create_figure):
+    def test_init(self, mock_create_figure):  # pylint: disable=no-self-use
         """Test initialisation."""
-        mock_create_figure.return_value = self.figure
-        VowelPlot(width=4, height=3)
-        mock_create_figure.assert_called_with(figsize=(4, 3))
+        width, height = 4, 3
+        figure = MagicMock()
+        mock_create_figure.return_value = figure
+        figure.get_size_inches = Mock(return_value=(width, height))
+
+        VowelPlot(width=width, height=height)
+        mock_create_figure.assert_called_with(figsize=(width, height))
+
+    def test_subplot_noarg(self):
+        """Test subplot method without arg."""
+        plot = VowelPlot(width=4, height=3)
+        plot.subplot()
+        axes = plot.figure.get_axes()
+        self.assertEqual(len(axes), 1)
+
+    def test_1x1_subplot_axes(self):
+        """Test multiple 1x1 subplot calls returns same axis."""
+        plot = VowelPlot(rows=1, columns=1)
+        subplot1 = plot.subplot()
+        subplot2 = plot.subplot()
+        axes = plot.figure.get_axes()
+        self.assertEqual(len(axes), 1)
+        self.assertEqual(id(subplot1), id(subplot2))
+
+    def test_1x2_subplot_axes(self):
+        """Test multiple 2x1 subplot calls returns different axes."""
+        plot = VowelPlot(rows=1, columns=2)
+        subplot1 = plot.subplot()
+        subplot2 = plot.subplot()
+        axes = plot.figure.get_axes()
+        self.assertEqual(len(axes), 2)
+        self.assertNotEqual(id(subplot1), id(subplot2))
+
+    def test_context_manager(self):
+        """Test context manager creates axis."""
+        plot = VowelPlot()
+        with plot:
+            pass
+        axes = plot.figure.get_axes()
+        self.assertEqual(len(axes), 1)
