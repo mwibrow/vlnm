@@ -175,7 +175,7 @@ class VowelPlot:
             marker=marker or self.params.get('color'))
 
         vowel = params['vowel']
-        df = data or self.data
+        df = data if data is not None else self.data
         x = params['x']
         y = params['y']
         if which == 'mean':
@@ -192,9 +192,9 @@ class VowelPlot:
         grouped = df.groupby(vowel, as_index=False)
 
         # Remove the matplotlib keys that this method handles.
-        kwargs.pop('c')
-        kwargs.pop('cmap')
-        kwargs.pop('s')
+        kwargs.pop('c', None)
+        kwargs.pop('cmap', None)
+        kwargs.pop('s', None)
 
         for key, group_df in grouped:
             marker = marker_map.get(key, '')

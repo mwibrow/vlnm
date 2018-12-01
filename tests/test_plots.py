@@ -274,3 +274,22 @@ class TestVowelPlot(unittest.TestCase):
             pass
         axes = plot.figure.get_axes()
         self.assertEqual(len(axes), 1)
+
+    @patch('vlnm.plots._create_figure')
+    def test_markers(self, mock_create_figure):
+        """Test markers method."""
+        width, height = 4, 3
+        axis = MagicMock()
+        axis.scatter = MagicMock()
+
+        figure = MagicMock()
+        mock_create_figure.return_value = figure
+        figure.get_size_inches = Mock(return_value=(width, height))
+        figure.add_subplot = MagicMock(return_value=axis)
+
+        plot = VowelPlot(width=width, height=height)
+        vowels = self.df['vowel'].unique()
+        with plot:
+            plot.markers(data=self.df, x='f2', y='f1', vowel='vowel')
+
+        self.assertEqual(axis.scatter.call_count, len(vowels))
