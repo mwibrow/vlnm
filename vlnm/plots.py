@@ -172,23 +172,25 @@ class VowelPlot:
             y=y or self.params.get('y'),
             vowel=vowel or self.params.get('vowel'),
             color=color or self.params.get('color'),
-            marker=marker or self.params.get('color'))
+            marker=marker or self.params.get('marker'))
 
         vowel = params['vowel']
         df = data if data is not None else self.data
         x = params['x']
         y = params['y']
         if which == 'mean':
-            df = df.groupby(vowel, as_index=False).apply(
+            df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
+            df = df.reset_index()
         elif which == 'median':
-            df = df.groupby(vowel, as_index=False).apply(
+            df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
+            df = df.reset_index()
 
         vowels = sorted(data[vowel].unique())
-        color_map = get_color_map(color, vowels)
-        marker_map = get_marker_map(marker, vowels)
+        color_map = get_color_map(params['color'], vowels)
 
+        marker_map = get_marker_map(params['marker'] or '.', vowels)
         grouped = df.groupby(vowel, as_index=False)
 
         # Remove the matplotlib keys that this method handles.
