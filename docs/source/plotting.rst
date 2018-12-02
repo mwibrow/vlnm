@@ -22,18 +22,11 @@ types of vowel plots using |matplotlib|.
 
 .. plot::
 
-   import matplotlib
-   import matplotlib.pyplot as plt
-   import seaborn as sns
    import pandas as pd
-
-   plt.figure(figsize=(4,4))
    df = pd.read_csv('_data/hawkins_midgely_2005.csv')
-   ax = sns.scatterplot(df['f2'], df['f1'], hue=df['vowel'], linewidth=0, alpha=0.5)
-   ax.invert_xaxis()
-   ax.invert_yaxis()
-   ax.set_xlabel('$F_2$ (Hz)')
-   ax.set_ylabel('$F_1$ (Hz)')
-
-   plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., frameon=False)
+   plot = VowelPlot(
+      data=df, x='f2', y='f1', vowel='vowel', alpha=0.5)
+   with plot:
+      plot.markers()
+      plot.labels(which='mean')
 

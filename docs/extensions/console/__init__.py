@@ -2,10 +2,11 @@
 Console directive.
 """
 
+import base64
 from code import compile_command, InteractiveInterpreter
 from contextlib import redirect_stdout, redirect_stderr
 import csv
-from io import StringIO
+from io import StringIO, BytesIO
 import os
 import re
 
@@ -16,15 +17,15 @@ from pygments.lexer import RegexLexer
 from pygments import token
 from sphinx.highlighting import lexers
 
-def hidden(_):
+def hidden(_, env=None):
     """Noop magic."""
     return None
 
-def identity(value):
+def identity(value, env=None):
     """Identity magic."""
     return value
 
-def pycon(value):
+def pycon(value, env=None):
     """Console magic."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -32,7 +33,7 @@ def pycon(value):
         return node
     return None
 
-def default(value):
+def default(value, env=None):
     """Default magic."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -111,7 +112,7 @@ class CsvLexer(RegexLexer):
 lexers['pandas'] = DataFrameLexer(startinline=True)
 lexers['csv'] = CsvLexer(startinline=True)
 
-def dataframe(value):
+def dataframe(value, env=None):
     """Dataframe formatter."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -119,7 +120,7 @@ def dataframe(value):
         return node
     return None
 
-def csvfile(value):
+def csvfile(value, env=None):
     """csv formatter."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -136,11 +137,25 @@ def get_pygments_class(data):
         pass
     return 's1'
 
+def matplotlib(_value, env=None):
+    """Get a matplotlib figure."""
+    figure = env.get('figure', env.get('fig'))
+    if not figure:
+        return None
+    output = BytesIO()
+    figure.savefig('foo.png', format='png', bbox_inches='tight')
+    output.seek(0)
+    image_data = base64.b64encode(output.getvalue()).decode('ascii')
+    image_uri = u'data:image/png;base64,{}'.format(image_data)
+    image_node = docutils.nodes.image('', uri=image_uri)
+    return image_node
+
 MAGICS = dict(
     default=default,
     hidden=hidden,
     dataframe=dataframe,
-    console=pycon
+    console=pycon,
+    matplotlib=matplotlib
 )
 class ConsoleDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.
@@ -155,18 +170,16 @@ class ConsoleDirective(Directive):
         'code-only': directives.flag,
         'script': directives.flag,
         'execute': directives.flag,
-        'lexer': directives.unchanged
+        'lexer': directives.unchanged,
+        'matplotlib': directives.flag,
     }
 
     def run(self):
         """Run directive"""
         lexer = self.options.get('lexer') or 'python'
         self.arguments = ['python']
-
         execute = 'code-only' not in self.options
         env = self.state.document.settings.env
-
-
 
         curdir = os.curdir
         os.chdir(env.relfn2path('')[1])
@@ -191,7 +204,7 @@ class ConsoleDirective(Directive):
                 if execute and code_magic != 'code':
                     stdout, stderr = run_code(interpreter, code_object)
                     cast = MAGICS.get(code_magic, MAGICS['console'])
-                    output = cast(stdout[:-1])
+                    output = cast(stdout[:-1], local_env)
                     if output:
                         console.append(output)
                     output = MAGICS['console'](stderr[:-1])
