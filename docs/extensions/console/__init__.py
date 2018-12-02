@@ -17,15 +17,15 @@ from pygments.lexer import RegexLexer
 from pygments import token
 from sphinx.highlighting import lexers
 
-def hidden(_, env=None):
+def hidden(_):
     """Noop magic."""
     return None
 
-def identity(value, env=None):
+def identity(value):
     """Identity magic."""
     return value
 
-def pycon(value, env=None):
+def pycon(value):
     """Console magic."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -33,7 +33,7 @@ def pycon(value, env=None):
         return node
     return None
 
-def default(value, env=None):
+def default(value):
     """Default magic."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -112,7 +112,7 @@ class CsvLexer(RegexLexer):
 lexers['pandas'] = DataFrameLexer(startinline=True)
 lexers['csv'] = CsvLexer(startinline=True)
 
-def dataframe(value, env=None):
+def dataframe(value):
     """Dataframe formatter."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -120,7 +120,7 @@ def dataframe(value, env=None):
         return node
     return None
 
-def csvfile(value, env=None):
+def csvfile(value):
     """csv formatter."""
     if value:
         node = docutils.nodes.literal_block(value, value)
@@ -156,8 +156,7 @@ class ConsoleDirective(Directive):
         'code-only': directives.flag,
         'script': directives.flag,
         'execute': directives.flag,
-        'lexer': directives.unchanged,
-        'matplotlib': directives.flag,
+        'lexer': directives.unchanged
     }
 
     def run(self):
@@ -189,7 +188,7 @@ class ConsoleDirective(Directive):
                 if execute and code_magic not in ['code']:
                     stdout, stderr = run_code(interpreter, code_object)
                     cast = MAGICS.get(code_magic, MAGICS['console'])
-                    output = cast(stdout[:-1], local_env)
+                    output = cast(stdout[:-1])
                     if output:
                         console.append(output)
                     output = MAGICS['console'](stderr[:-1])
