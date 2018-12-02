@@ -188,7 +188,7 @@ class VowelPlot:
                 lambda group_df: group_df[[x, y]].median(axis=0))
             df = df.reset_index()
 
-        vowels = sorted(data[vowel].unique())
+        vowels = sorted(df[vowel].unique())
         color_map = get_color_map(params['color'], vowels)
 
         marker_map = get_marker_map(params['marker'] or '.', vowels)
@@ -205,7 +205,7 @@ class VowelPlot:
             if legend:
                 kwargs['label'] = key
             self.axis.scatter(
-                group_df[x], group_df[y], s=size, c=color, marker=marker,
+                group_df[x], group_df[y], s=size, c=[color], marker=marker,
                 **kwargs)
 
     def labels(

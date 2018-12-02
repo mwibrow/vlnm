@@ -198,7 +198,6 @@ class ConsoleDirective(Directive):
             console = []
             for line in generate_statements(items, lexer, self.options):
                 statement, magic, code_object, code_magic = line
-                print(statement, magic, code_magic)
                 cast = MAGICS.get(magic, MAGICS['default'])
                 result = cast(statement)
                 if result:
