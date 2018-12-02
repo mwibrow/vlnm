@@ -244,17 +244,19 @@ class VowelPlot:
             font=font or self.params.get('font'))
 
         vowel = params['vowel']
-        df = data or self.data
+        df = data if data is not None else self.data
         x = params['x']
         y = params['y']
         if which == 'mean':
-            df = df.groupby(vowel, as_index=False).apply(
+            df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
+            df = df.reset_index()
         elif which == 'median':
-            df = df.groupby(vowel, as_index=False).apply(
+            df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
+            df = df.reset_index()
 
-        vowels = sorted(data[vowel].unique())
+        vowels = sorted(df[vowel].unique())
         color_map = get_color_map(color, vowels)
         font_map = get_font_map(font, vowels)
 
@@ -269,7 +271,7 @@ class VowelPlot:
             color = color_map.get(key)
             font = font_map.get(key)
             for xy in zip(group_df[x], group_df[y]):
-                self.axis.annotation(
+                self.axis.text(
                     xy[0], xy[1],
                     key,
                     color=color,
@@ -447,7 +449,7 @@ def get_font_list(fonts: Fonts) -> List[FontProperties]:
             return [FontProperties(fname=fonts)]
         return [FontProperties(family=fonts)]
     font_properties = []
-    for font in fonts:
+    for font in fonts or []:
         font_properties.extend(get_font_list(font))
     return font_properties
 

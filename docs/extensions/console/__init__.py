@@ -137,27 +137,11 @@ def get_pygments_class(data):
         pass
     return 's1'
 
-def matplotlib(_value, env=None):
-    """Get a matplotlib figure."""
-    figure = (
-        env.get('figure') or env.get('fig') or
-        env.get('__figure__') or env.get('__fig__'))
-    if not figure:
-        return None
-    output = BytesIO()
-    figure.savefig(output, format='png', bbox_inches='tight')
-    output.seek(0)
-    image_data = base64.b64encode(output.getvalue()).decode('ascii')
-    image_uri = u'data:image/png;base64,{}'.format(image_data)
-    image_node = docutils.nodes.image('', uri=image_uri)
-    return image_node
-
 MAGICS = dict(
     default=default,
     hidden=hidden,
     dataframe=dataframe,
-    console=pycon,
-    figure=matplotlib
+    console=pycon
 )
 class ConsoleDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.

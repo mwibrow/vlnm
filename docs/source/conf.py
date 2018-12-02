@@ -57,6 +57,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'ipa',
     'natbib',
+    'plotting',
     'console',
     'tables',
     'typehints'
