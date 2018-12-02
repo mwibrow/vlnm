@@ -139,11 +139,13 @@ def get_pygments_class(data):
 
 def matplotlib(_value, env=None):
     """Get a matplotlib figure."""
-    figure = env.get('figure', env.get('fig'))
+    figure = (
+        env.get('figure') or env.get('fig') or
+        env.get('__figure__') or env.get('__fig__'))
     if not figure:
         return None
     output = BytesIO()
-    figure.savefig('foo.png', format='png', bbox_inches='tight')
+    figure.savefig(output, format='png', bbox_inches='tight')
     output.seek(0)
     image_data = base64.b64encode(output.getvalue()).decode('ascii')
     image_uri = u'data:image/png;base64,{}'.format(image_data)
@@ -155,7 +157,7 @@ MAGICS = dict(
     hidden=hidden,
     dataframe=dataframe,
     console=pycon,
-    matplotlib=matplotlib
+    figure=matplotlib
 )
 class ConsoleDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.
@@ -196,12 +198,12 @@ class ConsoleDirective(Directive):
             console = []
             for line in generate_statements(items, lexer, self.options):
                 statement, magic, code_object, code_magic = line
-
+                print(statement, magic, code_magic)
                 cast = MAGICS.get(magic, MAGICS['default'])
                 result = cast(statement)
                 if result:
                     console.append(result)
-                if execute and code_magic != 'code':
+                if execute and code_magic not in ['code']:
                     stdout, stderr = run_code(interpreter, code_object)
                     cast = MAGICS.get(code_magic, MAGICS['console'])
                     output = cast(stdout[:-1], local_env)

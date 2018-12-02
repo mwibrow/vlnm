@@ -20,13 +20,18 @@ types of vowel plots using |matplotlib|.
    plt.scatter(df['f1'], df['f2'])
 
 
-.. plot::
+.. console::
+   :script:
 
+   ### import matplotlib
+   ### matplotlib.use('agg')
    import pandas as pd
+   from vlnm.plots import VowelPlot
    df = pd.read_csv('_data/hawkins_midgely_2005.csv')
    plot = VowelPlot(
-      data=df, x='f2', y='f1', vowel='vowel', alpha=0.5)
-   with plot:
-      plot.markers()
-      plot.labels(which='mean')
+       data=df, x='f2', y='f1', vowel='vowel')
+   plot.subplot()
+   plot.markers(alpha=0.5)
+   figure = plot.figure ### figure
 
+Something else

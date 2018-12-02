@@ -19,6 +19,7 @@ from matplotlib.figure import Figure
 from matplotlib import Path
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy.stats as st
@@ -33,7 +34,7 @@ Font = Union[str, FontProperties]
 Fonts = List[Font]
 
 def _create_figure(*args, **kwargs):
-    return Figure(*args, **kwargs)
+    return plt.figure(*args, **kwargs)
 
 class VowelPlot:
     """Class for managing vowel plots.
