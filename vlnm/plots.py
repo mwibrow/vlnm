@@ -19,7 +19,7 @@ from matplotlib.figure import Figure
 from matplotlib import Path
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as PYPLOT
 import pandas as pd
 import numpy as np
 import scipy.stats as st
@@ -44,7 +44,8 @@ FIGURE_KWARGS = dict(
     clear=False)
 
 def _create_figure(*args, **kwargs):
-    return plt.figure(*args, **kwargs)
+    return PYPLOT.figure(*args, **kwargs)
+
 
 class VowelPlot(object):
     """Class for managing vowel plots.
@@ -59,15 +60,18 @@ class VowelPlot(object):
         The DataFrame column which contains the y-coordinates.
     vowel:
         The DataFrame column which contains the vowel categories/labels.
+    relabel:
+        A dictionary which maps vowel categories/labels onto
+        alternative strings.
     color:
         Colors to be used for each vowel category.
         This will be converted into a list of colors
-        which will be recycled if there are more vowels
+        where will be recycled if there are more vowels
         than colors.
     marker:
         Marks to be used for each vowel category.
         This will be converted into a list of marks
-        which will be recycled if there are more vowels
+        where will be recycled if there are more vowels
         than marks.
     width:
         Width of the figure in inches.
@@ -94,8 +98,9 @@ class VowelPlot(object):
             color: Union[Color, Colors] = 'tab20',
             font: Union[Font, Fonts] = None,
             marker: Union[Marker, Markers] = '.',
-            width: str = None,
-            height: str = None,
+            relabel: Dict[str, str] = None,
+            width: str = 4,
+            height: str = 4,
             rows: str = 1,
             columns: str = 1,
             **kwargs):
@@ -106,7 +111,8 @@ class VowelPlot(object):
         self.rows, self.columns = rows, columns
 
         self.params = dict(
-            x=x, y=y, vowel=vowel, color=color, font=font, marker=marker)
+            x=x, y=y, vowel=vowel, color=color, font=font, marker=marker,
+            relabel=relabel)
         self.data = data
         self.axis = None
 
@@ -149,8 +155,9 @@ class VowelPlot(object):
             vowel: Union[str, int] = None,
             color: Union[Color, Colors] = None,
             marker: Union[Marker, Markers] = None,
+            relabel: Dict[str, str] = None,
             #
-            which: str = 'all',
+            where: str = 'all',
             legend: bool = False,
             size: float = None,
             **kwargs):
@@ -167,7 +174,7 @@ class VowelPlot(object):
             The DataFrame column which contains the y-coordinates.
         vowel:
             The DataFrame column which contains the vowel categories/labels.
-        which:
+        where:
             One of:
                 - ``'all'``: all rows in the DataFrame will be used.
                 - ``'mean'``: The means for each category will be used.
@@ -180,13 +187,16 @@ class VowelPlot(object):
         color:
             Colors to be used for each vowel category.
             This will be converted into a list of colors
-            which will be recycled if there are more vowels
+            where will be recycled if there are more vowels
             than colors.
         markers:
             Marks to be used for each vowel category.
             This will be converted into a list of marks
-            which will be recycled if there are more vowels
+            where will be recycled if there are more vowels
             than marks.
+        relabel:
+            A dictionary which maps vowel categories/labels onto
+            alternative strings.
         size:
             Size of markers.
         """
@@ -196,17 +206,19 @@ class VowelPlot(object):
             y=y or self.params.get('y'),
             vowel=vowel or self.params.get('vowel'),
             color=color or self.params.get('color'),
-            marker=marker or self.params.get('marker'))
+            marker=marker or self.params.get('marker'),
+            relabel=(relabel if relabel is not None
+                     else self.params.get('relabel', {})))
 
         vowel = params['vowel']
         df = data if data is not None else self.data
         x = params['x']
         y = params['y']
-        if which == 'mean':
+        if where == 'mean':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
             df = df.reset_index()
-        elif which == 'median':
+        elif where == 'median':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
             df = df.reset_index()
@@ -242,7 +254,8 @@ class VowelPlot(object):
             vowel: Union[str, int] = None,
             color: Union[Color, Colors] = None,
             font: Union[Font, Fonts] = None,
-            which: str = 'all',
+            relabel: Dict[str, str] = None,
+            where: str = 'all',
             **kwargs):
         """Add labels to the vowel plot.
 
@@ -254,7 +267,10 @@ class VowelPlot(object):
             The DataFrame column which contains the y-coordinates.
         vowel:
             The DataFrame column which contains the vowel categories/labels.
-        which:
+        relabel:
+            A dictionary which maps vowel categories/labels onto
+            alternative strings.
+        where:
             One of:
                 - ``'all'``: all rows in the DataFrame will be used.
                 - ``'mean'``: The means for each category will be used.
@@ -267,17 +283,19 @@ class VowelPlot(object):
             y=y or self.params.get('y'),
             vowel=vowel or self.params.get('vowel'),
             color=color or self.params.get('color'),
-            font=font or self.params.get('font'))
+            font=font or self.params.get('font'),
+            relabel=(relabel if relabel is not None
+                     else self.params.get('relabel') or {}))
 
         vowel = params['vowel']
         df = data if data is not None else self.data
         x = params['x']
         y = params['y']
-        if which == 'mean':
+        if where == 'mean':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
             df = df.reset_index()
-        elif which == 'median':
+        elif where == 'median':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
             df = df.reset_index()
@@ -296,10 +314,11 @@ class VowelPlot(object):
         for key, group_df in grouped:
             color = color_map.get(key)
             font = font_map.get(key)
+            text = params['relabel'].get(key, key)
             for xy in zip(group_df[x], group_df[y]):
                 self.axis.text(
                     xy[0], xy[1],
-                    key,
+                    text,
                     color=color,
                     fontproperties=font,
                     horizontalalignment='center',
@@ -375,6 +394,8 @@ class VowelPlot(object):
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
             return getattr(self.axis, attr)
+        if hasattr(PYPLOT, attr):
+            return getattr(PYPLOT, attr)
         return object.__getattribute__(self, attr)
 
 def get_confidence_ellipse(

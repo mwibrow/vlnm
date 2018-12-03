@@ -14,9 +14,15 @@ class PlotDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.
     """
     required_arguments = 0
-    optional_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = False
     has_content = True
+
+    option_spec = {
+        'backend': directives.unchanged,
+        'figure': directives.unchanged,
+        'imports': directives.unchanged
+    }
 
     def run(self):
         """Run directive"""
@@ -24,7 +30,12 @@ class PlotDirective(Directive):
             line for line in self.content if not line.startswith('###')])
         code = u'\n'.join(line[4:] if line.startswith('###') else line
                           for line in self.content)
-
+        imports = self.options.get('imports', '')
+        backend = self.options.get('backend', 'agg')
+        code = '{}\nimport matplotlib\nmatplotlib.use("{}")\n{}'.format(
+            imports, backend, code)
+        if self.options.get('figure'):
+            code = '{}\n__figure__ = {}'.format(code, self.options['figure'])
         env = {}
         exec(code, env)  # pylint: disable=exec-used
         figure = env.get('__figure__')
