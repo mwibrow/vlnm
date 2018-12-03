@@ -33,10 +33,20 @@ Markers = List[Marker]
 Font = Union[str, FontProperties]
 Fonts = List[Font]
 
+FIGURE_KWARGS = dict(
+    num=None,
+    figsize=None,
+    dpi=None,
+    facecolor=None,
+    edgecolor=None,
+    frameon=True,
+    FigureClass=Figure,
+    clear=False)
+
 def _create_figure(*args, **kwargs):
     return plt.figure(*args, **kwargs)
 
-class VowelPlot:
+class VowelPlot(object):
     """Class for managing vowel plots.
 
     Parameters
@@ -111,12 +121,25 @@ class VowelPlot:
         return self.axis
 
     def __enter__(self):
-        self.axis = self.subplot()
+        self.begin()
         return self
 
     def __exit__(self, *_args):
-        pass
+        self.end()
 
+    def begin(self):
+        """Set up the plot."""
+        if not self.axis:
+            self.axis = self.subplot()
+
+    def end(self):
+        """Finalise the plot."""
+        axes = self.figure.get_axes()
+        for axis in axes:
+            if not axis.xaxis_inverted():
+                axis.invert_xaxis()
+            if not axis.yaxis_inverted():
+                axis.invert_yaxis()
 
     def markers(
             self,
@@ -207,6 +230,9 @@ class VowelPlot:
             self.axis.scatter(
                 group_df[x], group_df[y], s=size, c=[color], marker=marker,
                 **kwargs)
+
+        if legend:
+            self.axis.legend()
 
     def labels(
             self,
@@ -346,6 +372,10 @@ class VowelPlot:
                 **kwargs)
             self.axis.add_artist(ellipse)
 
+    def __getattr__(self, attr):
+        if hasattr(self.axis, attr):
+            return getattr(self.axis, attr)
+        return object.__getattribute__(self, attr)
 
 def get_confidence_ellipse(
         x: List[float],

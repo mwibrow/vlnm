@@ -3,11 +3,11 @@
 Vowel Plots
 ===========
 
-It is hoped that in the future |vlnm| will provide a dedicated
-API for producing vowel plots in Python simply and easily.
-Until then, the following sections describe a series
-of 'recipies' for producing and customising various
-types of vowel plots using |matplotlib|.
+|vlnm| provides some convenience methods for creating
+some of the common vowel plots seen in the literature.
+However, it is a very thin wrapper around
+the |matplotlib| plotting library, making more
+advance customization of vowel plots possible.
 
 
 .. plot::
@@ -20,6 +20,8 @@ types of vowel plots using |matplotlib|.
    plot = VowelPlot(data=df, x='f2', y='f1', vowel='vowel')
    with plot:
         plot.markers(alpha=0.5, legend=True)
+        plot.set_xlabel('$f_2$ (Hz)')
+        plot.set_ylabel('$f_1$ (Hz)')
    ### __figure__ = plot.figure
 
 Something else
