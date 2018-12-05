@@ -241,10 +241,10 @@ class VowelPlot(object):
             ignore=[None]
         )
 
-        vowel = params['vowel']
+        vowel = context['vowel']
         df = data if data is not None else self.data
-        x = params['x']
-        y = params['y']
+        x = context['x']
+        y = v['y']
         if where == 'mean':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
@@ -255,9 +255,9 @@ class VowelPlot(object):
             df = df.reset_index()
 
         vowels = sorted(df[vowel].unique())
-        color_map = get_color_map(params['color'], vowels)
+        color_map = get_color_map(context['color'], vowels)
 
-        marker_map = get_marker_map(params['marker'] or '.', vowels)
+        marker_map = get_marker_map(context['marker'] or '.', vowels)
         grouped = df.groupby(vowel, as_index=False)
 
         # Remove the matplotlib keys that this method handles.
@@ -587,3 +587,32 @@ def get_marker_map(
     for i, category in enumerate(categories):
         marker_map[category] = marker_list[i % len(marker_list)]
     return marker_map
+
+def get_group_style(
+        groups: List[str],
+        values: Tuple[any],
+        vary: Dict[str, str],
+        style_maps: Dict[str, any]):
+    """Obtain the styles (color, marker, etc) for a data group.
+
+    Parameters
+    ----------
+    groups:
+        The list of Dataframe columns used to split a Dataframe.
+    values:
+        The values for a particular group. This will be the first
+        item in the tuple generated when iterating over a
+        `Dataframe.groupby` generator.
+    vary:
+        A dictionary mapping style properties onto Dataframe columns.
+    style_maps:
+        Mappings for style properties from their values to their
+
+    """
+    yrav = {value: key for key, value in vary.values()}
+    group_style = {}
+    for group, value in zip(groups, values):
+        style = yrav.get(group)
+        style_map = style_maps.get(style)
+        group_style[style] = style_map.get(value)
+    return get_group_style
