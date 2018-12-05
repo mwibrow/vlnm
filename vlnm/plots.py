@@ -32,6 +32,8 @@ Marker = Union[str, Tuple[int, int, int], List[Tuple[float, float]], Path]
 Markers = List[Marker]
 Font = Union[str, FontProperties]
 Fonts = List[Font]
+Style = Union[str, Dict[str, any]]
+Vary = Dict[str, str]
 
 FIGURE_KWARGS = dict(
     num=None,
@@ -46,6 +48,20 @@ FIGURE_KWARGS = dict(
 def _create_figure(*args, **kwargs):
     return PYPLOT.figure(*args, **kwargs)
 
+def by(**kwargs):
+    """Syntactic sugar function for creating dictionarys."""
+    return dict(**kwargs)
+
+def merge_dicts(*dicts, ignore=None):
+    ignore = ignore or [None]
+    if not dicts:
+        return {}
+    merged = {}
+    for dct in dicts:
+        merged.update({
+            key: value for key, value in dct.items()
+            if not value in ignore})
+    return merged
 
 class VowelPlot(object):
     """Class for managing vowel plots.
@@ -91,30 +107,48 @@ class VowelPlot(object):
 
     def __init__(
             self,
-            data: pd.DataFrame = None,
-            x: Union[str, int] = 'f2',
-            y: Union[str, int] = 'f1',
-            vowel: Union[str, int] = 'vowel',
-            color: Union[Color, Colors] = 'tab20',
-            font: Union[Font, Fonts] = None,
-            marker: Union[Marker, Markers] = '.',
-            relabel: Dict[str, str] = None,
             width: str = 4,
             height: str = 4,
             rows: str = 1,
             columns: str = 1,
+            figure: Figure = None,
+            context: dict = None,
             **kwargs):
 
         figsize = (width, height) if width and height else None
-        self.figure = _create_figure(figsize=figsize, **kwargs)
+        self.figure = figure or _create_figure(figsize=figsize, **kwargs)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.params = dict(
-            x=x, y=y, vowel=vowel, color=color, font=font, marker=marker,
-            relabel=relabel)
-        self.data = data
+        self.context = context or {}
         self.axis = None
+
+    def __call__(self, **kwargs):
+        return self.set_context(**kwargs)
+
+    def set_context(
+            self,
+            data: pd.DataFrame = None,
+            x: Union[str, int] = 'f2',
+            y: Union[str, int] = 'f1',
+            vowel: Union[str, int] = 'vowel',
+            style: Union[str, Dict[str, any]] = None,
+            vary: Dict[str, str] = None,
+            relabel: Dict[str, str] = None,
+            update=False):
+        """Set or update the context for the current plot.
+
+        plot(data=df, x='f2', y='f1', vowel='vowel'
+            style=by(color='tab20', marker='.'),
+            vary=by(color='vowel))
+        """
+        context = dict(
+            data=data, x=x, y=y, vowel=vowel, style=style, vary=vary,
+            relabel=relabel)
+        if update:
+            self.context.update(context)
+        else:
+            self.context = context
 
     def subplot(self, index: int = None) -> Axes:
         """Get the axis for a subplot."""
@@ -153,8 +187,8 @@ class VowelPlot(object):
             x: Union[str, int] = None,
             y: Union[str, int] = None,
             vowel: Union[str, int] = None,
-            color: Union[Color, Colors] = None,
-            marker: Union[Marker, Markers] = None,
+            style: Union[str, Dict[str, str]] = None,
+            vary: Dict[str, any] = None,
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
@@ -201,14 +235,11 @@ class VowelPlot(object):
             Size of markers.
         """
 
-        params = dict(
-            x=x or self.params.get('x'),
-            y=y or self.params.get('y'),
-            vowel=vowel or self.params.get('vowel'),
-            color=color or self.params.get('color'),
-            marker=marker or self.params.get('marker'),
-            relabel=(relabel if relabel is not None
-                     else self.params.get('relabel', {})))
+        context = merge_dicts(
+            self.context,
+            dict(x=x,y=y,vowel=vowel,style=style, vary=vary, relabel=relabel),
+            ignore=[None]
+        )
 
         vowel = params['vowel']
         df = data if data is not None else self.data
