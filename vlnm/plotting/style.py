@@ -53,8 +53,15 @@ def get_group_styles(
 
     style = {}
     for column, value in zip(groups, values):
-        for prop in yrav[column]:
-            style_map = style_maps.get(prop)
-            if style_map:
-                style[prop] = style_map.get(value, STYLES['default'].get(prop))
+        try:
+            for prop in yrav[column]:
+                style_map = style_maps.get(prop)
+                if style_map:
+                    style[prop] = style_map.get(
+                        value, STYLES['default'].get(prop))
+        except KeyError:
+            pass
+    # for prop in STYLES['default']:
+    #     if not prop in style:
+    #         style[prop] = STYLES['default'][prop]
     return style
