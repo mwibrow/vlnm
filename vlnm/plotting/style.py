@@ -11,6 +11,14 @@ in _categorical_ data (e.g., vowel category, reported gender, or particiant id).
 
 from typing import Any, Dict, List, Tuple
 
+STYLES = dict(
+    default=dict(
+        color='black',
+        marker='.',
+        line='-'
+    )
+)
+
 def get_group_styles(
         groups: List[str],
         values: Tuple[Any],
@@ -48,5 +56,5 @@ def get_group_styles(
         for prop in yrav[column]:
             style_map = style_maps.get(prop)
             if style_map:
-                style[prop] = style_map.get(value)
+                style[prop] = style_map.get(value, STYLES['default'].get(prop))
     return style

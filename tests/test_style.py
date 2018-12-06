@@ -5,6 +5,7 @@ tests for the vlnm.plotting.style module
 import unittest
 
 from vlnm.plotting import style
+from vlnm.plotting.style import STYLES
 
 class TestGetGroupStyle(unittest.TestCase):
     """Tests for the get_group_style function."""
@@ -41,4 +42,12 @@ class TestGetGroupStyle(unittest.TestCase):
                 color=dict(had='blue'),
                 marker=dict(F='.'),
                 line=dict(S1='-')))
+        self.assertEqual(actual, expected)
+
+    def test_default_style(self):
+        """Default style returned."""
+        expected = dict(color=STYLES['default']['color'])
+        actual = style.get_group_styles(
+            ['vowel'], ('heard',),
+            dict(color='vowel'), dict(color=dict(had='blue')))
         self.assertEqual(actual, expected)
