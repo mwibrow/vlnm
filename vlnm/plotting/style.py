@@ -9,14 +9,20 @@ In almost all cases, the graphical parameters should reflect changes
 in _categorical_ data (e.g., vowel category, reported gender, or particiant id).
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import matplotlib.colors
+from matplotlib.cm import get_cmap
+from matplotlib import Path
 
+# pylint: disable=C0103
 Color = Union[str, Tuple[float, float, float, float]]
-Colormap = Dict(any, Color)
+Colormap = Dict[any, Color]
 Colors = Union[List[Color], matplotlib.colors.ListedColormap]
-
+Line = Union[str, List[int]]
+Lines = List[Line]
+Marker = Union[str, Tuple[int, int, int], List[Tuple[float, float]], Path]
+Markers = List[Marker]
 
 STYLES = dict(
     default=dict(
@@ -126,3 +132,65 @@ def get_color_map(
     for i, category in enumerate(categories):
         color_map[category] = color_list[i % len(color_list)]
     return color_map
+
+def get_marker_map(
+        markers: Markers, categories: List[str]) -> Dict[str, Marker]:
+    """Get a category-marker mapping.
+
+    Parameters
+    ----------
+    markers:
+        Marker specification.
+    categories:
+        A list of (vowel) categories.
+
+    Returns
+    -------
+    :
+        A dictionary mapping category labels to markers.
+    """
+    if isinstance(markers, dict):
+        return markers
+    if isinstance(markers, list):
+        marker_list = markers
+    else:
+        marker_list = [markers]
+
+    if not marker_list:
+        marker_list = [None]
+
+    marker_map = {}
+    for i, category in enumerate(categories):
+        marker_map[category] = marker_list[i % len(marker_list)]
+    return marker_map
+
+def get_line_map(
+        lines: Lines, categories: List[str]) -> Dict[str, Line]:
+    """Get a category-marker mapping.
+
+    Parameters
+    ----------
+    Lines:
+        Marker specification.
+    categories:
+        A list of (vowel) categories.
+
+    Returns
+    -------
+    :
+        A dictionary mapping category labels to markers.
+    """
+    if isinstance(lines, dict):
+        return lines
+    if isinstance(lines, list):
+        line_list = lines
+    else:
+        line_list = [lines]
+
+    if not line_list:
+        line_list = [None]
+
+    line_map = {}
+    for i, category in enumerate(categories):
+        line_map[category] = line_list[i % len(line_list)]
+    return line_map
