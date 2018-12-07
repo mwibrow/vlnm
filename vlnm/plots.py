@@ -24,6 +24,11 @@ import pandas as pd
 import numpy as np
 import scipy.stats as st
 
+from plotting.style import (
+    get_color_map,
+    get_marker_map,
+    get_line_map,
+    get_group_styles)
 
 # pylint: disable=C0103
 Color = Union[str, Tuple[float, float, float, float]]
@@ -120,13 +125,13 @@ class VowelPlot(object):
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.context = context or {}
+        self.plot_context = context or {}
         self.axis = None
 
     def __call__(self, **kwargs):
         return self.set_context(**kwargs)
 
-    def set_context(
+    def context(
             self,
             data: pd.DataFrame = None,
             x: Union[str, int] = 'f2',
@@ -135,20 +140,22 @@ class VowelPlot(object):
             style: Union[str, Dict[str, any]] = None,
             vary: Dict[str, str] = None,
             relabel: Dict[str, str] = None,
-            update=False):
+            replace=False):
         """Set or update the context for the current plot.
 
         plot(data=df, x='f2', y='f1', vowel='vowel'
             style=by(color='tab20', marker='.'),
             vary=by(color='vowel))
         """
-        context = dict(
+        plot_context = dict(
             data=data, x=x, y=y, vowel=vowel, style=style, vary=vary,
             relabel=relabel)
-        if update:
-            self.context.update(context)
+        if replace:
+            self.plot_context = context
         else:
-            self.context = context
+            self.plot_context.update(context)
+        return self
+
 
     def subplot(self, index: int = None) -> Axes:
         """Get the axis for a subplot."""
@@ -194,6 +201,7 @@ class VowelPlot(object):
             where: str = 'all',
             legend: bool = False,
             size: float = None,
+            groups: List[str] = None,
             **kwargs):
         """Add markers to the vowel plot.
 
@@ -218,16 +226,8 @@ class VowelPlot(object):
         legend:
             Whether to add the markers to the legend.
             Will be ignored if labels are used as markers.
-        color:
-            Colors to be used for each vowel category.
-            This will be converted into a list of colors
-            where will be recycled if there are more vowels
-            than colors.
-        markers:
-            Marks to be used for each vowel category.
-            This will be converted into a list of marks
-            where will be recycled if there are more vowels
-            than marks.
+        style:
+            Plot style to use.
         relabel:
             A dictionary which maps vowel categories/labels onto
             alternative strings.
@@ -237,14 +237,18 @@ class VowelPlot(object):
 
         context = merge_dicts(
             self.context,
-            dict(x=x,y=y,vowel=vowel,style=style, vary=vary, relabel=relabel),
-            ignore=[None]
-        )
+            dict(
+                x=x, y=y,
+                vowel=vowel,
+                style=style,
+                vary=vary,
+                relabel=relabel),
+            ignore=[None])
 
         vowel = context['vowel']
         df = data if data is not None else self.data
         x = context['x']
-        y = v['y']
+        y = context['y']
         if where == 'mean':
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].mean(axis=0))
@@ -253,6 +257,12 @@ class VowelPlot(object):
             df = df.groupby(vowel, as_index=True).apply(
                 lambda group_df: group_df[[x, y]].median(axis=0))
             df = df.reset_index()
+
+        vary_columns = list(context['vary'].values())
+        groups = groups or list(vary_columns)
+        for column in vary_columns:
+            if not column in groups:
+                groups.append(column)
 
         vowels = sorted(df[vowel].unique())
         color_map = get_color_map(context['color'], vowels)
@@ -488,131 +498,26 @@ def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:
         except ValueError:
             return [colors]
 
-def get_color_map(
-        colors: Colors, categories: List[str]) -> Dict[str, Color]:
-    """Get a category-color mapping.
 
-    Parameters
-    ----------
-    colors:
-        Color specification.
-    categories:
-        A list of (vowel) categories.
-
-    Returns
-    -------
-    :
-        A dictionary mapping category labels to colors.
-    """
-    color_list = get_color_list(colors, len(categories))
-    if not color_list:
-        color_list = [None for _ in categories]
-    color_map = {}
-    for i, category in enumerate(categories):
-        color_map[category] = color_list[i % len(color_list)]
-    return color_map
-
-def get_font_list(fonts: Fonts) -> List[FontProperties]:
-    """Create a list of font properties from a font specification.
-
-    Parameters
-    ----------
-    fonts:
-        The font specification
-
-    Returns
-    :
-        A list of font properties.
-    """
-    if isinstance(fonts, FontProperties):
-        return [fonts]
-    elif isinstance(fonts, str):
-        if os.path.exists(fonts):
-            return [FontProperties(fname=fonts)]
-        return [FontProperties(family=fonts)]
-    font_properties = []
-    for font in fonts or []:
-        font_properties.extend(get_font_list(font))
-    return font_properties
-
-def get_font_map(
-        fonts: Fonts, categories: List[str]) -> Dict[str, FontProperties]:
-    """Get a category-font mapping.
-
-    Parameters
-    ----------
-    markers:
-        Font specification.
-    categories:
-        A list of (vowel) categories.
-
-    Returns
-    -------
-    :
-        Mapping between (vowel) categories and fonts.
-    """
-    font_list = get_font_list(fonts)
-    if not font_list:
-        font_list = [FontProperties()]
-    font_map = {}
-    for i, category in enumerate(categories):
-        font_map[category] = font_list[i % len(font_list)]
-    return font_map
-
-def get_marker_map(
-        markers: Markers, categories: List[str]) -> Dict[str, Marker]:
-    """Get a category-marker mapping.
-
-    Parameters
-    ----------
-    markers:
-        Marker specification.
-    categories:
-        A list of (vowel) categories.
-
-    Returns
-    -------
-    :
-        A dictionary mapping category labels to markers.
-    """
-    if isinstance(markers, list):
-        marker_list = markers
+def df_iterator(df, groups):
+    if groups:
+        for group, group_df in df.groupby(groups, as_index=False):
+            if not isinstance(group, tuple):
+                group = tuple(group,)
+            yield group, group_df
     else:
-        marker_list = [markers]
+        yield (), df
 
-    if not marker_list:
-        marker_list = [None]
+def plotter(axis, df, x, y, style, vary, where=None, relabel=None, groups=None, **kwargs):
 
-    marker_map = {}
-    for i, category in enumerate(categories):
-        marker_map[category] = marker_list[i % len(marker_list)]
-    return marker_map
+    if where == 'mean':
+        df = df.groupby(groups, as_index=True).apply(
+            lambda group_df: group_df[[x, y]].mean(axis=0))
+        df = df.reset_index()
+    elif where == 'median':
+        df = df.groupby(groups, as_index=True).apply(
+            lambda group_df: group_df[[x, y]].median(axis=0))
+        df = df.reset_index()
 
-def get_group_style(
-        groups: List[str],
-        values: Tuple[any],
-        vary: Dict[str, str],
-        style_maps: Dict[str, any]):
-    """Obtain the styles (color, marker, etc) for a data group.
+    for group, group_df in df_iterator(df, groups):
 
-    Parameters
-    ----------
-    groups:
-        The list of Dataframe columns used to split a Dataframe.
-    values:
-        The values for a particular group. This will be the first
-        item in the tuple generated when iterating over a
-        `Dataframe.groupby` generator.
-    vary:
-        A dictionary mapping style properties onto Dataframe columns.
-    style_maps:
-        Mappings for style properties from their values to their
-
-    """
-    yrav = {value: key for key, value in vary.values()}
-    group_style = {}
-    for group, value in zip(groups, values):
-        style = yrav.get(group)
-        style_map = style_maps.get(style)
-        group_style[style] = style_map.get(value)
-    return get_group_style
