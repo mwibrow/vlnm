@@ -69,14 +69,10 @@ def get_group_styles(
         try:
             for prop in yrav[column]:
                 style_map = style_maps.get(prop)
-                if style_map:
-                    style[prop] = style_map.get(
-                        value, STYLES['default'].get(prop))
+                if style_map and value in style_map:
+                    style[prop] = style_map[value]
         except KeyError:
             pass
-    for prop in STYLES['default']:
-        if not prop in style:
-            style[prop] = STYLES['default'][prop]
     return style
 
 def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:

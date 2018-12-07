@@ -52,14 +52,6 @@ class TestGetGroupStyle(unittest.TestCase):
                 line=dict(S1='-')))
         self.assertEqual(actual, expected)
 
-    def test_default_style(self):
-        """Default style returned."""
-        expected = dict(color=STYLES['default']['color'])
-        actual = get_group_styles(
-            ['vowel'], ('heard',),
-            dict(color='vowel'), dict(color=dict(had='blue')))
-        self.assertEqual(actual, expected)
-
     def test_column_not_in_group(self):
         """Default style returned."""
         expected = dict()
