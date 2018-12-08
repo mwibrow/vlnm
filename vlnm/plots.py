@@ -9,12 +9,9 @@ the |matplotlib| library, and advanced customation of vowel
 plots will require familiarity with |matplotlib|.
 """
 
-import os
 from typing import Dict, List, Tuple, Union
 
 from matplotlib.axes import Axes
-from matplotlib.colors import Colormap, ListedColormap
-from matplotlib.cm import get_cmap
 from matplotlib.figure import Figure
 from matplotlib import Path
 from matplotlib.font_manager import FontProperties
@@ -24,19 +21,16 @@ import pandas as pd
 import numpy as np
 import scipy.stats as st
 
-from plotting.style import (
+from vlnm.plotting.style import (
+    Color, Colors,
+    Line, Lines,
+    Marker, Markers,
     get_color_map,
     get_marker_map,
     get_line_map,
     get_group_styles)
 
 # pylint: disable=C0103
-Color = Union[str, Tuple[float, float, float, float]]
-Colors = Union[List[Color], ListedColormap]
-Marker = Union[str, Tuple[int, int, int], List[Tuple[float, float]], Path]
-Markers = List[Marker]
-Font = Union[str, FontProperties]
-Fonts = List[Font]
 Style = Union[str, Dict[str, any]]
 Vary = Dict[str, str]
 
@@ -57,15 +51,14 @@ def by(**kwargs):
     """Syntactic sugar function for creating dictionarys."""
     return dict(**kwargs)
 
-def merge_dicts(*dicts, ignore=None):
-    ignore = ignore or [None]
+def merge_dicts(*dicts):
     if not dicts:
         return {}
     merged = {}
     for dct in dicts:
         merged.update({
             key: value for key, value in dct.items()
-            if not value in ignore})
+            if value is not None})
     return merged
 
 class VowelPlot(object):
@@ -151,9 +144,9 @@ class VowelPlot(object):
             data=data, x=x, y=y, vowel=vowel, style=style, vary=vary,
             relabel=relabel)
         if replace:
-            self.plot_context = context
+            self.plot_context = plot_context
         else:
-            self.plot_context.update(context)
+            self.plot_context.update(plot_context)
         return self
 
 
@@ -237,112 +230,34 @@ class VowelPlot(object):
         """
 
         context = merge_dicts(
-            self.context,
+            self.plot_context,
             dict(
-                data=df,
+                data=data,
                 x=x, y=y,
                 style=style,
                 vary=vary,
-                relabel=relabel),
-            ignore=[None])
+                relabel=relabel))
 
         iterator = plot_iterator(context['data'], groups, context)
-        for x, y, column_map, style_map in iterator:
-
+        for group_x, group_y, _, style_map in iterator:
             color = style_map.get('color')
-            marker = style_map.get('marker')
+            if color is None:
+                color = 'black'
+            marker = style_map.get('marker') or '.'
 
             kwargs.pop('c', None)
             kwargs.pop('cmap', None)
             kwargs.pop('s', None)
 
-            if legend:
-                kwargs['label'] = key
+            # if legend:
+            #     kwargs['label'] = key
 
             self.axis.scatter(
-                x, y, s=size, c=[color], marker=marker, **kwargs)
+                group_x, group_y, s=size, c=[color], marker=marker, **kwargs)
 
-        if legend:
-            self.axis.legend()
+        # if legend:
+        #     self.axis.legend()
 
-    def labels(
-            self,
-            data: pd.DataFrame = None,
-            x: Union[str, int] = None,
-            y: Union[str, int] = None,
-            vowel: Union[str, int] = None,
-            color: Union[Color, Colors] = None,
-            font: Union[Font, Fonts] = None,
-            relabel: Dict[str, str] = None,
-            where: str = 'all',
-            **kwargs):
-        """Add labels to the vowel plot.
-
-        data:
-            DataFrame containing formant data.
-        x:
-            The DataFrame column which contains the x-coordinates.
-        y:
-            The DataFrame column which contains the y-coordinates.
-        vowel:
-            The DataFrame column which contains the vowel categories/labels.
-        relabel:
-            A dictionary which maps vowel categories/labels onto
-            alternative strings.
-        where:
-            One of:
-                - ``'all'``: all rows in the DataFrame will be used.
-                - ``'mean'``: The means for each category will be used.
-                - ``'median'``: The medians for each category will be used.
-            If ``'mean'`` or ``'median'``, the ``mapping``
-            parameter needs to specify the `vowel` mapping.
-        """
-        params = dict(
-            x=x or self.params.get('x'),
-            y=y or self.params.get('y'),
-            vowel=vowel or self.params.get('vowel'),
-            color=color or self.params.get('color'),
-            font=font or self.params.get('font'),
-            relabel=(relabel if relabel is not None
-                     else self.params.get('relabel') or {}))
-
-        vowel = params['vowel']
-        df = data if data is not None else self.data
-        x = params['x']
-        y = params['y']
-        if where == 'mean':
-            df = df.groupby(vowel, as_index=True).apply(
-                lambda group_df: group_df[[x, y]].mean(axis=0))
-            df = df.reset_index()
-        elif where == 'median':
-            df = df.groupby(vowel, as_index=True).apply(
-                lambda group_df: group_df[[x, y]].median(axis=0))
-            df = df.reset_index()
-
-        vowels = sorted(df[vowel].unique())
-        color_map = get_color_map(color, vowels)
-        font_map = get_font_map(font, vowels)
-
-        # Remove the matplotlib keys that this method handles.
-        kwargs.pop('fontproperties', None)
-        kwargs.pop('horizontalalignment', None)
-        kwargs.pop('verticalalignment', None)
-
-        grouped = df.groupby(vowel, as_index=False)
-
-        for key, group_df in grouped:
-            color = color_map.get(key)
-            font = font_map.get(key)
-            text = params['relabel'].get(key, key)
-            for xy in zip(group_df[x], group_df[y]):
-                self.axis.text(
-                    xy[0], xy[1],
-                    text,
-                    color=color,
-                    fontproperties=font,
-                    horizontalalignment='center',
-                    verticalalignment='center',
-                    **kwargs)
 
     def ellipses(
             self,
@@ -453,10 +368,11 @@ def get_confidence_ellipse(
 
 
 def df_iterator(df, groups):
+    """Helper function for iterating over DataFrame groups."""
     if groups:
         for group, group_df in df.groupby(groups, as_index=False):
             if not isinstance(group, tuple):
-                group = tuple(group,)
+                group = (group,)
             yield group, group_df
     else:
         yield (), df
@@ -469,11 +385,17 @@ def plot_iterator(df, groups, context):
     style = context.get('style') or {}
     where = context.get('where')
 
-    vary_columns = list(vary_values)
+    vary_columns = list(vary.values())
     groups = context.get('groups', []) or []
     for column in vary_columns:
         if not column in groups:
             groups.append(column)
+
+    style_maps = dict()
+    for prop, column in vary.items():
+        if prop == 'color':
+            categories = list(df[column].unique())
+            style_maps[prop] = get_color_map(style.get(prop), categories)
 
     if where == 'mean':
         df = df.groupby(groups, as_index=True).apply(
@@ -487,5 +409,5 @@ def plot_iterator(df, groups, context):
     for values, group_df in df_iterator(df, groups):
         column_map = {
             column: value for column, value in zip(groups, values)}
-        style_map = get_group_styles(groups, values, vary, style)
+        style_map = get_group_styles(groups, values, vary, style_maps)
         yield group_df[x], group_df[y], column_map, style_map
