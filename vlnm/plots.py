@@ -233,56 +233,34 @@ class VowelPlot(object):
             alternative strings.
         size:
             Size of markers.
+        groups:
         """
 
         context = merge_dicts(
             self.context,
             dict(
+                data=df,
                 x=x, y=y,
-                vowel=vowel,
                 style=style,
                 vary=vary,
                 relabel=relabel),
             ignore=[None])
 
-        vowel = context['vowel']
-        df = data if data is not None else self.data
-        x = context['x']
-        y = context['y']
-        if where == 'mean':
-            df = df.groupby(vowel, as_index=True).apply(
-                lambda group_df: group_df[[x, y]].mean(axis=0))
-            df = df.reset_index()
-        elif where == 'median':
-            df = df.groupby(vowel, as_index=True).apply(
-                lambda group_df: group_df[[x, y]].median(axis=0))
-            df = df.reset_index()
+        iterator = plot_iterator(context['data'], groups, context)
+        for x, y, column_map, style_map in iterator:
 
-        vary_columns = list(context['vary'].values())
-        groups = groups or list(vary_columns)
-        for column in vary_columns:
-            if not column in groups:
-                groups.append(column)
+            color = style_map.get('color')
+            marker = style_map.get('marker')
 
-        vowels = sorted(df[vowel].unique())
-        color_map = get_color_map(context['color'], vowels)
+            kwargs.pop('c', None)
+            kwargs.pop('cmap', None)
+            kwargs.pop('s', None)
 
-        marker_map = get_marker_map(context['marker'] or '.', vowels)
-        grouped = df.groupby(vowel, as_index=False)
-
-        # Remove the matplotlib keys that this method handles.
-        kwargs.pop('c', None)
-        kwargs.pop('cmap', None)
-        kwargs.pop('s', None)
-
-        for key, group_df in grouped:
-            marker = marker_map.get(key, '')
-            color = color_map.get(key)
             if legend:
                 kwargs['label'] = key
+
             self.axis.scatter(
-                group_df[x], group_df[y], s=size, c=[color], marker=marker,
-                **kwargs)
+                x, y, s=size, c=[color], marker=marker, **kwargs)
 
         if legend:
             self.axis.legend()
@@ -474,31 +452,6 @@ def get_confidence_ellipse(
     return np.mean(x), np.mean(y), width, height, angle
 
 
-def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:
-    """Generate a list of colors.
-
-    colors:
-        The source of the color list.
-    levels:
-        The number of levels in the color list.
-    """
-    if isinstance(colors, list):
-        return colors
-    elif isinstance(colors, Colormap):
-        cmap = colors
-        if len(cmap.colors) != levels:
-            cmap = get_cmap(colors.name, lut=levels)
-        return list(cmap.colors)
-    else:
-        try:
-            cmap = get_cmap(colors, lut=levels)
-            if len(cmap.colors) != levels:
-                cmap = get_cmap(cmap.name, lut=levels)
-            return list(cmap.colors)
-        except ValueError:
-            return [colors]
-
-
 def df_iterator(df, groups):
     if groups:
         for group, group_df in df.groupby(groups, as_index=False):
@@ -508,7 +461,19 @@ def df_iterator(df, groups):
     else:
         yield (), df
 
-def plotter(axis, df, x, y, style, vary, where=None, relabel=None, groups=None, **kwargs):
+def plot_iterator(df, groups, context):
+
+    x = context.get('x')
+    y = context.get('y')
+    vary = context.get('vary') or {}
+    style = context.get('style') or {}
+    where = context.get('where')
+
+    vary_columns = list(vary_values)
+    groups = context.get('groups', []) or []
+    for column in vary_columns:
+        if not column in groups:
+            groups.append(column)
 
     if where == 'mean':
         df = df.groupby(groups, as_index=True).apply(
@@ -519,5 +484,8 @@ def plotter(axis, df, x, y, style, vary, where=None, relabel=None, groups=None, 
             lambda group_df: group_df[[x, y]].median(axis=0))
         df = df.reset_index()
 
-    for group, group_df in df_iterator(df, groups):
-
+    for values, group_df in df_iterator(df, groups):
+        column_map = {
+            column: value for column, value in zip(groups, values)}
+        style_map = get_group_styles(groups, values, vary, style)
+        yield group_df[x], group_df[y], column_map, style_map
