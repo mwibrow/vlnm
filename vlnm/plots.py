@@ -129,19 +129,14 @@ class VowelPlot(object):
             data: pd.DataFrame = None,
             x: Union[str, int] = 'f2',
             y: Union[str, int] = 'f1',
-            vowel: Union[str, int] = 'vowel',
-            style: Union[str, Dict[str, any]] = None,
-            vary: Dict[str, str] = None,
             relabel: Dict[str, str] = None,
             replace=False):
         """Set or update the context for the current plot.
 
-        plot(data=df, x='f2', y='f1', vowel='vowel'
-            style=by(color='tab20', marker='.'),
-            vary=by(color='vowel))
+
         """
         plot_context = dict(
-            data=data, x=x, y=y, vowel=vowel, style=style, vary=vary,
+            data=data, x=x, y=y,
             relabel=relabel)
         if replace:
             self.plot_context = plot_context
@@ -186,9 +181,10 @@ class VowelPlot(object):
             data: pd.DataFrame = None,
             x: Union[str, int] = None,
             y: Union[str, int] = None,
-            vowel: Union[str, int] = None,
-            style: Union[str, Dict[str, str]] = None,
-            vary: Dict[str, any] = None,
+            color: Colors = None,
+            color_by: str = None,
+            marker: Markers = None,
+            marker_by: str = None,
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
@@ -234,8 +230,10 @@ class VowelPlot(object):
             dict(
                 data=data,
                 x=x, y=y,
-                style=style,
-                vary=vary,
+                color_by=color_by,
+                color=color,
+                marker_by=marker_by,
+                marker=marker,
                 relabel=relabel))
 
         iterator = plot_iterator(context['data'], groups, context)
@@ -249,15 +247,94 @@ class VowelPlot(object):
             kwargs.pop('cmap', None)
             kwargs.pop('s', None)
 
-            # if legend:
-            #     kwargs['label'] = key
-
             self.axis.scatter(
                 group_x, group_y, s=size, c=[color], marker=marker, **kwargs)
 
-        # if legend:
-        #     self.axis.legend()
+    def labels(
+            self,
+            data: pd.DataFrame = None,
+            x: Union[str, int] = None,
+            y: Union[str, int] = None,
+            color: Colors = None,
+            color_by: str = None,
+            label: Markers = None,
+            label_by: str = None,
+            relabel: Dict[str, str] = None,
+            #
+            where: str = 'all',
+            legend: bool = False,
+            size: float = None,
+            groups: List[str] = None,
+            **kwargs):
+        """Add markers to the vowel plot.
 
+        Parameters
+        ----------
+
+        data:
+            DataFrame containing the formant data.
+        x:
+            The DataFrame column which contains the x-coordinates.
+        y:
+            The DataFrame column which contains the y-coordinates.
+        vowel:
+            The DataFrame column which contains the vowel categories/labels.
+        where:
+            One of:
+                - ``'all'``: all rows in the DataFrame will be used.
+                - ``'mean'``: The means for each category will be used.
+                - ``'median'``: The medians for each category will be used.
+            If ``'mean'`` or ``'median'``, the ``mapping``
+            parameter needs to specify the `vowel` mapping.
+        legend:
+            Whether to add the markers to the legend.
+            Will be ignored if labels are used as markers.
+        style:
+            Plot style to use.
+        relabel:
+            A dictionary which maps vowel categories/labels onto
+            alternative strings.
+        size:
+            Size of markers.
+        groups:
+        """
+
+        context = merge_dicts(
+            self.plot_context,
+            dict(
+                data=data,
+                x=x, y=y,
+                color_by=color_by,
+                color=color,
+                label_by=label_by,
+                where=where,
+                relabel=relabel))
+
+        relabel = context.get('relabel') or {}
+        iterator = plot_iterator(context['data'], groups, context)
+        for group_x, group_y, value_map, style_map in iterator:
+            color = style_map.get('color')
+            if color is None:
+                color = 'black'
+
+            label_by = context.get('label_by')
+            label = value_map[label_by]
+            if label in relabel:
+                label = relabel[label]
+
+            kwargs.pop('c', None)
+            kwargs.pop('cmap', None)
+            kwargs.pop('s', None)
+
+            kwargs['horizontalalignment'] = kwargs.get(
+                'horizontalalignment', 'center')
+            kwargs['verticalalignment'] = kwargs.get(
+                'verticalalalignment', 'center')
+            size = size or kwargs['fontsize']
+            kwargs['fontsize'] = size
+
+            for text_x, text_y in zip(group_x, group_y):
+                self.axis.text(text_x, text_y, label, color=color, **kwargs)
 
     def ellipses(
             self,
@@ -378,21 +455,29 @@ def df_iterator(df, groups):
         yield (), df
 
 def plot_iterator(df, groups, context):
-
+    """Helper function to iterate over data groups."""
     x = context.get('x')
     y = context.get('y')
-    vary = context.get('vary') or {}
-    style = context.get('style') or {}
+    vary_by = {}
+    style = {}
+
+    for key in context:
+        if key.endswith('_by'):
+            prop = key[:-3]
+            vary_by[prop] = context[key]
+            if prop in context:
+                style[prop] = context[prop]
+
     where = context.get('where')
 
-    vary_columns = list(vary.values())
+    vary_columns = list(vary_by.values())
     groups = context.get('groups', []) or []
     for column in vary_columns:
         if not column in groups:
             groups.append(column)
 
     style_maps = dict()
-    for prop, column in vary.items():
+    for prop, column in vary_by.items():
         if prop == 'color':
             categories = list(df[column].unique())
             style_maps[prop] = get_color_map(style.get(prop), categories)
@@ -409,5 +494,5 @@ def plot_iterator(df, groups, context):
     for values, group_df in df_iterator(df, groups):
         column_map = {
             column: value for column, value in zip(groups, values)}
-        style_map = get_group_styles(groups, values, vary, style_maps)
+        style_map = get_group_styles(groups, values, vary_by, style_maps)
         yield group_df[x], group_df[y], column_map, style_map
