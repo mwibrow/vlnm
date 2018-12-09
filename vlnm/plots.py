@@ -337,9 +337,12 @@ class VowelPlot(object):
             data: pd.DataFrame = None,
             x: str = None,
             y: str = None,
-            vowel: str = None,
-            color: Union[Color, Colors] = None,
+            color: Colors = None,
+            color_by: str = None,
+            line: Lines = None,
+            line_by: str = None,
             confidence: float = 0.95,
+            groups: List[str] = None,
             **kwargs):
         """Add confidence-interval-based ellipsed around formant data.
 
@@ -375,26 +378,33 @@ class VowelPlot(object):
         .. _Ellipse: https://matplotlib.org/api/_as_gen/matplotlib.patches.Ellipse.html
         __ Ellipse _
         """
-        params = dict(
-            x=x or self.params.get('x'),
-            y=y or self.params.get('y'),
-            vowel=vowel or self.params.get('vowel'),
-            color=color or self.params.get('color'))
+        context = merge_dicts(
+            self.plot_context,
+            dict(
+                data=data,
+                x=x, y=y,
+                color_by=color_by,
+                color=color,
+                line=line,
+                line_by=line_by))
 
-        df = data or self.data
-        x = params['x']
-        y = params['y']
-        vowel = params['vowel']
-
-        grouped = df.groupby(vowel, as_index=False)
-        for _, group_df in grouped:
+        iterator = plot_iterator(context['data'], groups, context)
+        for group_x, group_y, _, style_map in iterator:
             center_x, center_y, width, height, angle = get_confidence_ellipse(
-                group_df[x], group_df[y], confidence)
+                group_x, group_y, confidence)
+
+            color = style_map.get('color')
+            if color is None:
+                color = 'black'
+            line = style_map.get('line')
+
             ellipse = mpatches.Ellipse(
                 xy=(center_x, center_y),
                 width=width,
                 height=height,
                 angle=angle,
+                color=color,
+                linestyle=line,
                 **kwargs)
             self.axis.add_artist(ellipse)
 
@@ -404,6 +414,7 @@ class VowelPlot(object):
         if hasattr(PYPLOT, attr):
             return getattr(PYPLOT, attr)
         return object.__getattribute__(self, attr)
+
 
 def get_confidence_ellipse(
         x: List[float],
