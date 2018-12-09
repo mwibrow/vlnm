@@ -322,10 +322,6 @@ class VowelPlot(object):
             if label in relabel:
                 label = relabel[label]
 
-            kwargs.pop('c', None)
-            kwargs.pop('cmap', None)
-            kwargs.pop('s', None)
-
             kwargs['horizontalalignment'] = kwargs.get(
                 'horizontalalignment', 'center')
             kwargs['verticalalignment'] = kwargs.get(
