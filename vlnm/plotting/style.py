@@ -12,17 +12,20 @@ in _categorical_ data (e.g., vowel category, reported gender, or particiant id).
 from typing import Any, Dict, List, Tuple, Union
 
 import matplotlib.colors
+
 from matplotlib.cm import get_cmap
 from matplotlib import Path
-
+from matplotlib.font_manager import FontProperties
 # pylint: disable=C0103
 Color = Union[str, Tuple[float, float, float, float]]
 Colormap = Dict[any, Color]
 Colors = Union[List[Color], matplotlib.colors.ListedColormap]
 Line = Union[str, List[int]]
-Lines = List[Line]
+Lines = Union[Dict[str, Line], List[Line]]
 Marker = Union[str, Tuple[int, int, int], List[Tuple[float, float]], Path]
 Markers = List[Marker]
+Font = Union[str, FontProperties]
+Fonts = Union[Dict[str, Font], List[Font]]
 
 STYLES = dict(
     default=dict(

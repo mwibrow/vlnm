@@ -23,6 +23,7 @@ import scipy.stats as st
 
 from vlnm.plotting.style import (
     Color, Colors,
+    Font,
     Line, Lines,
     Marker, Markers,
     get_color_map,
@@ -188,7 +189,6 @@ class VowelPlot(object):
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
-            legend: bool = False,
             size: float = None,
             groups: List[str] = None,
             **kwargs):
@@ -203,8 +203,16 @@ class VowelPlot(object):
             The DataFrame column which contains the x-coordinates.
         y:
             The DataFrame column which contains the y-coordinates.
-        vowel:
-            The DataFrame column which contains the vowel categories/labels.
+        color_by:
+            The DataFrame column whose categories will be used to
+            color the markers.
+        color:
+            The color(s) to be used for different categories.
+        marker_by:
+            The DataFrame column whose categories will be used to
+            set the marker shape.
+        marker:
+            The marker(s) to be used for different categories.
         where:
             One of:
                 - ``'all'``: all rows in the DataFrame will be used.
@@ -212,17 +220,13 @@ class VowelPlot(object):
                 - ``'median'``: The medians for each category will be used.
             If ``'mean'`` or ``'median'``, the ``mapping``
             parameter needs to specify the `vowel` mapping.
-        legend:
-            Whether to add the markers to the legend.
-            Will be ignored if labels are used as markers.
-        style:
-            Plot style to use.
         relabel:
             A dictionary which maps vowel categories/labels onto
             alternative strings.
         size:
             Size of markers.
         groups:
+            Explicitly state the order of grouping.
         """
 
         context = merge_dicts(
@@ -234,6 +238,7 @@ class VowelPlot(object):
                 color=color,
                 marker_by=marker_by,
                 marker=marker,
+                where=where,
                 relabel=relabel))
 
         iterator = plot_iterator(context['data'], groups, context)
@@ -257,12 +262,11 @@ class VowelPlot(object):
             y: Union[str, int] = None,
             color: Colors = None,
             color_by: str = None,
-            label: Markers = None,
             label_by: str = None,
+            font: Font = None,
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
-            legend: bool = False,
             size: float = None,
             groups: List[str] = None,
             **kwargs):
