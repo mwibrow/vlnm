@@ -78,6 +78,19 @@ def get_group_styles(
             pass
     return style
 
+def get_color_cycle(colors: Colors) -> List[Color]:
+    """Generate a color cycle.
+    """
+    if isinstance(colors, (list, dict)):
+        return colors
+    elif isinstance(colors, matplotlib.colors.Colormap):
+        return list(colors.colors)
+    else:
+        try:
+            return list(get_cmap(colors).colors)
+        except ValueError:
+            return [colors]
+
 def get_color_list(colors: Colors, levels: int = 1) -> List[Color]:
     """Generate a list of colors.
 
@@ -162,6 +175,13 @@ def get_marker_map(
     for i, category in enumerate(categories):
         marker_map[category] = marker_list[i % len(marker_list)]
     return marker_map
+
+def get_marker_cycle(markers):
+    """Create a marker cycle."""
+    if isinstance(markers, (dict, list)):
+        return markers
+    return [markers]
+
 
 def get_line_map(
         lines: Lines, categories: List[str]) -> Dict[str, Line]:

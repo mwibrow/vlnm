@@ -9,26 +9,28 @@ the |matplotlib| library, and advanced customation of vowel
 plots will require familiarity with |matplotlib|.
 """
 
+from collections import OrderedDict
 from typing import Dict, List, Tuple, Union
+import types
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib import Path
-from matplotlib.font_manager import FontProperties
+from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
+from matplotlib.legend_handler import HandlerPatch
+import matplotlib.text as mtext
 import matplotlib.pyplot as PYPLOT
 import pandas as pd
 import numpy as np
 import scipy.stats as st
 
 from vlnm.plotting.style import (
-    Color, Colors,
-    Font,
-    Line, Lines,
-    Marker, Markers,
+    Colors,
+    Lines,
+    Markers,
     get_color_map,
-    get_marker_map,
-    get_line_map,
+    get_color_cycle,
+    get_marker_cycle,
     get_group_styles)
 
 # pylint: disable=C0103
@@ -48,10 +50,6 @@ FIGURE_KWARGS = dict(
 def _create_figure(*args, **kwargs):
     return PYPLOT.figure(*args, **kwargs)
 
-def by(**kwargs):
-    """Syntactic sugar function for creating dictionarys."""
-    return dict(**kwargs)
-
 def merge_dicts(*dicts):
     if not dicts:
         return {}
@@ -64,52 +62,14 @@ def merge_dicts(*dicts):
 
 class VowelPlot(object):
     """Class for managing vowel plots.
-
-    Parameters
-    ----------
-    data:
-        DataFrame containing the formant data.
-    x:
-        The DataFrame column which contains the x-coordinates.
-    y:
-        The DataFrame column which contains the y-coordinates.
-    vowel:
-        The DataFrame column which contains the vowel categories/labels.
-    relabel:
-        A dictionary which maps vowel categories/labels onto
-        alternative strings.
-    color:
-        Colors to be used for each vowel category.
-        This will be converted into a list of colors
-        where will be recycled if there are more vowels
-        than colors.
-    marker:
-        Marks to be used for each vowel category.
-        This will be converted into a list of marks
-        where will be recycled if there are more vowels
-        than marks.
-    width:
-        Width of the figure in inches.
-    height:
-        Height of the figure in inches.
-    rows:
-        Number of rows in the figure (for subplots).
-    columns:
-        Number of columns in the figure (for subplots).
-
-    Other Parameters
-    ----------------
-    Other parmaeters are passed to the constructor of
-    :py:class:`matplotlib.figure.Figure`.
-
     """
 
     def __init__(
             self,
-            width: str = 4,
-            height: str = 4,
-            rows: str = 1,
-            columns: str = 1,
+            width: float = 4,
+            height: float = 4,
+            rows: int = 1,
+            columns: int = 1,
             figure: Figure = None,
             context: dict = None,
             **kwargs):
@@ -121,6 +81,7 @@ class VowelPlot(object):
 
         self.plot_context = context or {}
         self.axis = None
+        self.legends = {}
 
     def __call__(self, **kwargs):
         return self.set_context(**kwargs)
@@ -182,235 +143,284 @@ class VowelPlot(object):
             data: pd.DataFrame = None,
             x: Union[str, int] = None,
             y: Union[str, int] = None,
-            color: Colors = None,
-            color_by: str = None,
-            marker: Markers = None,
-            marker_by: str = None,
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
-            size: float = None,
-            groups: List[str] = None,
+            legend: str = '',
+            legend_only: bool = False,
             **kwargs):
         """Add markers to the vowel plot.
 
-        Parameters
-        ----------
-
-        data:
-            DataFrame containing the formant data.
-        x:
-            The DataFrame column which contains the x-coordinates.
-        y:
-            The DataFrame column which contains the y-coordinates.
-        color_by:
-            The DataFrame column whose categories will be used to
-            color the markers.
-        color:
-            The color(s) to be used for different categories.
-        marker_by:
-            The DataFrame column whose categories will be used to
-            set the marker shape.
-        marker:
-            The marker(s) to be used for different categories.
-        where:
-            One of:
-                - ``'all'``: all rows in the DataFrame will be used.
-                - ``'mean'``: The means for each category will be used.
-                - ``'median'``: The medians for each category will be used.
-            If ``'mean'`` or ``'median'``, the ``mapping``
-            parameter needs to specify the `vowel` mapping.
-        relabel:
-            A dictionary which maps vowel categories/labels onto
-            alternative strings.
-        size:
-            Size of markers.
-        groups:
-            Explicitly state the order of grouping.
         """
+        if legend_only:
+            legend = legend_only
 
+        context, kwargs = get_context_kwargs(
+            kwargs, keys=['axis', 'legend_artist'])
         context = merge_dicts(
             self.plot_context,
             dict(
-                data=data,
-                x=x, y=y,
-                color_by=color_by,
-                color=color,
-                marker_by=marker_by,
-                marker=marker,
-                where=where,
-                relabel=relabel))
+                data=data, x=x, y=y,
+                where=where, relabel=relabel,
+                kwargs=kwargs,
+                defaults=dict(
+                    marker='.',
+                    edgecolor='none',
+                    facecolor='black'
+                )
+            ),
+            context)
 
-        iterator = plot_iterator(context['data'], groups, context)
-        for group_x, group_y, _, style_map in iterator:
-            color = style_map.get('color')
-            if color is None:
-                color = 'black'
-            marker = style_map.get('marker') or '.'
+        iterator = self._group_iterator(context)
 
-            kwargs.pop('c', None)
-            kwargs.pop('cmap', None)
-            kwargs.pop('s', None)
+        mpl_props = {
+            'color': ['edgecolor', 'facecolor'],
+            'edgecolor': 'markeredgecolor',
+            'facecolor': 'markerfacecolor',
+            'size': 'markersize',
+            'linewidth': 'markeredgewidth'
+        }
+        for axis, group_df, props, group_props in iterator:
+            group_x = group_df[context['x']]
+            group_y = group_df[context['y']]
 
-            self.axis.scatter(
-                group_x, group_y, s=size, c=[color], marker=marker, **kwargs)
+
+            props = translate_props(props, mpl_props)
+
+            props.update(linestyle='', drawstyle=None)
+            axis.plot(group_x, group_y, **props)
+
+            if legend:
+                def _artist(**props):
+                    props = translate_props(props, mpl_props)
+                    return Line2D(
+                        [0], [0], linestyle='', drawstyle=None, **props)
+
+                self._update_legend(legend, group_props, _artist)
+
+
+    def _update_legend(self, legend_id, group_props, artist):
+        legend = self.legends.get(legend_id, {})
+        for group in group_props:
+            legend[group] = legend.get(group, OrderedDict())
+            for label in group_props[group]:
+                legend[group][label] = artist(**group_props[group][label])
+        self.legends[legend_id] = legend
+
+    def legend(self, legend_id=None, **kwargs):
+        """Add a legend to the current axis.
+        """
+        legend_ids = list(self.legends.keys())
+        legend_id = legend_id or legend_ids[0]
+        legend = self.legends[legend_id]
+
+        if 'handler_map' not in kwargs:
+            kwargs['handler_map'] = {
+                mpatches.Ellipse: _HandlerEllipse()
+            }
+
+        for group in legend:
+            handles = list(legend[group].values())
+            labels = list(legend[group].keys())
+            legend_artist = PYPLOT.legend(
+                handles=handles,
+                labels=labels,
+                title=group,
+                **kwargs)
+            self.axis.add_artist(legend_artist)
 
     def labels(
             self,
             data: pd.DataFrame = None,
             x: Union[str, int] = None,
             y: Union[str, int] = None,
-            color: Colors = None,
-            color_by: str = None,
-            label_by: str = None,
-            font: Font = None,
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
             size: float = None,
             groups: List[str] = None,
             **kwargs):
-        """Add markers to the vowel plot.
+        """Add labels to the vowel plot.
 
-        Parameters
-        ----------
-
-        data:
-            DataFrame containing the formant data.
-        x:
-            The DataFrame column which contains the x-coordinates.
-        y:
-            The DataFrame column which contains the y-coordinates.
-        vowel:
-            The DataFrame column which contains the vowel categories/labels.
-        where:
-            One of:
-                - ``'all'``: all rows in the DataFrame will be used.
-                - ``'mean'``: The means for each category will be used.
-                - ``'median'``: The medians for each category will be used.
-            If ``'mean'`` or ``'median'``, the ``mapping``
-            parameter needs to specify the `vowel` mapping.
-        legend:
-            Whether to add the markers to the legend.
-            Will be ignored if labels are used as markers.
-        style:
-            Plot style to use.
-        relabel:
-            A dictionary which maps vowel categories/labels onto
-            alternative strings.
-        size:
-            Size of markers.
-        groups:
         """
 
+        context, kwargs = get_context_kwargs(kwargs, keys=None)
         context = merge_dicts(
             self.plot_context,
             dict(
-                data=data,
-                x=x, y=y,
-                color_by=color_by,
-                color=color,
-                label_by=label_by,
-                where=where,
-                relabel=relabel))
+                data=data, x=x, y=y,
+                where=where, relabel=relabel,
+                kwargs=kwargs,
+                defaults=dict(
+                    color='black',
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                )
+            ),
+            context)
+
+        if 'label' not in context:
+            context['label'] = list(
+                context['data'][context['label_by']].unique())
 
         relabel = context.get('relabel') or {}
-        iterator = plot_iterator(context['data'], groups, context)
-        for group_x, group_y, value_map, style_map in iterator:
-            color = style_map.get('color')
-            if color is None:
-                color = 'black'
 
-            label_by = context.get('label_by')
-            label = value_map[label_by]
-            if label in relabel:
-                label = relabel[label]
+        iterator = self._group_iterator(context)
 
-            kwargs['horizontalalignment'] = kwargs.get(
-                'horizontalalignment', 'center')
-            kwargs['verticalalignment'] = kwargs.get(
-                'verticalalalignment', 'center')
-            size = size or kwargs['fontsize']
-            kwargs['fontsize'] = size
+        min_x = min_y = np.inf
+        max_x = max_y = -np.inf
+        for axis, group_df, props in iterator:
+            group_x = group_df[context['x']]
+            group_y = group_df[context['y']]
+            props = translate_props(
+                props,
+                {
+                    'size': 'fontsize',
+                    'label': 'text'
+                })
 
+            props['text'] = relabel.get(props['text'], props['text'])
             for text_x, text_y in zip(group_x, group_y):
-                self.axis.text(text_x, text_y, label, color=color, **kwargs)
+                text = mtext.Text(x=text_x, y=text_y, **props)
+                axis.add_artist(text)
+
+            # Text artist does not update the bounding box :(
+            min_x = np.min([min_x, group_x])
+            min_y = np.min([min_y, group_y])
+            max_x = np.max([max_x, group_x])
+            max_y = np.max([max_y, group_y])
+
+
+            # Update the axis.
+            rect = mpatches.Rectangle(
+                (min_x, min_y),
+                width=max_x - min_x,
+                height=max_y - min_y,
+                angle=0,
+                fill=False,
+                facecolor='none',
+                edgecolor='none')
+            axis.add_patch(rect)
+            axis.relim()
+            axis.autoscale_view()
+
+
+    def polyline(
+            self,
+            vertex: Union[str, int],
+            vertices: List[str],
+            closed: bool = True,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            legend: Union[str, bool] = False,
+            legend_only: Union[str, bool] = False,
+            **kwargs):
+
+        context, kwargs = get_context_kwargs(kwargs, keys=None)
+        context = merge_dicts(
+            self.plot_context,
+            dict(
+                data=data, x=x, y=y,
+                kwargs=kwargs,
+                defaults=dict(
+                    color='black',
+                    line='-',
+                    closed=closed
+                )
+            ),
+            context)
+
+        if legend_only:
+            legend = legend_only
+
+        iterator = self._group_iterator(context)
+
+        for axis, group_df, props in iterator:
+
+            props = translate_props(
+                props,
+                {
+                    'color': 'edgecolor',
+                })
+
+            xy = []
+            for vert in enumerate(vertices):
+                i = group_df[vertex] == vert
+                group_x = group_df[i, context['x']].mean()
+                group_y = group_df[i, context['y']].mean()
+                xy.append((group_x, group_y))
+
+            polygon = mpatches.Polygon(
+                xy=xy,
+                **props)
+            axis.add_patch(polygon)
+
+            axis.relim()
+            axis.autoscale_view()
 
     def ellipses(
             self,
             data: pd.DataFrame = None,
             x: str = None,
             y: str = None,
-            color: Colors = None,
-            color_by: str = None,
-            line: Lines = None,
-            line_by: str = None,
             confidence: float = 0.95,
-            groups: List[str] = None,
+            legend: str = '',
             **kwargs):
         """Add confidence-interval-based ellipsed around formant data.
 
-        Parameters
-        ----------
-        data:
-            The DataFrame containing the formant data.
-        x:
-            The DataFrame column containing the x-coordinates of the data.
-        y:
-            The DataFrame column containing the y-coordinates of the data.
-        vowel:
-            The DataFrame column containing the vowel categories/labels.
-        include:
-            Labels of vowel labels to include in the plot.
-            If not given, all vowels will be used.
-        exclude:
-            Vowel labels to exclude from the plot.
-        colors:
-
-        confidence:
-            Confidence level (under the assumption that the data
-            is normally distributed) to calculate the
-            the percentile from the Chi-squared distribution.
-            Values shoule be in the range :math:`0` to :math:`1`.
-
-        Other parameters
-        ----------------
-            All other parameters are passed on to the constructor
-            of the :class:`matplotlib.patches.Ellipse` constructor
-            See the documentation for the `Ellipse class`__.
-
-        .. _Ellipse: https://matplotlib.org/api/_as_gen/matplotlib.patches.Ellipse.html
-        __ Ellipse _
         """
+        context, kwargs = get_context_kwargs(kwargs, keys=None)
         context = merge_dicts(
             self.plot_context,
             dict(
-                data=data,
-                x=x, y=y,
-                color_by=color_by,
-                color=color,
-                line=line,
-                line_by=line_by))
+                data=data, x=x, y=y,
+                kwargs=kwargs,
+                defaults=dict(
+                    facecolor='none',
+                    edgecolor='black',
+                    linestyle='-',
+                )
+            ),
+            context)
 
-        iterator = plot_iterator(context['data'], groups, context)
-        for group_x, group_y, _, style_map in iterator:
+        iterator = self._group_iterator(context)
+
+        mpl_props = {
+            'color': ['edgecolor', 'facecolor'],
+            'line': 'linestyle'
+        }
+        for axis, group_df, props, group_props in iterator:
+
+            props = translate_props(props, mpl_props)
+
+            group_x = group_df[context['x']]
+            group_y = group_df[context['y']]
             center_x, center_y, width, height, angle = get_confidence_ellipse(
                 group_x, group_y, confidence)
-
-            color = style_map.get('color')
-            if color is None:
-                color = 'black'
-            line = style_map.get('line')
 
             ellipse = mpatches.Ellipse(
                 xy=(center_x, center_y),
                 width=width,
                 height=height,
                 angle=angle,
-                color=color,
-                linestyle=line,
-                **kwargs)
-            self.axis.add_artist(ellipse)
+                **props)
+            axis.add_patch(ellipse)
+            axis.relim()
+            axis.autoscale_view()
+
+            if legend:
+                def _artist(**props):
+                    props = translate_props(props, mpl_props)
+                    return mpatches.Ellipse(
+                        xy=(0.5, 0.5),
+                        width=1,
+                        height=0.625,
+                        angle=0,
+                        **props)
+
+                self._update_legend(legend, group_props, _artist)
+
 
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
@@ -419,6 +429,101 @@ class VowelPlot(object):
             return getattr(PYPLOT, attr)
         return object.__getattribute__(self, attr)
 
+
+    def _group_iterator(self, context):
+        df = context['data']
+
+        props_by = {}
+        prop_mappers = {}
+        groups = []
+        index_mappings = {}
+
+        for key, group in context.items():
+            if key.endswith('_by'):
+                prop = key[:-3]
+                props_by[group] = props_by.get(group, []) + [prop]
+                prop_mappers[prop] = self._get_prop_mapper(prop, context.get(prop))
+                if group not in groups:
+                    groups.append(group)
+                    index_mappings[group] = {}
+                    for i, unique in enumerate(df[group].unique()):
+                        index_mappings[group][unique] = i
+
+        df = _aggregate_df(
+            df,
+            groups=groups,
+            columns=[context.get('x'), context.get('y')],
+            where=context.get('where'))
+
+        df_iteration = df_iterator(df, groups)
+        for value_map, group_df in df_iteration:
+
+            props = context.get('defaults', {}).copy()
+            group_props = {}
+            for group in groups:
+                value = value_map[group]
+                index = index_mappings[group][value]
+                group_props[group] = group_props.get(value, {})
+                group_props[group][value] = context.get('defaults', {}).copy()
+                for prop in props_by[group]:
+                    mapper = prop_mappers[prop]
+                    index = index_mappings[group][value]
+                    mapped_props = get_mapped_props(prop, mapper, value, index)
+                    group_props[group][value].update(**mapped_props)
+                    props.update(**mapped_props)
+                group_props[group][value].update(**context.get('kwargs', {}))
+
+            axis = props.pop('axis', self.axis)
+            props.update(**context.get('kwargs', {}))
+            yield axis, group_df, props, group_props
+
+    def _get_prop_mapper(self, prop, values):
+        if prop == 'plot':
+            def _mapper(_, index):
+                return dict(axis=self.subplot(index=index))
+            return _mapper
+        if 'color' in prop:
+            return get_color_cycle(values)
+        if isinstance(values, (dict, list, types.FunctionType)):
+            return values
+        return [values]
+
+def _aggregate_df(df, groups=None, columns=None, where=None):
+    if groups and columns and where:
+        if where == 'mean':
+            df = df.groupby(groups, as_index=True).apply(
+                lambda group_df: group_df[columns].mean(axis=0))
+            df = df.reset_index()
+        elif where == 'median':
+            df = df.groupby(groups, as_index=True).apply(
+                lambda group_df: group_df[columns].median(axis=0))
+            df = df.reset_index()
+    return df
+
+class _HandlerEllipse(HandlerPatch):
+    def create_artists(
+            self, legend, orig_handle,
+            xdescent, ydescent, width, height, fontsize, transform):
+        center = (width - xdescent) / 2, (height - ydescent) / 2
+        patch = mpatches.Ellipse(
+            xy=center, width=(width + xdescent),
+            height=height + ydescent)
+        self.update_prop(patch, orig_handle, legend)
+        patch.set_transform(transform)
+        return [patch]
+
+
+def get_mapped_props(prop, mapper, value, index):
+    try:
+        mapped_value = mapper(value, index)
+    except TypeError:
+        try:
+            mapped_value = mapper[value]
+        except TypeError:
+            mapped_value = mapper[index % len(mapper)]
+    if isinstance(mapped_value, dict):
+        return mapped_value
+    return {prop: mapped_value}
 
 def get_confidence_ellipse(
         x: List[float],
@@ -458,52 +563,63 @@ def get_confidence_ellipse(
 def df_iterator(df, groups):
     """Helper function for iterating over DataFrame groups."""
     if groups:
-        for group, group_df in df.groupby(groups, as_index=False):
-            if not isinstance(group, tuple):
-                group = (group,)
-            yield group, group_df
+        for values, group_df in df.groupby(groups, as_index=False):
+            if not isinstance(values, tuple):
+                values = (values,)
+            value_map = {group: value for group, value in zip(groups, values)}
+            yield value_map, group_df
     else:
-        yield (), df
+        yield {}, df
 
-def plot_iterator(df, groups, context):
-    """Helper function to iterate over data groups."""
-    x = context.get('x')
-    y = context.get('y')
-    vary_by = {}
-    style = {}
+def make_legend_entries(legend, specs, defaults):
+    entries = {}
+    for spec in specs:
+        group = spec['group']
+        label = spec['label']
+        props = spec['props']
+        artist = spec['artist']
 
-    for key in context:
-        if key.endswith('_by'):
+        if group in legend and label in legend[group]:
+            continue
+        if group in entries:
+            entries[group][label]['props'].update(props)
+        else:
+            entries[group] = OrderedDict()
+            entries[group][label] = dict(props=defaults, artist=artist)
+            entries[group][label]['props'].update(**props)
+
+    for group in entries:
+        for label in entries[group]:
+            props = entries[group][label].pop('props')
+            artist = entries[group][label].pop('artist')
+            entries[group][label] = artist(**props)
+    return entries
+
+def get_context_kwargs(kwargs, keys=None):
+    context = {}
+    keys = set(keys or [])
+    for key, value in kwargs.items():
+        if key in keys:
+            context[keys] = value
+        elif key.endswith('_by'):
+            context[key] = value
             prop = key[:-3]
-            vary_by[prop] = context[key]
-            if prop in context:
-                style[prop] = context[prop]
+            context[prop] = kwargs.get(prop)
+    rest = {key: value for key, value in kwargs.items() if key not in context}
+    return context, rest
 
-    where = context.get('where')
+def translate_props(props, prop_translator):
+    renamed_props = {}
+    for prop, value in props.items():
+        if prop in prop_translator:
+            names = prop_translator[prop]
+            if names is None:
+                continue
+            names = names if isinstance(names, list) else [names]
+            for name in names:
+                renamed_props.update(
+                    **translate_props({name: value}, prop_translator))
+        else:
+            renamed_props[prop] = value
+    return renamed_props
 
-    vary_columns = list(vary_by.values())
-    groups = context.get('groups', []) or []
-    for column in vary_columns:
-        if not column in groups:
-            groups.append(column)
-
-    style_maps = dict()
-    for prop, column in vary_by.items():
-        if prop == 'color':
-            categories = list(df[column].unique())
-            style_maps[prop] = get_color_map(style.get(prop), categories)
-
-    if where == 'mean':
-        df = df.groupby(groups, as_index=True).apply(
-            lambda group_df: group_df[[x, y]].mean(axis=0))
-        df = df.reset_index()
-    elif where == 'median':
-        df = df.groupby(groups, as_index=True).apply(
-            lambda group_df: group_df[[x, y]].median(axis=0))
-        df = df.reset_index()
-
-    for values, group_df in df_iterator(df, groups):
-        column_map = {
-            column: value for column, value in zip(groups, values)}
-        style_map = get_group_styles(groups, values, vary_by, style_maps)
-        yield group_df[x], group_df[y], column_map, style_map
