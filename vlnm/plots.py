@@ -19,36 +19,16 @@ from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
 import matplotlib.text as mtext
-import matplotlib.pyplot as PYPLOT
+import matplotlib.pyplot as pyplot
 import pandas as pd
 import numpy as np
 import scipy.stats as st
 
-from vlnm.plotting.style import (
-    Colors,
-    Lines,
-    Markers,
-    get_color_map,
-    get_color_cycle,
-    get_marker_cycle,
-    get_group_styles)
+from vlnm.plotting.style import get_color_cycle
 
-# pylint: disable=C0103
-Style = Union[str, Dict[str, any]]
-Vary = Dict[str, str]
-
-FIGURE_KWARGS = dict(
-    num=None,
-    figsize=None,
-    dpi=None,
-    facecolor=None,
-    edgecolor=None,
-    frameon=True,
-    FigureClass=Figure,
-    clear=False)
 
 def _create_figure(*args, **kwargs):
-    return PYPLOT.figure(*args, **kwargs)
+    return pyplot.figure(*args, **kwargs)
 
 def merge_dicts(*dicts):
     if not dicts:
@@ -59,6 +39,18 @@ def merge_dicts(*dicts):
             key: value for key, value in dct.items()
             if value is not None})
     return merged
+
+__VOWEL_PLOT__ = None
+
+def get_plot():
+    """Get the current plot instance."""
+    global __VOWEL_PLOT__  # pylint: disable=global-statement
+    return __VOWEL_PLOT__
+
+def set_plot(plot):
+    """Set the current plot."""
+    global __VOWEL_PLOT__  # pylint: disable=global-statement
+    __VOWEL_PLOT__ = plot
 
 class VowelPlot(object):
     """Class for managing vowel plots.
@@ -82,6 +74,8 @@ class VowelPlot(object):
         self.plot_context = context or {}
         self.axis = None
         self.legends = {}
+
+        set_plot(self)
 
     def __call__(self, **kwargs):
         return self.set_context(**kwargs)
@@ -222,7 +216,7 @@ class VowelPlot(object):
         for group in legend:
             handles = list(legend[group].values())
             labels = list(legend[group].keys())
-            legend_artist = PYPLOT.legend(
+            legend_artist = pyplot.legend(
                 handles=handles,
                 labels=labels,
                 title=group,
@@ -237,8 +231,6 @@ class VowelPlot(object):
             relabel: Dict[str, str] = None,
             #
             where: str = 'all',
-            size: float = None,
-            groups: List[str] = None,
             **kwargs):
         """Add labels to the vowel plot.
 
@@ -336,13 +328,13 @@ class VowelPlot(object):
 
         iterator = self._group_iterator(context)
 
-        for axis, group_df, props in iterator:
+        mpl_props = {
+            'color': 'edgecolor',
+            'line': 'linestyle'
+        }
+        for axis, group_df, props, group_props in iterator:
 
-            props = translate_props(
-                props,
-                {
-                    'color': 'edgecolor',
-                })
+            props = translate_props(props, mpl_props)
 
             xy = []
             for vert in enumerate(vertices):
@@ -358,6 +350,15 @@ class VowelPlot(object):
 
             axis.relim()
             axis.autoscale_view()
+
+            if legend:
+                def _artist(**props):
+                    props = translate_props(props, mpl_props)
+                    return mpatches.Polygon(
+                        xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
+                        **props)
+
+                self._update_legend(legend, group_props, _artist)
 
     def ellipses(
             self,
@@ -425,8 +426,8 @@ class VowelPlot(object):
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
             return getattr(self.axis, attr)
-        if hasattr(PYPLOT, attr):
-            return getattr(PYPLOT, attr)
+        if hasattr(pyplot, attr):
+            return getattr(pyplot, attr)
         return object.__getattribute__(self, attr)
 
 
@@ -622,4 +623,3 @@ def translate_props(props, prop_translator):
         else:
             renamed_props[prop] = value
     return renamed_props
-
