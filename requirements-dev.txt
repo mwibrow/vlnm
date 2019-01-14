@@ -1,8 +1,7 @@
-astroid==1.6.1
 autopep8==1.4
 latexcodec==1.0.5
 nox==2018.9.14
-pylint==1.9.2
+pylint==2.0.1
 pytest-cov==2.6.0
 pytest==3.8.0
 sphinx-autobuild==0.7.1

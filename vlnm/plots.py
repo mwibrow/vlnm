@@ -1,5 +1,4 @@
 """
-
 This module provides some convenience functions
 for producing the more common vowel plots found in the literature.
 
@@ -19,7 +18,7 @@ from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
 import matplotlib.text as mtext
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy.stats as st
@@ -28,7 +27,7 @@ from vlnm.plotting.style import get_color_cycle
 
 
 def _create_figure(*args, **kwargs):
-    return pyplot.figure(*args, **kwargs)
+    return plt.figure(*args, **kwargs)
 
 def merge_dicts(*dicts):
     if not dicts:
@@ -216,7 +215,7 @@ class VowelPlot(object):
         for group in legend:
             handles = list(legend[group].values())
             labels = list(legend[group].keys())
-            legend_artist = pyplot.legend(
+            legend_artist = plt.legend(
                 handles=handles,
                 labels=labels,
                 title=group,
@@ -301,7 +300,9 @@ class VowelPlot(object):
             self,
             vertex: Union[str, int],
             vertices: List[str],
+            where: Union[str, types.FunctionType],
             closed: bool = True,
+            hull=True,
             data: pd.DataFrame = None,
             x: str = None,
             y: str = None,
@@ -314,6 +315,7 @@ class VowelPlot(object):
             self.plot_context,
             dict(
                 data=data, x=x, y=y,
+                where=where,
                 kwargs=kwargs,
                 defaults=dict(
                     color='black',
@@ -337,11 +339,15 @@ class VowelPlot(object):
             props = translate_props(props, mpl_props)
 
             xy = []
-            for vert in enumerate(vertices):
-                i = group_df[vertex] == vert
-                group_x = group_df[i, context['x']].mean()
-                group_y = group_df[i, context['y']].mean()
-                xy.append((group_x, group_y))
+            if hull:
+                group_x = group_df[context['x']].groupby(vertex).apply(np.mean)
+                group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
+            else:
+                for vert in enumerate(vertices):
+                    i = group_df[vertex] == vert
+                    group_x = group_df[i, context['x']].mean()
+                    group_y = group_df[i, context['y']].mean()
+                    xy.append((group_x, group_y))
 
             polygon = mpatches.Polygon(
                 xy=xy,
@@ -426,8 +432,8 @@ class VowelPlot(object):
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
             return getattr(self.axis, attr)
-        if hasattr(pyplot, attr):
-            return getattr(pyplot, attr)
+        if hasattr(plt, attr):
+            return getattr(plt, attr)
         return object.__getattribute__(self, attr)
 
 
