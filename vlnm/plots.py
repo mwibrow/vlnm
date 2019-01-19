@@ -434,8 +434,6 @@ class VowelPlot(object):
 
     def arrows(
             self,
-            vertices: List[str],
-
             data: pd.DataFrame = None,
             x: str = None,
             y: str = None,
@@ -447,8 +445,9 @@ class VowelPlot(object):
         context = merge_dicts(
             self.plot_context,
             dict(
-                data=data, x=x, y=y,
-                where=where,
+                data=data,
+                x=x,
+                y=y,
                 kwargs=kwargs,
                 defaults=dict(
                     color='black',
@@ -471,19 +470,14 @@ class VowelPlot(object):
             props = translate_props(props, mpl_props)
 
             xy = []
-            if hull:
-                group_x = group_df[context['x']].groupby(vertex).apply(np.mean)
-                group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
-                convex_hull = MultiPoint(
-                    map(tuple, zip(group_x, group_y))).convex_hull
-                xy.extend([(x, y) for x, y in convex_hull.vertices])
-            else:
-                for vert in enumerate(vertices):
-                    i = group_df[vertex] == vert
-                    group_x = group_df[i, context['x']].mean()
-                    group_y = group_df[i, context['y']].mean()
-                    xy.append((group_x, group_y))
+            group_x = group_df[context['x']].mean(axis=1)
+            group_y = group_df[context['y']].mena(axis=1)
+            xy = list(map(tuple), zip(group_x, group_y))
 
+            if len(xy) < 2:
+                raise ValueError('Not enough points to draw arrows')
+            else:
+                pass
             polygon = mpatches.Polygon(
                 xy=xy,
                 **props)
