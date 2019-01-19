@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import scipy.stats as st
-
+from shapely.geometry import MultiPoint
 from vlnm.plotting.style import get_color_cycle
 
 
@@ -296,7 +296,7 @@ class VowelPlot(object):
             axis.autoscale_view()
 
 
-    def polyline(
+    def polygon(
             self,
             vertex: Union[str, int],
             vertices: List[str],
@@ -342,6 +342,9 @@ class VowelPlot(object):
             if hull:
                 group_x = group_df[context['x']].groupby(vertex).apply(np.mean)
                 group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
+                convex_hull = MultiPoint(
+                    map(tuple, zip(group_x, group_y))).convex_hull
+                xy.extend([(x, y) for x, y in convex_hull.vertices])
             else:
                 for vert in enumerate(vertices):
                     i = group_df[vertex] == vert
@@ -428,6 +431,75 @@ class VowelPlot(object):
 
                 self._update_legend(legend, group_props, _artist)
 
+
+    def arrows(
+            self,
+            vertices: List[str],
+
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            legend: Union[str, bool] = False,
+            legend_only: Union[str, bool] = False,
+            **kwargs):
+
+        context, kwargs = get_context_kwargs(kwargs, keys=None)
+        context = merge_dicts(
+            self.plot_context,
+            dict(
+                data=data, x=x, y=y,
+                where=where,
+                kwargs=kwargs,
+                defaults=dict(
+                    color='black',
+                    line='-',
+                )
+            ),
+            context)
+
+        if legend_only:
+            legend = legend_only
+
+        iterator = self._group_iterator(context)
+
+        mpl_props = {
+            'color': 'edgecolor',
+            'line': 'linestyle',
+        }
+        for axis, group_df, props, group_props in iterator:
+
+            props = translate_props(props, mpl_props)
+
+            xy = []
+            if hull:
+                group_x = group_df[context['x']].groupby(vertex).apply(np.mean)
+                group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
+                convex_hull = MultiPoint(
+                    map(tuple, zip(group_x, group_y))).convex_hull
+                xy.extend([(x, y) for x, y in convex_hull.vertices])
+            else:
+                for vert in enumerate(vertices):
+                    i = group_df[vertex] == vert
+                    group_x = group_df[i, context['x']].mean()
+                    group_y = group_df[i, context['y']].mean()
+                    xy.append((group_x, group_y))
+
+            polygon = mpatches.Polygon(
+                xy=xy,
+                **props)
+            axis.add_patch(polygon)
+
+            axis.relim()
+            axis.autoscale_view()
+
+            if legend:
+                def _artist(**props):
+                    props = translate_props(props, mpl_props)
+                    return mpatches.Polygon(
+                        xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
+                        **props)
+
+                self._update_legend(legend, group_props, _artist)
 
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
