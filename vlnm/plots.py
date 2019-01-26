@@ -26,7 +26,7 @@ from shapely.geometry import MultiPoint
 from vlnm.plotting.style import get_color_cycle
 
 
-def _create_figure(*args, **kwargs):
+def create_figure(*args, **kwargs):
     return plt.figure(*args, **kwargs)
 
 def merge_dicts(*dicts):
@@ -66,7 +66,7 @@ class VowelPlot(object):
             **kwargs):
 
         figsize = (width, height) if width and height else None
-        self.figure = figure or _create_figure(figsize=figsize, **kwargs)
+        self.figure = figure or create_figure(figsize=figsize, **kwargs)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
