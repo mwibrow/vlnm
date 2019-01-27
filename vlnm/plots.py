@@ -502,6 +502,7 @@ class VowelPlot(object):
                             [(0, 0), (1, 1)],
                             [Path.MOVETO, Path.LINETO]),
                         arrowstyle=arrowstyle,
+                        connectionstyle=None,
                         shrinkA=0, shrinkB=0,
                         mutation_scale=size,
                         **props)
