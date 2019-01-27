@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
+from matplotlib.path import Path
 import matplotlib.text as mtext
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -331,7 +332,7 @@ class VowelPlot(object):
         iterator = self._group_iterator(context)
 
         mpl_props = {
-            'color': 'edgecolor',
+            'color': ['edgecolor', 'facecolor'],
             'line': 'linestyle'
         }
         for axis, group_df, props, group_props in iterator:
@@ -434,11 +435,13 @@ class VowelPlot(object):
 
     def arrows(
             self,
+            arrowstyle: str = '-|>',
             data: pd.DataFrame = None,
             x: str = None,
             y: str = None,
             legend: Union[str, bool] = False,
             legend_only: Union[str, bool] = False,
+            where=None,
             **kwargs):
 
         context, kwargs = get_context_kwargs(kwargs, keys=None)
@@ -448,6 +451,7 @@ class VowelPlot(object):
                 data=data,
                 x=x,
                 y=y,
+                where=where,
                 kwargs=kwargs,
                 defaults=dict(
                     color='black',
@@ -461,27 +465,28 @@ class VowelPlot(object):
 
         iterator = self._group_iterator(context)
 
-        mpl_props = {
-            'color': 'edgecolor',
-            'line': 'linestyle',
-        }
+        mpl_props = dict()
+
         for axis, group_df, props, group_props in iterator:
 
             props = translate_props(props, mpl_props)
+            size = props.pop('size', 0) * 2
+            for _, row in group_df.iterrows():
+                vertices = list(map(tuple, zip(
+                    row[context['x']], row[context['y']])))
+                if len(vertices) < 2:
+                    raise ValueError('Not enough points to draw arrows')
+                codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 1)
+                arrow = mpatches.FancyArrowPatch(
+                    posA=None,
+                    posB=None,
+                    path=Path(vertices, codes),
+                    arrowstyle=arrowstyle,
+                    shrinkA=0, shrinkB=0,
+                    mutation_scale=size,
+                    **props)
 
-            xy = []
-            group_x = group_df[context['x']].mean(axis=1)
-            group_y = group_df[context['y']].mena(axis=1)
-            xy = list(map(tuple), zip(group_x, group_y))
-
-            if len(xy) < 2:
-                raise ValueError('Not enough points to draw arrows')
-            else:
-                pass
-            polygon = mpatches.Polygon(
-                xy=xy,
-                **props)
-            axis.add_patch(polygon)
+                axis.add_patch(arrow)
 
             axis.relim()
             axis.autoscale_view()
@@ -489,8 +494,16 @@ class VowelPlot(object):
             if legend:
                 def _artist(**props):
                     props = translate_props(props, mpl_props)
-                    return mpatches.Polygon(
-                        xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
+                    size = props.pop('size', 0) * 2
+                    return mpatches.FancyArrowPatch(
+                        posA=None,
+                        posB=None,
+                        path=Path(
+                            [(0, 0), (1, 1)],
+                            [Path.MOVETO, Path.LINETO]),
+                        arrowstyle=arrowstyle,
+                        shrinkA=0, shrinkB=0,
+                        mutation_scale=size,
                         **props)
 
                 self._update_legend(legend, group_props, _artist)
