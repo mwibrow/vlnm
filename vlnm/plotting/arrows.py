@@ -55,7 +55,8 @@ def shorten_line(p1, p2, d):
     p1 = np.array(p1)
     p2 = np.array(p2)
     hyp = np.hypot(*(p2 - p1))
-    return bezier_point_at_t(np.array(p1, p2), d / hyp)
+    return bezier_point_at_t(np.array([p2, p1]), d / hyp)
+
 
 def shorten_path(path: Path, begin: float = None, end: float = None):
     """
