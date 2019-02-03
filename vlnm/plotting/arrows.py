@@ -458,3 +458,40 @@ class Stealth(FancierArrow):
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
         return arrow_head, shorten
+
+class Circle(FancierArrow):
+    """
+    Circle arrow.
+    """
+
+    _path = Affine2D.from_values(1, 0, 0, 1, -0.5, 0).transform_path(Path.circle(radius=.5))
+    _semi_path = Affine2D.from_values(0.5, 0, 0, 0.5, -0.5, 0).transform_path(
+        Path.arc(0, 180, is_wedge=True))
+    def __init__(
+            self, width=1., length=1., side=None, fill=False, **kwargs):
+        snap = kwargs.pop('snap', False)
+        super().__init__(
+            width=width,
+            length=length,
+            side=side,
+            fill=fill,
+            snap=snap,
+            **kwargs)
+
+    def get_arrow_head(self, linewidth, scale):
+
+        miter = linewidth / 2
+        xscale = self.length * scale
+        yscale = self.width * scale
+        shorten = 1. * xscale
+
+        side = self.side
+        if side in [FancierArrow.LEFT, FancierArrow.RIGHT]:
+            path = self._semi_path
+            if side == FancierArrow.RIGHT:
+                yscale = -yscale
+        else:
+            path = self._path
+        transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
+        arrow_head = transform.transform_path(path)
+        return arrow_head, shorten + miter
