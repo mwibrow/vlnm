@@ -253,14 +253,14 @@ argument-naming-style=snake_case
 
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style
-#argument-rgx=
+argument-rgx=[a-z_][a-z0-9_]*
 
 # Naming style matching correct attribute names
 attr-naming-style=snake_case
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style
-#attr-rgx=
+attr-rgx=[a-z_][a-z0-9_]*
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,
@@ -302,29 +302,7 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=df,
-           f,
-           f0,
-           f1,
-           f2,
-           f3,
-           f4,
-           z0,
-           z1,
-           z2,
-           z3,
-           hz,
-           i,
-           j,
-           k,
-           x,
-           y,
-           xy,
-           ex,
-           mu,
-           Run,
-           _,
-           __
+good-names=i,j,k,Run,_,__
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -332,7 +310,7 @@ include-naming-hint=no
 # Naming style matching correct inline iteration names
 inlinevar-naming-style=any
 
-# Regular expression matching correct inline iteration names. Overrides
+# Regular expression matching correct inline iteration names. Odverrides
 # inlinevar-naming-style
 #inlinevar-rgx=
 
@@ -341,7 +319,7 @@ method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style
-#method-rgx=
+method-rgx=[a-z_][a-z0-9_]*
 
 # Naming style matching correct module names
 module-naming-style=snake_case
@@ -367,7 +345,7 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style
-#variable-rgx=
+variable-rgx=[a-z_][a-z0-9_]*
 
 
 [TYPECHECK]
