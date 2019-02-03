@@ -34,14 +34,22 @@ def shorten_bezier(
     target = shorten ** 2
     t1, t2 = 0, 1
     x = 1
-    while np.abs(x) > eps:
+    it = 0
+    while np.abs(x) > eps and it < 20:
         t = (t1 + t2) * 0.5
         q = bezier_point_at_t(bezier, t) - reference
         x = np.sum(q ** 2) - target
-        if x > 0:
-            t2 = t
+        if left:
+            if x > 0:
+                t2 = t
+            else:
+                t1 = t
         else:
-            t1 = t
+            if x > 0:
+                t1 = t
+            else:
+                t2 = t
+        it +=1
     left_bezier, right_bezier = split_de_casteljau(bezier, t)
     if left:
         return right_bezier
@@ -402,7 +410,7 @@ class Kite(FancierArrow):
                           (0, 0),
                           (-inset, width / 2), (-length, 0)],
                 codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-        shorten = inset * scale + miter
+        shorten = length * scale + miter
 
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
