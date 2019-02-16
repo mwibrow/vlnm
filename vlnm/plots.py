@@ -13,18 +13,19 @@ from typing import Dict, List, Tuple, Union
 import types
 
 from matplotlib.axes import Axes
+from matplotlib.cm import get_cmap
 from matplotlib.figure import Figure
-from matplotlib.lines import Line2D
-import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
+from matplotlib.lines import Line2D
 from matplotlib.path import Path
-import matplotlib.text as mtext
+import matplotlib.colors
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-import pandas as pd
+import matplotlib.text as mtext
 import numpy as np
-import scipy.stats as st
+import pandas as pd
 from shapely.geometry import MultiPoint
-from vlnm.plotting.style import get_color_cycle
+import scipy.stats as st
 
 
 def create_figure(*args, **kwargs):
@@ -709,3 +710,16 @@ def translate_props(props, prop_translator):
         else:
             renamed_props[prop] = value
     return renamed_props
+
+def get_color_cycle(colors):
+    """Generate a color cycle.
+    """
+    if isinstance(colors, (list, dict)):
+        return colors
+    elif isinstance(colors, matplotlib.colors.Colormap):
+        return list(colors.colors)
+    else:
+        try:
+            return list(get_cmap(colors).colors)
+        except ValueError:
+            return [colors]
