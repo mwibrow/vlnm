@@ -49,7 +49,7 @@ def shorten_bezier(
                 t1 = t
             else:
                 t2 = t
-        it +=1
+        it += 1
     left_bezier, right_bezier = split_de_casteljau(bezier, t)
     if left:
         return right_bezier
