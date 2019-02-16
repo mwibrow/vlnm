@@ -456,7 +456,7 @@ class VowelPlot(object):
                 kwargs=kwargs,
                 defaults=dict(
                     color='black',
-                    linestyle='-',
+                    line='-',
                 )
             ),
             context)
@@ -466,7 +466,10 @@ class VowelPlot(object):
 
         iterator = self._group_iterator(context)
 
-        mpl_props = dict()
+        mpl_props = {
+            'color': 'edgecolor',
+            'line': 'linestyle'
+        }
 
         for axis, group_df, props, group_props in iterator:
 
@@ -495,7 +498,7 @@ class VowelPlot(object):
             if legend:
                 def _artist(**props):
                     props = translate_props(props, mpl_props)
-                    size = props.pop('size', 0) * 2
+                    size = props.pop('size', 1) * 2
                     return mpatches.FancyArrowPatch(
                         posA=None,
                         posB=None,
