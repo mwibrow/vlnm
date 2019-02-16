@@ -262,7 +262,7 @@ class VowelPlot(object):
 
         min_x = min_y = np.inf
         max_x = max_y = -np.inf
-        for axis, group_df, props in iterator:
+        for axis, group_df, props, _ in iterator:
             group_x = group_df[context['x']]
             group_y = group_df[context['y']]
             props = translate_props(
@@ -346,7 +346,7 @@ class VowelPlot(object):
                 group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
                 convex_hull = MultiPoint(
                     map(tuple, zip(group_x, group_y))).convex_hull
-                xy.extend([(x, y) for x, y in convex_hull.vertices])
+                xy.extend([(x, y) for x, y in convex_hull.coords])
             else:
                 for vert in enumerate(vertices):
                     i = group_df[vertex] == vert

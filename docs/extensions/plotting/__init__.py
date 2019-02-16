@@ -32,8 +32,8 @@ class PlotDirective(Directive):
                           for line in self.content)
         imports = self.options.get('imports', '')
         backend = self.options.get('backend', 'agg')
-        code = '{}\nimport matplotlib\nmatplotlib.use("{}")\n{}'.format(
-            imports, backend, code)
+        code = '\nimport matplotlib\nmatplotlib.use("{}")\n{}\n{}'.format(
+            backend, imports, code)
         if self.options.get('figure'):
             code = '{}\n__figure__ = {}'.format(code, self.options['figure'])
         env = {}
