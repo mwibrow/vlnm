@@ -435,10 +435,10 @@ class VowelPlot(object):
 
     def arrows(
             self,
-            arrowstyle: str = '-|>',
+            arrowstyle: str = '->',
             data: pd.DataFrame = None,
-            x: str = None,
-            y: str = None,
+            x: List[str] = None,
+            y: List[str] = None,
             legend: Union[str, bool] = False,
             legend_only: Union[str, bool] = False,
             where=None,
@@ -455,7 +455,7 @@ class VowelPlot(object):
                 kwargs=kwargs,
                 defaults=dict(
                     color='black',
-                    line='-',
+                    linestyle='-',
                 )
             ),
             context)
@@ -470,7 +470,7 @@ class VowelPlot(object):
         for axis, group_df, props, group_props in iterator:
 
             props = translate_props(props, mpl_props)
-            size = props.pop('size', 0) * 2
+            size = props.pop('size', 1) * 2
             for _, row in group_df.iterrows():
                 vertices = list(map(tuple, zip(
                     row[context['x']], row[context['y']])))
