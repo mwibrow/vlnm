@@ -719,10 +719,9 @@ def get_color_cycle(colors):
     """
     if isinstance(colors, (list, dict)):
         return colors
-    elif isinstance(colors, matplotlib.colors.Colormap):
+    if isinstance(colors, matplotlib.colors.Colormap):
         return list(colors.colors)
-    else:
-        try:
-            return list(get_cmap(colors).colors)
-        except ValueError:
-            return [colors]
+    try:
+        return list(get_cmap(colors).colors)
+    except ValueError:
+        return [colors]
