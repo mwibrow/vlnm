@@ -11,7 +11,7 @@ from docutils.parsers.rst.directives import images
 
 
 class PlotDirective(Directive):
-    """Class for processing the :rst:dir:`bibliography` directive.
+    """Class for processing the :rst:dir:`plot` directive.
     """
     required_arguments = 0
     optional_arguments = 1

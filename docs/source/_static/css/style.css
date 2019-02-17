@@ -34,6 +34,15 @@ div.console .console-subblock:last-of-type pre {
     padding-bottom: 0.625rem;
 }
 
+div.code .highlight pre {
+    padding: 0.5rem 1em;
+    margin: 0;
+}
+
+.highlight pre {
+    padding: 0.5rem 1em;
+    margin: 0;
+}
 .highlight-pandas {
     padding-top: 0.5em;
 }

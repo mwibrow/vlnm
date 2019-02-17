@@ -79,7 +79,7 @@ class VowelPlot(object):
         set_plot(self)
 
     def __call__(self, **kwargs):
-        return self.set_context(**kwargs)
+        return self.context(**kwargs)
 
     def context(
             self,
