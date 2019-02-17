@@ -170,10 +170,7 @@ class VowelPlot(object):
 
         mpl_props = {
             'color': ['edgecolor', 'facecolor'],
-            'edgecolor': 'markeredgecolor',
-            'facecolor': 'markerfacecolor',
-            'size': 'markersize',
-            'linewidth': 'markeredgewidth'
+            'size': 's'
         }
         for axis, group_df, props, group_props in iterator:
             group_x = group_df[context['x']]
@@ -182,12 +179,16 @@ class VowelPlot(object):
 
             props = translate_props(props, mpl_props)
 
-            props.update(linestyle='', drawstyle=None)
-            axis.plot(group_x, group_y, **props)
+            axis.scatter(group_x, group_y, **props)
 
             if legend:
                 def _artist(**props):
                     props = translate_props(props, mpl_props)
+                    props = translate_props(props, {
+                        's': 'markersize',
+                        'edgecolor': 'markeredgecolor',
+                        'facecolor': 'markerfacecolor',
+                        'linewidth': 'markeredgewidth'})
                     return Line2D(
                         [0], [0], linestyle='', drawstyle=None, **props)
 
