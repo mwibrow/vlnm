@@ -206,6 +206,8 @@ class VowelPlot(object):
         """Add a legend to the current axis.
         """
         legend_ids = list(self.legends.keys())
+        if not legend_ids:
+            return
         legend_id = legend_id or legend_ids[0]
         legend = self.legends[legend_id]
 
@@ -213,14 +215,16 @@ class VowelPlot(object):
             kwargs['handler_map'] = {
                 mpatches.Ellipse: _HandlerEllipse()
             }
-
-        for group in legend:
+        title = kwargs.pop('title', [])
+        if isinstance(title, str):
+            title = [title]
+        for i, group in enumerate(legend):
             handles = list(legend[group].values())
             labels = list(legend[group].keys())
             legend_artist = plt.legend(
                 handles=handles,
                 labels=labels,
-                title=group,
+                title=title[i] if title else group,
                 **kwargs)
             self.axis.add_artist(legend_artist)
 
@@ -689,14 +693,21 @@ def make_legend_entries(legend, specs, defaults):
 def get_context_kwargs(kwargs, keys=None):
     context = {}
     keys = set(keys or [])
+    plurals = set()
     for key, value in kwargs.items():
         if key in keys:
             context[keys] = value
         elif key.endswith('_by'):
             context[key] = value
             prop = key[:-3]
-            context[prop] = kwargs.get(prop)
-    rest = {key: value for key, value in kwargs.items() if key not in context}
+            plural = f'{prop}s'
+            if plural in kwargs:
+                plurals.add(plural)
+                context[prop] = kwargs.get(plural)
+            else:
+                context[prop] = kwargs.get(prop)
+    rest = {key: value for key, value in kwargs.items() if key not in context
+            and not key in plurals}
     return context, rest
 
 def translate_props(props, prop_translator):
