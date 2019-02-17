@@ -178,7 +178,7 @@ class VowelPlot(object):
 
 
             props = translate_props(props, mpl_props)
-
+            props['s'] *= props['s']
             axis.scatter(group_x, group_y, **props)
 
             if legend:
@@ -189,6 +189,7 @@ class VowelPlot(object):
                         'edgecolor': 'markeredgecolor',
                         'facecolor': 'markerfacecolor',
                         'linewidth': 'markeredgewidth'})
+                    del props['markersize']
                     return Line2D(
                         [0], [0], linestyle='', drawstyle=None, **props)
 
