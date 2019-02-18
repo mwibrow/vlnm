@@ -31,6 +31,7 @@ import scipy.stats as st
 def create_figure(*args, **kwargs):
     return plt.figure(*args, **kwargs)
 
+
 def merge_dicts(*dicts):
     if not dicts:
         return {}
@@ -41,19 +42,23 @@ def merge_dicts(*dicts):
             if value is not None})
     return merged
 
+
 __VOWEL_PLOT__ = None
+
 
 def get_plot():
     """Get the current plot instance."""
     global __VOWEL_PLOT__  # pylint: disable=global-statement
     return __VOWEL_PLOT__
 
+
 def set_plot(plot):
     """Set the current plot."""
     global __VOWEL_PLOT__  # pylint: disable=global-statement
     __VOWEL_PLOT__ = plot
 
-class VowelPlot(object):
+
+class VowelPlot:
     """Class for managing vowel plots.
     """
 
@@ -87,20 +92,21 @@ class VowelPlot(object):
             x: Union[str, int] = 'f2',
             y: Union[str, int] = 'f1',
             relabel: Dict[str, str] = None,
-            replace=False):
+            replace=False,
+            **kwargs):
         """Set or update the context for the current plot.
 
 
         """
         plot_context = dict(
             data=data, x=x, y=y,
-            relabel=relabel)
+            relabel=relabel,
+            **kwargs)
         if replace:
             self.plot_context = plot_context
         else:
             self.plot_context.update(plot_context)
         return self
-
 
     def subplot(self, index: int = None) -> Axes:
         """Get the axis for a subplot."""
@@ -113,18 +119,18 @@ class VowelPlot(object):
         return self.axis
 
     def __enter__(self):
-        self.begin()
+        self.prepare()
         return self
 
     def __exit__(self, *_args):
-        self.end()
+        self.finalise()
 
-    def begin(self):
+    def prepare(self):
         """Set up the plot."""
         if not self.axis:
             self.axis = self.subplot()
 
-    def end(self):
+    def finalise(self):
         """Finalise the plot."""
         axes = self.figure.get_axes()
         for axis in axes:
@@ -176,7 +182,6 @@ class VowelPlot(object):
             group_x = group_df[context['x']]
             group_y = group_df[context['y']]
 
-
             props = translate_props(props, mpl_props)
             props['s'] *= props['s']
             axis.scatter(group_x, group_y, **props)
@@ -195,6 +200,7 @@ class VowelPlot(object):
 
                 self._update_legend(legend, group_props, _artist)
 
+        return self
 
     def _update_legend(self, legend_id, group_props, artist):
         legend = self.legends.get(legend_id, {})
@@ -289,7 +295,6 @@ class VowelPlot(object):
             max_x = np.max([max_x, group_x])
             max_y = np.max([max_y, group_y])
 
-
             # Update the axis.
             rect = mpatches.Rectangle(
                 (min_x, min_y),
@@ -303,6 +308,29 @@ class VowelPlot(object):
             axis.relim()
             axis.autoscale_view()
 
+        return self
+
+    def polyline(
+            self,
+            vertex: Union[str, int],
+            vertices: List[str],
+            where: Union[str, types.FunctionType],
+            hull=True,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            legend: Union[str, bool] = False,
+            legend_only: Union[str, bool] = False,
+            **kwargs):
+        """Add lines to the plot.
+
+        This is just a wrapper around :method:`VowelPlot.polygon`
+        with ``closed=False``.
+
+        """
+        return self.polygon(
+            vertex=vertex, vertices=vertices, where=where, hull=hull, data=data,
+            x=x, y=y, legend=legend, lenged_only=legend_only, closed=False, **kwargs)
 
     def polygon(
             self,
@@ -317,7 +345,9 @@ class VowelPlot(object):
             legend: Union[str, bool] = False,
             legend_only: Union[str, bool] = False,
             **kwargs):
-
+        """
+        Add a polygon to the
+        """
         context, kwargs = get_context_kwargs(kwargs, keys=None)
         context = merge_dicts(
             self.plot_context,
@@ -376,6 +406,7 @@ class VowelPlot(object):
                         **props)
 
                 self._update_legend(legend, group_props, _artist)
+            return self
 
     def ellipses(
             self,
@@ -438,7 +469,7 @@ class VowelPlot(object):
                         **props)
 
                 self._update_legend(legend, group_props, _artist)
-
+        return self
 
     def arrows(
             self,
@@ -518,6 +549,7 @@ class VowelPlot(object):
                         **props)
 
                 self._update_legend(legend, group_props, _artist)
+        return self
 
     def __getattr__(self, attr):
         if hasattr(self.axis, attr):
@@ -525,7 +557,6 @@ class VowelPlot(object):
         if hasattr(plt, attr):
             return getattr(plt, attr)
         return object.__getattribute__(self, attr)
-
 
     def _group_iterator(self, context):
         df = context['data']
@@ -539,7 +570,8 @@ class VowelPlot(object):
             if key.endswith('_by'):
                 prop = key[:-3]
                 props_by[group] = props_by.get(group, []) + [prop]
-                prop_mappers[prop] = self._get_prop_mapper(prop, context.get(prop))
+                prop_mappers[prop] = self._get_prop_mapper(
+                    prop, context.get(prop))
                 if group not in groups:
                     groups.append(group)
                     index_mappings[group] = {}
@@ -585,6 +617,7 @@ class VowelPlot(object):
             return values
         return [values]
 
+
 def _aggregate_df(df, groups=None, columns=None, where=None):
     if groups and columns and where:
         if where == 'mean':
@@ -596,6 +629,7 @@ def _aggregate_df(df, groups=None, columns=None, where=None):
                 lambda group_df: group_df[columns].median(axis=0))
             df = df.reset_index()
     return df
+
 
 class _HandlerEllipse(HandlerPatch):
     def create_artists(
@@ -621,6 +655,7 @@ def get_mapped_props(prop, mapper, value, index):
     if isinstance(mapped_value, dict):
         return mapped_value
     return {prop: mapped_value}
+
 
 def get_confidence_ellipse(
         x: List[float],
@@ -668,6 +703,7 @@ def df_iterator(df, groups):
     else:
         yield {}, df
 
+
 def make_legend_entries(legend, specs, defaults):
     entries = {}
     for spec in specs:
@@ -692,6 +728,7 @@ def make_legend_entries(legend, specs, defaults):
             entries[group][label] = artist(**props)
     return entries
 
+
 def get_context_kwargs(kwargs, keys=None):
     context = {}
     keys = set(keys or [])
@@ -712,6 +749,7 @@ def get_context_kwargs(kwargs, keys=None):
             and not key in plurals}
     return context, rest
 
+
 def translate_props(props, prop_translator):
     renamed_props = {}
     for prop, value in props.items():
@@ -726,6 +764,7 @@ def translate_props(props, prop_translator):
         else:
             renamed_props[prop] = value
     return renamed_props
+
 
 def get_color_cycle(colors):
     """Generate a color cycle.

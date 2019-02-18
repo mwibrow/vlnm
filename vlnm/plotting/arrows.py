@@ -9,7 +9,7 @@ from matplotlib.bezier import (
 from matplotlib.transforms import Affine2D, IdentityTransform
 
 
-import matplotlib.colors as colors
+import matplotlib.colors
 import numpy as np
 
 from scipy.special import binom
@@ -323,8 +323,8 @@ class PatchContext:
     def gc(self, linewidth=1., edgecolor=None, facecolor=None, capstyle=None, joinstyle='round',
            dashoffset=None, dashes=None, snap=None, alpha=None, color=None):
 
-        edgecolor = colors.to_rgba(edgecolor or color)
-        facecolor = colors.to_rgba(facecolor or color)
+        edgecolor = matplotlib.colors.to_rgba(edgecolor or color)
+        facecolor = matplotlib.colors.to_rgba(facecolor or color)
 
         gc = self._gc
 
