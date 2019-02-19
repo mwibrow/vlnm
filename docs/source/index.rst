@@ -14,10 +14,9 @@ Vowel normalization for python.
    :maxdepth: 2
    :caption: Contents
 
-   quickstart
-   normalizers
-   plotting/index
-   api
+   introduction
+   normalizers/index
+   plots/index
    license
    bibliography
 

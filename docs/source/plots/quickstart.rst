@@ -1,7 +1,7 @@
 .. include:: ../defs.rst
 
-Quickstart
-==========
+Quick start
+===========
 
 |vlnm| provides some convenience methods for creating
 some of the common vowel plots seen in the literature.
