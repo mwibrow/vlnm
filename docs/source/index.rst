@@ -16,7 +16,7 @@ Vowel normalization for python.
 
    quickstart
    normalizers
-   plotting
+   plotting/index
    api
    license
    bibliography
@@ -29,4 +29,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

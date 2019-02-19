@@ -176,6 +176,8 @@ class VowelPlot:
 
         mpl_props = {
             'color': ['edgecolor', 'facecolor'],
+            'edgecolor': 'markeredgecolor',
+            'facecolor': 'markerfacecolor',
             'size': 's'
         }
         for axis, group_df, props, group_props in iterator:
@@ -183,7 +185,8 @@ class VowelPlot:
             group_y = group_df[context['y']]
 
             props = translate_props(props, mpl_props)
-            props['s'] *= props['s']
+            if 's' in props:
+                props['s'] *= props['s']
             axis.scatter(group_x, group_y, **props)
 
             if legend:
