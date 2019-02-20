@@ -176,8 +176,6 @@ class VowelPlot:
 
         mpl_props = {
             'color': ['edgecolor', 'facecolor'],
-            'edgecolor': 'markeredgecolor',
-            'facecolor': 'markerfacecolor',
             'size': 's'
         }
         for axis, group_df, props, group_props in iterator:

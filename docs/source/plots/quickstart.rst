@@ -1,6 +1,6 @@
 .. include:: ../defs.rst
 
-Quick start
+Quickstart
 ===========
 
 |vlnm| provides some convenience methods for creating
@@ -91,7 +91,7 @@ By adding `legend=True` to the
    plot = VowelPlot().context(data=df, x='f2', y='f1', relabel=relabel)
    with plot:
         plot.markers(
-            color_by='vowel', color='tab20', alpha=0.5, marker='o', facecolor='none')
-        plot.labels(label_by='vowel', color='black', where='mean', size=10)
+            edgecolor_by='vowel', edgecolor='tab20', alpha=0.5, marker='o', facecolor='none')
+        # plot.labels(label_by='vowel', color='black', where='mean', size=10)
         plot.set_xlabel('$f_2$ (Hz)')
         plot.set_ylabel('$f_1$ (Hz)')
