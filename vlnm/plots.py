@@ -237,6 +237,39 @@ class VowelPlot:
                 **kwargs)
             self.axis.add_artist(legend_artist)
 
+    def _relim(self, axis=None, visible_only=False):
+        axis = axis or self.axis
+        xlim = axis.get_xlim()
+        ylim = axis.get_ylim()
+        axis.relim(visible_only=visible_only)
+        xrelim = list(axis.get_xlim())
+        yrelim = list(axis.get_ylim())
+
+        if axis.xaxis_inverted():
+            if xlim[0] > xrelim[0]:
+                xrelim[0] = xlim[0]
+            if xlim[1] < xrelim[1]:
+                xrelim[1] = xlim[1]
+        else:
+            if xlim[0] < xrelim[0]:
+                xrelim[0] = xlim[0]
+            if xlim[1] > xrelim[1]:
+                xrelim[1] = xlim[1]
+
+        if axis.yaxis_inverted():
+            if ylim[0] > yrelim[0]:
+                yrelim[0] = ylim[0]
+            if ylim[1] < yrelim[1]:
+                yrelim[1] = ylim[1]
+        else:
+            if ylim[0] < yrelim[0]:
+                yrelim[0] = ylim[0]
+            if ylim[1] > yrelim[1]:
+                yrelim[1] = ylim[1]
+        axis.set_xlim(*xrelim)
+        axis.set_ylim(*yrelim)
+        axis.autoscale_view()
+
     def labels(
             self,
             data: pd.DataFrame = None,
@@ -306,8 +339,7 @@ class VowelPlot:
                 facecolor='none',
                 edgecolor='none')
             axis.add_patch(rect)
-            axis.relim()
-            axis.autoscale_view()
+            self._relim(axis)
 
         return self
 

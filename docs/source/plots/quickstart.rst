@@ -92,6 +92,6 @@ By adding `legend=True` to the
    with plot:
         plot.markers(
             edgecolor_by='vowel', edgecolor='tab20', alpha=0.5, marker='o', facecolor='none')
-        # plot.labels(label_by='vowel', color='black', where='mean', size=10)
+        plot.labels(label_by='vowel', color='black', where='mean', size=10)
         plot.set_xlabel('$f_2$ (Hz)')
         plot.set_ylabel('$f_1$ (Hz)')
