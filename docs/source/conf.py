@@ -14,11 +14,17 @@
 #
 # pylint: disable=all
 
+import importlib
 import os
 import sys
 
 import pandas as pd
 
+
+
+
+sys.path.insert(0,
+    os.path.abspath(os.path.join('.', 'lib')))
 sys.path.insert(0,
     os.path.abspath(os.path.join('..')))
 sys.path.insert(0,
@@ -28,6 +34,8 @@ sys.path.insert(0,
 sys.path.insert(0,
     os.path.abspath(os.path.join('..', '..', 'vlnm')))
 
+material = importlib.import_module('material')
+mdcolor = material.mdcolor
 
 # -- Project information -----------------------------------------------------
 
@@ -88,7 +96,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'source.lib.style.MaterialStyle'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -108,7 +116,9 @@ html_theme_options = {
     'logo_name': True,
     'logo_text_align': 'center',
     # Fonts
-    'code_font_family': 'Monospace'
+    'code_font_family': 'Monospace',
+    # Colors
+    'pre_bg': mdcolor('blue-grey', 50)
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

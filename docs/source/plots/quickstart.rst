@@ -17,6 +17,29 @@ including markers, labels, ellipses, polygons and arrows,
 as well as providing access to the underlying |matplotlib|
 axes API.
 
+
+.. code::
+
+    #!/usr/bin/python3
+
+    from engine import RunForrestRun
+
+    """Test code for syntax highlighting!"""
+
+    class Foo:
+        def __init__(self, var):
+            self.var = var
+            self.run()
+
+        def run(self, arg=4, arg2='four', *args, **kwargs):
+            RunForrestRun()  # run along!
+
+        @staticmethod
+        def stop(self):
+            print('\'escaped\'')
+            print(f'{formatted}!')
+
+
 Plot context
 ------------
 

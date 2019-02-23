@@ -33,7 +33,6 @@ p.reference {
 }
 
 .console {
-    background-color: #eee;
     font-family: 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
     line-height: 1.3;
 }
