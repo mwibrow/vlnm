@@ -102,7 +102,14 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    # Logo
+    'logo': 'images/vlnm.png',
+    'logo_name': True,
+    'logo_text_align': 'center',
+    # Fonts
+    'code_font_family': 'Monospace'
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
