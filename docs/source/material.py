@@ -3,7 +3,7 @@ Material UI colors.
 """
 import matplotlib.colors
 
-def rgba(r: float, g: float, b: float, a: float=None):
+def rgba(r: float, g: float, b: float, a: float = None):
     """Convert RGBA color to hex string."""
     return matplotlib.colors.to_hex((r, g, b, a), keep_alpha=a is not None)
 
