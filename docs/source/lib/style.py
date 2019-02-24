@@ -50,6 +50,7 @@ class MaterialStyle(Style):
         Name.Entity:               "",        # class: 'ni'
         Name.Exception:            "", # class: 'ne'
         Name.Function:             mdcolor('light-blue', 800), # class: 'nf'
+        Name.Function.Magic:       mdcolor('light-blue', 500), # class: 'nf'
         Name.Property:             "",        # class: 'py'
         Name.Label:                "",        # class: 'nl'
         Name.Namespace:            "",        # class: 'nn' - to be revised

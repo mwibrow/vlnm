@@ -18,7 +18,7 @@ as well as providing access to the underlying |matplotlib|
 axes API.
 
 
-.. code:: python3
+.. code:: py3ext
 
     #!/usr/bin/python3
 

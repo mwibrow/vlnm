@@ -21,8 +21,6 @@ import sys
 import pandas as pd
 
 
-
-
 sys.path.insert(0,
     os.path.abspath(os.path.join('.', 'lib')))
 sys.path.insert(0,
@@ -37,6 +35,7 @@ sys.path.insert(0,
 material = importlib.import_module('material')
 mdcolor = material.mdcolor
 
+import lexers
 # -- Project information -----------------------------------------------------
 
 project = u'VLNM'
@@ -64,6 +63,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'ipa',
+    'lexers',
     'natbib',
     'plotting',
     'console',
@@ -217,4 +217,3 @@ epub_exclude_files = ['search.html']
 pd.set_option('display.max_columns', None)
 add_module_names = False
 napoleon_use_param = True
-
