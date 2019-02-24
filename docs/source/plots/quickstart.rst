@@ -17,10 +17,9 @@ including markers, labels, ellipses, polygons and arrows,
 as well as providing access to the underlying |matplotlib|
 axes API.
 
+.. highlight:: py3ext
 
-.. code:: py3ext
-
-    #!/usr/bin/python3
+.. code::
 
     from engine import RunForrestRun
 
