@@ -9,6 +9,18 @@ from pygments.token import Keyword, Name, Comment, String, Error, Literal, \
 
 from docs.source.lib.material import mdcolor
 
+YELLOW = mdcolor('amber', 800)
+ORANGE = mdcolor('orange', 800)
+BLUE = mdcolor('light-blue', 800)
+BROWN = mdcolor('brown', 400)
+GREEN = mdcolor('light-green', 800)
+GREY = mdcolor('blue-grey', 800)
+LIGHT_GREY = mdcolor('blue-grey', 400)
+PINK = mdcolor('pink', 800)
+PURPLE = mdcolor('deep-purple', 800)
+RED = mdcolor('red', 400)
+YELLOW = mdcolor('amber', 800)
+
 class MaterialStyle(Style):
 
     background_color = mdcolor('blue-grey', 50)
@@ -16,18 +28,18 @@ class MaterialStyle(Style):
 
     styles = {
         # No corresponding class for the following:
-        Text:                      mdcolor('blue-grey', 900), # class:  ''
+        Text:                      GREY, # class:  ''
         Whitespace:                "",        # class: 'w'
-        Error:                     mdcolor('red'), # class: 'err'
+        Error:                     RED, # class: 'err'
         Other:                     "",        # class 'x'
 
-        Comment:                   f"italic {mdcolor('blue-grey', 400)}", # class: 'c'
+        Comment:                   f"italic {LIGHT_GREY}", # class: 'c'
         Comment.Multiline:         "",        # class: 'cm'
         Comment.Preproc:           "",        # class: 'cp'
         Comment.Single:            "",        # class: 'c1'
         Comment.Special:           "",        # class: 'cs'
 
-        Keyword:                   mdcolor('deep-purple', 800), # class: 'k'
+        Keyword:                   f"bold {GREEN}", # class: 'k'
         Keyword.Constant:          "",        # class: 'kc'
         Keyword.Declaration:       "",        # class: 'kd'
         Keyword.Namespace:         "",        # class: 'kn'
@@ -35,25 +47,25 @@ class MaterialStyle(Style):
         Keyword.Reserved:          "",        # class: 'kr'
         Keyword.Type:              "",        # class: 'kt'
 
-        Operator:                  mdcolor('pink', 900), # class: 'o'
+        Operator:                  PINK, # class: 'o'
         Operator.Word:             "",        # class: 'ow' - like keywords
 
-        Punctuation:               mdcolor('blue-grey', 500), # class: 'p'
+        Punctuation:               LIGHT_GREY, # class: 'p'
 
-        Name:                      mdcolor('blue-grey', 800), # class: 'n'
+        Name:                      GREY, # class: 'n'
         Name.Attribute:            "", # class: 'na' - to be revised
-        Name.Builtin:              "",        # class: 'nb'
-        Name.Builtin.Pseudo:       mdcolor('red', 900),        # class: 'bp'
-        Name.Class:                f"bold {mdcolor('light-blue', 800)}", # class: 'nc'
-        Name.Constant:             mdcolor('red', 900), # class: 'no' - to be revised
-        Name.Decorator:            f"italic {mdcolor('light-blue', 800)}", # class: 'nd'
+        Name.Builtin:              GREEN,        # class: 'nb'
+        Name.Builtin.Pseudo:       GREEN,        # class: 'bp'
+        Name.Class:                f"bold {BLUE}", # class: 'nc'
+        Name.Constant:             "", # class: 'no' - to be revised
+        Name.Decorator:            f"italic {BLUE}", # class: 'nd'
         Name.Entity:               "",        # class: 'ni'
         Name.Exception:            "", # class: 'ne'
-        Name.Function:             mdcolor('light-blue', 800), # class: 'nf'
-        Name.Function.Magic:       mdcolor('light-blue', 500), # class: 'nf'
+        Name.Function:             BLUE, # class: 'nf'
+        Name.Function.Magic:       BLUE, # class: 'nf'
         Name.Property:             "",        # class: 'py'
         Name.Label:                "",        # class: 'nl'
-        Name.Namespace:            "",        # class: 'nn' - to be revised
+        Name.Namespace:            f"bold {BLUE}",        # class: 'nn' - to be revised
         Name.Other:                "", # class: 'nx'
         Name.Tag:                  "", # class: 'nt' - like a keyword
         Name.Variable:             "",        # class: 'nv' - to be revised
@@ -61,7 +73,7 @@ class MaterialStyle(Style):
         Name.Variable.Global:      "",        # class: 'vg' - to be revised
         Name.Variable.Instance:    "",        # class: 'vi' - to be revised
 
-        Number:                    mdcolor('brown', 500), # class: 'm'
+        Number:                    BROWN, # class: 'm'
         Number.Float:              "",        # class: 'mf'
         Number.Hex:                "",        # class: 'mh'
         Number.Integer:            "",        # class: 'mi'
@@ -71,13 +83,13 @@ class MaterialStyle(Style):
         Literal:                   "", # class: 'l'
         Literal.Date:              "", # class: 'ld'
 
-        String:                    mdcolor('light-green', 800), # class: 's'
-        String.Affix:              mdcolor('purple', 800), # class: 'sa'
+        String:                    BLUE, # class: 's'
+        String.Affix:              PINK, # class: 'sa'
         String.Backtick:           "",        # class: 'sb'
         String.Char:               "",        # class: 'sc'
         String.Doc:                "italic",        # class: 'sd' - like a comment
         String.Double:             "",        # class: 's2'
-        String.Escape:             mdcolor('light-green', 600), # class: 'se'
+        String.Escape:             "", # class: 'se'
         String.Heredoc:            "",        # class: 'sh'
         String.Interpol:           "",        # class: 'si'
         String.Other:              "",        # class: 'sx'

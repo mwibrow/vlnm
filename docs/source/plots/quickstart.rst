@@ -39,6 +39,11 @@ axes API.
             print(f'{formatted}!')
 
 
+    foo = Foo()
+    foo2 = Foo()
+    bah = foo.stop()
+    bar2 = foo2.stop()
+
 Plot context
 ------------
 

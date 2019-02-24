@@ -63,6 +63,11 @@ class Python3LexerExtended(Python3Lexer):
          combined('stringescape', 'sqs')),
     ]
 
+    tokens['name'] = [
+        (r'@[\w.]+', Name.Decorator),
+        (r'[a-zA-Z_]\w*', Name),
+    ]
+
 ENTRY_POINTS = """
 [pygments.lexers]
 py3ext = extensions.lexers:Python3LexerExtended
