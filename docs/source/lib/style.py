@@ -72,6 +72,7 @@ class MaterialStyle(Style):
         Literal.Date:              "", # class: 'ld'
 
         String:                    mdcolor('light-green', 800), # class: 's'
+        String.Affix:              mdcolor('purple', 800), # class: 'sa'
         String.Backtick:           "",        # class: 'sb'
         String.Char:               "",        # class: 'sc'
         String.Doc:                "italic",        # class: 'sd' - like a comment
