@@ -22,6 +22,10 @@
     }
 }
 
+div.code.highlight-py3ext .highlight pre {
+    border-radius: 4px !important;
+}
+
 p.reference {
     padding-left: 2rem;
     text-indent: -2rem;
