@@ -22,20 +22,19 @@ import pandas as pd
 
 
 sys.path.insert(0,
-    os.path.abspath(os.path.join('.', 'lib')))
+                os.path.abspath(os.path.join('.', 'lib')))
 sys.path.insert(0,
-    os.path.abspath(os.path.join('..')))
+                os.path.abspath(os.path.join('..')))
 sys.path.insert(0,
-    os.path.abspath(os.path.join('..', 'extensions')))
+                os.path.abspath(os.path.join('..', 'extensions')))
 sys.path.insert(0,
-    os.path.abspath(os.path.join('..', '..')))
+                os.path.abspath(os.path.join('..', '..')))
 sys.path.insert(0,
-    os.path.abspath(os.path.join('..', '..', 'vlnm')))
+                os.path.abspath(os.path.join('..', '..', 'vlnm')))
 
 material = importlib.import_module('material')
 mdcolor = material.mdcolor
 
-import lexers
 # -- Project information -----------------------------------------------------
 
 project = u'VLNM'
@@ -63,7 +62,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'ipa',
-    'lexers',
+    'highlighter',
     'natbib',
     'plotting',
     'console',
@@ -194,7 +193,6 @@ texinfo_documents = [
 ]
 
 
-
 # Bibliographic Dublin Core info.
 epub_title = project
 
@@ -209,7 +207,6 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
 
 
 # -- Extension configuration -------------------------------------------------

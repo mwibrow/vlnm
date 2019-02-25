@@ -68,18 +68,20 @@ class Python3LexerExtended(Python3Lexer):
         (r'[a-zA-Z_]\w*', Name),
     ]
 
+
 ENTRY_POINTS = """
 [pygments.lexers]
-py3ext = extensions.lexers:Python3LexerExtended
+py3ext = extensions.highlighter:Python3LexerExtended
 """
+
 
 def setup(_app):
     setuptools.setup(
         script_name='setup.py',
         script_args=['install'],
-        name='lexers',
+        name='highlighter',
         version='0.1',
         description=__doc__,
         author='Mark Wibrow',
-        packages=['extensions.lexers'],
+        packages=['extensions.highlighter'],
         entry_points=ENTRY_POINTS)
