@@ -115,6 +115,13 @@ html_theme_options = {
     'logo': 'images/vlnm.png',
     'logo_name': True,
     'logo_text_align': 'center',
+    #
+    'description': 'Vowel normalization for Python',
+    'fixed_sidebar': True,
+    'travis_button': False,
+    # Github
+    'github_user': 'mwibrow',
+    'github_repo': 'vlnm',
     # Fonts
     'code_font_family': 'Monospace',
     # Colors
@@ -134,7 +141,14 @@ html_static_path = ['_static']
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'statusbadges.html',
+        'navigation.html',
+        'searchbox.html'
+    ]
+}
 
 
 # -- Options for HTMLHelp output ---------------------------------------------

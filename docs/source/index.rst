@@ -1,7 +1,7 @@
 .. include:: defs.rst
 
-Welcome to VLNM's documentation!
-================================================
+VLNM: vowel normalization for Python
+====================================
 
 :Release: |release|
 :Date:    |today|
