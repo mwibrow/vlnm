@@ -7,7 +7,7 @@ from pygments.style import Style
 from pygments.token import Keyword, Name, Comment, String, Error, Literal, \
      Number, Other, Operator, Punctuation, Generic, Text, Whitespace
 
-from docs.source.lib.material import mdcolor
+from .colors import mdcolor
 
 YELLOW = mdcolor('amber', 800)
 ORANGE = mdcolor('orange', 800)

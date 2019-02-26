@@ -21,8 +21,8 @@ import sys
 import pandas as pd
 
 
-sys.path.insert(0,
-                os.path.abspath(os.path.join('.', 'lib')))
+# sys.path.insert(0,
+#                 os.path.abspath(os.path.join('.', 'lib')))
 sys.path.insert(0,
                 os.path.abspath(os.path.join('..')))
 sys.path.insert(0,
@@ -32,9 +32,10 @@ sys.path.insert(0,
 sys.path.insert(0,
                 os.path.abspath(os.path.join('..', '..', 'vlnm')))
 
-material = importlib.import_module('material')
-mdcolor = material.mdcolor
+# material = importlib.import_module('material')
+# mdcolor = material.mdcolor
 
+from extensions.highlighter.colors import mdcolor
 # -- Project information -----------------------------------------------------
 
 project = u'VLNM'
@@ -95,7 +96,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'source.lib.style.MaterialStyle'
+pygments_style = 'material'
 
 
 # -- Options for HTML output -------------------------------------------------
