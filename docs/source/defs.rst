@@ -7,6 +7,9 @@
 
 .. |vlnm| replace:: **VLNM**
 
+.. |jupyter| replace:: Jupyter_
+.. _Jupyter: https://jupyter.org/
+
 .. |pandas| replace:: Pandas_
 .. _Pandas:  https://pandas.pydata.org/
 
@@ -15,6 +18,9 @@
 
 .. |matplotlib| replace:: Matplotlib_
 .. _Matplotlib: https://matplotlib.org/
+
+.. |python| replace:: Python_
+.. _Python: https://www.python.org/
 
 .. |f0| replace:: :math:`F_0`
 .. |f1| replace:: :math:`F_1`
