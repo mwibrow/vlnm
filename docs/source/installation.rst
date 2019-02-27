@@ -5,25 +5,40 @@
 Installation
 ============
 
+This part of the documentation covers the installation of |vlnm|.
+
+
+Prerequisites
+-------------
+
+Python
+^^^^^^
+
 |vlnm| was written using Python version 3.6,
 but should work on any version of Python >= 3.0.
 Python versions 2.7 and lower are not supported.
 
 For people with little or no experience with
 Python or who are unsure how to set up the correct version
-of Pyton, the quickest way to get Python set up
+of Python, `The Hitchhiker's Guide to Python <https://docs.python-guide.org/starting/installation/>`_
+may provide a useful start.
+
+However the quickest way to get Python set up
 is using |anaconda|, which will also install a number
 of useful tools (including |jupyter|).
 However, it will be necessary to install ``pip`` manually
 in order to install |vlnm|.
 
+Shapely
+^^^^^^^
+
 |vlnm| depends on the 3rd party |shapely| library for some
 calculations using in creating vowel plots
 (i.e., generating convex hulls).
 The installation of this package (which is carried out
-automatically when installing |vlnm| can be... tempermental
+automatically when installing |vlnm|) can be... tempermental
 depending the operation system used.
-if Python was installed using
+If Python was installed using
 Anaconda then shapely should be installed first
 using:
 
@@ -34,8 +49,11 @@ using:
 Other solutions and/or workarounds are described below
 for different operation systems.
 
+Operating systems
+-----------------
+
 Linux
------
+^^^^^
 
 To install |vlnm| use the following command in
 a terminal:
@@ -51,7 +69,7 @@ the relevant Linux package manager should be
 used to install `libgeos`).
 
 MacOS
------
+^^^^^
 
 To install |vlnm| use the following command in
 a terminal:
@@ -73,7 +91,7 @@ GEOS library:
 Then |vlnm| can be installed using the command above.
 
 Windows
--------
+^^^^^^^
 
 Everything is harder on Windows 🙄.
 
