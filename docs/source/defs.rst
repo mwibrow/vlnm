@@ -7,6 +7,9 @@
 
 .. |vlnm| replace:: **VLNM**
 
+.. |anaconda| replace:: Anaconda_
+.. _Anaconda: https://www.anaconda.com/distribution/
+
 .. |jupyter| replace:: Jupyter_
 .. _Jupyter: https://jupyter.org/
 
@@ -21,6 +24,13 @@
 
 .. |python| replace:: Python_
 .. _Python: https://www.python.org/
+
+.. |shapely| replace:: Shapely_
+.. _Shapely: https://shapely.readthedocs.io/en/stable/manual.html
+
+
+.. |homebrew| replace:: Homebrew_
+.. _Homebrew: https://brew.sh/
 
 .. |f0| replace:: :math:`F_0`
 .. |f1| replace:: :math:`F_1`
