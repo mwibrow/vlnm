@@ -95,7 +95,7 @@ a terminal:
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
-the GEOS library required by shapely), then
+the GEOS library required by shapely),
 then |homebrew| can be used to install the
 GEOS library:
 
