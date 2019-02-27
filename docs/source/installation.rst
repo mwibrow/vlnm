@@ -17,26 +17,37 @@ Python
 |vlnm| was written using Python version 3.6,
 but should work on any version of Python >= 3.0.
 Python versions 2.7 and lower are not supported.
+Many operating systems (e.g., Ubuntu Linux and MacOS)
+come with Python preinstalled, but it may be
+an older version.
 
-For people with little or no experience with
-Python or who are unsure how to set up the correct version
-of Python, `The Hitchhiker's Guide to Python <https://docs.python-guide.org/starting/installation/>`_
-may provide a useful start.
-
-However the quickest way to get Python set up
-is using |anaconda|, which will also install a number
+If Python is not already installed on your computer
+(or it is an older version), the quickest way to get Python set up
+is using the |anaconda| distribution, which will also install a number
 of useful tools (including |jupyter|).
-However, it will be necessary to install ``pip`` manually
-in order to install |vlnm|.
+Having installed Anaconda it may be necesary to install
+the Python package manager ``pip3``, by running the
+following command in a terminal:
+
+.. code::
+
+    conda install pip3
+
+However, the Anaconda distribution is large (to say the least) and
+includes a considerable number of tools which are not needed
+just to normalize vowel formant data and produce vowel plots.
+To create a minimal working Python installation,
+`The Hitchhiker's Guide to Python <https://docs.python-guide.org/starting/installation/>`_
+may provide a useful start.
 
 Shapely
 ^^^^^^^
 
-|vlnm| depends on the 3rd party |shapely| library for some
+|vlnm| depends on the 3rd party |shapely| python library for some
 calculations using in creating vowel plots
 (i.e., generating convex hulls).
 The installation of this package (which is carried out
-automatically when installing |vlnm|) can be... tempermental
+automatically when installing |vlnm|) can be tempermental
 depending the operation system used.
 If Python was installed using
 Anaconda then shapely should be installed first
@@ -64,9 +75,13 @@ a terminal:
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
-the GEOS library required by shapely), then
+the GEOS library required by shapely),
 the relevant Linux package manager should be
-used to install `libgeos`).
+used to install `libgeos`.
+Then the installation command given above should
+be re-run.
+
+
 
 MacOS
 ^^^^^
