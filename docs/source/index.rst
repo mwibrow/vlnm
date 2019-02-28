@@ -1,6 +1,6 @@
 .. include:: defs.rst
 
-VLNM: vowel normalization and plotting using Python
+VLNM: Vowel normalization and plotting using Python
 ===================================================
 
 :Release: |release|
