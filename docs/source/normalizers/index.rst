@@ -1,5 +1,7 @@
 .. include:: ../defs.rst
 
+.. _section_normalization:
+
 Vowel Normalization
 ===================
 

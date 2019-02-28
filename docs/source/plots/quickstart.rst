@@ -97,7 +97,7 @@ To add markers to a plot, the `markers` method can be used.
    :figure: plot.figure
    :imports: import pandas as pd; from vlnm.plots import VowelPlot;
 
-   ### df = pd.read_csv('source/_data/hawkins_midgely_2005.csv')
+   ### df = pd.read_csv('../source/_data/hawkins_midgely_2005.csv')
    plot = VowelPlot()
    with plot(data=df, x='f2', y='f1'):
         plot.markers(color_by='vowel', color='tab20')
@@ -111,7 +111,7 @@ By adding `legend=True` to the
    :figure: plot.figure
    :imports: import pandas as pd; from vlnm.plots import VowelPlot;
 
-   ### df = pd.read_csv('source/_data/hawkins_midgely_2005.csv')
+   ### df = pd.read_csv('../source/_data/hawkins_midgely_2005.csv')
    relabel = dict(
        heed='i', hid='ɪ', head='ɛ', had='a', hard='ɑ',
        hoard='ɔ', heard='ɜ', hod='ɒ', hood='ʊ', whod='u', hud='ʌ')

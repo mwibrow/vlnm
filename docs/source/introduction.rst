@@ -1,4 +1,0 @@
-.. include:: defs.rst
-
-Introduction
-============

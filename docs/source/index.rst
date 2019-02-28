@@ -31,6 +31,17 @@ Vowel normalization
 
 |vlnm| provides all of the normalization methods described
 in :citet:`flynn_foulkes_2011`.
+Each normalizer is described in the documentation
+for :ref:`section_normalization` and can be used
+to normalize vowel data
+
+.. console::
+    :code-only:
+
+    from vlnm import normalize
+    normalize('vowels.csv', 'normalized.csv', method='lobanov')
+
+
 
 Vowel plots
 ^^^^^^^^^^^
@@ -40,12 +51,13 @@ Vowel plots
 found in the literature easier to produce than
 using Matplotlib alone.
 
+A quick guide to getting started can be found
+
 .. toctree::
    :hidden:
    :maxdepth: 2
    :caption: Contents
 
-   introduction
    installation
    normalizers/index
    plots/index
