@@ -19,10 +19,10 @@ but should work on any version of Python >= 3.0.
 Python versions 2.7 and lower are not supported.
 Many operating systems (e.g., Ubuntu Linux and MacOS)
 come with Python preinstalled, but it may be
-an older version.
+an unsupported version.
 
 If Python is not already installed on your computer
-(or it is an older version), the quickest way to get Python set up
+(or it is an unsupported version), the quickest way to get Python set up
 is using the |anaconda| distribution, which will also install a number
 of useful tools (including |jupyter|).
 Having installed Anaconda it may be necesary to install
@@ -62,6 +62,10 @@ for different operation systems.
 
 Operating systems
 -----------------
+
+|vlnm| should work on any operation system which has a supported
+Python version installed. Installation for Linux, MacOS
+and Windows are given below:
 
 Linux
 ^^^^^
@@ -108,8 +112,15 @@ Then |vlnm| can be installed using the command above.
 Windows
 ^^^^^^^
 
-Everything is harder on Windows 🙄.
+Everything is harder on Windows 🙄
 
 |vlnm| is untested on windows, but experience
 suggests that Python should be set up using
-|anaconda|.
+|anaconda|. After using the ``conda`` command
+to install pip3 and shapely (as described above),
+|vlnm| can be installed by executing the following
+command at the command prompt:
+
+.. code::
+
+    pip3 install vlnm
