@@ -15,6 +15,7 @@ from .formatters import (
     Formatter,
     authors, doi, editors, field, journal, pages, title, volume, year)
 
+
 class AuthorYearFormatter(Formatter):
     """
     Class for creating citations and bibliographic entries in the APA style.
@@ -47,7 +48,7 @@ class AuthorYearFormatter(Formatter):
             sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
             sentence[field['booktitle']],
-            optional[sentence[pages]]
+            optional[pages, sentence[pages]]
         ]
 
     @staticmethod
@@ -104,8 +105,9 @@ class AuthorYearFormatter(Formatter):
         if len(keys) < 2:
             return {}
 
-        sort_key = lambda k: join[authors, year].format(
-            entry=bibcache[keys[k]]).astext()
+        def sort_key(k):
+            return join[authors, year].format(
+                entry=bibcache[keys[k]]).astext()
 
         sort_key_j = sort_key(0)
         suffixes = {}
@@ -171,7 +173,7 @@ class AuthorYearFormatter(Formatter):
         return join(sep='; ')[[
             join[
                 ifelse[
-                    boolean[True], # Why
+                    boolean[True],  # Why
                     ref[
                         authors(
                             last_names_only=True,
@@ -278,6 +280,7 @@ def citation_group(keys, bibcache, cite_template, docname):
         ]] for group in groups
     ]
     return template
+
 
 def get_key_groups(keys, bibcache):
     """Identify citation contractions if necessary.

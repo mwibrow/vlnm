@@ -26,9 +26,22 @@ easy editing of Python code, inspecting and manipulating
 of vowel data, and the display of vowel plots.
 
 
-Vowel normalization for python.
+Vowel normalization
+^^^^^^^^^^^^^^^^^^^
+
+|vlnm| provides all of the normalization methods described
+in :citet:`flynn_foulkes_2011`.
+
+Vowel plots
+^^^^^^^^^^^
+
+|vlnm| provides a relatively thin wrapper around
+|matplotlib| to make producing some of the vowel plots
+found in the literature easier to produce than
+using Matplotlib alone.
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Contents
 
@@ -38,12 +51,3 @@ Vowel normalization for python.
    plots/index
    license
    bibliography
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
