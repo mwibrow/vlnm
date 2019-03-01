@@ -38,9 +38,11 @@ def format_cls(cls):
     """Formant a class."""
     return ':obj:`{}`'.format(cls)
 
+
 def strip_role(text):
     """Strip role markup."""
     return re.sub(r'^:[A-z-:]+`([^`]+)`', r'\1', text)
+
 
 class Formatter:
     """Class for formatting annotations."""
@@ -50,19 +52,21 @@ class Formatter:
 
     def format_annotation(self, annotation):
         """Format an annotation."""
+
         if inspect.isclass(annotation) and annotation.__module__ == 'builtins':
             return self.format_builtin(annotation)
-
         try:
-            klass = str(annotation.__origin__).split('.')[-1].lower()
+            klass = annotation.__origin__.__qualname__
         except AttributeError:
             try:
-                klass = annotation.__name__
+                klass = str(annotation.__origin__).split('.')[-1].lower()
             except AttributeError:
-                klass = annotation
+                try:
+                    klass = annotation.__name__
+                except AttributeError:
+                    klass = annotation
 
         format_method = 'format_{}'.format(klass).lower()
-
         if hasattr(self, format_method):
             return getattr(self, format_method)(annotation)
 
@@ -103,6 +107,7 @@ class Formatter:
         """Format ndarray."""
         return ':py:class:`numpy.ndarray`'
 
+
 def format_annotation(annotation):
     """Format an annotation"""
     if inspect.isclass(annotation) and annotation.__module__ == 'builtins':
@@ -111,6 +116,7 @@ def format_annotation(annotation):
         return ':py:class:`{}`'.format(annotation.__qualname__)
 
     return str(annotation.__class__.__name__)
+
 
 def foo(annotation):
     annotation_cls = annotation if inspect.isclass(annotation) else type(annotation)
@@ -204,9 +210,9 @@ def foo(annotation):
 
     return str(annotation)
 
+
 def format_list_annotation(annotation):
     """Format the list annotation."""
-
 
 
 def process_signature(app, what: str, name: str, obj, options, signature, return_annotation):
