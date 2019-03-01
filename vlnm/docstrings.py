@@ -20,6 +20,10 @@ REPLACEMENTS = dict(
     f3 :
         The DataFrame column which contains the :math:`F_3` data.
     """,
+    f0_3=r"""
+    str f0, f1, f2, f3 :
+        The DataFrame columns which contains the formant data.
+    """,
     formants=r"""
     formants :
         A list of DataFrame columns which contains the formant data.
@@ -87,6 +91,7 @@ REPLACEMENTS = dict(
 
 WSP_RE = re.compile(r'^(\s*)')
 
+
 def reindent(text, indent=0):
     """Reindint a multi line string."""
     lines = text.split('\n')
@@ -108,6 +113,7 @@ def reindent(text, indent=0):
 
 
 SUBS_RE = re.compile(r'^(\s*)\{%([^%]+)%\}')
+
 
 def docstring(obj):
     """Replace element in docstrings."""

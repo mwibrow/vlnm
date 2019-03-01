@@ -53,8 +53,11 @@ class Formatter:
     def format_annotation(self, annotation):
         """Format an annotation."""
 
-        if inspect.isclass(annotation) and annotation.__module__ == 'builtins':
-            return self.format_builtin(annotation)
+        if inspect.isclass(annotation):
+            if annotation.__module__ == 'builtins':
+                return self.format_builtin(annotation)
+            return ':py:class:`{}`'.format(annotation.__qualname__)
+
         try:
             klass = annotation.__origin__.__qualname__
         except AttributeError:
