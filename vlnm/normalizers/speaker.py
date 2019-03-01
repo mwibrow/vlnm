@@ -12,6 +12,7 @@ from ..docstrings import docstring
 from . import register_class
 from .base import SpeakerIntrinsicNormalizer
 
+
 @docstring
 @register_class('gerstman')
 class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
@@ -105,7 +106,6 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
         return super().normalize(
             df, speaker=speaker, formants=formants, rename=rename, **kwargs)
 
-
     def _norm(self, df):
         formants = self.params['formants']
         df[formants] = df[formants] / df[formants].max(axis=0)
@@ -144,12 +144,14 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
                   rename: str = None, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df, formants=formants, rename=rename, **kwargs)
+
     def _norm(self, df):
         formants = self.params['formants']
         mean = df[formants].mean(axis=0)
         std = df[formants].std(axis=0)
         df[formants] = (df[formants] - mean) / std
         return df
+
 
 @docstring
 @register_class('neary')
@@ -212,7 +214,6 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
             return False
         return super()._keyword_default(keyword, df=df)
 
-
     def _norm(self, df):
         formants = self.params['formants']
         logs = np.log(df[formants])
@@ -230,8 +231,8 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     The Neary 'Grand Mean' normalizer log-transforms each formant
     and then substracts the mean log-transform of *all* formants
     under-considraton for a given speaker.
-    This may be :f1: and :f2: :citep:`flynn_foulkes_2011`
-    or :f1:, :f2:, and :f3: :citep:`clopper_2009`:
+    This may be |f1| and |f2| :citep:`flynn_foulkes_2011`
+    or |f1|, |f2|, and |f3| :citep:`clopper_2009`:
 
     .. math::
 
@@ -256,7 +257,6 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     {% rename %}
 
     """
-
 
     config = dict(
         columns=['speaker', 'f1', 'f2', 'f3'],

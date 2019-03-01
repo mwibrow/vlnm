@@ -17,10 +17,11 @@ from vlnm.conversion import hz_to_bark
 
 @register_class('bladen')
 class BladenNormalizer(FormantIntrinsicNormalizer):
-    r"""
+    r"""Normalize formant data according to :citet:`bladon_etal_1984`.
+
     .. math::
 
-        F_{ik}^N = 26.81 \left(
+        F_{ik}^\prime = 26.81 \left(
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53 - I(s_k)
 
@@ -35,7 +36,7 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
             return 'F'
-        elif keyword == 'male':
+        if keyword == 'male':
             return 'M'
         return super()._keyword_default(keyword, df=df)
 
@@ -50,9 +51,12 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
             axis=0).T
         return hz_to_bark(df[formants]) - indicator
 
+
 @register_class('nordstrom')
 class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
+    Normalize formant data according to :citet:`nordstrom_1977`.
+
     .. math::
 
         F_i^\prime = F_i \left(
@@ -80,7 +84,7 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
             return 'F'
-        elif keyword == 'male':
+        if keyword == 'male':
             return 'M'
         return super()._keyword_default(keyword, df=df)
 
@@ -99,7 +103,6 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
             (df[gender] != female) & (df['f1'] > 600)]['f3'].mean()
         self.options['constants'] = constants
         return df
-
 
     def _norm(self, df):
         constants = self.params['constants']
