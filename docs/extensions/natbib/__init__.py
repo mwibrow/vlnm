@@ -35,6 +35,7 @@ def process_bibliographies(app, doctree, docname):
     for bibnode in doctree.traverse(BibliographyNode):
         cite_all = bibnode.data['all']
         docname = bibnode.data['docname']
+
         keys = bibkeys.get_keys(None if cite_all else docname)
         formatter = AuthorYearFormatter(env)
 
@@ -65,7 +66,7 @@ def process_citations(app, doctree, docname):
 
     bibdocs = list(bibcache.cache.keys())
     if len(bibdocs) == 1:
-        docname = '{}.html'.format(bibdocs[0])
+        docname = '/{}.html'.format(bibdocs[0])
 
     keys = bibkeys.get_keys()
     year_suffixes = formatter.resolve_ties(keys, bibcache)

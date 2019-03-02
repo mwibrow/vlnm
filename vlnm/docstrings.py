@@ -20,8 +20,8 @@ REPLACEMENTS = dict(
     f3 :
         The DataFrame column which contains the :math:`F_3` data.
     """,
-    f0_3=r"""
-    str f0, f1, f2, f3 :
+    f0_f3=r"""
+    f0, f1, f2, f3 : :obj:`str`
         The DataFrame columns which contains the formant data.
     """,
     formants=r"""

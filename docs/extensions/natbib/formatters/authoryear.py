@@ -135,7 +135,6 @@ class AuthorYearFormatter(Formatter):
         """
         ref_node = docutils.nodes.paragraph(
             '', '', classes=[ref.type, 'reference'])
-
         method = '{}_template'.format(ref.type)
         if hasattr(self, method):
             template = getattr(self, method)

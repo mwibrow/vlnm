@@ -2,11 +2,10 @@
 Extension providing custom lexers.
 """
 
-from pygments.lexer import combined, include, bygroups, using, default, words
+from pygments.lexer import combined, include, bygroups
 from pygments.lexers.python import Python3Lexer
-from pygments.lexers.javascript import JavascriptLexer
 from pygments.token import Comment, Keyword, Name, Operator, Punctuation, String, Text
-from sphinx.highlighting import lexers
+
 
 
 class Python3LexerExtended(Python3Lexer):

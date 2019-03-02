@@ -15,7 +15,7 @@ from ..conversion import (
 
 @register_class('bark')
 class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
-    r"""Normalise vowels using the Bark scale.
+    r"""Normalise formants using the Bark scale :citet:`traunmuller_1990`.
 
     .. math::
 
@@ -32,7 +32,7 @@ class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
 @register_class('erb')
 class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""
-    Normalise vowels
+    Normalise formants using the ERB scale :citep:`moore_glasberg_1996`.
 
     .. math::
 
@@ -73,7 +73,7 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
 @register_class('mel')
 class MelNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""
-    Normalise vowels using the Mel scale.
+    Normalise vowels using the Mel scale :citep:`see {% oshaughnessy_1987 %}, p.150`.
 
     .. math::
 
