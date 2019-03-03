@@ -123,6 +123,11 @@ class TestVowelPlotMarkers(unittest.TestCase):
         self.df = pd.read_csv(
             os.path.join(FIXTURES, 'hawkins_midgely_2005.csv'))
 
+        self.df['vowel'] = pd.Categorical(
+            self.df['vowel'],
+            sorted(self.df['vowel'].unique()),
+            True)
+
         width, height = 4, 3
         axis = MagicMock()
         axis.scatter = MagicMock()
@@ -141,8 +146,6 @@ class TestVowelPlotMarkers(unittest.TestCase):
         mock_create_figure.return_value = self.figure
 
         vowels = sorted(self.df['vowel'].unique())
-        self.df['vowel'] = pd.Categorical(self.df['vowel'], vowels, True)
-
         plot = VowelPlot(width=self.width, height=self.height)
         with plot:
             plot.markers(data=self.df, x='f2', y='f1', color_by='vowel', color='tab20')
