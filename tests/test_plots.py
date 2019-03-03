@@ -162,6 +162,8 @@ class TestVowelPlotMarkers(unittest.TestCase):
             assert_series_equal(args[0], x)
             assert_series_equal(args[1], y)
 
+        self.assertEqual(0, len(axis.add_artist.mock_calls))
+
     @patch('vlnm.plots.create_figure')
     def test_markers_legend(self, mock_create_figure):
         """Test call arguments with legend for markers method."""
@@ -175,6 +177,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
         with plot:
             plot.markers(
                 data=self.df, x='f2', y='f1', color_by='vowel', colors='tab20', legend=True)
+            plot.legend()
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
@@ -190,6 +193,9 @@ class TestVowelPlotMarkers(unittest.TestCase):
             y = self.df[self.df['vowel'] == vowels[i]]['f1']
             assert_series_equal(args[0], x)
             assert_series_equal(args[1], y)
+
+        self.assertEqual(1, len(axis.add_artist.mock_calls))
+
 
     @patch('vlnm.plots.create_figure')
     def test_markers_which_mean(self, mock_create_figure):
