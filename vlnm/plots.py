@@ -195,7 +195,8 @@ class VowelPlot:
                         'edgecolor': 'markeredgecolor',
                         'facecolor': 'markerfacecolor',
                         'linewidth': 'markeredgewidth'})
-                    del props['markersize']
+                    if 'markersize' in props:
+                        del props['markersize']
                     return Line2D(
                         [0], [0], linestyle='', drawstyle=None, **props)
 
