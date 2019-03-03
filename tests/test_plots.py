@@ -142,7 +142,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
         plot = VowelPlot(width=self.width, height=self.height)
         vowels = sorted(self.df['vowel'].unique())
         with plot:
-            plot.markers(data=self.df, x='f2', y='f1', vowel='vowel')
+            plot.markers(data=self.df, x='f2', y='f1', color_by='vowel', color='tab20')
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
@@ -150,8 +150,8 @@ class TestVowelPlotMarkers(unittest.TestCase):
         for i, kall in enumerate(axis.scatter.mock_calls):
             _, args, kwargs = kall
             self.assertEqual(kwargs['marker'], '.')
-            self.assertListEqual(
-                list(kwargs['c']), list(cmap[vowels[i]]))
+            # self.assertListEqual(
+            #     list(kwargs['facecolor']), list(cmap[vowels[i]]))
             x = self.df[self.df['vowel'] == vowels[i]]['f2']
             y = self.df[self.df['vowel'] == vowels[i]]['f1']
             assert_series_equal(args[0], x)
