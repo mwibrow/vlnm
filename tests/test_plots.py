@@ -201,48 +201,50 @@ class TestVowelPlotMarkers(unittest.TestCase):
 
 
     @patch('vlnm.plots.create_figure')
-    def test_markers_which_mean(self, mock_create_figure):
-        """Test which='mean' for markers method."""
+    def test_markers_where_mean(self, mock_create_figure):
+        """Test where='mean' for markers method."""
         mock_create_figure.return_value = self.figure
 
         plot = VowelPlot(width=self.width, height=self.height)
         vowels = sorted(self.df['vowel'].unique())
         with plot:
             plot.markers(
-                data=self.df, x='f2', y='f1', color_by='vowel', which='mean')
+                data=self.df, x='f2', y='f1', color_by='vowel', colors='tab20', where='mean')
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
-        cmap = get_color_map('tab20', vowels)
+        colors = get_color_cycle('tab20')
+
         for i, kall in enumerate(axis.scatter.mock_calls):
             _, args, kwargs = kall
             self.assertEqual(kwargs['marker'], '.')
-            # self.assertListEqual(
-            #     list(kwargs['c']), list(cmap[vowels[i]]))
+            self.assertEqual(kwargs['edgecolor'], colors[i])
+            self.assertEqual(kwargs['facecolor'], colors[i])
             x = self.df[self.df['vowel'] == vowels[i]]['f2'].mean()
             y = self.df[self.df['vowel'] == vowels[i]]['f1'].mean()
             self.assertEqual(args[0].values[0], x)
             self.assertEqual(args[1].values[0], y)
 
     @patch('vlnm.plots.create_figure')
-    def test_markers_which_median(self, mock_create_figure):
-        """Test which='median' for markers method."""
+    def test_markers_where_median(self, mock_create_figure):
+        """Test where='median' for markers method."""
         mock_create_figure.return_value = self.figure
 
         plot = VowelPlot(width=self.width, height=self.height)
         vowels = sorted(self.df['vowel'].unique())
         with plot:
             plot.markers(
-                data=self.df, x='f2', y='f1', color_by='vowel', which='median')
+                data=self.df, x='f2', y='f1', color_by='vowel', colors='tab20', where='median')
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
-        cmap = get_color_map('tab20', vowels)
+        colors = get_color_cycle('tab20')
+
         for i, kall in enumerate(axis.scatter.mock_calls):
             _, args, kwargs = kall
             self.assertEqual(kwargs['marker'], '.')
-            # self.assertListEqual(
-            #     list(kwargs['c']), list(cmap[vowels[i]]))
+            self.assertEqual(kwargs['edgecolor'], colors[i])
+            self.assertEqual(kwargs['facecolor'], colors[i])
             x = self.df[self.df['vowel'] == vowels[i]]['f2'].median()
             y = self.df[self.df['vowel'] == vowels[i]]['f1'].median()
             self.assertEqual(args[0].values[0], x)
