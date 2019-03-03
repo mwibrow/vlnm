@@ -3,18 +3,24 @@ Gender-based normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Normalizers which adjust calculations based
-on the gender identified by the speaker.
+on the speaker's identified/identifying gender.
+Note, that as defined in the literature
+:citep:`e.g., {% bladon_etal_1984, nordstrom_1977 %}`
+the normalizers use a binary gender classification.
 """
+from typing import List, Union
 
 import numpy as np
+import pandas as pd
 
 from .base import (
     register_class,
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
 from vlnm.conversion import hz_to_bark
+from vlnm.docstrings import docstring
 
-
+@docstring
 @register_class('bladen')
 class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
@@ -27,11 +33,38 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
 
     Where :math:`I(s_k)` is an indicator function returning 1 if
     speaker :math:`k` is identified/identifying as female and 0 otherwise.
+
+    Parameters
+    ----------
+    {% formants %}
+    gender:
+        The |dataframe| column containing the gender labels.
+    female:
+        The label in the |dataframe| indicating a speaker
+        identified/identifying as female.
+    male:
+        The label in the |dataframe| indicating a speaker
+        identified/identifying as male.
+    {% rename %}
     """
     config = dict(
         columns=['gender'],
         keywords=['gender', 'male', 'female']
     )
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            gender: str = 'gender',
+            female: str = 'F',
+            male: str = 'M',
+            rename: str = None,
+            **kwargs):
+        super().__init__(
+            self,
+            formants=formants,
+            gender=gender, female=female, male=male, rename=rename,
+            **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -51,7 +84,21 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
             axis=0).T
         return hz_to_bark(df[formants]) - indicator
 
+    @docstring
+    def normalize(
+            self,
+            df: pd.DataFrame,
+            formants: List[str] = None,
+            gender: str = 'gender',
+            female: str = 'F',
+            male: str = 'M',
+            rename: str = None,
+            **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        super().normalize(formants=formants, gender=gender, female=female, male=male,
+                          rename=rename, **kwargs)
 
+@docstring
 @register_class('nordstrom')
 class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
@@ -74,12 +121,46 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
     and :math:`I(F_i)` is an indicator function which
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
+
+    Parameters
+    ----------
+    {% f0 %}
+    {% f1 %}
+    {% f2 %}
+    {% f3 %}
+    gender:
+        The |dataframe| column containing the gender labels.
+    female:
+        The label in the |dataframe| indicating a speaker
+        identified/identifying as female.
+    male:
+        The label in the |dataframe| indicating a speaker
+        identified/identifying as male.
+    {% rename %}
+
     """
     config = dict(
         columns=['f1', 'f3', 'gender'],
         keywords=['male', 'female', 'gender'],
         groups=['gender']
     )
+
+    def __init__(
+            self,
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            gender: str = 'gender',
+            female: str = 'F',
+            male: str = 'M',
+            rename: str = None,
+            **kwargs):
+        super().__init__(
+            self,
+            f0=f0, f1=f1, f2=f2, f3=f3,
+            gender=gender, female=female, male=male, rename=rename,
+            **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -92,7 +173,6 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
         return self.get_f3_means(df)
 
     def get_f3_means(self, df):
-        """Calculate the mean F3 for all speakers."""
         gender = self.options['gender']
         female = self.options['female']
 
@@ -122,3 +202,20 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
             df[formants] * (
                 1. + indicator * mu_male / mu_female))
         return df
+
+    @docstring
+    def normalize(
+            self,
+            df: pd.DataFrame,
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            gender: str = 'gender',
+            female: str = 'F',
+            male: str = 'M',
+            rename: str = None,
+            **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        super().normalize(f0=f0, f1=f1, f2=f2, f3=f3, gender=gender, female=female, male=male,
+                          rename=rename, **kwargs)

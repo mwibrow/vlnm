@@ -40,3 +40,8 @@
 
 .. |param-f0| replace:: f0:
         The F0 parameter
+
+.. |dataframe| replace:: :py:class:`DataFrame`
+
+.. |nbsp| unicode:: 0xA0
+   :trim:

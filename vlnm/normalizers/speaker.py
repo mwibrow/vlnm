@@ -28,10 +28,6 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     Parameters
     ----------
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
     {% formants %}
     {% speaker %}
     {% rename %}
@@ -39,10 +35,6 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     def __init__(
             self,
-            f0: Union[str, List[str]] = None,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: str = None, **kwargs):
@@ -51,16 +43,15 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
     @docstring
     def normalize(
-            self, df,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
+            self,
+            df,
             formants: List[str] = None,
             rename: str = None,
             **kwargs):
         """{% normalize %}"""
         return super().normalize(
-            df, f1=f1, f2=f2, f3=f3, formants=formants,
+            df,
+            formants=formants,
             rename=rename, **kwargs)
 
     def _norm(self, df):
@@ -171,13 +162,10 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     Parameters
     ----------
 
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
     {% formants %}
     {% speaker %}
     exp:
-        If `True` transform the normalized formants
+        If :pbj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
     {% rename %}
 
@@ -189,9 +177,6 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
             formants: List[str] = None,
             exp: bool = False,
             rename: str = None,
@@ -203,7 +188,8 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     def normalize(
             self,
             df: pd.DataFrame,
-            formants: List[str] = None, exp: bool = False,
+            formants: List[str] = None,
+            exp: bool = False,
             rename: str = None, **kwargs):
         """{% normalize %}"""
         return super().normalize(
@@ -252,7 +238,7 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     {% formants %}
     {% speaker %}
     exp:
-        If `True` transform the normalized formants
+        If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
     {% rename %}
 

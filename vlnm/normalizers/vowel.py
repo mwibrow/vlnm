@@ -31,15 +31,18 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
 
     Parameters
     ----------
-
     {% f0 %}
     {% f1 %}
     {% f2 %}
     {% f3 %}
-    {% formants %}
     {% rename %}
     transform:
-        Replace the default `hz_to_bark` transform.
+        Replace the function that transforms formants from
+        the Hz scale to the Bark scale.
+        The function should take numpy array-compatible data structure
+        (e.g., :py:class:`pandas.DataFrame`, or :py:class:`numpy.ndarray`)
+        *containing only the formant data*,
+        and return the transformed data.
 
 
     """
@@ -56,20 +59,20 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
             rename: str = None,
-            transform: Callable[[numpy.ndarray], numpy.ndarray] = None):
+            transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+            **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
-            formants=formants, rename=rename, transform=transform)
+            rename=rename, transform=transform, **kwargs)
 
     @docstring
     def normalize(
             self,
-            df,
+            df: pd.DataFrame,
             f0: Union[str, List[str]] = None,
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
-            formants: List[str] = None,
             rename: str = None,
             transform: Callable[[numpy.ndarray], numpy.ndarray] = None,
             **kwargs) -> pd.DataFrame:

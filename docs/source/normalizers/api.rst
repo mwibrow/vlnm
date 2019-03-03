@@ -3,8 +3,11 @@
 API
 ===
 
-.. automodule:: vlnm.normalizers.formant
-    :members:
+
+
+
+normalizers.vowel
+-----------------
 
 .. automodule:: vlnm.normalizers.vowel
     :members:

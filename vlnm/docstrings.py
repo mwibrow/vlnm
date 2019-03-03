@@ -6,19 +6,23 @@ import re
 REPLACEMENTS = dict(
     f0=r"""
     f0 :
-        The DataFrame column which contains the :math:`F_0` data.
+        The |dataframe| column(s) which contains the :math:`F_0` data.
+        If not given defaults to ``'f0'``.
     """,
     f1=r"""
     f1 :
-        The DataFrame column which contains the :math:`F_1` data.
+        The |dataframe| column(s) which contains the :math:`F_1` data.
+        If not given defaults to ``'f1'``.
     """,
     f2=r"""
     f2 :
-        The DataFrame column which contains the :math:`F_2` data.
+        The |dataframe| column(s) which contains the :math:`F_2` data.
+        If not given defaults to ``'f2'``.
     """,
     f3=r"""
     f3 :
-        The DataFrame column which contains the :math:`F_3` data.
+        The |dataframe| column(s) which contains the :math:`F_3` data.
+        If not given defaults to ``'f3'``.
     """,
     f0_f3=r"""
     f0, f1, f2, f3 : :obj:`str`
