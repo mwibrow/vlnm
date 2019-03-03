@@ -1,7 +1,9 @@
 """
 Vowel normalizer module
 """
-from typing import List, Union
+from typing import Callable, List, Union
+
+import pandas
 
 from ..docstrings import docstring
 from ..utils import get_formants_spec, nameify
@@ -248,6 +250,12 @@ class FormatIntrinsicTransformableNormalizer(
         SimpleTransformable, FormantIntrinsicNormalizer):
     """Base clase for formant intrinsic normalizers with a transform."""
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            rename: str = None,
+            transform: Callable[[pandas.DataFrame], pandas.DataFrame] = None, **kwargs):
+        super().__init__(formants=formants, rename=rename, transform=transform, **kwargs)
 
 class FormantExtrinsicNormalizer(Normalizer):
     """Base class for formant extrinsic normalizers.

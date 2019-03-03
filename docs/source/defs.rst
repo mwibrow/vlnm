@@ -1,3 +1,4 @@
+.. highlighter: py3ext
 
 .. |build status| image:: https://travis-ci.org/mwibrow/vlnm.svg?branch=master
     :target: https://travis-ci.org/mwibrow/vlnm
