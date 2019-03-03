@@ -15,6 +15,7 @@ import pandas as pd
 
 from vlnm.plots import (
     get_confidence_ellipse,
+    get_color_cycle,
     VowelPlot)
 from vlnm.plotting.style import (
     get_color_map,
@@ -139,19 +140,23 @@ class TestVowelPlotMarkers(unittest.TestCase):
         """Test call arguments for markers method."""
         mock_create_figure.return_value = self.figure
 
-        plot = VowelPlot(width=self.width, height=self.height)
         vowels = sorted(self.df['vowel'].unique())
+        self.df['vowel'] = pd.Categorical(self.df['vowel'], vowels, True)
+
+        plot = VowelPlot(width=self.width, height=self.height)
         with plot:
             plot.markers(data=self.df, x='f2', y='f1', color_by='vowel', color='tab20')
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
-        cmap = get_color_map('tab20', vowels)
+        colors = get_color_cycle('tab20')
+
         for i, kall in enumerate(axis.scatter.mock_calls):
             _, args, kwargs = kall
+
             self.assertEqual(kwargs['marker'], '.')
-            # self.assertListEqual(
-            #     list(kwargs['facecolor']), list(cmap[vowels[i]]))
+            self.assertEqual(kwargs['edgecolor'], colors[i])
+            self.assertEqual(kwargs['facecolor'], colors[i])
             x = self.df[self.df['vowel'] == vowels[i]]['f2']
             y = self.df[self.df['vowel'] == vowels[i]]['f1']
             assert_series_equal(args[0], x)
@@ -162,21 +167,25 @@ class TestVowelPlotMarkers(unittest.TestCase):
         """Test call arguments with legend for markers method."""
         mock_create_figure.return_value = self.figure
 
+        vowels = sorted(self.df['vowel'].unique())
+        self.df['vowel'] = pd.Categorical(self.df['vowel'], vowels, True)
+
         plot = VowelPlot(width=self.width, height=self.height)
         vowels = sorted(self.df['vowel'].unique())
         with plot:
             plot.markers(
-                data=self.df, x='f2', y='f1', color_by='vowel', legend=True)
+                data=self.df, x='f2', y='f1', color_by='vowel', colors='tab20', legend=True)
 
         axis = plot.axis
         self.assertEqual(axis.scatter.call_count, len(vowels))
-        cmap = get_color_map('tab20', vowels)
+        colors = get_color_cycle('tab20')
+
         for i, kall in enumerate(axis.scatter.mock_calls):
             _, args, kwargs = kall
             self.assertEqual(kwargs['marker'], '.')
-            # self.assertListEqual(
-            #     list(kwargs['c']), list(cmap[vowels[i]]))
-            self.assertEqual(kwargs['label'], vowels[i])
+            self.assertEqual(kwargs['edgecolor'], colors[i])
+            self.assertEqual(kwargs['facecolor'], colors[i])
+
             x = self.df[self.df['vowel'] == vowels[i]]['f2']
             y = self.df[self.df['vowel'] == vowels[i]]['f1']
             assert_series_equal(args[0], x)

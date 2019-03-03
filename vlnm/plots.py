@@ -179,6 +179,7 @@ class VowelPlot:
             'size': 's'
         }
         for axis, group_df, props, group_props in iterator:
+
             group_x = group_df[context['x']]
             group_y = group_df[context['y']]
 
@@ -594,7 +595,6 @@ class VowelPlot:
 
     def _group_iterator(self, context):
         df = context['data']
-
         props_by = {}
         prop_mappers = {}
         groups = []
@@ -608,8 +608,12 @@ class VowelPlot:
                     prop, context.get(prop))
                 if group not in groups:
                     groups.append(group)
-                    index_mappings[group] = {}
-                    for i, unique in enumerate(df[group].unique()):
+                    index_mappings[group] = OrderedDict()
+                    try:
+                        uniques = df[group].values.categories
+                    except AttributeError:
+                        uniques = df[group].unique()
+                    for i, unique in enumerate(uniques):
                         index_mappings[group][unique] = i
 
         df = _aggregate_df(
@@ -620,7 +624,6 @@ class VowelPlot:
 
         df_iteration = df_iterator(df, groups)
         for value_map, group_df in df_iteration:
-
             props = context.get('defaults', {}).copy()
             group_props = {}
             for group in groups:
