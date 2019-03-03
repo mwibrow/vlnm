@@ -8,8 +8,8 @@ on the gender identified by the speaker.
 
 import numpy as np
 
-from vlnm.normalizers import register_class
-from vlnm.normalizers.base import (
+from .base import (
+    register_class,
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
 from vlnm.conversion import hz_to_bark

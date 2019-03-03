@@ -4,8 +4,50 @@ Vowel normalizer module
 from typing import List, Union
 
 from ..docstrings import docstring
-from ..utils import get_formants_spec
-from . import register_class
+from ..utils import get_formants_spec, nameify
+
+NORMALIZERS = {}
+
+def register_normalizer(cls, *aliases, register=None):
+    """Register a normalizer to be used with the normalize function."""
+    register = NORMALIZERS if register is None else register
+    for alias in aliases:
+        register[alias] = cls
+
+def register_class(name):
+    """Decorator for registering a normalizder class."""
+    def _decorator(cls):
+        register_normalizer(cls, name)
+        return cls
+    return _decorator
+
+def get_normalizer(method, register=None):
+    """Return a normalizer."""
+    register = register or NORMALIZERS
+    raw = method
+    method = method.lower()
+    if method:
+        normalizers = [name for name in register
+                       if name.lower().startswith(method)]
+        if normalizers:
+            if len(normalizers) == 1:
+                return register[normalizers[0]]
+            raise NameError(
+                'Found {count} normalizers matching {name}:'
+                '{matching}'.format(
+                    count=len(normalizers),
+                    name=raw,
+                    matching=nameify(normalizers, quote='\'')))
+        raise NameError(
+            'Unknown normalizer {name}'.format(
+                name=nameify([method], quote='\'')))
+    raise ValueError('No normalizer specified')
+
+def list_normalizers(register=None):
+    """Return a list of normalizers."""
+    register = register if register is not None else NORMALIZERS
+    return list(register.keys())
+
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 

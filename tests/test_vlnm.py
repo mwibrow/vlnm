@@ -9,7 +9,7 @@ import unittest
 from vlnm import (
     normalize,
     read_csv)
-from vlnm.normalizers import register_normalizer
+from vlnm.normalizers.base import register_normalizer
 from vlnm.normalizers.speaker import LobanovNormalizer
 
 ROOT = os.path.dirname(__file__)

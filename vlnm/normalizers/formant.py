@@ -4,8 +4,7 @@ Formant intrinsic normalizers
 """
 import numpy as np
 
-from vlnm.normalizers import register_class
-from vlnm.normalizers.base import FormatIntrinsicTransformableNormalizer
+from .base import register_class, FormatIntrinsicTransformableNormalizer
 
 from ..conversion import (
     hz_to_bark,

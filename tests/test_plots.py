@@ -6,6 +6,9 @@ import os
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
+import matplotlib
+matplotlib.use('agg')
+
 from matplotlib.cm import get_cmap
 import numpy as np
 import pandas as pd
@@ -68,7 +71,7 @@ class TestVowelPlot(unittest.TestCase):
             os.path.join(FIXTURES, 'hawkins_midgely_2005.csv'))
 
 
-    @patch('vlnm.plots._create_figure')
+    @patch('vlnm.plots.create_figure')
     def test_init(self, mock_create_figure):  # pylint: disable=no-self-use
         """Test initialisation."""
         width, height = 4, 3
@@ -131,7 +134,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
         self.figure = figure
 
 
-    @patch('vlnm.plots._create_figure')
+    @patch('vlnm.plots.create_figure')
     def test_markers(self, mock_create_figure):
         """Test call arguments for markers method."""
         mock_create_figure.return_value = self.figure
@@ -154,7 +157,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
             assert_series_equal(args[0], x)
             assert_series_equal(args[1], y)
 
-    @patch('vlnm.plots._create_figure')
+    @patch('vlnm.plots.create_figure')
     def test_markers_legend(self, mock_create_figure):
         """Test call arguments with legend for markers method."""
         mock_create_figure.return_value = self.figure
@@ -179,7 +182,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
             assert_series_equal(args[0], x)
             assert_series_equal(args[1], y)
 
-    @patch('vlnm.plots._create_figure')
+    @patch('vlnm.plots.create_figure')
     def test_markers_which_mean(self, mock_create_figure):
         """Test which='mean' for markers method."""
         mock_create_figure.return_value = self.figure
@@ -203,7 +206,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
             self.assertEqual(args[0].values[0], x)
             self.assertEqual(args[1].values[0], y)
 
-    @patch('vlnm.plots._create_figure')
+    @patch('vlnm.plots.create_figure')
     def test_markers_which_median(self, mock_create_figure):
         """Test which='median' for markers method."""
         mock_create_figure.return_value = self.figure

@@ -4,8 +4,7 @@ Tests for registering normalizer classes
 
 import unittest
 
-import vlnm.normalizers
-from vlnm.normalizers import register_normalizer
+from vlnm.normalizers.base import register_normalizer, NORMALIZERS
 
 class _TestNormalizer:
     def public_method(self):
@@ -18,11 +17,14 @@ class TestRegisterNormalizer(unittest.TestCase):
 
     def test_default_register(self):
         """Add an entry to the default register"""
-        vlnm.normalizers.NORMALIZERS = {}
         register_normalizer(_TestNormalizer, 'test')
+
+        def is_subdict(small, big):
+            return dict(big, **small) == big
+
         self.assertDictEqual(
-            vlnm.normalizers.NORMALIZERS,
-            dict(test=_TestNormalizer))
+            NORMALIZERS,
+            dict(NORMALIZERS, **dict(test=_TestNormalizer)))
 
     def test_custom_register(self):
         """Add an entry to a custom register"""

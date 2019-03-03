@@ -14,7 +14,7 @@ import pandas as pd
 from scipy.spatial import ConvexHull
 
 from ..docstrings import docstring
-from . import register_class
+from .base import register_class
 from .speaker import SpeakerIntrinsicNormalizer
 
 LEXICAL_SET = [

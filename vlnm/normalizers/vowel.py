@@ -7,7 +7,7 @@ from typing import Callable, List, Union
 import pandas as pd
 import numpy
 
-from . import register_class
+from .base import register_class
 from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
 from ..docstrings import docstring

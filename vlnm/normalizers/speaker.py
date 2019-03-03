@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from ..docstrings import docstring
-from . import register_class
+from .base import register_class
 from .base import SpeakerIntrinsicNormalizer
 
 

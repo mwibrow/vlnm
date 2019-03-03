@@ -4,7 +4,7 @@ Tests for the normalizer package.
 
 import unittest
 
-from vlnm.normalizers import (
+from vlnm.normalizers.base import (
     get_normalizer,
     list_normalizers,
     register_normalizer
