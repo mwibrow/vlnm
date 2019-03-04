@@ -3,14 +3,17 @@
 API
 ===
 
+Normalizers a
 
 
+vlnm.normalizers
+----------------
 
-normalizers.vowel
------------------
+.. toctree::
+   :maxdepth: 2
+   :caption: normalizers
 
-.. automodule:: vlnm.normalizers.vowel
-    :members:
+   formant
 
 .. automodule:: vlnm.normalizers.speaker
     :members:
