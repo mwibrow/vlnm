@@ -12,6 +12,7 @@ from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
 from ..docstrings import docstring
 
+
 @docstring
 @register_class('barkdiff')
 class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
@@ -31,6 +32,7 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
 
     Parameters
     ----------
+
     {% f0 %}
     {% f1 %}
     {% f2 %}
@@ -95,7 +97,7 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             A dataframe containing the normalized formants.
         """
         return super().normalize(
-            df, f0=f0, f1=f1, f2=f2, f3=f3, formants=formants,
+            df, f0=f0, f1=f1, f2=f2, f3=f3,
             rename=rename, transform=transform)
 
     def _norm(self, df):

@@ -227,5 +227,10 @@ epub_exclude_files = ['search.html']
 # -- Extension configuration -------------------------------------------------
 
 pd.set_option('display.max_columns', None)
+
 add_module_names = False
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_private_with_doc = False
 napoleon_use_param = True

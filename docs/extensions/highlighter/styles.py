@@ -105,7 +105,7 @@ class MaterialStyle(Style):
         Generic.Heading:           "",        # class: 'gh'
         Generic.Inserted:          "",        # class: 'gi'
         Generic.Output:            "",        # class: 'go'
-        Generic.Prompt:            "",        # class: 'gp'
+        Generic.Prompt:            LIGHT_GREY,        # class: 'gp'
         Generic.Strong:            "bold",    # class: 'gs'
         Generic.Subheading:        "",        # class: 'gu'
         Generic.Traceback:         "",        # class: 'gt'

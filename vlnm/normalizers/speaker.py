@@ -165,7 +165,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
     {% formants %}
     {% speaker %}
     exp:
-        If :pbj:`True` transform the normalized formants
+        If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
     {% rename %}
 
