@@ -1,7 +1,7 @@
 .. include:: ../defs.rst
 
-:mod:`vlnm.normalizers.formant`
+:mod:`vlnm.normalizers.speaker`
 ===============================
 
-.. automodule:: vlnm.normalizers.formant
+.. automodule:: vlnm.normalizers.speaker
     :members:

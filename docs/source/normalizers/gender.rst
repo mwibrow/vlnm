@@ -1,7 +1,7 @@
 .. include:: ../defs.rst
 
-:mod:`vlnm.normalizers.formant`
+:mod:`vlnm.normalizers.gender`
 ===============================
 
-.. automodule:: vlnm.normalizers.formant
+.. automodule:: vlnm.normalizers.gender
     :members:

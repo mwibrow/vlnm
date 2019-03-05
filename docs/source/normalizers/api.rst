@@ -6,20 +6,13 @@ API
 Normalizers a
 
 
-vlnm.normalizers
-----------------
+:mod:`vlnm.normalizers`
+-----------------------
 
 .. toctree::
-   :maxdepth: 2
-   :caption: normalizers
+   :maxdepth: 1
 
    formant
-
-.. automodule:: vlnm.normalizers.speaker
-    :members:
-
-.. automodule:: vlnm.normalizers.gender
-    :members:
-
-.. automodule:: vlnm.normalizers.centroid
-    :members:
+   speaker
+   gender
+   centroid
