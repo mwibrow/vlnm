@@ -1,6 +1,9 @@
 """
 Formant intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Formant intrinsic normalizers normalize
+formant data
 """
 import numpy as np
 
@@ -8,11 +11,11 @@ from ..docstrings import docstring
 from .base import register_class, FormatIntrinsicTransformableNormalizer
 
 
-
 from ..conversion import (
     hz_to_bark,
     hz_to_erb,
     hz_to_mel)
+
 
 @docstring
 @register_class('bark')
@@ -98,6 +101,7 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
     {% rename %}
     """
     config = dict(transform=np.log)
+
 
 @docstring
 @register_class('mel')
