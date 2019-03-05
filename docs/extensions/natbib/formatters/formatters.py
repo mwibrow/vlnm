@@ -13,16 +13,19 @@ from .nodes import (
     formatted_node, join, link, optional, sentence, words,
     Node)
 
+
 def latex_decode(text):
     """
     Decode ascii text latex formant to UTF-8
     """
     return text.encode('ascii').decode('latex')
 
+
 class Formatter:
     """
     Class for creating citations and bibliographic entries in the APA style.
     """
+
     def __init__(self, env):
         Formatter.env = env
 
@@ -47,8 +50,10 @@ class Formatter:
         """
         return citenode
 
+
 class Authors(Node):
     """Authors node."""
+
     def format(self, **kwargs):
         author_list = kwargs.get('entry').persons['author']
         node = formatted_node(
@@ -82,6 +87,7 @@ class Authors(Node):
 
 class Editors(Node):
     """Edtiors node."""
+
     def format(self, **kwargs):
         author_list = kwargs.get('entry').persons['editor']
         node = formatted_node(
@@ -103,6 +109,7 @@ class Editors(Node):
 
     def __bool__(self):
         return True
+
 
 def get_author(author, last_names_only=False):
     """Get an author template."""
@@ -136,6 +143,7 @@ def get_author(author, last_names_only=False):
             ]
         ]
     ]
+
 
 def dashify(string, dash='–'):
     """Replace dashes with unicode dash."""
