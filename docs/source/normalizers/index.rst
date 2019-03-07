@@ -11,3 +11,5 @@ Vowel Normalization
 
    quickstart
    api
+
+|vlnm| contains the following normalizers:

@@ -13,12 +13,13 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 
+from vlnm.conversion import hz_to_bark
+from vlnm.docstrings import docstring
 from .base import (
     register_class,
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
-from vlnm.conversion import hz_to_bark
-from vlnm.docstrings import docstring
+
 
 @docstring
 @register_class('bladen')
@@ -97,6 +98,7 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
         """{% normalize %}"""
         super().normalize(formants=formants, gender=gender, female=female, male=male,
                           rename=rename, **kwargs)
+
 
 @docstring
 @register_class('nordstrom')
