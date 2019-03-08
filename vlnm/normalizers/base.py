@@ -10,18 +10,30 @@ from ..utils import get_formants_spec, nameify
 
 NORMALIZERS = {}
 
+
 def register_normalizer(cls, *aliases, register=None):
     """Register a normalizer to be used with the normalize function."""
     register = NORMALIZERS if register is None else register
     for alias in aliases:
         register[alias] = cls
 
+
 def register_class(name):
-    """Decorator for registering a normalizder class."""
+    """Decorator for registering a normalizer class."""
     def _decorator(cls):
         register_normalizer(cls, name)
+        setattr(cls, 'name', name)
         return cls
     return _decorator
+
+
+def classification(vowel=None, formant=None, speaker=None):
+    """Decorator for classifying a normalizer class."""
+    def _decorator(cls):
+        setattr(cls, '__vlnm_classification', dict(
+            vowel=vowel, formant=formant, speaker=speaker))
+    return _decorator
+
 
 def get_normalizer(method, register=None):
     """Return a normalizer."""
@@ -45,6 +57,7 @@ def get_normalizer(method, register=None):
                 name=nameify([method], quote='\'')))
     raise ValueError('No normalizer specified')
 
+
 def list_normalizers(register=None):
     """Return a list of normalizers."""
     register = register if register is not None else NORMALIZERS
@@ -55,7 +68,8 @@ FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 
 @register_class('default')
-class Normalizer(object):
+@classification(vowel=None, formant=None, speaker=None)
+class Normalizer:
     """Base normalizer class.
 
     Parameters
@@ -103,7 +117,6 @@ class Normalizer(object):
 
         # Parameters (configuration and options) supplied to _norm method.
         self.params = {}
-
 
     def _get_config(self):
         config = {}
@@ -256,6 +269,7 @@ class FormatIntrinsicTransformableNormalizer(
             rename: str = None,
             transform: Callable[[pandas.DataFrame], pandas.DataFrame] = None, **kwargs):
         super().__init__(formants=formants, rename=rename, transform=transform, **kwargs)
+
 
 class FormantExtrinsicNormalizer(Normalizer):
     """Base class for formant extrinsic normalizers.
