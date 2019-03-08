@@ -13,3 +13,5 @@ Vowel Normalization
    api
 
 |vlnm| contains the following normalizers:
+
+.. normalizers::

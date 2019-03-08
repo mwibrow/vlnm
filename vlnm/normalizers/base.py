@@ -32,6 +32,7 @@ def classification(vowel=None, formant=None, speaker=None):
     def _decorator(cls):
         setattr(cls, '__vlnm_classification', dict(
             vowel=vowel, formant=formant, speaker=speaker))
+        return cls
     return _decorator
 
 

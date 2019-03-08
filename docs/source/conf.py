@@ -68,7 +68,8 @@ extensions = [
     'plotting',
     'console',
     'tables',
-    'typehints'
+    'typehints',
+    'vlnmdoc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

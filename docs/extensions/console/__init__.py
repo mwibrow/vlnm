@@ -17,13 +17,16 @@ from pygments.lexer import RegexLexer
 from pygments import token
 from sphinx.highlighting import lexers
 
-def hidden(_):
+
+def hidden(_):  # pylint: disable=useless-return
     """Noop magic."""
     return None
+
 
 def identity(value):
     """Identity magic."""
     return value
+
 
 def pycon(value):
     """Console magic."""
@@ -33,6 +36,7 @@ def pycon(value):
         return node
     return None
 
+
 def default(value):
     """Default magic."""
     if value:
@@ -40,6 +44,7 @@ def default(value):
         node['language'] = 'python'
         return node
     return None
+
 
 def row_callback(_lexer, match):
     """Process a pandas dataframe row."""
@@ -72,6 +77,7 @@ class DataFrameLexer(RegexLexer):
             (r'(^.*?\n)', row_callback)
         ]
     }
+
 
 def csv_row_callback(_lexer, match):
     """Process a pandas dataframe row."""
@@ -109,8 +115,10 @@ class CsvLexer(RegexLexer):
         ]
     }
 
+
 lexers['pandas'] = DataFrameLexer(startinline=True)
 lexers['csv'] = CsvLexer(startinline=True)
+
 
 def dataframe(value):
     """Dataframe formatter."""
@@ -120,6 +128,7 @@ def dataframe(value):
         return node
     return None
 
+
 def csvfile(value):
     """csv formatter."""
     if value:
@@ -127,6 +136,7 @@ def csvfile(value):
         node['language'] = 'csv'
         return node
     return None
+
 
 def get_pygments_class(data):
     """Get pygments class."""
@@ -137,12 +147,15 @@ def get_pygments_class(data):
         pass
     return 's1'
 
+
 MAGICS = dict(
     default=default,
     hidden=hidden,
     dataframe=dataframe,
     console=pycon
 )
+
+
 class ConsoleDirective(Directive):
     """Class for processing the :rst:dir:`bibliography` directive.
     """
@@ -203,6 +216,7 @@ class ConsoleDirective(Directive):
 
         return [parent]
 
+
 def run_code(interpreter, code_object):
     """Run a code_object and return output."""
     stdout = StringIO()
@@ -214,6 +228,7 @@ def run_code(interpreter, code_object):
     stdout.close()
     stderr.close()
     return stdout_output, stderr_output
+
 
 def generate_statements(content, lexer, options):
     """Generator for statements and code_objects.
@@ -260,6 +275,7 @@ def generate_statements(content, lexer, options):
             code += r'\n'
             statement += r'\n'
             code_object = None
+
 
 def setup(app):
     """
