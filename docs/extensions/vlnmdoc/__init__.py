@@ -31,7 +31,8 @@ class NormalizersDirective(Directive):
         string_name = ''
         for name in normalizers:
             string_name += f" ``{name}``, "
-
+            klass = get_normalizer(name)
+            string_name += f" :class:`{klass.__name__} <{klass.__module__}.{klass.__name__}>` , "
         tmpdoc = docutils.utils.new_document('', document.settings)
         parser = RSTParser()
         parser.parse(string_name, tmpdoc)

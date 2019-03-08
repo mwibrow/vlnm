@@ -47,6 +47,8 @@ def get_normalizer(method, register=None):
         if normalizers:
             if len(normalizers) == 1:
                 return register[normalizers[0]]
+            if method in normalizers:
+                return register[method]
             raise NameError(
                 'Found {count} normalizers matching {name}:'
                 '{matching}'.format(
