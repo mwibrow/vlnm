@@ -32,7 +32,7 @@ class NormalizersDirective(Directive):
             '',
             '.. role:: red'
             '',
-            '.. list-table:: classify of vowel normalizers',
+            '.. list-table:: Vowel normalizers implmented in |vlnm|',
             '    :header-rows: 1',
             '    :align: center',
             '    :class: normalizers',

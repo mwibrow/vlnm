@@ -4,7 +4,7 @@ Helper functions.
 
 from typing import Dict, List, Type
 
-from ..utils import nameify
+from .utils import nameify
 
 NORMALIZERS = {}
 

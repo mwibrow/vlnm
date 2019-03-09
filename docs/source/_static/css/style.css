@@ -100,3 +100,8 @@ div.highlight-pandas + div.highlight-python {
 .blurb {
   text-align: center !important;
 }
+
+table.normalizers caption {
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+}

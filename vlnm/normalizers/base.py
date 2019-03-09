@@ -13,8 +13,8 @@ import pandas as pd
 
 from ..docstrings import docstring
 from ..utils import get_formants_spec, nameify
+from ..registration import classify, register
 
-from .helpers import classify, register
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 @docstring
