@@ -16,6 +16,7 @@ import pandas as pd
 from vlnm.conversion import hz_to_bark
 from vlnm.docstrings import docstring
 from .base import (
+    classification,
     register_class,
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
@@ -23,6 +24,7 @@ from .base import (
 
 @docstring
 @register_class('bladen')
+@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
@@ -102,6 +104,7 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
 
 @docstring
 @register_class('nordstrom')
+@classification(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
     Normalize formant data according to :citet:`nordstrom_1977`.

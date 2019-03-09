@@ -14,7 +14,7 @@ import pandas as pd
 from scipy.spatial import ConvexHull
 
 from ..docstrings import docstring
-from .base import register_class
+from .base import classification, register_class
 from .speaker import SpeakerIntrinsicNormalizer
 
 LEXICAL_SET = [
@@ -96,7 +96,8 @@ def _get_apice_formants(
 
     return apice_df
 
-
+@register_class('centroid')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class CentroidNormalizer(SpeakerIntrinsicNormalizer):
     """Base class for centroid based normalizers."""
 
@@ -124,6 +125,8 @@ class CentroidNormalizer(SpeakerIntrinsicNormalizer):
 
 
 @docstring
+@register_class('convex-hull')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class ConvexHullNormalizer(CentroidNormalizer):
     r"""Normalize using the barycenter of the speakers vowel space.
 
@@ -182,6 +185,7 @@ class ConvexHullNormalizer(CentroidNormalizer):
 
 
 @register_class('wattfab')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabriciusNormalizer(CentroidNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
 
@@ -295,6 +299,7 @@ WattFabricius1Normalizer = WattFabriciusNormalizer
 
 
 @register_class('wattfab2')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius2Normalizer(WattFabriciusNormalizer):
     r"""
     .. math::
@@ -349,6 +354,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
 
 @register_class('wattfab3')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius3Normalizer(WattFabriciusNormalizer):
     r"""
     .. math::
@@ -394,6 +400,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 
 
 @register_class('bigham')
+@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class BighamNormalizer(CentroidNormalizer):
     r"""
 

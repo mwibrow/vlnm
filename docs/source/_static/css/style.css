@@ -90,6 +90,13 @@ div.highlight-pandas + div.highlight-python {
   text-align: center !important;
 }
 
+.normalizers tr th,
+.normalizers tr td:nth-last-of-type(1),
+.normalizers tr td:nth-last-of-type(2),
+.normalizers tr td:nth-last-of-type(3) {
+  text-align: center !important;
+}
+
 .blurb {
   text-align: center !important;
 }

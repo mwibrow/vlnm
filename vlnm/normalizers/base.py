@@ -30,7 +30,7 @@ def register_class(name):
 def classification(vowel=None, formant=None, speaker=None):
     """Decorator for classifying a normalizer class."""
     def _decorator(cls):
-        setattr(cls, '__vlnm_classification', dict(
+        setattr(cls, 'classification', dict(
             vowel=vowel, formant=formant, speaker=speaker))
         return cls
     return _decorator
