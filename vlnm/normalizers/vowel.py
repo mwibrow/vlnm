@@ -7,15 +7,15 @@ from typing import Callable, List, Union
 import pandas as pd
 import numpy
 
-from .base import classification, register_class
+from .base import classify, register
 from .base import FormantExtrinsicNormalizer
 from ..conversion import hz_to_bark
 from ..docstrings import docstring
 
 
 @docstring
-@register_class('barkdiff')
-@classification(vowel='intrinsic', formant='extrinsic', speaker='intrinsic')
+@register('barkdiff')
+@classify(vowel='intrinsic', formant='extrinsic', speaker='intrinsic')
 class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
     r"""
     Normalize formant data according to :citet:`syrdal_gopal_1986`.

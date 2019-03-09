@@ -8,7 +8,7 @@ formant data
 import numpy as np
 
 from ..docstrings import docstring
-from .base import classification, register_class, FormatIntrinsicTransformableNormalizer
+from .base import classify, register, FormatIntrinsicTransformableNormalizer
 
 
 from ..conversion import (
@@ -18,8 +18,8 @@ from ..conversion import (
 
 
 @docstring
-@register_class('bark')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('bark')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""Normalise formants using the Bark scale :citet:`traunmuller_1990`.
 
@@ -45,8 +45,8 @@ class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
 
 
 @docstring
-@register_class('erb')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('erb')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""
     Normalise formants using the ERB scale :citep:`moore_glasberg_1996`.
@@ -70,8 +70,8 @@ class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
 
 
 @docstring
-@register_class('log10')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('log10')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
     r"""
     Normalize using the base 10 logarithm of the formant values.
@@ -89,8 +89,8 @@ class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
 
 
 @docstring
-@register_class('log')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('log')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class LogNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""
     Normalize using the natural logarithm of the formant values.
@@ -108,8 +108,8 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
 
 
 @docstring
-@register_class('mel')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('mel')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class MelNormalizer(FormatIntrinsicTransformableNormalizer):
     r"""
     Normalise vowels using the Mel scale :citep:`see {% oshaughnessy_1987 %}, p.150`.

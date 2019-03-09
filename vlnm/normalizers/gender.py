@@ -6,7 +6,7 @@ Normalizers which adjust calculations based
 on the speaker's identified/identifying gender.
 Note, that as defined in the literature
 :citep:`e.g., {% bladon_etal_1984, nordstrom_1977 %}`
-the normalizers use a binary gender classification.
+the normalizers use a binary gender classify.
 """
 from typing import List, Union
 
@@ -16,15 +16,15 @@ import pandas as pd
 from vlnm.conversion import hz_to_bark
 from vlnm.docstrings import docstring
 from .base import (
-    classification,
-    register_class,
+    classify,
+    register,
     FormantExtrinsicNormalizer,
     FormantIntrinsicNormalizer)
 
 
 @docstring
-@register_class('bladen')
-@classification(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
+@register('bladen')
+@classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
 class BladenNormalizer(FormantIntrinsicNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
@@ -103,8 +103,8 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
 
 
 @docstring
-@register_class('nordstrom')
-@classification(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
+@register('nordstrom')
+@classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class NordstromNormalizer(FormantExtrinsicNormalizer):
     r"""
     Normalize formant data according to :citet:`nordstrom_1977`.

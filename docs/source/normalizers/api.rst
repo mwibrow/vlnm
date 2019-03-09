@@ -19,7 +19,7 @@ suggest some correspondence to the most prominent `intrinsic` property
 as described by the literature, but this is merely
 coincidental: normalizers have been more-or-less logically
 grouped but the names of the modules should not be taken to
-indiciate any accepted classification in the literature.
+indiciate any accepted classify in the literature.
 
 
 

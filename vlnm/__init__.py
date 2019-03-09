@@ -6,7 +6,7 @@ import os
 
 import pandas as pd
 
-from vlnm.normalizers.base import (
+from vlnm.normalizers.helpers import (
     get_normalizer,
     list_normalizers,
     register_normalizer)

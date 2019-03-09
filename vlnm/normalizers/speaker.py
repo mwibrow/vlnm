@@ -9,13 +9,13 @@ import numpy as np
 import pandas as pd
 
 from ..docstrings import docstring
-from .base import register_class, classification
+from .base import register, classify
 from .base import SpeakerIntrinsicNormalizer
 
 
 @docstring
-@register_class('gerstman')
-@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+@register('gerstman')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize formants according to :citet:`gerstman_1968`.
 
@@ -64,8 +64,8 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 
 
 @docstring
-@register_class('lce')
-@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+@register('lce')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class LCENormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
@@ -106,8 +106,8 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
 
 
 @docstring
-@register_class('lobanov')
-@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+@register('lobanov')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
@@ -148,8 +148,8 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
 
 
 @docstring
-@register_class('neary')
-@classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+@register('neary')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class NearyNormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize by subtracting log-transformed formant means for each speaker.
 
@@ -214,8 +214,8 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 
 
 @docstring
-@register_class('nearygm')
-@classification(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
+@register('nearygm')
+@classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
 class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
     r"""Normalize by subtracting the speaker's mean log-transformed formants.
 

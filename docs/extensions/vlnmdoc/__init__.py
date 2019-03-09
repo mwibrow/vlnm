@@ -32,7 +32,7 @@ class NormalizersDirective(Directive):
             '',
             '.. role:: red'
             '',
-            '.. list-table:: Classification of vowel normalizers',
+            '.. list-table:: classify of vowel normalizers',
             '    :header-rows: 1',
             '    :align: center',
             '    :class: normalizers',
@@ -50,12 +50,12 @@ class NormalizersDirective(Directive):
             link = f'{klass.__module__}.{klass.__name__}'
             input_lines.append(f'    * - ``{name}``')
             input_lines.append(f'      - :class:`{klass.__name__}  <{link}>`')
-            classification = klass.classification or {}
+            classify = klass.classify or {}
             vowel = ()
             input_lines.extend([
-                f"      - {_mkcls(classification.get('vowel'))}",
-                f"      - {_mkcls(classification.get('formant'))}",
-                f"      - {_mkcls(classification.get('speaker'))}"
+                f"      - {_mkcls(classify.get('vowel'))}",
+                f"      - {_mkcls(classify.get('formant'))}",
+                f"      - {_mkcls(classify.get('speaker'))}"
             ])
         input_lines.append('')
         input_lines = [f'        {input_line}' for input_line in input_lines]
