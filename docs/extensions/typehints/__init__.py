@@ -94,13 +94,23 @@ class Formatter:
         params = annotation.__args__
         return ':py:class:`list` of {}'.format(self(params[0]))
 
+    def format_dict(self, annotation):
+        """Format Dict type."""
+        return ':py:class:`dict`'
+
+    def format_type(self, annotation):
+        """Type type."""
+        return 'class :py:class:`{}`'.format(annotation.__args__[0].__name__)
+
     def format_callable(self, annotation):
         """Format callable type."""
         params = annotation.__args__
-        args = ', '.join(strip_role(self.format_annotation(param))
-                         for param in params[:-1])
-        return_type = strip_role(self.format_annotation(params[-1]))
-        return ':py:class:`callable({})` returns :py:class:`{}`'.format(args, return_type)
+        if params:
+            args = ', '.join(strip_role(self.format_annotation(param))
+                            for param in params[:-1])
+            return_type = strip_role(self.format_annotation(params[-1]))
+            return ':py:class:`callable({})` returns :py:class:`{}`'.format(args, return_type)
+        return ':py:class:`callable()`'
 
     def format_dataframe(self, _):  # pylint: disable=no-self-use
         """Format dataframe."""

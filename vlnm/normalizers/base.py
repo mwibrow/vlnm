@@ -97,7 +97,8 @@ def get_normalizer(name: str, register: Dict = None) -> Type['Normalizer']:
     register:
         The register in which the normalizer was registered.
 
-    Returns:
+    Returns
+    -------
         The normalizer class.
     """
     register = register or NORMALIZERS
