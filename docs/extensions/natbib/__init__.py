@@ -43,7 +43,7 @@ def process_bibliographies(app, doctree, docname):
         keys = formatter.sort_keys(list(set(keys)), bibcache)
         year_suffixes = formatter.resolve_ties(keys, bibcache)
         for key in year_suffixes:
-            bibcache[key].fields['year_suffix'] = year_suffixes[key]
+            bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
 
         for key in keys:
             refid = '{}'.format(key)
@@ -71,7 +71,7 @@ def process_citations(app, doctree, docname):
     keys = bibkeys.get_keys()
     year_suffixes = formatter.resolve_ties(keys, bibcache)
     for key in year_suffixes:
-        bibcache[key].fields['year_suffix'] = year_suffixes[key]
+        bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
 
     for citenode in doctree.traverse(CitationNode):
         node = formatter.make_citation(

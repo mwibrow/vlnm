@@ -35,7 +35,7 @@ class BibliographyTransform(docutils.transforms.Transform):
 
             year_suffixes = formatter.resolve_ties(keys, bibcache)
             for key in year_suffixes:
-                bibcache[key].fields['year_suffix'] = year_suffixes[key]
+                bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
 
             for key in keys:
                 refid = '{}'.format(key)
