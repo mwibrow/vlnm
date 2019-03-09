@@ -25,7 +25,7 @@ class NormalizersDirective(Directive):
         document = self.state.document
         language = languages.get_language(document.settings.language_code)
 
-        normalizers = list_normalizers()
+        normalizers = sorted(list_normalizers())
         parent = docutils.nodes.paragraph()
 
         input_lines = [

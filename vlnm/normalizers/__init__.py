@@ -1,6 +1,4 @@
 """
     Normalizers package.
     ~~~~~~~~~~~~~~~~~~~~
-
-    .. autofunction:: normalize
 """

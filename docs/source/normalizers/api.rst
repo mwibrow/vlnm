@@ -12,7 +12,9 @@ Normalizers a
 .. toctree::
    :maxdepth: 1
 
+   base
    formant
+   vowel
    speaker
    gender
    centroid

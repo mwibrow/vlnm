@@ -1,9 +1,15 @@
 """
-Vowel normalizer module
-"""
-from typing import Callable, List, Union
+Vowel normalizer base classes and helpers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-import pandas
+The :mod:`base` module contains the base normalizer class
+and a number of helper functions for registering classes
+to be used with the :func:`normalize` function.
+
+"""
+from typing import Callable, Dict, List, Type, Union
+
+import pandas as pd
 
 from ..docstrings import docstring
 from ..utils import get_formants_spec, nameify
@@ -11,15 +17,43 @@ from ..utils import get_formants_spec, nameify
 NORMALIZERS = {}
 
 
-def register_normalizer(cls, *aliases, register=None):
-    """Register a normalizer to be used with the normalize function."""
+def register_normalizer(cls: Type['Normalizer'], *aliases: str, register: Dict = None):
+    """Register a normalizer to be used with the normalize function.
+
+    Parameters
+    ----------
+    cls:
+        A normalizer class.
+    *aliases:
+        Names that can be used to refer to access the class in the
+        :func:`.get_normalizer` function.
+    register:
+        A dictionary in which the normalizer class will be registered.
+        If omitted, the global regsiter will be used.
+    """
     register = NORMALIZERS if register is None else register
     for alias in aliases:
         register[alias] = cls
 
 
-def register_class(name):
-    """Decorator for registering a normalizer class."""
+def register_class(name: str):
+    """Decorator for registering a normalizer class.
+
+    Parameters:
+        name:
+            The name to use for the class.
+            Internally, the :func:`.register_normalizer`
+            function is called:
+
+    Example
+    -------
+
+    .. code::
+
+        @register_class('custom-normalizer')
+        class CustomNormalizer(Normalizer):
+            # Custom normalizer definition.
+    """
     def _decorator(cls):
         register_normalizer(cls, name)
         setattr(cls, 'name', name)
@@ -27,8 +61,24 @@ def register_class(name):
     return _decorator
 
 
-def classification(vowel=None, formant=None, speaker=None):
-    """Decorator for classifying a normalizer class."""
+def classification(vowel: str = None, formant: str = None, speaker: str = None):
+    """Decorator for classifying a normalizer class.
+
+    This adds ``classification`` attribute to the class
+    consisting of a dictionary containing the keys and values
+    passed to the decorator.
+
+    This is used solely for documenting normalizers.
+
+    Example
+    -------
+
+    .. code::
+
+        @classification(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+        class WattFabriciusNormalizer(CentroidNormalizer):
+            # Rest of definition.
+    """
     def _decorator(cls):
         setattr(cls, 'classification', dict(
             vowel=vowel, formant=formant, speaker=speaker))
@@ -36,19 +86,31 @@ def classification(vowel=None, formant=None, speaker=None):
     return _decorator
 
 
-def get_normalizer(method, register=None):
-    """Return a normalizer."""
+def get_normalizer(name: str, register: Dict = None) -> Type['Normalizer']:
+    """Return a normalizer.
+
+    Parameters
+    ----------
+    name:
+        The name which was used to register the normalizer
+        class using :func:`.register_normalizer()`.
+    register:
+        The register in which the normalizer was registered.
+
+    Returns:
+        The normalizer class.
+    """
     register = register or NORMALIZERS
-    raw = method
-    method = method.lower()
-    if method:
-        normalizers = [name for name in register
-                       if name.lower().startswith(method)]
+    raw = name
+    name = name.lower()
+    if name:
+        normalizers = [item for item in register
+                       if item.lower().startswith(name)]
         if normalizers:
             if len(normalizers) == 1:
                 return register[normalizers[0]]
-            if method in normalizers:
-                return register[method]
+            if name in normalizers:
+                return register[name]
             raise NameError(
                 'Found {count} normalizers matching {name}:'
                 '{matching}'.format(
@@ -57,23 +119,41 @@ def get_normalizer(method, register=None):
                     matching=nameify(normalizers, quote='\'')))
         raise NameError(
             'Unknown normalizer {name}'.format(
-                name=nameify([method], quote='\'')))
+                name=nameify([name], quote='\'')))
     raise ValueError('No normalizer specified')
 
 
-def list_normalizers(register=None):
-    """Return a list of normalizers."""
+def list_normalizers(register: Dict = None) -> List[str]:
+    """Return a list of normalizers.
+
+    Parameters
+    ----------
+    register:
+        The register in which the normalizer was registered.
+        If omitted, the global register will be used.
+
+    Returns
+    -------
+        A list of the names for the available normalizers.
+    """
     register = register if register is not None else NORMALIZERS
     return list(register.keys())
 
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
-
+@docstring
 @register_class('default')
 @classification(vowel=None, formant=None, speaker=None)
 class Normalizer:
     """Base normalizer class.
+
+    The :class:`Normalizer` class forms the base of all
+    normalizers and custom normalizers should all interit
+    from this class.
+
+    If used to normalize vowel formant data, it merely
+    returns the formant data unaltered.
 
     Parameters
     ----------
@@ -82,8 +162,9 @@ class Normalizer:
     {% f1 %}
     {% f2 %}
     {% f3 %}
-    {% formants %}
     {% rename %}
+    **kwargs:
+        Other keyword arguments (which may be passed from child classes).
 
     """
 
@@ -135,8 +216,8 @@ class Normalizer:
         return self.normalize(df, **kwargs)
 
     @docstring
-    def normalize(self, df, f0=None, f1=None, f2=None, f3=None,
-                  formants=None, rename=None, **kwargs):
+    def normalize(self, df: pd.DataFrame, f0=None, f1=None, f2=None, f3=None,
+                  formants=None, rename=None, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
@@ -270,7 +351,7 @@ class FormatIntrinsicTransformableNormalizer(
             self,
             formants: List[str] = None,
             rename: str = None,
-            transform: Callable[[pandas.DataFrame], pandas.DataFrame] = None, **kwargs):
+            transform: Callable[[pd.DataFrame], pd.DataFrame] = None, **kwargs):
         super().__init__(formants=formants, rename=rename, transform=transform, **kwargs)
 
 
