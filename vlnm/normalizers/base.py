@@ -143,7 +143,14 @@ class Normalizer:
             rename = self.params.get('rename') or '{}'
             for column in renameables:
                 if column in norm_df:
-                    df[rename.format(column)] = norm_df[column]
+                    try:
+                        new_column = rename.get(column, column)
+                        if new_column is None:
+                            continue
+                    except AttributeError:
+                        new_column = rename.format(column)
+
+                    df[new_column] = norm_df[column]
         return df
 
     def _formant_iterator(self):

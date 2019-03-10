@@ -37,3 +37,4 @@ indiciate any accepted classify in the literature.
    speaker
    gender
    centroid
+   decomposition

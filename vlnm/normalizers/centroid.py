@@ -618,6 +618,7 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
 
 
 @register('schwa')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class SchwaNormalizer(CentroidNormalizer):
     r"""
     .. math::

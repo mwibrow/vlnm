@@ -47,11 +47,20 @@ REPLACEMENTS = dict(
     """,
     rename=r"""
     rename:
-        If given, rename output columns according to the
+        If specified as a :obj:`str`
+        rename output columns according to the
         specified pattern. The characters ``{}`` will
         be replaced with the default output column,
         so using ``rename='{}_N'`` will suffix all
         output columns with ``_N``.
+
+        If specified as a :obj:`dict`,
+        columns will be renamed if they have an entry
+        in the dictionary, otherwise they will not be
+        renamed. The new name will be the value
+        given in the dictionary. If that value is
+        :obj:`None` the column will be removed from
+        the data.
     """,
     kwargs=r"""
     **kwargs
