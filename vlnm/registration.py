@@ -94,16 +94,17 @@ def get_normalizer(name: str, index: Dict = None) -> Type['Normalizer']:
         The normalizer class.
     """
     index = index or NORMALIZERS
+    index_lower = {key.lower(): key for key in index}
     raw = name
     name = name.lower()
     if name:
-        normalizers = [item for item in index
-                       if item.lower().startswith(name)]
+        normalizers = [item for item in index_lower
+                       if item.startswith(name)]
         if normalizers:
             if len(normalizers) == 1:
-                return index[normalizers[0]]
-            if name in index:
-                return index[name]
+                return index[index_lower[normalizers[0]]]
+            if name in normalizers:
+                return index[index_lower[name]]
             raise NameError(
                 'Found {count} normalizers matching {name}:'
                 '{matching}'.format(

@@ -97,10 +97,21 @@ def _get_apice_formants(
     return apice_df
 
 
+@docstring
 @register('centroid')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class CentroidNormalizer(SpeakerNormalizer):
-    """Base class for centroid based normalizers."""
+    """Base class for centroid based normalizers.
+
+    Parameters
+    ----------
+    {% formants %}
+    {% speaker %}
+    {% vowel %}
+    apices:
+        List of vowel labels corresponding to each apex of the speakers vowel space.
+    {% rename %}
+    """
 
     config = dict(
         columns=['speaker', 'vowel'],

@@ -222,6 +222,22 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
         return df
 
 
+@register('exp-neary1')
+@classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
+class ExpNearyNormalizer(NearyNormalizer):
+    """Neary normalizer with the ``exp`` parameter automatically set to ``True``.
+
+    See :class:`.NearyNormalizer` for details.
+    """
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            exp=True,
+            **kwargs):
+        super().__init__(formants=formants, exp=True, **kwargs)
+
+
 @docstring
 @register('nearygm')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
