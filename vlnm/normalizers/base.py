@@ -18,9 +18,6 @@ from ..registration import classify, register
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 
-@docstring
-@register('default')
-@classify(vowel=None, formant=None, speaker=None)
 class Normalizer:
     """Base normalizer class.
 
@@ -43,6 +40,8 @@ class Normalizer:
         Other keyword arguments (which may be passed from child classes).
 
     """
+
+    MAX_FX = 5
 
     config = dict(
         # Required columns for the normalizer.
@@ -156,10 +155,8 @@ class Normalizer:
                     df[rename.format(column)] = norm_df[column]
         return df
 
-    @staticmethod
-    def _formant_iterator(**kwargs):
-        formants = kwargs.get('formants')
-        yield dict(formants=formants)
+    def _formant_iterator(self):
+        yield dict(formants=self.formants)
 
     def _norm(self, df):  # pylint: disable=no-self-use
         """Implemented by subclasses"""
@@ -189,7 +186,7 @@ class FxNormalizer(Normalizer):
             if fx in kwargs:
                 formants.update(**{fx: kwargs.pop(fx)})
         self.formants = self._sanitize_formants(formants)
-        super().__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def _sanitize_formants(self, formants):
         fxs = list(formants.keys())
@@ -209,22 +206,19 @@ class FxNormalizer(Normalizer):
 class FormantsNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants."""
 
-    MAX_FX = 5
-
     def __init__(
             self,
             formants: List[str] = None,
             **kwargs):
-
         self.formants = formants if isinstance(formants, list) else [
             formants] if formants else []
-        super().__init__(self, **kwargs)
+        super().__init__(**kwargs)
 
     def _formant_iterator(self):
         yield dict(formants=self.formants)
 
 
-class SimpleTransformable(Normalizer):
+class SimpleTransformable(FormantsNormalizer):
     """Base class for normalizers which simply transform formants.
 
     Provides a :code:`_norm` method which transforms
@@ -232,7 +226,7 @@ class SimpleTransformable(Normalizer):
     """
 
     def _norm(self, df):
-        transform = self.params.get('transform', self.config.get('transform'))
+        transform = self.params.get('transform') or self.config.get('transform')
         if transform:
             formants = self.params.get('formants')
             df[formants] = transform(df[formants])
@@ -253,7 +247,7 @@ class FormantIntrinsicNormalizer(Normalizer):
 
 
 class FormatIntrinsicTransformableNormalizer(
-        SimpleTransformable, FormantIntrinsicNormalizer):
+        SimpleTransformable, FormantsNormalizer):
     """Base clase for formant intrinsic normalizers with a transform."""
 
     def __init__(
@@ -298,3 +292,12 @@ class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
         speaker = self.options.get('speaker') or 'speaker'
         return df.groupby(by=speaker, as_index=False).apply(
             super()._normalize)
+
+
+@docstring
+@register('default')
+@classify(vowel=None, formant=None, speaker=None)
+class DefaultNormalizer(FormantsNormalizer):
+    """Default normalizer.
+
+    """

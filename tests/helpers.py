@@ -18,17 +18,21 @@ from vlnm.normalizers.base import Normalizer
 DataFrame = pd.DataFrame
 Series = pd.Series
 
+
 def assert_frame_equal(*args, **kwargs):
     """Wrapper around pandas testing helper"""
     return pandas.testing.assert_frame_equal(*args, **kwargs)
+
 
 def assert_series_equal(*args, **kwargs):
     """Wrapper around pandas testing helper"""
     return pandas.testing.assert_series_equal(*args, **kwargs)
 
+
 def concat_df(*args, **kwargs):
     """Wrapper around pandas data-frame conact"""
     return pd.concat(*args, **kwargs)
+
 
 def make_set_up(set_up=None):
     """Make the set up function for a repeating test."""
@@ -38,11 +42,13 @@ def make_set_up(set_up=None):
         return obj.setUp()
     return _do_set_up
 
+
 def repeat_test(iterations=1, seed=None, set_up=None):
     """
     Decorator for repeating tests with random numbers.
     """
     set_up = make_set_up(set_up=set_up)
+
     def _decorator(method):
         def _wrapper(self, *args, **kwargs):
             np.random.seed(seed)
@@ -77,6 +83,7 @@ def generate_data_frame(
         base_df.loc[i, formant] = np.nan
     return base_df
 
+
 def get_test_dataframe(speakers=8):
     """Generate a test dataframe."""
     df = generate_data_frame(
@@ -88,13 +95,13 @@ def get_test_dataframe(speakers=8):
             vowel=['a', 'e', 'i', 'o', 'u']))
     return df
 
+
 # Fixed dataframe for each test run, if required.
 DATA_FRAME = get_test_dataframe()
 
 
 class Helper:
     """Wraper class for base test class."""
-
 
     class TestNormalizerBase(unittest.TestCase):
         """Common tests for the speaker normalizers."""
@@ -180,7 +187,7 @@ class Helper:
     class TestFormantNormalizerBase(TestNormalizerBase):
         """Common tests for the formant normalizers."""
 
-        transform = lambda x: x
+        def transform(x): return x
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -190,9 +197,8 @@ class Helper:
             """Test normalize output."""
             expected = self.df.copy()
             expected[self.formants] = self.transform(expected[self.formants])
-            actual = self.normalizer().normalize(self.df, **self.kwargs)
+            actual = self.normalizer().normalize(self.df)
             assert_frame_equal(actual, expected)
-
 
     class SpeakerNormalizerTests(TestNormalizerBase):
         """Common tests for the speaker normalizers."""
