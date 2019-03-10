@@ -233,19 +233,6 @@ class TransformNormalizer(FormantsNormalizer):
         return df
 
 
-class FormantIntrinsicNormalizer(Normalizer):
-    """Base class for formant intrinsic normalizers.
-
-    This provides a :code:`_formant_iterator` method which yields
-    a single formant structure for all specified formants.
-    """
-
-    @staticmethod
-    def _formant_iterator(**kwargs):
-        formants = kwargs.get('formants')
-        yield dict(formants=formants)
-
-
 class FormantsTransformNormalizer(TransformNormalizer):
     """Base clase for formant intrinsic normalizers with a transform."""
 
@@ -257,46 +244,11 @@ class FormantsTransformNormalizer(TransformNormalizer):
         super().__init__(formants=formants, rename=rename, transform=transform, **kwargs)
 
 
-class FormantExtrinsicNormalizer(Normalizer):
-    """Base class for formant extrinsic normalizers.
-
-    This provides a :code:`_formant_iterator` method which yields
-    a formant structure for sequences of formants.
-    """
-
-    @staticmethod
-    def _formant_iterator(**kwargs):
-        formant_list = [kwargs.get(f) for f in FORMANTS]
-        length = max(len(formant) for formant in formant_list if formant)
-        for item in formant_list:
-            if item:
-                item.extend(item[-1:] * (length - len(item)))
-        for i in range(length):
-            formant_spec = {
-                formant: formant_list[j][i]
-                for j, formant in enumerate(FORMANTS) if formant_list[j]}
-            formants = [value for value in formant_spec.values()]
-            formant_spec.update(formants=formants)
-            yield formant_spec
-
-
-class SpeakerIntrinsicNormalizer(FormantExtrinsicNormalizer):
-    """Base class for speaker intrinsic normalizers."""
-
-    config = dict(
-        columns=['speaker']
-    )
-
-    def _normalize(self, df):
-        speaker = self.options.get('speaker') or 'speaker'
-        return df.groupby(by=speaker, as_index=False).apply(
-            super()._normalize)
-
-
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
 class DefaultNormalizer(FormantsNormalizer):
     """Default normalizer.
 
+    Returns formant data unaltered.
     """
