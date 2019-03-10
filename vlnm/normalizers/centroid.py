@@ -14,7 +14,7 @@ import pandas as pd
 from scipy.spatial import ConvexHull
 
 from ..docstrings import docstring
-from .base import classify, register
+from .base import classify, register, FormantsNormalizer, FxNormalizer
 from .speaker import SpeakerNormalizer
 
 LEXICAL_SET = [
@@ -128,7 +128,7 @@ class CentroidNormalizer(SpeakerNormalizer):
 @docstring
 @register('convex-hull')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class ConvexHullNormalizer(CentroidNormalizer):
+class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
     r"""Normalize using the barycenter of the speakers vowel space.
 
     The convex hull normalizer establishes the speaker's vowel
@@ -187,7 +187,7 @@ class ConvexHullNormalizer(CentroidNormalizer):
 
 @register('wattfab')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class WattFabriciusNormalizer(CentroidNormalizer):
+class WattFabriciusNormalizer(CentroidNormalizer, FxNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
 
     The :class:`WattFabriciusNormalizer` normalizes vowel data
@@ -402,7 +402,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 
 @register('bigham')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class BighamNormalizer(CentroidNormalizer):
+class BighamNormalizer(CentroidNormalizer, FxNormalizer):
     r"""
 
     Normalise vowels according to :citet:`bigham_2008`.

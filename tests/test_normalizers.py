@@ -4,11 +4,12 @@ Tests for the normalizer package.
 
 import unittest
 
-from vlnm.normalizers.base import (
+from vlnm.registration import (
     get_normalizer,
     list_normalizers,
     register_normalizer
 )
+
 
 class TestGetNormalizer(unittest.TestCase):
     """
@@ -33,21 +34,21 @@ class TestGetNormalizer(unittest.TestCase):
         """
         Ambiguous method fraises NameError.
         """
-        register = dict(
+        index = dict(
             test_normalizer1=True,
             test_normalizer2=False)
         with self.assertRaises(NameError):
-            get_normalizer('test_normalizer', register=register)
+            get_normalizer('test_normalizer', index=index)
 
     def test_retrieve_normalizer(self):
         """
-        Return value in register.
+        Return value in index.
         """
-        register = dict(
+        index = dict(
             test_normalizer1=True,
             test_normalizer2=False)
         expected = True
-        actual = get_normalizer('test_normalizer1', register=register)
+        actual = get_normalizer('test_normalizer1', index=index)
         self.assertEqual(actual, expected)
 
 
@@ -76,5 +77,5 @@ class TestRegisterNormalizers(unittest.TestCase):
         """
         # Doesn't actually need to be a class.
         actual = {}
-        register_normalizer(True, 'test', register=actual)
+        register_normalizer(True, 'test', index=actual)
         self.assertDictEqual(actual, {'test': True})

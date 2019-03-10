@@ -98,8 +98,9 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
             rename: str = None,
             **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
-        super().normalize(df, formants=formants, gender=gender, female=female, male=male,
-                          rename=rename, **kwargs)
+        return super().normalize(
+            df, formants=formants, gender=gender, female=female, male=male,
+            rename=rename, **kwargs)
 
 
 @docstring
@@ -162,7 +163,6 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
             rename: str = None,
             **kwargs):
         super().__init__(
-            self,
             f0=f0, f1=f1, f2=f2, f3=f3,
             gender=gender, female=female, male=male, rename=rename,
             **kwargs)
@@ -222,5 +222,6 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
             rename: str = None,
             **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
-        super().normalize(df, gender=gender, female=female, male=male,
-                          rename=rename, **kwargs)
+        return super().normalize(
+            df, gender=gender, female=female, male=male,
+            rename=rename, **kwargs)

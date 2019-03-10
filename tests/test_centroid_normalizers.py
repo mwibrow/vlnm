@@ -5,7 +5,7 @@ Tests for 'centroid' normalizers
 import unittest
 
 from vlnm.normalizers.centroid import (
-    get_apice_formants,
+    _get_apice_formants,
     BighamNormalizer,
     SchwaNormalizer,
     WattFabriciusNormalizer,
@@ -35,7 +35,7 @@ class TestGetApiceFormants(unittest.TestCase):
             f2=[525., 625.]
         ), index=['fleece', 'trap'])
         expected.index.name = 'vowel'
-        actual = get_apice_formants(
+        actual = _get_apice_formants(
             df, dict(fleece='fleece', trap='trap'), 'vowel', ['f1', 'f2'])
         self.assertIsNone(assert_frame_equal(actual, expected))
 
@@ -51,7 +51,7 @@ class TestGetApiceFormants(unittest.TestCase):
             f2=[525., 625.]
         ), index=['fleece', 'trap'])
         expected.index.name = 'hvd'
-        actual = get_apice_formants(
+        actual = _get_apice_formants(
             df, dict(fleece='heed', trap='had'), 'hvd', ['f1', 'f2'])
         self.assertIsNone(assert_frame_equal(
             actual.sort_index(), expected.sort_index()))
