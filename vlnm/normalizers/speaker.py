@@ -10,13 +10,26 @@ import pandas as pd
 
 from ..docstrings import docstring
 from .base import register, classify
-from .base import SpeakerIntrinsicNormalizer
+from .base import Normalizer, FormantsNormalizer, FxNormalizer
+
+
+class SpeakerNormalizer(Normalizer):
+    """Base class for speaker intrinsic normalizers."""
+
+    config = dict(
+        columns=['speaker']
+    )
+
+    def _normalize(self, df):
+        speaker = self.options.get('speaker') or 'speaker'
+        return df.groupby(by=speaker, as_index=False).apply(
+            super()._normalize)
 
 
 @docstring
 @register('gerstman')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
+class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize formants according to :citet:`gerstman_1968`.
 
     Formants are normalized by subtracting the speaker's minimum value
@@ -39,8 +52,7 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: str = None, **kwargs):
-        super().__init__(
-            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
+        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
     def normalize(
@@ -66,7 +78,7 @@ class GerstmanNormalizer(SpeakerIntrinsicNormalizer):
 @docstring
 @register('lce')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LCENormalizer(SpeakerIntrinsicNormalizer):
+class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
     Formants are normalized by "linear compression or expansion"
@@ -87,8 +99,7 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
             rename: str = None, **kwargs):
-        super().__init__(
-            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
+        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
     def normalize(
@@ -108,7 +119,7 @@ class LCENormalizer(SpeakerIntrinsicNormalizer):
 @docstring
 @register('lobanov')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LobanovNormalizer(SpeakerIntrinsicNormalizer):
+class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
     This uses the formula given in :citet:`{% lobanov_1971 %} p.607`:
@@ -130,8 +141,7 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
             rename: str = None, **kwargs):
-        super().__init__(
-            self, speaker=speaker, formants=formants, rename=rename, **kwargs)
+        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, formants: List[str] = None,
@@ -150,7 +160,7 @@ class LobanovNormalizer(SpeakerIntrinsicNormalizer):
 @docstring
 @register('neary')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class NearyNormalizer(SpeakerIntrinsicNormalizer):
+class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize by subtracting log-transformed formant means for each speaker.
 
     .. math::
@@ -185,8 +195,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
             exp: bool = False,
             rename: str = None,
             **kwargs):
-        super().__init__(
-            self, formants=formants, exp=exp, rename=rename, **kwargs)
+        super().__init__(formants=formants, exp=exp, rename=rename, **kwargs)
 
     @docstring
     def normalize(
@@ -216,7 +225,7 @@ class NearyNormalizer(SpeakerIntrinsicNormalizer):
 @docstring
 @register('nearygm')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
-class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
+class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
     r"""Normalize by subtracting the speaker's mean log-transformed formants.
 
     The Neary 'Grand Mean' normalizer log-transforms each formant
@@ -259,12 +268,11 @@ class NearyGMNormalizer(SpeakerIntrinsicNormalizer):
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
-            formants: List[str] = None,
             speaker: str = None,
             exp: bool = False,
             rename: str = None):
         super().__init__(
-            f1=f1, f2=f2, f3=f3, formants=formants,
+            f1=f1, f2=f2, f3=f3,
             speaker=speaker, exp=exp, rename=rename)
 
     @docstring

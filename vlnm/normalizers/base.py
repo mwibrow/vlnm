@@ -175,24 +175,24 @@ class FxNormalizer(Normalizer):
             f2: Union[str, List[str]] = 'f2',
             f3: Union[str, List[str]] = 'f3',
             **kwargs):
-
+        super().__init__(**kwargs)
         formants = dict(
-            f0=f0,
-            f1=f1,
-            f2=f2,
-            f3=f3)
+            f0=f0 or 'f0',
+            f1=f1 or 'f1',
+            f2=f2 or 'f2',
+            f3=f3 or 'f3')
         for i in range(4, self.MAX_FX + 1):
             fx = f'f{i}'
             if fx in kwargs:
-                formants.update(**{fx: kwargs.pop(fx)})
+                formants.update(**{fx: kwargs.pop(fx, fx)})
         self.formants = self._sanitize_formants(formants)
-        super().__init__(**kwargs)
 
     def _sanitize_formants(self, formants):
         fxs = list(formants.keys())
         for fx in fxs:
             if not isinstance(formants[fx], list):
-                formants[fx] = [formants[fx]]
+                if formants[fx]:
+                    formants[fx] = [formants[fx]]
         return formants
 
     def _formant_iterator(self):
@@ -210,15 +210,15 @@ class FormantsNormalizer(Normalizer):
             self,
             formants: List[str] = None,
             **kwargs):
-        self.formants = formants if isinstance(formants, list) else [
-            formants] if formants else []
         super().__init__(**kwargs)
+        self.formants = formants if isinstance(formants, list) else [
+            formants] if formants else [f'f{i}' for i in range(0, self.MAX_FX + 1)]
 
     def _formant_iterator(self):
         yield dict(formants=self.formants)
 
 
-class SimpleTransformable(FormantsNormalizer):
+class TransformNormalizer(FormantsNormalizer):
     """Base class for normalizers which simply transform formants.
 
     Provides a :code:`_norm` method which transforms
@@ -246,8 +246,7 @@ class FormantIntrinsicNormalizer(Normalizer):
         yield dict(formants=formants)
 
 
-class FormatIntrinsicTransformableNormalizer(
-        SimpleTransformable, FormantsNormalizer):
+class FormantsTransformNormalizer(TransformNormalizer):
     """Base clase for formant intrinsic normalizers with a transform."""
 
     def __init__(

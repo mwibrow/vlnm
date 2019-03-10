@@ -18,14 +18,15 @@ from vlnm.docstrings import docstring
 from .base import (
     classify,
     register,
-    FormantExtrinsicNormalizer,
-    FormantIntrinsicNormalizer)
+    FormantsNormalizer,
+    FxNormalizer)
+from .speaker import SpeakerNormalizer
 
 
 @docstring
 @register('bladen')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class BladenNormalizer(FormantIntrinsicNormalizer):
+class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
     .. math::
@@ -64,7 +65,6 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
             rename: str = None,
             **kwargs):
         super().__init__(
-            self,
             formants=formants,
             gender=gender, female=female, male=male, rename=rename,
             **kwargs)
@@ -98,14 +98,14 @@ class BladenNormalizer(FormantIntrinsicNormalizer):
             rename: str = None,
             **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
-        super().normalize(formants=formants, gender=gender, female=female, male=male,
+        super().normalize(df, formants=formants, gender=gender, female=female, male=male,
                           rename=rename, **kwargs)
 
 
 @docstring
 @register('nordstrom')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class NordstromNormalizer(FormantExtrinsicNormalizer):
+class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     r"""
     Normalize formant data according to :citet:`nordstrom_1977`.
 
@@ -222,5 +222,5 @@ class NordstromNormalizer(FormantExtrinsicNormalizer):
             rename: str = None,
             **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
-        super().normalize(f0=f0, f1=f1, f2=f2, f3=f3, gender=gender, female=female, male=male,
+        super().normalize(df, gender=gender, female=female, male=male,
                           rename=rename, **kwargs)

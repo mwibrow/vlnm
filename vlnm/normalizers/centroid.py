@@ -15,7 +15,7 @@ from scipy.spatial import ConvexHull
 
 from ..docstrings import docstring
 from .base import classify, register
-from .speaker import SpeakerIntrinsicNormalizer
+from .speaker import SpeakerNormalizer
 
 LEXICAL_SET = [
     'kit',
@@ -96,9 +96,10 @@ def _get_apice_formants(
 
     return apice_df
 
+
 @register('centroid')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class CentroidNormalizer(SpeakerIntrinsicNormalizer):
+class CentroidNormalizer(SpeakerNormalizer):
     """Base class for centroid based normalizers."""
 
     config = dict(

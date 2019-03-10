@@ -128,30 +128,6 @@ class Helper:
                 with self.assertRaises(ValueError):
                     self.normalizer().normalize(df, **self.kwargs)
 
-        def test_fx_spec(self):
-            """
-            Specify formants using individual keys.
-            """
-            df = self.df.copy()
-            normalizer = self.normalizer()
-            normalizer.normalize(
-                df, f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
-            self.assertListEqual(
-                normalizer.params['formants'],
-                ['f0', 'f1', 'f2', 'f3'])
-
-        def test_fx_list_spec(self):
-            """
-            Missing column raises value error.
-            """
-            df = self.df.copy()
-            normalizer = self.normalizer()
-            normalizer.normalize(
-                df, f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
-            self.assertListEqual(
-                normalizer.params['formants'],
-                ['f0', 'f1', 'f2', 'f3'])
-
         def test_default_columns(self):
             """Check default columns returned."""
             expected = self.df.columns
@@ -183,6 +159,33 @@ class Helper:
             expected = sorted(expected)
             actual = sorted(actual)
             self.assertListEqual(actual, expected)
+
+    class TestFxNormalizerBase(TestNormalizerBase):
+        """Common tests for normalizer classes with a FxNormalizderBase."""
+
+        def test_fx_spec(self):
+            """
+            Specify formants using individual keys.
+            """
+            df = self.df.copy()
+            normalizer = self.normalizer()
+            normalizer.normalize(
+                df, f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
+
+        def test_fx_list_spec(self):
+            """
+            Missing column raises value error.
+            """
+            df = self.df.copy()
+            normalizer = self.normalizer()
+            normalizer.normalize(
+                df, f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
 
     class TestFormantNormalizerBase(TestNormalizerBase):
         """Common tests for the formant normalizers."""

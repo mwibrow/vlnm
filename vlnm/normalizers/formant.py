@@ -8,7 +8,7 @@ formant data
 import numpy as np
 
 from ..docstrings import docstring
-from .base import classify, register, FormatIntrinsicTransformableNormalizer
+from .base import classify, register, FormantsTransformNormalizer
 
 
 from ..conversion import (
@@ -20,7 +20,7 @@ from ..conversion import (
 @docstring
 @register('bark')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
+class BarkNormalizer(FormantsTransformNormalizer):
     r"""Normalise formants using the Bark scale :citet:`traunmuller_1990`.
 
     .. math::
@@ -47,7 +47,7 @@ class BarkNormalizer(FormatIntrinsicTransformableNormalizer):
 @docstring
 @register('erb')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
+class ErbNormalizer(FormantsTransformNormalizer):
     r"""
     Normalise formants using the ERB scale :citep:`moore_glasberg_1996`.
 
@@ -72,7 +72,7 @@ class ErbNormalizer(FormatIntrinsicTransformableNormalizer):
 @docstring
 @register('log10')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
+class Log10Normalizer(FormantsTransformNormalizer):
     r"""
     Normalize using the base 10 logarithm of the formant values.
 
@@ -91,7 +91,7 @@ class Log10Normalizer(FormatIntrinsicTransformableNormalizer):
 @docstring
 @register('log')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class LogNormalizer(FormatIntrinsicTransformableNormalizer):
+class LogNormalizer(FormantsTransformNormalizer):
     r"""
     Normalize using the natural logarithm of the formant values.
 
@@ -110,7 +110,7 @@ class LogNormalizer(FormatIntrinsicTransformableNormalizer):
 @docstring
 @register('mel')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class MelNormalizer(FormatIntrinsicTransformableNormalizer):
+class MelNormalizer(FormantsTransformNormalizer):
     r"""
     Normalise vowels using the Mel scale :citep:`see {% oshaughnessy_1987 %}, p.150`.
 

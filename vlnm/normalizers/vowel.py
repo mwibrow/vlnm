@@ -8,7 +8,7 @@ import pandas as pd
 import numpy
 
 from .base import classify, register
-from .base import FormantExtrinsicNormalizer
+from .base import FxNormalizer
 from ..conversion import hz_to_bark
 from ..docstrings import docstring
 
@@ -16,7 +16,7 @@ from ..docstrings import docstring
 @docstring
 @register('barkdiff')
 @classify(vowel='intrinsic', formant='extrinsic', speaker='intrinsic')
-class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
+class BarkDifferenceNormalizer(FxNormalizer):
     r"""
     Normalize formant data according to :citet:`syrdal_gopal_1986`.
 
