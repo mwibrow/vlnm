@@ -17,6 +17,7 @@ from ..registration import classify, register
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
+
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
@@ -51,31 +52,21 @@ class Normalizer:
         # Default options
         options=dict())
 
-    def __init__(
-            self,
-            f0: Union[str, List[str]] = None,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
-            formants: List[str] = None,
-            rename: str = None,
-            **kwargs):
+    def __init__(self, **kwargs):
         # Class configuration.
         self.config = self._get_config()
 
         # Constructor options.
         self.default_options = self.config.get('options', {}).copy()
-        self.default_options.update(
-            f0=f0, f1=f1, f2=f2, f3=f3,
-            formants=formants,
-            rename=rename,
-            **kwargs)
+        self.default_options.update(**kwargs)
 
         # Options set up in normalize method.
         self.options = {}
 
         # Parameters (configuration and options) supplied to _norm method.
         self.params = {}
+
+        self.formants = ['f0', 'f1', 'f2', 'f3']
 
     def _get_config(self):
         config = {}
@@ -91,17 +82,13 @@ class Normalizer:
         return self.normalize(df, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame, f0=None, f1=None, f2=None, f3=None,
-                  formants=None, rename=None, **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, rename=None, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
             rename=rename,
             **{key: value for key, value in kwargs.items()
                if value is not None})
-        formants_spec = self._get_formants_spec(
-            f0=f0, f1=f1, f2=f2, f3=f3, formants=formants)
-        self.options.update(**formants_spec)
 
         # Check keywords.
         for keyword in self.config['keywords']:
@@ -125,17 +112,6 @@ class Normalizer:
         self._postnormalize(norm_df)
         return norm_df
 
-    @staticmethod
-    def _get_formants_spec(**kwargs):
-        """Derive the formant structure from the given formants."""
-        if any(kwargs.get(f) for f in FORMANTS):
-            _kwargs = kwargs.copy()
-            _kwargs['formants'] = None
-            return get_formants_spec(**_kwargs)
-        elif kwargs.get('formants'):
-            return get_formants_spec(formants=kwargs['formants'])
-        return get_formants_spec()
-
     def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
         """Get default keyword arguments."""
         return self.options.get(keyword) or keyword
@@ -149,7 +125,7 @@ class Normalizer:
         return df
 
     def _normalize(self, df):
-        for formant_spec in self._formant_iterator(**self.options):
+        for formant_spec in self._formant_iterator():
             formant_spec['formants'] = [
                 formant for formant in formant_spec['formants']
                 if formant in df.columns]
@@ -188,6 +164,64 @@ class Normalizer:
     def _norm(self, df):  # pylint: disable=no-self-use
         """Implemented by subclasses"""
         return df
+
+
+class FxNormalizer(Normalizer):
+    """Base class for normalizers which require specification of individual formants."""
+
+    MAX_FX = 5
+
+    def __init__(
+            self,
+            f0: Union[str, List[str]] = 'f0',
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
+            f3: Union[str, List[str]] = 'f3',
+            **kwargs):
+
+        formants = dict(
+            f0=f0,
+            f1=f1,
+            f2=f2,
+            f3=f3)
+        for i in range(4, self.MAX_FX + 1):
+            fx = f'f{i}'
+            if fx in kwargs:
+                formants.update(**{fx: kwargs.pop(fx)})
+        self.formants = self._sanitize_formants(formants)
+        super().__init__(self, **kwargs)
+
+    def _sanitize_formants(self, formants):
+        fxs = list(formants.keys())
+        for fx in fxs:
+            if not isinstance(formants[fx], list):
+                formants[fx] = [formants[fx]]
+        return formants
+
+    def _formant_iterator(self):
+        fxs = sorted(list(self.formants.keys()))
+        for formants in zip(*(self.formants[fx] for fx in fxs if fx in fxs)):
+            formant_spec = {fx: formants[i] for i, fx in enumerate(formants)}
+            formant_spec['formants'] = sorted(list(formant_spec.keys()))
+            yield formant_spec
+
+
+class FormantsNormalizer(Normalizer):
+    """Base class for normalizers which require general list of formants."""
+
+    MAX_FX = 5
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            **kwargs):
+
+        self.formants = formants if isinstance(formants, list) else [
+            formants] if formants else []
+        super().__init__(self, **kwargs)
+
+    def _formant_iterator(self):
+        yield dict(formants=self.formants)
 
 
 class SimpleTransformable(Normalizer):
