@@ -2,9 +2,10 @@
 Vowel normalizer base classes and helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :mod:`base` module contains the base normalizer class
-and a number of helper functions for registering classes
-to be used with the :func:`normalize` function.
+The :mod:`base` module contains the base classes
+for vowel normalizers as well as the
+:class:`.DefaultNormalizer` which returns data unnormalized
+so can be used as a control when comparing normalization methods.
 
 """
 from typing import Callable, Dict, List, Type, Union
@@ -23,22 +24,12 @@ class Normalizer:
 
     The :class:`Normalizer` class forms the base of all
     normalizers and custom normalizers should all interit
-    from this class.
-
-    If used to normalize vowel formant data, it merely
-    returns the formant data unaltered.
+    from this class or one of its subclasses.
 
     Parameters
     ----------
-
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
-    {% rename %}
     **kwargs:
-        Other keyword arguments (which may be passed from child classes).
-
+        Keyword arguments used by child classes.
     """
 
     MAX_FX = 5
@@ -163,8 +154,21 @@ class Normalizer:
         return df
 
 
+@docstring
 class FxNormalizer(Normalizer):
-    """Base class for normalizers which require specification of individual formants."""
+    """Base class for normalizers which require specification of individual formants.
+
+    The :class:`FxNormalizer` class should be used as parent class
+    for any normalizer which needs to access specific formant
+    columns.
+
+    Parameters
+    ----------
+    {% f0 %}
+    {% f1 %}
+    {% f2 %}
+    {% f3 %}
+    """
 
     MAX_FX = 5
 
@@ -204,7 +208,16 @@ class FxNormalizer(Normalizer):
 
 
 class FormantsNormalizer(Normalizer):
-    """Base class for normalizers which require general list of formants."""
+    """Base class for normalizers which require general list of formants.
+
+    The :class:`FormantsNormalizer` should be used as the base
+    class for normalizers whose implementation does not need
+    to distinguish between specific formants.
+
+    Parameters
+    ----------
+    {% formants %}
+    """
 
     def __init__(
             self,
@@ -220,9 +233,6 @@ class FormantsNormalizer(Normalizer):
 
 class TransformNormalizer(FormantsNormalizer):
     """Base class for normalizers which simply transform formants.
-
-    Provides a :code:`_norm` method which transforms
-    all formants together.
     """
 
     def _norm(self, df):
@@ -234,14 +244,22 @@ class TransformNormalizer(FormantsNormalizer):
 
 
 class FormantsTransformNormalizer(TransformNormalizer):
-    """Base clase for formant intrinsic normalizers with a transform."""
+    """Base clase for normalizers transform each formant independently.
+
+    Parameters
+    ----------
+    {% formants %}
+    transform:
+        A function which takes |dataframe| containing
+        formant data, transforms the data
+        and returns (a possibly new) |dataframe|.
+    """
 
     def __init__(
             self,
             formants: List[str] = None,
-            rename: str = None,
             transform: Callable[[pd.DataFrame], pd.DataFrame] = None, **kwargs):
-        super().__init__(formants=formants, rename=rename, transform=transform, **kwargs)
+        super().__init__(formants=formants, transform=transform, **kwargs)
 
 
 @docstring
@@ -251,4 +269,20 @@ class DefaultNormalizer(FormantsNormalizer):
     """Default normalizer.
 
     Returns formant data unaltered.
+
+    Parameters
+    ----------
+    {% formants %}
+    {% rename %}
+
     """
+
+    def __init__(self, formants: List[str] = None, rename: Union[str, dict] = None):
+        super().__init__(formants=formanrs, rename=rename)
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """
+        {% normalize %}
+        """
+        super().normalize(df, **kwargs)

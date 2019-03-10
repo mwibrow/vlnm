@@ -76,20 +76,20 @@ REPLACEMENTS = dict(
     normalize=r"""
     Normalize formant data in a DataFrame.
 
-        Parameters
-        ----------
-        df :
-            The formant data to normalize.
+    Parameters
+    ----------
+    df :
+        The formant data to normalize.
 
-        Other parameters
-        ----------------
-        :
-            For other parameters see the documentation for the constructor.
+    Other parameters
+    ----------------
+    :
+        For other parameters see the documentation for the constructor.
 
-        Returns
-        -------
-        :
-            The normalized data.
+    Returns
+    -------
+    :
+        The normalized data.
     """)
 
 

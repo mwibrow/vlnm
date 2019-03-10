@@ -84,8 +84,12 @@ class Formatter:
     def format_union(self, annotation):
         """Format Union type."""
         params = annotation.__args__
-        if params[-1].__qualname__ == 'NoneType':
-            params = params[:-1]
+        try:
+            if params[-1].__qualname__ == 'NoneType':
+                params = params[:-1]
+        except AttributeError:
+            pass
+
         return ' | '.join(self.format_annotation(param)
                           for param in params)
 
@@ -107,7 +111,7 @@ class Formatter:
         params = annotation.__args__
         if params:
             args = ', '.join(strip_role(self.format_annotation(param))
-                            for param in params[:-1])
+                             for param in params[:-1])
             return_type = strip_role(self.format_annotation(params[-1]))
             return ':py:class:`callable({})` returns :py:class:`{}`'.format(args, return_type)
         return ':py:class:`callable()`'
