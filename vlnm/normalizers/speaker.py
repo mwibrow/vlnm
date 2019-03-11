@@ -227,7 +227,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
 class ExpNearyNormalizer(NearyNormalizer):
     """Neary normalizer with the ``exp`` parameter automatically set to ``True``.
 
-    See :class:`.NearyNormalizer` for details.
+    See :cite:`thomas_kendel_2007` for discussion.
     """
 
     def __init__(

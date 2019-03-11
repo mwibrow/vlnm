@@ -8,7 +8,7 @@ from collections import OrderedDict
 import docutils.nodes
 
 from .nodes import (
-    boolean, ifelse, idem, join, emph, optional, ref, sentence, text
+    boolean, ifelse, idem, join, emph, optional, ref, sentence, text, url
 )
 
 from .formatters import (
@@ -29,6 +29,17 @@ class AuthorYearFormatter(Formatter):
             title,
             join[journal, ', ', volume, ' ', pages, '.'],
             optional[field['doi'], doi]
+        ]
+
+    @staticmethod
+    def online_template():
+        """Tempalte for an online reference."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            title,
+            'Online resource:',
+            url[join[field['url']]],
+            join['(accessed ', field['accessed'], ')']
         ]
 
     @staticmethod
