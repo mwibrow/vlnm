@@ -3,7 +3,8 @@ Centroid normalizers
 ~~~~~~~~~~~~~~~~~~~~
 
 Centroid normalizers are speaker intrinsic normalizers
-which calculate the centroid of a speaker's vowel space
+which calculate the centroid (i.e., geometric center)
+of a speaker's vowel space
 and use this to normalize the formant data by
 divided the formants for each vowel by the
 correspoinding formant of the centroid.
@@ -103,7 +104,7 @@ def _get_apice_formants(
 @register('centroid')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class CentroidNormalizer(SpeakerNormalizer):
-    """Base class for centroid based normalizers.
+    """Normalize using the geometric center of the speakers entire vowel space.
 
     Parameters
     ----------
@@ -142,11 +143,11 @@ class CentroidNormalizer(SpeakerNormalizer):
 @register('convex-hull')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
-    r"""Normalize using the barycenter of the speakers entire vowel space.
+    r"""Normalize using the geometric center of the convex hull enclosing the speakers vowel space.
 
     The convex hull normalizer establishes the speaker's vowel
     space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
-    from the mean formants for `all` the speaker's vowels,
+    from the mean formants for `each` the speaker's vowels,
     and uses the barycenter of the points
     that make-up the hull to normalize the formant data.
 

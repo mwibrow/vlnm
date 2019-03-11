@@ -1,6 +1,6 @@
 """
-Vowel normalizer base classes and helpers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vowel normalizer base classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :mod:`base` module contains the base classes
 for vowel normalizers as well as the
@@ -8,12 +8,11 @@ for vowel normalizers as well as the
 so can be used as a control when comparing normalization methods.
 
 """
-from typing import Callable, Dict, List, Type, Union
+from typing import Callable, List, Union
 
 import pandas as pd
 
 from ..docstrings import docstring
-from ..utils import get_formants_spec, nameify
 from ..registration import classify, register
 
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
@@ -273,9 +272,7 @@ class FormantsTransformNormalizer(TransformNormalizer):
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
 class DefaultNormalizer(FormantsNormalizer):
-    """Default normalizer.
-
-    Returns formant data unaltered.
+    """'Default' normalizer which returns formant data unaltered.
 
     Parameters
     ----------
@@ -285,7 +282,7 @@ class DefaultNormalizer(FormantsNormalizer):
     """
 
     def __init__(self, formants: List[str] = None, rename: Union[str, dict] = None):
-        super().__init__(formants=formanrs, rename=rename)
+        super().__init__(formants=formants, rename=rename)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
