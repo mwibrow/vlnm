@@ -42,3 +42,5 @@ or `extrinsic` to certain properties
 are taken from :citet:`flynn_foulkes_2011`.
 
 .. normalizers::
+
+.. summaries::
