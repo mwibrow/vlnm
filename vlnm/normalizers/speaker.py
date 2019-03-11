@@ -122,15 +122,17 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
-    This uses the formula given in :citet:`{% lobanov_1971 %} p.607`:
+    This uses the formula given in :citet:`{% lobanov_1971 %}`:
 
     .. math::
 
         F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
 
-    Where :math:`\mu_{F_i}` and :math:`\sigma_{F_i}` are the
-    mean and standard deviation (respectively) of the
-    formant :math:`F_i` for a given speaker.
+    Where :math:`\mu_{F_i}` is the mean of the formant :math:`F_i`
+    and :math:`\sigma_{F_i}` is the 'rms deviation' (:citealp:`lobanov_1971`, p.606)
+    of formant :math:`F_i` from its mean for the speaker's vowels.
+    As noted by :citet:`thomas_kendel_2007` this is equivalent
+    to the standard deviation when the mean is zero.
 
     Parameters
     ----------
