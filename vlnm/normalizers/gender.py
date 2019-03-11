@@ -6,7 +6,7 @@ Normalizers which adjust calculations based
 on the speaker's identified/identifying gender.
 Note, that as defined in the literature
 :citep:`e.g., {% bladon_etal_1984, nordstrom_1977 %}`
-the normalizers use a binary gender classify.
+the normalizers use a binary gender classification.
 """
 from typing import List, Union
 
@@ -212,16 +212,8 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     def normalize(
             self,
             df: pd.DataFrame,
-            f0: Union[str, List[str]] = None,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
-            gender: str = 'gender',
-            female: str = 'F',
-            male: str = 'M',
             rename: str = None,
             **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(
-            df, gender=gender, female=female, male=male,
-            rename=rename, **kwargs)
+            df, rename=rename, **kwargs)

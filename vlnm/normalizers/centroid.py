@@ -4,7 +4,9 @@ Centroid normalizers
 
 Centroid normalizers are speaker intrinsic normalizers
 which calculate the centroid of a speaker's vowel space
-and use this to normalize the formant data.
+and use this to normalize the formant data by
+divided the formants for each vowel by the
+correspoinding formant of the centroid.
 """
 
 from typing import Any, Dict, List
@@ -140,7 +142,7 @@ class CentroidNormalizer(SpeakerNormalizer):
 @register('convex-hull')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
-    r"""Normalize using the barycenter of the speakers vowel space.
+    r"""Normalize using the barycenter of the speakers entire vowel space.
 
     The convex hull normalizer establishes the speaker's vowel
     space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
@@ -201,8 +203,8 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
 class WattFabriciusNormalizer(CentroidNormalizer, FxNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
 
-    The :class:`WattFabriciusNormalizer` normalizes vowel data
-    by dividing the componet formants for a vowel by a
+    Formant data is normalized by
+    by dividing the component formants for a vowel by a
     the components of a centroid calculated
     from the :math:`F_1` and :math:`F_2` data for the
     :smallcaps:`fleece`, :smallcaps:`trap` and :smallcaps:`goose` vowels, with
@@ -314,6 +316,8 @@ WattFabricius1Normalizer = WattFabriciusNormalizer
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius2Normalizer(WattFabriciusNormalizer):
     r"""
+    Second centroid normalizer described in :citet:`watt_fabricius_2002`.
+
     .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
@@ -369,6 +373,8 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius3Normalizer(WattFabriciusNormalizer):
     r"""
+    Third centroid normalizer described in :citet:`watt_fabricius_2002`.
+
     .. math::
 
         F_i^\prime = \frac{F_i}{S(F_i)}
@@ -415,8 +421,7 @@ class WattFabricius3Normalizer(WattFabriciusNormalizer):
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class BighamNormalizer(CentroidNormalizer, FxNormalizer):
     r"""
-
-    Normalise vowels according to :citet:`bigham_2008`.
+    Centroid normalizer using the centroid calculated according to :citet:`bigham_2008`.
 
     :citet:`bigham_2008` adapts :citet:`watt_fabricius_2002`
     to calculate a barycentric centroid from a trapzeoid
@@ -620,7 +625,8 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
 @register('schwa')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class SchwaNormalizer(CentroidNormalizer):
-    r"""
+    r"""Centroid normalizer using formant data for [ə] as the centroid.
+
     .. math::
 
         F_i^\prime = \frac{F_i}{F_{i}^{[ə]}} - 1

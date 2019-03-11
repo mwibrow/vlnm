@@ -4,7 +4,11 @@ Decomposition normalizers
 
 This module contains normalizers which can be
 used to perform dimensionality reduction
-on vowel formant data.
+on vowel formant data,
+for example, to project
+:math:`F_0`, :math:`F_1`, :math:`F_2`, :math:`F_3`
+data (i.e., four-dimensional data)
+onto two dimensions.
 
 """
 
@@ -23,16 +27,16 @@ class DecompositionNormalizer(FormantsNormalizer):
     """Base class for decomposition Normalizers."""
 
     def __init__(self, cls, columns=None, rename=None, **kwargs):
-        super().__init__(formants=columns)
+        super().__init__(formants=columns, rename=rename)
         self.estimator = cls(**kwargs)
 
     def _norm(self, df: pd.DataFrame, **kwargs):
         columns = kwargs['formants']
-        data = df[column].to_numpy()
+        data = df[columns].to_numpy()
         fit = self.estimator.fit_transform(data)
         df.drop(columns, axis=1)
         new_columns = [f'x{i+1}' for i in range(fit.shape[1])]
-        df[new_column] = fit
+        df[new_columns] = fit
         return df
 
 
@@ -69,7 +73,7 @@ class PCANormalizer(DecompositionNormalizer):
             n_components: int = 2,
             **kwargs):
         super().__init__(
-            PCA, columns=columns, rename=rename, n_components=n_componentsmm, **kwargs)
+            PCA, columns=columns, rename=rename, n_components=n_components, **kwargs)
 
 
 @register('nmf')
@@ -86,4 +90,4 @@ class NMFNormalizer(DecompositionNormalizer):
             n_components=2,
             **kwargs):
         super().__init__(
-            NMF, columns=columns, rename=rename, n_components=n_componentsmm, **kwargs)
+            NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
