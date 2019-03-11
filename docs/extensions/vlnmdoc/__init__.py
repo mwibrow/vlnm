@@ -97,7 +97,8 @@ class NormalizerSummariesDirective(Directive):
             module = importlib.import_module(module_name)
             input_lines = [module.__doc__]
             for klass in modules[module_name]:
-                input_lines.extend(['', f':class:`{klass.name}`', ''])
+                name = klass.name
+                input_lines.extend(['', f'``{name}``', '^' * (len(name) + 2), ''])
                 doc = reindent(klass.__doc__)
                 summary = doc_summary(doc)
                 input_lines.extend(summary)
