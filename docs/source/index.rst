@@ -49,6 +49,7 @@ using Matplotlib alone.
    :hidden:
    :maxdepth: 2
    :caption: Contents
+   :titlesonly:
 
    installation
    normalizers/index

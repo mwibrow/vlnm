@@ -33,7 +33,6 @@ class NormalizersDirective(Directive):
 
         input_lines = [
             '',
-            '.. role:: red'
             '',
             '.. list-table:: Vowel normalizers implmented in |vlnm|',
             '    :header-rows: 1',
@@ -49,8 +48,7 @@ class NormalizersDirective(Directive):
             return (cls or '').capitalize() or 'N/A'
         for name in normalizers:
             klass = get_normalizer(name)
-            link = f'{klass.__module__}.{klass.__name__}'
-            input_lines.append(f'    * - ``{name}``')
+            input_lines.append(f'    * - :ref:`{name} <{name}>`')
             classify = klass.classify or {}
             input_lines.extend([
                 f"      - {_mkcls(classify.get('vowel'))}",
@@ -61,10 +59,9 @@ class NormalizersDirective(Directive):
         input_lines = [f'        {input_line}' for input_line in input_lines]
         input_lines = '\n'.join(input_lines)
 
-        tmpdoc = docutils.utils.new_document('', document.settings)
         parser = RSTParser()
-        parser.parse(input_lines, tmpdoc)
-        parent += tmpdoc.children[0].children
+        parser.parse(input_lines, document)
+
         return [parent]
 
 
@@ -93,20 +90,22 @@ class NormalizerSummariesDirective(Directive):
         nodes = []
         for module_name in module_names:
             module = importlib.import_module(module_name)
-            input_lines = [module.__doc__.replace('~', '^')]
+            module_title = module.__doc__.strip().split('\n')[0]
+            module_doc = '\n'.join(module.__doc__.strip().split('\n')[2:])
+            input_lines = [f'.. rubric:: {module_title}', '   :class: module', module_doc, '']
             for klass in modules[module_name]:
                 name = klass.name
                 markup = f':obj:`{name}`'
-                input_lines.extend(['', markup, '"' * len(markup), ''])
+                input_lines.extend(
+                    ['', f'.. _{name}:', '', f'.. rubric:: {markup}', '   :class: name', ''])
                 doc = reindent(klass.__doc__)
                 summary = doc_summary(doc)
                 input_lines.extend(summary)
 
             input_lines = '\n'.join(input_lines)
-            tmpdoc = docutils.utils.new_document('', document.settings)
             parser = RSTParser()
-            parser.parse(input_lines, tmpdoc)
-            nodes.extend(tmpdoc.children[0].children)
+            parser.parse(input_lines, document)
+
         return nodes
 
 

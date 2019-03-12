@@ -105,3 +105,17 @@ table.normalizers caption {
   margin-top: 1.5em;
   margin-bottom: 1em;
 }
+
+table.normalizers a {
+  font-family: monospace !important;
+}
+
+.rubric.name code.xref {
+  background-color: #fff;
+  font-size: 125%;
+}
+
+.rubric.module {
+  font-size: 150%;
+  font-weight: normal;
+}
