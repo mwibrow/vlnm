@@ -101,6 +101,11 @@ class NormalizerSummariesDirective(Directive):
                 doc = reindent(klass.__doc__)
                 summary = doc_summary(doc)
                 input_lines.extend(summary)
+                input_lines.extend([
+                    '',
+                    f'The :obj:`{name}` normalizer is implemented in the '
+                    f':class:`{klass.__name__} <{module.__name__}.{klass.__name__}>` class.'
+                ])
 
             input_lines = '\n'.join(input_lines)
             parser = RSTParser()
