@@ -41,7 +41,6 @@ class NormalizersDirective(Directive):
             '    :class: normalizers',
             '',
             '    * - Normalizer',
-            '      - Python class',
             '      - Vowel',
             '      - Formant',
             '      - Speaker']
@@ -52,7 +51,6 @@ class NormalizersDirective(Directive):
             klass = get_normalizer(name)
             link = f'{klass.__module__}.{klass.__name__}'
             input_lines.append(f'    * - ``{name}``')
-            input_lines.append(f'      - :class:`{klass.__name__}  <{link}>`')
             classify = klass.classify or {}
             input_lines.extend([
                 f"      - {_mkcls(classify.get('vowel'))}",
