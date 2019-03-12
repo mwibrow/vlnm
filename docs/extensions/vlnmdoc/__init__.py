@@ -7,32 +7,29 @@ import re
 
 import docutils.nodes
 import docutils.utils
-from docutils.parsers.rst import directives, Directive, languages
-from docutils.parsers.rst.states import NestedStateMachine, Inliner, Struct
+import docutils.statemachine
 
-from sphinx.parsers import RSTParser
+from sphinx.util.docutils import SphinxDirective
+
 
 import vlnm
 from vlnm import get_normalizer, list_normalizers
 
 
-class NormalizersDirective(Directive):
+class NormalizersDirective(SphinxDirective):
     """List normalizers in a table."""
 
     required_arguments = 0
     optional_arguments = 0
-    final_argument_whitespace = True
+    final_argument_whitespace = False
     has_content = False
 
     def run(self):
         document = self.state.document
-        # language = languages.get_language(document.settings.language_code)
+        tab_width = document.settings.tab_width
 
         normalizers = sorted(list_normalizers())
-        parent = docutils.nodes.paragraph()
-
         input_lines = [
-            '',
             '',
             '.. list-table:: Vowel normalizers implmented in |vlnm|',
             '    :header-rows: 1',
@@ -57,15 +54,15 @@ class NormalizersDirective(Directive):
             ])
         input_lines.append('')
         input_lines = [f'        {input_line}' for input_line in input_lines]
-        input_lines = '\n'.join(input_lines)
 
-        parser = RSTParser()
-        parser.parse(input_lines, document)
+        raw_text = '\n'.join(input_lines)
+        include_lines = docutils.statemachine.string2lines(
+            raw_text, tab_width, convert_whitespace=True)
+        self.state_machine.insert_input(include_lines, '')
+        return []
 
-        return [parent]
 
-
-class NormalizerSummariesDirective(Directive):
+class NormalizerSummariesDirective(SphinxDirective):
     """Summarize normalizer documentation."""
 
     required_arguments = 0
@@ -75,6 +72,8 @@ class NormalizerSummariesDirective(Directive):
 
     def run(self):
         document = self.state.document
+        tab_width = document.settings.tab_width
+
         names = sorted(list_normalizers())
         modules = {}
         for name in names:
@@ -86,8 +85,6 @@ class NormalizerSummariesDirective(Directive):
                 modules[module] = [klass]
 
         module_names = sorted(list(modules.keys()))
-
-        nodes = []
         for module_name in module_names:
             module = importlib.import_module(module_name)
             module_title = module.__doc__.strip().split('\n')[0]
@@ -107,11 +104,12 @@ class NormalizerSummariesDirective(Directive):
                     f':class:`{klass.__name__} <{module.__name__}.{klass.__name__}>` class.'
                 ])
 
-            input_lines = '\n'.join(input_lines)
-            parser = RSTParser()
-            parser.parse(input_lines, document)
+            raw_text = '\n'.join(input_lines)
+            include_lines = docutils.statemachine.string2lines(
+                raw_text, tab_width, convert_whitespace=True)
+            self.state_machine.insert_input(include_lines, '')
 
-        return nodes
+        return []
 
 
 def doc_summary(lines):

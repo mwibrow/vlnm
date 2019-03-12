@@ -32,15 +32,28 @@ Normalizers
 -----------
 
 |vlnm| implements the normalizers shown below.
-The documentation for each normalizer can be viewed
-by clicking on the relevance class name
-in the **Python class** column.
+Summmaries for each normalizer can be viewed
+by clicking on the name in the **Normalizer** column.
 The classification of normalizers according
 to whether the calculations they perform are `intrinsic`
 or `extrinsic` to certain properties
 (i.e., vowel, formant, and speaker)
-are taken from :citet:`flynn_foulkes_2011`.
+are taken for most normalizers
+from :citet:`flynn_foulkes_2011`.
 
 .. normalizers::
+
+
+The following sections provide summaries for
+each normalizer, grouped according to the
+Python module in whih they are implemented.
+Clicking on the class name for each normalizer
+will show the API documentation for that normalizer,
+with details regarding how to specify
+parameters when using the normalizer.
+
+It should be noted, that the module names
+do not necessarily reflect the classification
+of normalizers shown in the table above.
 
 .. summaries::
