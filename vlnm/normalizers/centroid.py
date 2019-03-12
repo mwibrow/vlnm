@@ -199,9 +199,9 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
         return centroid
 
 
-@register('wattfab')
+@register('wattfab1')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class WattFabriciusNormalizer(CentroidNormalizer, FxNormalizer):
+class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
     r"""Normalize vowels according to :citet:`watt_fabricius_2002`.
 
     Formant data is normalized by
@@ -310,12 +310,12 @@ class WattFabriciusNormalizer(CentroidNormalizer, FxNormalizer):
         return super().normalize(df, apices=apices, **kwargs)
 
 
-WattFabricius1Normalizer = WattFabriciusNormalizer
+WattFabriciusNormalizer = WattFabricius1Normalizer
 
 
 @register('wattfab2')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class WattFabricius2Normalizer(WattFabriciusNormalizer):
+class WattFabricius2Normalizer(WattFabricius1Normalizer):
     r"""
     Second centroid normalizer described in :citet:`watt_fabricius_2002`.
 
@@ -372,7 +372,7 @@ class WattFabricius2Normalizer(WattFabriciusNormalizer):
 
 @register('wattfab3')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class WattFabricius3Normalizer(WattFabriciusNormalizer):
+class WattFabricius3Normalizer(WattFabricius1Normalizer):
     r"""
     Third centroid normalizer described in :citet:`watt_fabricius_2002`.
 
