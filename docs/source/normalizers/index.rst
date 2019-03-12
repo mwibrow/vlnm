@@ -44,16 +44,11 @@ from :citet:`flynn_foulkes_2011`.
 .. normalizers-table::
 
 
-The following sections provide summaries for
-each normalizer, grouped according to the
-Python module in whih they are implemented.
-Clicking on the class name for each normalizer
-will show the API documentation for that normalizer,
-with details regarding how to specify
+The following sections provide breif summaries for
+each normalizer.
+Clicking on the Python class name for each normalizer
+will show the API documentation
+which includes details on how to specify
 parameters when using the normalizer.
-
-It should be noted, that the module names
-do not necessarily reflect the classification
-of normalizers shown in the table above.
 
 .. normalizers-summaries::
