@@ -41,7 +41,7 @@ or `extrinsic` to certain properties
 are taken for most normalizers
 from :citet:`flynn_foulkes_2011`.
 
-.. normalizers::
+.. normalizers-table::
 
 
 The following sections provide summaries for
@@ -56,4 +56,4 @@ It should be noted, that the module names
 do not necessarily reflect the classification
 of normalizers shown in the table above.
 
-.. summaries::
+.. normalizers-summaries::

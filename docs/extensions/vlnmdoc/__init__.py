@@ -139,5 +139,5 @@ def setup(app):
     """
     Set up the sphinx extension.
     """
-    app.add_directive('normalizers', NormalizersDirective)
-    app.add_directive('summaries', NormalizerSummariesDirective)
+    app.add_directive('normalizers-table', NormalizersDirective)
+    app.add_directive('normalizers-summaries', NormalizerSummariesDirective)
