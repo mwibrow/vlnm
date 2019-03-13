@@ -85,12 +85,23 @@ div.highlight-pandas + div.highlight-python {
   padding-top: 0.5em;
 }
 
-.jupyter.line-block .highlight pre {
+.jupyter-cell .highlight pre {
   background-color: #f7f7f7 !important;
   padding: 0.25rem 0.5rem !important;
   border-radius: 2px;
   border: 1px solid #ccc;
   margin-right: 1rem;
+}
+
+.jupyter-output .highlight pre {
+  background-color: transparent !important;
+  padding: 0.25rem 0.5rem !important;
+  margin-right: 1rem;
+}
+
+.jupyter-output.jupyter-error .highlight pre span {
+  color: #d32f2f !important;
+  font-style: italic;
 }
 
 .small-caps {
