@@ -2,5 +2,5 @@
 
 .. _section_normalization_quickstart:
 
-Quickstart
-==========
+Getting started
+===============
