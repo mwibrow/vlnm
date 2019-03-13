@@ -238,12 +238,40 @@ class ConsoleDirective(Directive):
         return [parent]
 
 
-class JupyterDirective(ConsoleDirective):
+class JupyterDirective(Directive):
     """Jupyter style scripting."""
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
 
     def run(self):
         self.options['jupyter'] = True
-        return super().run()
+        imports = ''
+        statements = u'\n'.join(
+            line for line in self.content if not line.startswith('###'))
+        code = u'\n'.join(
+            line[4:] if line.startswith('###') else line for line in self.content)
+        code = ('\nimport matplotlib\nmatplotlib.use("{}")\nimport matplotlib.pyplot\n'
+                '{}\n{}\n__figure__ = matplotlib.pyplot.gcf()\n').format('agg', imports, code)
+        env = {}
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            exec(code, env)  # pylint: disable=exec-used
+        stdout_output = stdout.getvalue()
+        stderr_output = stderr.getvalue()
+        stdout.close()
+        stderr.close()
+        print(stdout_output, stderr_output)
+        print(env.get('__figure__'))
+        parent = docutils.nodes.line_block(classes=['jupyter'])
+        code = docutils.nodes.literal_block(statements, statements)
+        code['language'] = 'python'
+        parent += code
+
+        return [parent]
 
 
 def run_code(interpreter, code_object):

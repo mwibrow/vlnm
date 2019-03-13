@@ -7,7 +7,10 @@ VLNM: Vowel normalization and plotting using Python
 :Date:    |today|
 
 
+.. jupyter::
 
+    for i in range(10):
+        print(i)
 
 
 What is VLNM?
