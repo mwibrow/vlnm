@@ -169,14 +169,18 @@ class ConsoleDirective(Directive):
         'code-only': directives.flag,
         'script': directives.flag,
         'execute': directives.flag,
-        'lexer': directives.unchanged
+        'lexer': directives.unchanged,
+        'jupyter': directives.flag
     }
 
     def run(self):
         """Run directive"""
-        lexer = self.options.get('lexer') or 'python'
         self.arguments = ['python']
+
+        lexer = self.options.get('lexer') or 'python'
+        jupyter = 'jupyter' in self.options
         execute = 'code-only' not in self.options
+
         env = self.state.document.settings.env
 
         curdir = os.curdir
@@ -188,32 +192,49 @@ class ConsoleDirective(Directive):
         interpreter = InteractiveInterpreter(locals=local_env)
         if lexer == 'csv':
             content = '\n'.join(self.content)
-            console = [csvfile(content)]
+            code_input = []
+            code_output = [csvfile(content)]
         else:
             items = [item for item in self.content]
-            console = []
+            code_input = []
+            if jupyter:
+                code_output = []
+            else:
+                code_output = code_input
             for line in generate_statements(items, lexer, self.options):
                 statement, magic, code_object, code_magic = line
                 cast = MAGICS.get(magic, MAGICS['default'])
                 result = cast(statement)
                 if result:
-                    console.append(result)
+                    code_input.append(result)
                 if execute and code_magic not in ['code']:
                     stdout, stderr = run_code(interpreter, code_object)
                     cast = MAGICS.get(code_magic, MAGICS['console'])
                     output = cast(stdout[:-1])
                     if output:
-                        console.append(output)
+                        code_output.append(output)
                     output = MAGICS['console'](stderr[:-1])
                     if output:
-                        console.append(output)
+                        code_output.append(output)
         os.chdir(curdir)
 
-        parent = docutils.nodes.line_block(classes=['console'])
-        for block in console:
-            block.attributes['classes'] += ['console-subblock']
-            parent += block
-
+        if jupyter:
+            parent = docutils.nodes.line_block(classes=['jupyter'])
+            script = docutils.nodes.line_block(classes=['console'])
+            output = docutils.nodes.line_block(classes=['output'])
+            for block in code_input:
+                block.attributes['classes'] += ['console-subblock']
+                script += block
+            for block in code_output:
+                block.attributes['classes'] += ['console-subblock']
+                output += block
+            parent += script
+            parent += output
+        else:
+            parent = docutils.nodes.line_block(classes=['console'])
+            for block in code_output:
+                block.attributes['classes'] += ['console-subblock']
+                parent += block
         return [parent]
 
 
@@ -233,7 +254,7 @@ def run_code(interpreter, code_object):
 def generate_statements(content, lexer, options):
     """Generator for statements and code_objects.
     """
-    if lexer == 'python' and not 'script' in options:
+    if lexer == 'python' and not 'script' in options and not 'jupyter' in options:
         initial_prefix = '>>> '
         continuation_prefix = '... '
     else:
@@ -263,7 +284,7 @@ def generate_statements(content, lexer, options):
         else:
             statement += line
         try:
-            code_object = compile_command(code)
+            code_object = compile_command(code + '\n')
             if code_object is None:
                 code += '\n'
                 statement += '\n' + continuation_prefix
@@ -271,7 +292,8 @@ def generate_statements(content, lexer, options):
                 if statement:
                     yield (statement, magic, code_object, code_magic)
                 code = code_magic = magic = statement = ''
-        except SyntaxError:
+        except SyntaxError as err:
+            print(err)
             code += r'\n'
             statement += r'\n'
             code_object = None

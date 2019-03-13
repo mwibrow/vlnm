@@ -19,6 +19,14 @@ described in the literature (although remains agnostic
 regarding which may be considered the most suitable
 for a given collection of formant data).
 
+.. console::
+    :jupyter:
+
+    for i in range(10):
+        print(i)
+
+
+
 To just get started using normalizers, jump to
 :ref:`section_normalization_quickstart`.
 More detailed descriptions of the implementation

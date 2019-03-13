@@ -236,17 +236,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
     the :smallcaps:`fleece`, :smallcaps:`trap`
     and (derived) :smallcaps:`goose` vowels, respectively.
 
-    Example
-    -------
 
-    .. console::
-        :code-only:
-
-        >>> import pandas as pd
-        >>> from vlnm import WattFabriciusNormalizer
-        >>> normalizer = WattFabriciusNormalizer()
-        >>> df = pd.read_csv('vowel_data.csv')
-        >>> norm_df = normalizer(df, fleece='i:', trap='a')
 
     """
     config = dict(
@@ -277,13 +267,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
         Note that a :class:`WattFabriciusNormalizer` instance is `callable`,
         and the call is forwarded to this method.
 
-        .. console::
-            :code-only:
 
-            normalizer = WattFabriciousNormalizer()
-            normalizer(df)
-            # Same as
-            normalizer.normalize(df)
 
         Parameters
         ----------
@@ -543,24 +527,6 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
 
     Example
     -------
-
-    .. console::
-        :code-only:
-
-        import pandas as pd
-        from vlnm import BighamNormalizer
-        apices=dict(
-            kit='hid',
-            goose='whod',
-            fleece='heed',
-            start='heart',
-            thought='hoard',
-            trap='had')
-        normalizer = BighamNormalizer(apices)
-        df = pd.read_csv('hawkins_midgely_2005.csv')
-        df_norm = normalizer(df)
-
-        df_norm.head()
 
     """
     config = dict(
