@@ -238,6 +238,14 @@ class ConsoleDirective(Directive):
         return [parent]
 
 
+class JupyterDirective(ConsoleDirective):
+    """Jupyter style scripting."""
+
+    def run(self):
+        self.options['jupyter'] = True
+        super().run()
+
+
 def run_code(interpreter, code_object):
     """Run a code_object and return output."""
     stdout = StringIO()
@@ -304,3 +312,4 @@ def setup(app):
     Set up the sphinx extension.
     """
     app.add_directive('console', ConsoleDirective)
+    app.add_directive('jupyter', JupyterDirective)

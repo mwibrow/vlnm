@@ -19,8 +19,7 @@ described in the literature (although remains agnostic
 regarding which may be considered the most suitable
 for a given collection of formant data).
 
-.. console::
-    :jupyter:
+.. jupyter::
 
     for i in range(10):
         print(i)
