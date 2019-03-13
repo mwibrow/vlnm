@@ -243,7 +243,7 @@ class JupyterDirective(ConsoleDirective):
 
     def run(self):
         self.options['jupyter'] = True
-        super().run()
+        return super().run()
 
 
 def run_code(interpreter, code_object):
