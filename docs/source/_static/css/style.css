@@ -85,17 +85,9 @@ div.highlight-pandas + div.highlight-python {
   padding-top: 0.5em;
 }
 
-.jupyter .output .highlight pre {
-  background-color: transparent !important;
-  padding: 0.5rem !important;
-}
-
-.jupyter .console .highlight pre {
+.jupyter.line-block .highlight pre {
   background-color: #f7f7f7 !important;
   padding: 0.25rem 0.5rem !important;
-}
-
-.jupyter .console.line-block {
   border-radius: 2px;
   border: 1px solid #ccc;
   margin-right: 1rem;

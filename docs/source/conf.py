@@ -64,6 +64,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'ipa',
     'highlighter',
+    'jupyter',
     'natbib',
     'plotting',
     'console',
