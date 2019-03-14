@@ -184,3 +184,25 @@ table.dataframe td:first-of-type {
 table.dataframe .row-even {
   background-color: #eceff1;
 }
+
+.jupyter div.input {
+  display: flex;
+  flex-direction: row;
+  margin-left: 0;
+}
+
+.jupyter div.prefix {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 90%;
+  padding-top: calc(0.25rem + 1px);
+  width: 3rem;
+  margin-left: 0;
+}
+
+.jupyter div.jupyter-cell,
+.jupyter div.jupyter-output {
+  display: inline-block;
+  font-family: monospace;
+  width: calc(100% - 3rem);
+}

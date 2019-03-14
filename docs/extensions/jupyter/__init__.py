@@ -127,9 +127,19 @@ class IPythonDirective(Directive):
         result = exc_result.result
 
         parent = docutils.nodes.line_block(classes=['jupyter'])
+        input_block = docutils.nodes.line_block(classes=['input'])
+        prefix_block = docutils.nodes.line_block(classes=['prefix'])
+        prefix_block += docutils.nodes.inline('In:', 'In:')
+        input_block += prefix_block
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
-        parent += node
+        input_block += node
+        parent += input_block
+
+        output_block = docutils.nodes.line_block(classes=['input'])
+        prefix_block = docutils.nodes.line_block(classes=['prefix'])
+        prefix_block += docutils.nodes.inline('Out:', 'Out:')
+        output_block += prefix_block
 
         if error:
             # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
@@ -140,7 +150,7 @@ class IPythonDirective(Directive):
             node = docutils.nodes.literal_block(
                 stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
-            parent += node
+            output_block += node
         else:
             if stdout:
                 if isinstance(result, pd.DataFrame):
@@ -155,7 +165,8 @@ class IPythonDirective(Directive):
                     parent += node
             if isinstance(result, pd.DataFrame):
                 table = typeset_dataframe(result)
-                parent += table
+                output_block += table
+            parent += output_block
         return [parent]
 
 
