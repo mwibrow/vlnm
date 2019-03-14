@@ -7,6 +7,11 @@ VLNM: Vowel normalization and plotting using Python
 :Date:    |today|
 
 
+.. ipython::
+
+    print('hello world')
+    pnt
+
 What is VLNM?
 -------------
 

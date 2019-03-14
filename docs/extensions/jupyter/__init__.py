@@ -4,7 +4,7 @@ Console directive.
 
 import base64
 from code import compile_command, InteractiveInterpreter
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import closing, redirect_stdout, redirect_stderr
 import csv
 from io import StringIO, BytesIO
 import os
@@ -14,7 +14,7 @@ import traceback
 
 import docutils.nodes
 from docutils.parsers.rst import directives, Directive
-
+from IPython.core.interactiveshell import InteractiveShell
 from pygments.lexer import RegexLexer
 from pygments import token
 from sphinx.highlighting import lexers
@@ -63,14 +63,7 @@ class JupyterDirective(Directive):
         _stderr.close()
 
         figure = env.get('__figure__')
-        image_node = None
-        if figure and figure.get_axes():
-            output = BytesIO()
-            figure.savefig(output, format='png', bbox_inches='tight')
-            output.seek(0)
-            image_data = base64.b64encode(output.getvalue()).decode('ascii')
-            image_uri = u'data:image/png;base64,{}'.format(image_data)
-            image_node = docutils.nodes.image('', uri=image_uri)
+        image_node = figure_to_node(figure)
 
         parent = docutils.nodes.line_block(classes=['jupyter'])
         node = docutils.nodes.literal_block(statements, statements, classes=['jupyter-cell'])
@@ -94,8 +87,60 @@ class JupyterDirective(Directive):
         return [parent]
 
 
+def figure_to_node(figure):
+    """Convert a figure to a docutils image node."""
+    if figure and figure.get_axes():
+        output = BytesIO()
+        figure.savefig(output, format='png', bbox_inches='tight')
+        output.seek(0)
+        image_data = base64.b64encode(output.getvalue()).decode('ascii')
+        output.close()
+        image_uri = u'data:image/png;base64,{}'.format(image_data)
+        return docutils.nodes.image('', uri=image_uri)
+    return None
+
+
+class IPythonDirective(Directive):
+    """Run code in an IPython shell."""
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        shell = InteractiveShell()
+        code = u'\n'.join(line for line in self.content)
+
+        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
+            with redirect_stdout(_stdout), redirect_stderr(_stderr):
+                result = shell.run_cell(
+                    'import matplotlib\n'
+                    'matplotlib.use("agg")\n'
+                    'import matplotlib.pyplot\n'
+                    '{}\n'.format(code))
+
+            stdout = _stdout.getvalue()  # pylint: disable=no-member
+            stderr = _stderr.getvalue()  # pylint: disable=no-member
+        parent = docutils.nodes.line_block(classes=['jupyter'])
+        node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
+        node['language'] = 'python'
+        parent += node
+
+        if stdout:
+            if result.error_before_exec or result.error_in_exec:
+                stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
+                stdout = re.sub(r'\n[A-x]+(?=Traceback)', '\n', stdout)
+                print(stdout)
+            node = docutils.nodes.literal_block(
+                stdout, stdout, classes=['jupyter-output'])
+            node['language'] = 'py3tb'
+            parent += node
+        return [parent]
+
+
 def setup(app):
     """
     Set up the sphinx extension.
     """
+    app.add_directive('ipython', IPythonDirective)
     app.add_directive('jupyter', JupyterDirective)
