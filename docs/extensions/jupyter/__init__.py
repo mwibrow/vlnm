@@ -130,7 +130,6 @@ class IPythonDirective(Directive):
             if result.error_before_exec or result.error_in_exec:
                 stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
                 stdout = re.sub(r'\n[A-x]+(?=Traceback)', '\n', stdout)
-                print(stdout)
             node = docutils.nodes.literal_block(
                 stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'py3tb'
