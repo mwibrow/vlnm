@@ -127,20 +127,12 @@ class IPythonDirective(Directive):
         result = exc_result.result
 
         parent = docutils.nodes.line_block(classes=['jupyter'])
-        input_block = docutils.nodes.line_block(classes=['input'])
-        prefix_block = docutils.nodes.line_block(classes=['prefix'])
-        prefix_block += docutils.nodes.inline('In:', 'In:')
-        input_block += prefix_block
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
-        input_block += node
-        parent += input_block
+        block = jupyter_block(prefix='In: ', children=[node])
+        parent += block
 
-        output_block = docutils.nodes.line_block(classes=['input'])
-        prefix_block = docutils.nodes.line_block(classes=['prefix'])
-        prefix_block += docutils.nodes.inline('Out:', 'Out:')
-        output_block += prefix_block
-
+        nodes = []
         if error:
             # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
             stdout = re.sub(
@@ -150,8 +142,9 @@ class IPythonDirective(Directive):
             node = docutils.nodes.literal_block(
                 stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
-            output_block += node
+            nodes = [node]
         else:
+            nodes = []
             if stdout:
                 if isinstance(result, pd.DataFrame):
                     stdout = re.sub(
@@ -162,12 +155,28 @@ class IPythonDirective(Directive):
                 if stdout:
                     node = docutils.nodes.literal_block(
                         stdout, stdout, classes=['jupyter-output'])
-                    parent += node
+                    nodes.append(node)
             if isinstance(result, pd.DataFrame):
                 table = typeset_dataframe(result)
-                output_block += table
-            parent += output_block
+                nodes.append(table)
+            parent += jupyter_block(prefix='Out:', children=nodes)
         return [parent]
+
+
+def jupyter_block(prefix=None, children=None):
+    children = children or []
+    block = docutils.nodes.line_block(classes=['jupyter-block'])
+    if prefix:
+        prefix_block = docutils.nodes.line_block(classes=['jupyter-prefix'])
+        prefix_block += docutils.nodes.inline(prefix, prefix)
+        block += prefix_block
+    container = docutils.nodes.line_block(
+        classes=(['jupyter-container', 'jupyter-container-prefix']
+                 if prefix else ['jupyter-container']))
+    for child in children:
+        container += child
+    block += container
+    return block
 
 
 def typeset_dataframe(df):

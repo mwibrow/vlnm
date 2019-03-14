@@ -200,20 +200,14 @@ table.dataframe .row-even {
   margin-left: 0;
 }
 
-.jupyter div.jupyter-cell,
-.jupyter div.jupyter-output {
-  display: inline-block;
-  font-family: monospace;
-  width: calc(100% - 3rem);
-}
-
-.jupyter-block {
+div.jupyter-block.line-block {
   width: 100%;
   display: flex;
   flex-direction: row;
+  margin-left: 0;
 }
 
-.jupyter-prefix {
+div.jupyter-prefix.line-block {
   display: inline-block;
   font-family: monospace;
   font-size: 90%;
@@ -222,10 +216,11 @@ table.dataframe .row-even {
   margin-left: 0;
 }
 
-.jupyter-container {
+div.jupyter-container-prefix.line-block {
   display: inline-block;
   font-family: monospace;
   width: calc(100% - 3rem);
+  margin-left: 0;
 }
 
 .jupyter-stdout {
