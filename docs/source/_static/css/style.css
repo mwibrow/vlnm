@@ -157,3 +157,22 @@ table.normalizers a {
 .highlight-ansi-color .-Color-Cyan {
   color: #0097a7;
 }
+
+table.dataframe {
+  border: none !important;
+  box-shadow: none !important;
+  font-family: sans-serif;
+  font-size: 75%;
+}
+table.dataframe td {
+  border: none !important;
+}
+table.dataframe th {
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+
+table.dataframe .row-even {
+  background-color: #eceff1;
+}

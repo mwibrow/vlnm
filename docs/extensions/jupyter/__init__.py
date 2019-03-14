@@ -12,12 +12,13 @@ import re
 import sys
 import traceback
 
-import docutils.nodes
 from docutils.parsers.rst import directives, Directive
+import docutils.nodes
 from IPython.core.interactiveshell import InteractiveShell
-from pygments.lexer import RegexLexer
 from pygments import token
+from pygments.lexer import RegexLexer
 from sphinx.highlighting import lexers
+import pandas as pd
 
 
 class JupyterDirective(Directive):
@@ -117,24 +118,86 @@ class IPythonDirective(Directive):
                     'import matplotlib\n'
                     'matplotlib.use("agg")\n'
                     'import matplotlib.pyplot\n')
-                result = shell.run_cell('{}\n'.format(code))
+                exc_result = shell.run_cell('{}\n'.format(code))
 
             stdout = _stdout.getvalue()  # pylint: disable=no-member
             # stderr = _stderr.getvalue()  # pylint: disable=no-member
+
+        error = exc_result.error_before_exec or exc_result.error_in_exec
+        result = exc_result.result
+
         parent = docutils.nodes.line_block(classes=['jupyter'])
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
         parent += node
 
-        if stdout:
-            if result.error_before_exec or result.error_in_exec:
-                # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
-                stdout = re.sub(r'\n.*?(?=Traceback \(most recent call last\))', '\n', stdout)
+        if error:
+            # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
+            stdout = re.sub(
+                r'\n.*?(?=Traceback \(most recent call last\))',
+                '\n',
+                stdout)
             node = docutils.nodes.literal_block(
                 stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
             parent += node
+        else:
+            if stdout:
+                if isinstance(result, pd.DataFrame):
+                    stdout = re.sub(
+                        r'Out\[\d+\]:\s*\n{0}$\n'.format(result),
+                        '',
+                        stdout,
+                        flags=re.RegexFlag.DOTALL)
+                if stdout:
+                    node = docutils.nodes.literal_block(
+                        stdout, stdout, classes=['jupyter-output'])
+                    parent += node
+            if isinstance(result, pd.DataFrame):
+                table = typeset_dataframe(result)
+                print(table)
+                parent += table
         return [parent]
+
+
+def typeset_dataframe(df):
+    table = docutils.nodes.table(classes=['dataframe'])
+    tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
+    table += tgroup
+
+    for _ in range(len(df.columns) + 1):
+        colspec = docutils.nodes.colspec(colwidth=1)
+        # if stub_columns:
+        #     colspec.attributes['stub'] = 1
+        #     stub_columns -= 1
+        tgroup += colspec
+
+    rows = []
+    row_node = docutils.nodes.row()
+    entry = docutils.nodes.entry()
+    entry += docutils.nodes.inline()
+    row_node += entry
+    for column in df.columns:
+        entry = docutils.nodes.entry()
+        entry += docutils.nodes.inline(column, column)
+        row_node += entry
+    rows.append(row_node)
+
+    for row in df.itertuples():
+        row_node = docutils.nodes.row()
+        for cell in row:
+            content = str(cell)
+            entry = docutils.nodes.entry()
+            entry += docutils.nodes.inline(content, content)
+            row_node += entry
+        rows.append(row_node)
+    thead = docutils.nodes.thead()
+    thead.extend(rows[:1])
+    tgroup += thead
+    tbody = docutils.nodes.tbody()
+    tbody.extend(rows[1:])
+    tgroup += tbody
+    return table
 
 
 def setup(app):

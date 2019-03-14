@@ -9,8 +9,9 @@ VLNM: Vowel normalization and plotting using Python
 
 .. ipython::
 
-    print('hello world')
-    pnt
+    import pandas as pd
+    df = pd.DataFrame(dict(a=[1,2,3],b=[4,5,6]))
+    df
 
 What is VLNM?
 -------------
