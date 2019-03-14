@@ -113,14 +113,14 @@ class IPythonDirective(Directive):
 
         with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
             with redirect_stdout(_stdout), redirect_stderr(_stderr):
-                result = shell.run_cell(
+                shell.run_cell(
                     'import matplotlib\n'
                     'matplotlib.use("agg")\n'
-                    'import matplotlib.pyplot\n'
-                    '{}\n'.format(code))
+                    'import matplotlib.pyplot\n')
+                result = shell.run_cell('{}\n'.format(code))
 
             stdout = _stdout.getvalue()  # pylint: disable=no-member
-            stderr = _stderr.getvalue()  # pylint: disable=no-member
+            # stderr = _stderr.getvalue()  # pylint: disable=no-member
         parent = docutils.nodes.line_block(classes=['jupyter'])
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
@@ -128,11 +128,11 @@ class IPythonDirective(Directive):
 
         if stdout:
             if result.error_before_exec or result.error_in_exec:
-                stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
-                stdout = re.sub(r'\n[A-x]+(?=Traceback)', '\n', stdout)
+                # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
+                stdout = re.sub(r'\n.*?(?=Traceback \(most recent call last\))', '\n', stdout)
             node = docutils.nodes.literal_block(
                 stdout, stdout, classes=['jupyter-output'])
-            node['language'] = 'py3tb'
+            node['language'] = 'ansi-color'
             parent += node
         return [parent]
 
