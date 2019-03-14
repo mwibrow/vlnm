@@ -173,6 +173,14 @@ table.dataframe th {
   border-top: none !important;
 }
 
+table.dataframe td,
+table.dataframe th {
+  line-height: 1.5;
+}
+
+table.dataframe td:first-of-type {
+  font-weight: bold;
+}
 table.dataframe .row-even {
   background-color: #eceff1;
 }

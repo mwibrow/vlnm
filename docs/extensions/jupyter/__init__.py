@@ -155,42 +155,27 @@ class IPythonDirective(Directive):
                     parent += node
             if isinstance(result, pd.DataFrame):
                 table = typeset_dataframe(result)
-                print(table)
                 parent += table
         return [parent]
 
 
 def typeset_dataframe(df):
+    """
+    Typeset dataframe.
+    """
     table = docutils.nodes.table(classes=['dataframe'])
     tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
     table += tgroup
 
     for _ in range(len(df.columns) + 1):
         colspec = docutils.nodes.colspec(colwidth=1)
-        # if stub_columns:
-        #     colspec.attributes['stub'] = 1
-        #     stub_columns -= 1
         tgroup += colspec
 
-    rows = []
-    row_node = docutils.nodes.row()
-    entry = docutils.nodes.entry()
-    entry += docutils.nodes.inline()
-    row_node += entry
-    for column in df.columns:
-        entry = docutils.nodes.entry()
-        entry += docutils.nodes.inline(column, column)
-        row_node += entry
-    rows.append(row_node)
+    rows = [make_row([''] + list(df.columns))]
 
     for row in df.itertuples():
-        row_node = docutils.nodes.row()
-        for cell in row:
-            content = str(cell)
-            entry = docutils.nodes.entry()
-            entry += docutils.nodes.inline(content, content)
-            row_node += entry
-        rows.append(row_node)
+        rows.append(make_row(row))
+
     thead = docutils.nodes.thead()
     thead.extend(rows[:1])
     tgroup += thead
@@ -198,6 +183,17 @@ def typeset_dataframe(df):
     tbody.extend(rows[1:])
     tgroup += tbody
     return table
+
+
+def make_row(row_data):
+    """Make a row_node from an iterable of data."""
+    row_node = docutils.nodes.row()
+    for cell in row_data:
+        content = str(cell)
+        entry = docutils.nodes.entry()
+        entry += docutils.nodes.inline(content, content)
+        row_node += entry
+    return row_node
 
 
 def setup(app):
