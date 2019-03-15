@@ -134,7 +134,6 @@ class IPythonDirective(Directive):
         parent += block
 
         if error:
-            # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
             stdout = re.sub(
                 r'\n.*?(?=Traceback \(most recent call last\))',
                 '',
@@ -145,20 +144,13 @@ class IPythonDirective(Directive):
                 prefix='Out: ', prefix_classes=['jupyter-error'], children=[node])
             parent += block
         else:
+            nodes, stdout = jupyter_results(result, stdout)
             if stdout:
-                if isinstance(result, pd.DataFrame):
-                    stdout = re.sub(
-                        r'Out\[\d+\]:\s*\n{0}$\n'.format(result),
-                        '',
-                        stdout,
-                        flags=re.RegexFlag.DOTALL)
-                if stdout:
-                    node = docutils.nodes.literal_block(
-                        stdout, stdout, classes=['jupyter-output'])
-                    parent += jupyter_block(prefix=' ', children=[node])
-            if isinstance(result, pd.DataFrame):
-                table = typeset_dataframe(result)
-                parent += jupyter_block(prefix='Out:', children=[table])
+                node = docutils.nodes.literal_block(
+                    stdout, stdout, classes=['jupyter-output'])
+                parent += jupyter_block(prefix=' ', children=[node])
+            if nodes:
+                parent += jupyter_block(prefix='Out:', children=nodes)
         return [parent]
 
 
@@ -179,10 +171,51 @@ def jupyter_block(prefix=None, prefix_classes=None, children=None):
     return block
 
 
-def typeset_dataframe(df):
-    """
-    Typeset dataframe.
-    """
+def jupyter_results(results, stdout=''):
+    """Make jupyter results."""
+    if results is not None:
+        klass = results.__class__.__name__
+        func = f'jupyter_result_{klass.lower()}'
+        module = globals()
+        if func in module:
+            return module[func](results, stdout)
+        # Ok try figure.
+        try:
+            if results.figure:
+                return jupyter_result_figure(results.figure, stdout)
+        except AttributeError:
+            pass
+        raise TypeError(f'Unknown jupyter result: {klass}')
+    return [], stdout
+
+
+def jupyter_result_list(results, stdout):
+    nodes = []
+    for result in results:
+        _nodes, stdout = jupyter_results(result, stdout)
+        nodes.extend(_nodes)
+    return nodes, stdout
+
+
+def jupyter_result_figure(figure, stdout):
+    output = BytesIO()
+    figure.savefig(output, format='png', bbox_inches='tight')
+    output.seek(0)
+    image_data = base64.b64encode(output.getvalue()).decode('ascii')
+    output.close()
+    image_uri = u'data:image/png;base64,{}'.format(image_data)
+    node = docutils.nodes.image('', uri=image_uri)
+    stdout = '\n'.join(stdout.strip().split('\n')[:-1])
+    return [node], stdout
+
+
+def jupyter_result_dataframe(df, stdout):
+    stdout = re.sub(
+        r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
+        '',
+        stdout,
+        flags=re.RegexFlag.DOTALL)
+
     table = docutils.nodes.table(classes=['dataframe'])
     tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
     table += tgroup
@@ -202,7 +235,7 @@ def typeset_dataframe(df):
     tbody = docutils.nodes.tbody()
     tbody.extend(rows[1:])
     tgroup += tbody
-    return table
+    return [table], stdout
 
 
 def make_row(row_data):

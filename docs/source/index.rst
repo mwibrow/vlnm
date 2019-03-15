@@ -31,6 +31,13 @@ VLNM: Vowel normalization and plotting using Python
     df = pd.DataFrame(dict(a=[1,2,3],b=[4,5,6]))
     pnt
 
+.. ipython::
+
+    import matplotlib.pyplot as plt
+    plt.plot([1,2,3,4])
+    plt.ylabel('some numbers')
+
+
 What is VLNM?
 -------------
 
