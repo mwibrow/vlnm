@@ -137,7 +137,7 @@ class IPythonDirective(Directive):
             # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
             stdout = re.sub(
                 r'\n.*?(?=Traceback \(most recent call last\))',
-                '\n',
+                '',
                 stdout)
             node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
