@@ -129,22 +129,22 @@ class IPythonDirective(Directive):
         parent = docutils.nodes.line_block(classes=['jupyter'])
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
+
         block = jupyter_block(prefix='In: ', children=[node])
         parent += block
 
-        nodes = []
         if error:
             # stdout = re.sub(r'\x1b\[\d(?:;\d+)?m', '', stdout)
             stdout = re.sub(
                 r'\n.*?(?=Traceback \(most recent call last\))',
                 '\n',
                 stdout)
-            node = docutils.nodes.literal_block(
-                stdout, stdout, classes=['jupyter-output'])
+            node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
-            nodes = [node]
+            block = jupyter_block(
+                prefix='Out: ', prefix_classes=['jupyter-error'], children=[node])
+            parent += block
         else:
-            nodes = []
             if stdout:
                 if isinstance(result, pd.DataFrame):
                     stdout = re.sub(
@@ -155,20 +155,20 @@ class IPythonDirective(Directive):
                 if stdout:
                     node = docutils.nodes.literal_block(
                         stdout, stdout, classes=['jupyter-output'])
-                    nodes.append(node)
+                    parent += jupyter_block(prefix=' ', children=[node])
             if isinstance(result, pd.DataFrame):
                 table = typeset_dataframe(result)
-                nodes.append(table)
-            parent += jupyter_block(prefix='Out:', children=nodes)
+                parent += jupyter_block(prefix='Out:', children=[table])
         return [parent]
 
 
-def jupyter_block(prefix=None, children=None):
+def jupyter_block(prefix=None, prefix_classes=None, children=None):
+    prefix_classes = prefix_classes or []
     children = children or []
     block = docutils.nodes.line_block(classes=['jupyter-block'])
     if prefix:
-        prefix_block = docutils.nodes.line_block(classes=['jupyter-prefix'])
-        prefix_block += docutils.nodes.inline(prefix, prefix)
+        prefix_block = docutils.nodes.line_block(classes=['jupyter-prefix'] + prefix_classes)
+        prefix_block += docutils.nodes.literal(prefix, prefix)
         block += prefix_block
     container = docutils.nodes.line_block(
         classes=(['jupyter-container', 'jupyter-container-prefix']
