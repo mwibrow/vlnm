@@ -221,3 +221,7 @@ div.jupyter-output {
 div.jupyter-cell {
   width: 100%;
 }
+
+img.jupyter-image {
+  transform: scale(75%);
+}

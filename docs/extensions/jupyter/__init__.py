@@ -200,7 +200,7 @@ def jupyter_result_list(results, stdout, **options):
 
 
 def jupyter_result_figure(figure, stdout, **options):
-    dpi = options.get('dpi', 150)
+    dpi = options.get('dpi', 96)
     output = BytesIO()
     figure.savefig(output, format='png', bbox_inches='tight', dpi=dpi)
     output.seek(0)
