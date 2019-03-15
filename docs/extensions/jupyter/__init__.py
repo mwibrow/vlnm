@@ -208,7 +208,6 @@ def jupyter_result_list(results, stdout, **options):
 
 def jupyter_result_figure(figure, stdout, **options):
     dpi = options.get('dpi', 96)
-    print(options)
     image_format = options.get('image-format', 'png').lower()
     output = BytesIO()
     figure.savefig(output, format=image_format, bbox_inches='tight', dpi=dpi)
