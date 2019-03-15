@@ -32,6 +32,7 @@ VLNM: Vowel normalization and plotting using Python
     pnt
 
 .. ipython::
+    :image-format: svg
 
     import matplotlib.pyplot as plt
     plt.plot([1,2,3,4])

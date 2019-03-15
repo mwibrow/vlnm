@@ -97,7 +97,9 @@ def figure_to_node(figure):
         image_data = base64.b64encode(output.getvalue()).decode('ascii')
         output.close()
         image_uri = u'data:image/png;base64,{}'.format(image_data)
-        return docutils.nodes.image('', uri=image_uri)
+        image_node = docutils.nodes.image('', uri=image_uri)
+        image_node = docutils.nodes.raw('', '<span>foo</span>', formant='html')
+        return image_node
     return None
 
 
@@ -105,8 +107,13 @@ class IPythonDirective(Directive):
     """Run code in an IPython shell."""
     has_content = True
     required_arguments = 0
-    optional_arguments = 1
+    optional_arguments = 0
     final_argument_whitespace = True
+
+    option_spec = {
+        'dpi': directives.positive_int,
+        'image-format': directives.unchanged
+    }
 
     def run(self):
         options = self.options
@@ -201,13 +208,19 @@ def jupyter_result_list(results, stdout, **options):
 
 def jupyter_result_figure(figure, stdout, **options):
     dpi = options.get('dpi', 96)
+    print(options)
+    image_format = options.get('image-format', 'png').lower()
     output = BytesIO()
-    figure.savefig(output, format='png', bbox_inches='tight', dpi=dpi)
+    figure.savefig(output, format=image_format, bbox_inches='tight', dpi=dpi)
     output.seek(0)
-    image_data = base64.b64encode(output.getvalue()).decode('ascii')
+    if image_format == 'svg':
+        image_data = '\n'.join(output.getvalue().decode('ascii').split('\n')[4:])
+        node = docutils.nodes.raw('', image_data, format='html')
+    else:
+        image_data = base64.b64encode(output.getvalue()).decode('ascii')
+        image_uri = u'data:image/png;base64,{}'.format(image_data)
+        node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
     output.close()
-    image_uri = u'data:image/png;base64,{}'.format(image_data)
-    node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
     stdout = '\n'.join(stdout.strip().split('\n')[:-1])
     return [node], stdout
 
