@@ -109,6 +109,7 @@ class IPythonDirective(Directive):
     final_argument_whitespace = True
 
     def run(self):
+        options = self.options
         shell = InteractiveShell()
         code = u'\n'.join(line for line in self.content)
 
@@ -144,7 +145,7 @@ class IPythonDirective(Directive):
                 prefix='Out: ', prefix_classes=['jupyter-error'], children=[node])
             parent += block
         else:
-            nodes, stdout = jupyter_results(result, stdout)
+            nodes, stdout = jupyter_results(result, stdout, **options)
             if stdout:
                 node = docutils.nodes.literal_block(
                     stdout, stdout, classes=['jupyter-output'])
@@ -171,45 +172,47 @@ def jupyter_block(prefix=None, prefix_classes=None, children=None):
     return block
 
 
-def jupyter_results(results, stdout=''):
+def jupyter_results(results, stdout, **options):
     """Make jupyter results."""
+    stdout = stdout or ''
     if results is not None:
         klass = results.__class__.__name__
         func = f'jupyter_result_{klass.lower()}'
         module = globals()
         if func in module:
-            return module[func](results, stdout)
+            return module[func](results, stdout, **options)
         # Ok try figure.
         try:
             if results.figure:
-                return jupyter_result_figure(results.figure, stdout)
+                return jupyter_result_figure(results.figure, stdout, **options)
         except AttributeError:
             pass
         raise TypeError(f'Unknown jupyter result: {klass}')
     return [], stdout
 
 
-def jupyter_result_list(results, stdout):
+def jupyter_result_list(results, stdout, **options):
     nodes = []
     for result in results:
-        _nodes, stdout = jupyter_results(result, stdout)
+        _nodes, stdout = jupyter_results(result, stdout, **options)
         nodes.extend(_nodes)
     return nodes, stdout
 
 
-def jupyter_result_figure(figure, stdout):
+def jupyter_result_figure(figure, stdout, **options):
+    dpi = options.get('dpi', 150)
     output = BytesIO()
-    figure.savefig(output, format='png', bbox_inches='tight')
+    figure.savefig(output, format='png', bbox_inches='tight', dpi=dpi)
     output.seek(0)
     image_data = base64.b64encode(output.getvalue()).decode('ascii')
     output.close()
     image_uri = u'data:image/png;base64,{}'.format(image_data)
-    node = docutils.nodes.image('', uri=image_uri)
+    node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
     stdout = '\n'.join(stdout.strip().split('\n')[:-1])
     return [node], stdout
 
 
-def jupyter_result_dataframe(df, stdout):
+def jupyter_result_dataframe(df, stdout, **_options):
     stdout = re.sub(
         r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
         '',
