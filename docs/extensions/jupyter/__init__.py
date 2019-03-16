@@ -228,6 +228,7 @@ class IPythonDirective(Directive):
 
             name = f'{gallery.next_image()}.{image_format}'
             path, uri = gallery.image_paths(name)
+            figure.savefig(path, format=image_format, bbox_inches='tight', dpi=dpi)
             node = docutils.nodes.raw(
                 '', f'<img src="{uri}" class="image jupyter-image" />', format='html')
         stdout = '\n'.join(stdout.strip().split('\n')[:-1])
