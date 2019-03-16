@@ -138,7 +138,7 @@ class IPythonDirective(Directive):
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
 
-        block = jupyter_block(prefix='In: ', children=[node])
+        block = self.jupyter_block(prefix='In: ', children=[node])
         parent += block
 
         if error:
@@ -148,109 +148,118 @@ class IPythonDirective(Directive):
                 stdout)
             node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
-            block = jupyter_block(
+            block = self.jupyter_block(
                 prefix='Out: ', prefix_classes=['jupyter-error'], children=[node])
             parent += block
         else:
-            nodes, stdout = jupyter_results(result, stdout, **options)
+            nodes, stdout = self.jupyter_results(result, stdout, **options)
             if stdout:
                 node = docutils.nodes.literal_block(
                     stdout, stdout, classes=['jupyter-output'])
-                parent += jupyter_block(prefix=' ', children=[node])
+                parent += self.jupyter_block(prefix=' ', children=[node])
             if nodes:
-                parent += jupyter_block(prefix='Out:', children=nodes)
+                parent += self.jupyter_block(prefix='Out:', children=nodes)
         return [parent]
 
+    def jupyter_block(self, prefix=None, prefix_classes=None, children=None):
+        prefix_classes = prefix_classes or []
+        children = children or []
+        block = docutils.nodes.line_block(classes=['jupyter-block'])
+        if prefix:
+            prefix_block = docutils.nodes.line_block(
+                classes=['jupyter-prefix'] + prefix_classes)
+            prefix_block += docutils.nodes.literal(prefix, prefix)
+            block += prefix_block
+        container = docutils.nodes.line_block(
+            classes=(['jupyter-container', 'jupyter-container-prefix']
+                     if prefix else ['jupyter-container']))
+        for child in children:
+            container += child
+        block += container
+        return block
 
-def jupyter_block(prefix=None, prefix_classes=None, children=None):
-    prefix_classes = prefix_classes or []
-    children = children or []
-    block = docutils.nodes.line_block(classes=['jupyter-block'])
-    if prefix:
-        prefix_block = docutils.nodes.line_block(classes=['jupyter-prefix'] + prefix_classes)
-        prefix_block += docutils.nodes.literal(prefix, prefix)
-        block += prefix_block
-    container = docutils.nodes.line_block(
-        classes=(['jupyter-container', 'jupyter-container-prefix']
-                 if prefix else ['jupyter-container']))
-    for child in children:
-        container += child
-    block += container
-    return block
+    def jupyter_results(self, results, stdout, **options):
+        """Make jupyter results."""
+        stdout = stdout or ''
+        if results is not None:
+            klass = results.__class__.__name__
+            func = f'jupyter_result_{klass.lower()}'
 
+            if hasattr(self, func):
+                return getattr(self, func)(results, stdout, **options)
+            # Ok try figure.
+            try:
+                if results.figure:
+                    return self.jupyter_result_figure(results.figure, stdout, **options)
+            except AttributeError:
+                pass
+            raise TypeError(f'Unknown jupyter result: {klass}')
+        return [], stdout
 
-def jupyter_results(results, stdout, **options):
-    """Make jupyter results."""
-    stdout = stdout or ''
-    if results is not None:
-        klass = results.__class__.__name__
-        func = f'jupyter_result_{klass.lower()}'
-        module = globals()
-        if func in module:
-            return module[func](results, stdout, **options)
-        # Ok try figure.
-        try:
-            if results.figure:
-                return jupyter_result_figure(results.figure, stdout, **options)
-        except AttributeError:
-            pass
-        raise TypeError(f'Unknown jupyter result: {klass}')
-    return [], stdout
+    def jupyter_result_list(self, results, stdout, **options):
+        nodes = []
+        for result in results:
+            _nodes, stdout = self, jupyter_results(result, stdout, **options)
+            nodes.extend(_nodes)
+        return nodes, stdout
 
+    def jupyter_result_figure(self, figure, stdout, **options):
+        dpi = options.get('dpi', 96)
+        image_format = options.get('image-format', 'png').lower()
 
-def jupyter_result_list(results, stdout, **options):
-    nodes = []
-    for result in results:
-        _nodes, stdout = jupyter_results(result, stdout, **options)
-        nodes.extend(_nodes)
-    return nodes, stdout
+        env = self.state.document.settings.env
 
+        embed = False
 
-def jupyter_result_figure(figure, stdout, **options):
-    dpi = options.get('dpi', 96)
-    image_format = options.get('image-format', 'png').lower()
-    output = BytesIO()
-    figure.savefig(output, format=image_format, bbox_inches='tight', dpi=dpi)
-    output.seek(0)
-    if image_format == 'svg':
-        image_data = '\n'.join(output.getvalue().decode('ascii').split('\n')[4:])
-        node = docutils.nodes.raw('', image_data, format='html')
-    else:
-        image_data = base64.b64encode(output.getvalue()).decode('ascii')
-        image_uri = u'data:image/png;base64,{}'.format(image_data)
-        node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
-    output.close()
-    stdout = '\n'.join(stdout.strip().split('\n')[:-1])
-    return [node], stdout
+        if embed:
+            output = BytesIO()
+            figure.savefig(output, format=image_format, bbox_inches='tight', dpi=dpi)
+            output.seek(0)
+            if image_format == 'svg':
+                image_data = '\n'.join(output.getvalue().decode('ascii').split('\n')[4:])
+                node = docutils.nodes.raw('', image_data, format='html')
+            else:
+                image_data = base64.b64encode(output.getvalue()).decode('ascii')
+                image_uri = u'data:image/png;base64,{}'.format(image_data)
+                node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
+            output.close()
+        else:
+            gallery = env.gallery
 
+            name = f'{gallery.next_image()}.{image_format}'
+            path, uri = gallery.image_paths(name)
+            node = docutils.nodes.raw(
+                '', f'<img src="{uri}" class="image jupyter-image" />', format='html')
+        stdout = '\n'.join(stdout.strip().split('\n')[:-1])
+        return [node], stdout
 
-def jupyter_result_dataframe(df, stdout, **_options):
-    stdout = re.sub(
-        r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
-        '',
-        stdout,
-        flags=re.RegexFlag.DOTALL)
+    def jupyter_result_dataframe(self, df, stdout, **_options):
+        stdout = re.sub(
+            r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
+            '',
+            stdout,
+            flags=re.RegexFlag.DOTALL)
 
-    table = docutils.nodes.table(classes=['dataframe'])
-    tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
-    table += tgroup
+        table = docutils.nodes.table(classes=['dataframe'])
+        tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
+        table += tgroup
 
-    for _ in range(len(df.columns) + 1):
-        colspec = docutils.nodes.colspec(colwidth=1)
-        tgroup += colspec
+        for _ in range(len(df.columns) + 1):
+            colspec = docutils.nodes.colspec(colwidth=1)
+            tgroup += colspec
 
-    rows = [make_row([''] + list(df.columns))]
+        rows = [make_row([''] + list(df.columns))]
 
-    for row in df.itertuples():
-        rows.append(make_row(row))
+        for row in df.itertuples():
+            rows.append(make_row(row))
 
-    thead = docutils.nodes.thead()
-    thead.extend(rows[:1])
-    tgroup += thead
-    tbody = docutils.nodes.tbody()
-    tbody.extend(rows[1:])
-    tgroup += tbody
-    return [table], stdout
+        thead = docutils.nodes.thead()
+        thead.extend(rows[:1])
+        tgroup += thead
+        tbody = docutils.nodes.tbody()
+        tbody.extend(rows[1:])
+        tgroup += tbody
+        return [table], stdout
 
 
 def make_row(row_data):
@@ -264,9 +273,40 @@ def make_row(row_data):
     return row_node
 
 
+class JupyterGallery:
+
+    def __init__(self, build, static, images=None):
+        images = images or 'jupyter'
+        self.path = os.path.join(build, static, images)
+        self.uri = os.path.join(static, images)
+        if os.path.exists(self.path):
+            for path in os.listdir(self.path):
+                os.remove(os.path.join(self.path, path))
+        else:
+            os.makedir(self.path)
+
+        self.image = 0
+
+    def next_image(self):
+        self.image += 1
+        return f'image-{self.image}'
+
+    def image_paths(self, image):
+        path = os.path.join(self.path, image)
+        uri = os.path.join(self.uri, image)
+        return path, uri
+
+
+def init_app(app):
+    outdir = app.outdir
+    static = app.config.html_static_path
+    app.env.gallery = JupyterGallery(outdir, static[0] if static else '')
+
+
 def setup(app):
     """
     Set up the sphinx extension.
     """
+    app.connect('builder-inited', init_app)
     app.add_directive('ipython', IPythonDirective)
     app.add_directive('jupyter', JupyterDirective)
