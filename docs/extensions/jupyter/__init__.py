@@ -43,15 +43,23 @@ class JupyterDirective(Directive):
 
     def run(self):
         options = self.options
-        print(options)
         code = u'\n'.join(line for line in self.content)
+
+        setup_matlab = False
+        for key in options:
+            if key.startswith('image') or key == 'matplotlib':
+                setup_matlab = True
 
         shell = get_shell()
         if 'reset' in self.options:
             shell.reset()
-        if 'matplotlib' in self.options:
+        if setup_matlab:
             shell.run_cell('import matplotlib\nmatplotlib.use("agg")')
+
         exc_result, stdout, _ = shell.run_cell(code)
+
+        if 'hidden' in options:
+            return []
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
@@ -250,7 +258,6 @@ class JupyterInterpreter:
 
     def reset(self):
         """Reset the shell."""
-        print('RESET')
         self.shell.reset()
         self.locals = {}
         self.new()
@@ -259,33 +266,10 @@ class JupyterInterpreter:
         """Run a cell."""
         if not self.shell:
             self.new()
-        # print('<', self._locals.get('pd'))
-        # self.shell.init_create_namespaces(None, self._locals.copy())
-        # self.shell.save_sys_module_state()
-        # self.shell.init_sys_modules()
-        # self.shell.init_user_ns()
-        # #self.shell.user_ns = self.locals = self._locals.copy()
-        # print('BEFORE', self.shell.user_ns.get('pd'))
-        # self.shell.init_create_namespaces(user_ns=self.locals)
 
         with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
             with redirect_stdout(_stdout), redirect_stderr(_stderr):
                 result = self.shell.run_cell(f'{code}\n')
-
-            stdout = _stdout.getvalue()  # pylint: disable=no-member
-            stderr = _stdout.getvalue()  # pylint: disable=no-member
-        # print('AFTER', self.shell.user_ns.get('pd'))
-
-        # self._locals = self.shell.user_ns.copy()
-        # print('>', self._locals.get('pd'))
-        return result, stdout, stderr
-
-    @staticmethod
-    def run(code):
-        shell = InteractiveShell()
-        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
-            with redirect_stdout(_stdout), redirect_stderr(_stderr):
-                result = shell.run_cell(f'{code}\n')
 
             stdout = _stdout.getvalue()  # pylint: disable=no-member
             stderr = _stdout.getvalue()  # pylint: disable=no-member
@@ -294,7 +278,6 @@ class JupyterInterpreter:
 
 def get_shell():
     shell = JupyterInterpreter.get_instance()
-    print(id(shell))
     return shell
 
 
