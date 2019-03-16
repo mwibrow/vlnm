@@ -24,88 +24,6 @@ import pandas as pd
 
 
 class JupyterDirective(Directive):
-    """Jupyter style scripting."""
-
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 1
-    final_argument_whitespace = True
-
-    def run(self):
-        imports = ''
-        statements = u'\n'.join(
-            line for line in self.content if not line.startswith('###'))
-        code = u'\n'.join(
-            line[4:] if line.startswith('###') else line for line in self.content)
-        header = (
-            'import matplotlib\n'
-            'matplotlib.use("{}")\n'
-            'import matplotlib.pyplot\n'
-            '{}\n').format('agg', imports)
-        code = '{}\n__figure__ = matplotlib.pyplot.gcf()\n'.format(code)
-
-        env = {}
-        exec(header, None, env)  # pylint: disable=exec-used
-        _stdout = StringIO()
-        _stderr = StringIO()
-        with redirect_stdout(_stdout), redirect_stderr(_stderr):
-            try:
-                exec(code, None, env)  # pylint: disable=exec-used
-            except Exception:  # pylint: disable=broad-except
-                etype, err, tb = sys.exc_info()
-                lineno = traceback.extract_tb(tb)[-1][1]
-                line = code.split('\n')[lineno - 1]
-                sys.stderr.write('Traceback (most recent call last):\n')
-                sys.stderr.write(f'---> {lineno} {line}\n')
-                sys.stderr.write(f'{etype.__name__}: {err.args[-1]}')
-                # traceback.print_exc(limit=1)
-
-        stdout = _stdout.getvalue()
-        stderr = _stderr.getvalue()
-        _stdout.close()
-        _stderr.close()
-
-        figure = env.get('__figure__')
-        image_node = figure_to_node(figure)
-
-        parent = docutils.nodes.line_block(classes=['jupyter'])
-        node = docutils.nodes.literal_block(statements, statements, classes=['jupyter-cell'])
-        node['language'] = 'python'
-        parent += node
-
-        if stdout:
-            node = docutils.nodes.literal_block(
-                stdout, stdout, classes=['jupyter-output'])
-            parent += node
-
-        if stderr:
-            node = docutils.nodes.literal_block(
-                stderr, stderr, classes=['jupyter-output', 'jupyter-error'])
-            node['language'] = 'pytb'
-            parent += node
-
-        if image_node:
-            parent += image_node
-
-        return [parent]
-
-
-def figure_to_node(figure):
-    """Convert a figure to a docutils image node."""
-    if figure and figure.get_axes():
-        output = BytesIO()
-        figure.savefig(output, format='png', bbox_inches='tight')
-        output.seek(0)
-        image_data = base64.b64encode(output.getvalue()).decode('ascii')
-        output.close()
-        image_uri = u'data:image/png;base64,{}'.format(image_data)
-        image_node = docutils.nodes.image('', uri=image_uri)
-        image_node = docutils.nodes.raw('', '<span>foo</span>', formant='html')
-        return image_node
-    return None
-
-
-class IPythonDirective(Directive):
     """Run code in an IPython shell."""
     has_content = True
     required_arguments = 0
@@ -113,25 +31,27 @@ class IPythonDirective(Directive):
     final_argument_whitespace = True
 
     option_spec = {
-        'dpi': directives.positive_int,
-        'image-format': directives.unchanged
+        'hidden': directives.flag,
+        'image-dpi': directives.positive_int,
+        'image-format': directives.unchanged,
+        'image-embed': directives.flag,
+        'image-width': directives.unchanged,
+        'image-height': directives.unchanged,
+        'reset': directives.flag,
+        'matplotlib': directives.flag
     }
 
     def run(self):
         options = self.options
-        shell = InteractiveShell()
+        print(options)
         code = u'\n'.join(line for line in self.content)
 
-        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
-            with redirect_stdout(_stdout), redirect_stderr(_stderr):
-                shell.run_cell(
-                    'import matplotlib\n'
-                    'matplotlib.use("agg")\n'
-                    'import matplotlib.pyplot\n')
-                exc_result = shell.run_cell('{}\n'.format(code))
-
-            stdout = _stdout.getvalue()  # pylint: disable=no-member
-            # stderr = _stderr.getvalue()  # pylint: disable=no-member
+        shell = get_shell()
+        if 'reset' in self.options:
+            shell.reset()
+        if 'matplotlib' in self.options:
+            shell.run_cell('import matplotlib\nmatplotlib.use("agg")')
+        exc_result, stdout, _ = shell.run_cell(code)
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
@@ -211,7 +131,7 @@ class IPythonDirective(Directive):
         """Create an image from a matplotlib figure."""
         env = self.state.document.settings.env
 
-        dpi = options.get('dpi', 96)
+        dpi = options.get('image-dpi', 96)
         embed = options.get('embed-image', False)
         fmt = options.get('image-format', 'png').lower()
 
@@ -306,6 +226,97 @@ class JupyterGallery:
         return path, uri
 
 
+class JupyterInterpreter:
+    """Helper class for managing shell interpreters."""
+
+    _instance = None
+
+    def __init__(self):
+        self.shell = None
+        self.globals = {}
+        self.locals = {}
+        self._locals = {}
+
+    @staticmethod
+    def get_instance():
+        if JupyterInterpreter._instance is None:
+            JupyterInterpreter._instance = JupyterInterpreter()
+        return JupyterInterpreter._instance
+
+    def new(self):
+        """Create a new shell."""
+        # Pointless as InteractiveShell is a singleton.
+        self.shell = InteractiveShell(user_ns=self.locals)
+
+    def reset(self):
+        """Reset the shell."""
+        print('RESET')
+        self.shell.reset()
+        self.locals = {}
+        self.new()
+
+    def run_cell(self, code):
+        """Run a cell."""
+        if not self.shell:
+            self.new()
+        # print('<', self._locals.get('pd'))
+        # self.shell.init_create_namespaces(None, self._locals.copy())
+        # self.shell.save_sys_module_state()
+        # self.shell.init_sys_modules()
+        # self.shell.init_user_ns()
+        # #self.shell.user_ns = self.locals = self._locals.copy()
+        # print('BEFORE', self.shell.user_ns.get('pd'))
+        # self.shell.init_create_namespaces(user_ns=self.locals)
+
+        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
+            with redirect_stdout(_stdout), redirect_stderr(_stderr):
+                result = self.shell.run_cell(f'{code}\n')
+
+            stdout = _stdout.getvalue()  # pylint: disable=no-member
+            stderr = _stdout.getvalue()  # pylint: disable=no-member
+        # print('AFTER', self.shell.user_ns.get('pd'))
+
+        # self._locals = self.shell.user_ns.copy()
+        # print('>', self._locals.get('pd'))
+        return result, stdout, stderr
+
+    @staticmethod
+    def run(code):
+        shell = InteractiveShell()
+        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
+            with redirect_stdout(_stdout), redirect_stderr(_stderr):
+                result = shell.run_cell(f'{code}\n')
+
+            stdout = _stdout.getvalue()  # pylint: disable=no-member
+            stderr = _stdout.getvalue()  # pylint: disable=no-member
+        return result, stdout, stderr
+
+
+def get_shell():
+    shell = JupyterInterpreter.get_instance()
+    print(id(shell))
+    return shell
+
+
+class IPythonShell:
+
+    def __init__(self):
+        self.globals = {}
+        self.locals = {}
+
+    def reset(self):
+        self.globals = {}
+        self.locals = {}
+
+    def run(self, code):
+        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
+            with redirect_stdout(_stdout), redirect_stderr(_stderr):
+                exec(f'{code}\n', self.globals, self.locals)
+
+            stdout = _stdout.getvalue()  # pylint: disable=no-member
+            stderr = _stdout.getvalue()  # pylint: disable=no-member
+
+
 def init_app(app):
     build = app.outdir
     static = app.config.html_static_path
@@ -332,5 +343,5 @@ def setup(app):
     Set up the sphinx extension.
     """
     app.connect('builder-inited', init_app)
-    app.add_directive('ipython', IPythonDirective)
+    app.add_directive('ipython', JupyterDirective)
     app.add_directive('jupyter', JupyterDirective)

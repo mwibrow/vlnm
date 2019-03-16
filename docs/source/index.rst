@@ -13,8 +13,8 @@ VLNM: Vowel normalization and plotting using Python
 
 
 .. ipython::
+    :reset:
 
-    import pandas as pd
     df = pd.DataFrame(dict(a=[1,2,3],b=[4,5,6]))
     print('hello')
 
@@ -32,6 +32,7 @@ VLNM: Vowel normalization and plotting using Python
     pnt
 
 .. ipython::
+    :matplotlib:
     :image-format: svg
 
     import matplotlib.pyplot as plt

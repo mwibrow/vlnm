@@ -1,6 +1,7 @@
 autopep8==1.4
 IPython==7.3.0
 latexcodec==1.0.5
+libsass==0.18.0
 nox==2018.9.14
 pygments==2.3.1
 pygments-ansi-color==0.0.2

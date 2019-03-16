@@ -5,7 +5,7 @@
 
 @font-face {
   font-family: 'DejaVu Sans Mono';
-  src: url(../fonts/DejaVu/DejaVuSansMono-Regular.ttf);
+  src: url(../fonts/DejaVu/DejaVuSansMono.ttf);
   font-style: normal;
   font-weight: normal;
 }
@@ -165,16 +165,4 @@ table.normalizers a {
   font-weight: normal;
 }
 
-.highlight-ansi-color .-Color-Red {
-  color: #d32f2f;
-}
-.highlight-ansi-color .-Color-Green,
-.highlight-ansi-color .-Color-BoldGreen {
-  color: #689f38;
-}
-.highlight-ansi-color .-Color-Blue {
-  color: #0288d1;
-}
-.highlight-ansi-color .-Color-Cyan {
-  color: #0097a7;
-}
+
