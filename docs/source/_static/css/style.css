@@ -1,49 +1,34 @@
-/* @font-face {
+@font-face {
   font-family: Roboto;
   src: url(../fonts/Roboto-Regular.ttf);
 }
 
 @font-face {
-  font-family: UbuntuMono;
-  src: url(../fonts/UbuntuMono/UbuntuMono-Regular.ttf);
+  font-family: 'DejaVu Sans Mono';
+  src: url(../fonts/DejaVu/DejaVuSansMono-Regular.ttf);
   font-style: normal;
   font-weight: normal;
 }
 
 
 @font-face {
-  font-family: UbuntuMono;
-  src: url(../fonts/UbuntuMono/UbuntuMono-Italic.ttf);
+  font-family: 'DejaVu Sans Mono';
+  src: url(../fonts/DejaVu/DejaVuSansMono-Oblique.ttf);
   font-style: italic;
   font-weight: normal;
 }
 
 @font-face {
-  font-family: UbuntuMono;
-  src: url(../fonts/UbuntuMono/UbuntuMono-Bold.ttf);
+  font-family: 'DejaVu Sans Mono';
+  src: url(../fonts/DejaVu/DejaVuSansMono-Bold.ttf);
   font-style: normal;
   font-weight: bold;
 }
 
 @font-face {
-  font-family: UbuntuMono;
-  src: url(../fonts/UbuntuMono/UbuntuMono-BoldItalic.ttf);
+  font-family: 'DejaVu Sans Mono';
+  src: url(../fonts/DejaVu/DejaVuSansMono-BoldOblique.ttf);
   font-style: italic;
-  font-weight: bold;
-} */
-
-
-@font-face {
-  font-family: Inconsolata;
-  src: url(../fonts/Inconsolata/Inconsolata-Regular.ttf);
-  font-style: normal;
-  font-weight: normal;
-}
-
-@font-face {
-  font-family: Inconsolata;
-  src: url(../fonts/Inconsolata/Inconsolata-Bold.ttf);
-  font-style: normal;
   font-weight: bold;
 }
 
@@ -54,8 +39,7 @@
 }
 
 code, .code, pre, .pre {
-  font-family: Inconsolata, monospace;
-  font-size: 100%;
+  font-family: 'DejaVu Sans Mono', monospace;
 }
 
 div.code.highlight-py3ext .highlight pre {
