@@ -44,3 +44,32 @@ div.jupyter-cell {
 img.jupyter-image {
 
 }
+
+.jupyter {
+  table.dataframe {
+    border: none !important;
+    box-shadow: none !important;
+    font-family: sans-serif;
+    font-size: 75%;
+  }
+  table.dataframe td {
+    border: none !important;
+  }
+  table.dataframe th {
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+  }
+
+  table.dataframe td,
+  table.dataframe th {
+    line-height: 1.5;
+  }
+
+  table.dataframe td:first-of-type {
+    font-weight: bold;
+  }
+  table.dataframe .row-even {
+    background-color: #eceff1;
+  }
+}

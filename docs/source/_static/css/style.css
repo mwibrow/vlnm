@@ -1,24 +1,61 @@
-@font-face {
+/* @font-face {
   font-family: Roboto;
   src: url(../fonts/Roboto-Regular.ttf);
 }
 
 @font-face {
-  font-family: Monospace;
-  src: url(../fonts/Inconsolata/Inconsolata-Regular.ttf);
+  font-family: UbuntuMono;
+  src: url(../fonts/UbuntuMono/UbuntuMono-Regular.ttf);
   font-style: normal;
+  font-weight: normal;
+}
+
+
+@font-face {
+  font-family: UbuntuMono;
+  src: url(../fonts/UbuntuMono/UbuntuMono-Italic.ttf);
+  font-style: italic;
+  font-weight: normal;
 }
 
 @font-face {
-  font-family: Monospace;
+  font-family: UbuntuMono;
+  src: url(../fonts/UbuntuMono/UbuntuMono-Bold.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: UbuntuMono;
+  src: url(../fonts/UbuntuMono/UbuntuMono-BoldItalic.ttf);
+  font-style: italic;
+  font-weight: bold;
+} */
+
+
+@font-face {
+  font-family: Inconsolata;
+  src: url(../fonts/Inconsolata/Inconsolata-Regular.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Inconsolata;
   src: url(../fonts/Inconsolata/Inconsolata-Bold.ttf);
-  font-style: bold;
+  font-style: normal;
+  font-weight: bold;
 }
 
 @media screen and (min-width: 1080px) {
   div.document {
     width: 1040px;
   }
+}
+
+code, .code, pre, .pre {
+  font-family: Inconsolata, monospace;
+  font-size: 100%;
 }
 
 div.code.highlight-py3ext .highlight pre {
@@ -156,31 +193,4 @@ table.normalizers a {
 }
 .highlight-ansi-color .-Color-Cyan {
   color: #0097a7;
-}
-
-table.dataframe {
-  border: none !important;
-  box-shadow: none !important;
-  font-family: sans-serif;
-  font-size: 75%;
-}
-table.dataframe td {
-  border: none !important;
-}
-table.dataframe th {
-  border-left: none !important;
-  border-right: none !important;
-  border-top: none !important;
-}
-
-table.dataframe td,
-table.dataframe th {
-  line-height: 1.5;
-}
-
-table.dataframe td:first-of-type {
-  font-weight: bold;
-}
-table.dataframe .row-even {
-  background-color: #eceff1;
 }

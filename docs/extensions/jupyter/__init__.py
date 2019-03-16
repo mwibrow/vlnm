@@ -164,6 +164,7 @@ class IPythonDirective(Directive):
         return [parent]
 
     def jupyter_block(self, prefix=None, prefix_classes=None, children=None):
+        """Create a Jupyter cell."""
         prefix_classes = prefix_classes or []
         children = children or []
         block = docutils.nodes.line_block(classes=['jupyter-block'])
@@ -199,6 +200,7 @@ class IPythonDirective(Directive):
         return [], stdout
 
     def jupyter_result_list(self, results, stdout, **options):
+        """Create a list of results."""
         nodes = []
         for result in results:
             _nodes, stdout = self, jupyter_results(result, stdout, **options)
@@ -206,37 +208,38 @@ class IPythonDirective(Directive):
         return nodes, stdout
 
     def jupyter_result_figure(self, figure, stdout, **options):
-        dpi = options.get('dpi', 96)
-        image_format = options.get('image-format', 'png').lower()
-
+        """Create an image from a matplotlib figure."""
         env = self.state.document.settings.env
 
-        embed = False
+        dpi = options.get('dpi', 96)
+        embed = options.get('embed-image', False)
+        fmt = options.get('image-format', 'png').lower()
 
         if embed:
             output = BytesIO()
-            figure.savefig(output, format=image_format, bbox_inches='tight', dpi=dpi)
+            figure.savefig(output, format=fmt, bbox_inches='tight', dpi=dpi)
             output.seek(0)
-            if image_format == 'svg':
+            if fmt == 'svg':
                 image_data = '\n'.join(output.getvalue().decode('ascii').split('\n')[4:])
                 node = docutils.nodes.raw('', image_data, format='html')
             else:
-                image_data = base64.b64encode(output.getvalue()).decode('ascii')
-                image_uri = u'data:image/png;base64,{}'.format(image_data)
-                node = docutils.nodes.image('', uri=image_uri, classes=['jupyter-image'])
+                data = base64.b64encode(output.getvalue()).decode('ascii')
+                uri = u'data:image/{};base64,{}'.format(fmt, data)
+                node = docutils.nodes.image('', uri=uri, classes=['jupyter-image'])
             output.close()
         else:
             gallery = env.gallery
-
-            name = f'{gallery.next_image()}.{image_format}'
+            name = f'{gallery.next_image()}.{fmt}'
             path, uri = gallery.image_paths(name)
-            figure.savefig(path, format=image_format, bbox_inches='tight', dpi=dpi)
+            figure.savefig(path, format=fmt, bbox_inches='tight', dpi=dpi)
             node = docutils.nodes.raw(
                 '', f'<img src="{uri}" class="image jupyter-image" />', format='html')
+
         stdout = '\n'.join(stdout.strip().split('\n')[:-1])
         return [node], stdout
 
     def jupyter_result_dataframe(self, df, stdout, **_options):
+        """Special typsetting of a dataframe."""
         stdout = re.sub(
             r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
             '',
@@ -277,6 +280,7 @@ def make_row(row_data):
 
 
 class JupyterGallery:
+    """Helper class for generating names/URIs for linked images."""
 
     def __init__(self, build, static, images=None):
         images = images or 'jupyter'
@@ -305,19 +309,22 @@ class JupyterGallery:
 def init_app(app):
     build = app.outdir
     static = app.config.html_static_path
-    here = os.path.abspath(os.path.dirname(__file__))
+    setup_sass(os.path.join(build, static[0]))
+    app.add_stylesheet('jupyter.css')
+    app.env.gallery = JupyterGallery(build, static[0] if static else '')
 
+
+def setup_sass(static):
+    """Setup sass."""
+    here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, 'jupyter.sass'), 'r') as file_in:
         source = file_in.read()
-
     if source:
         css = sass.compile(string=source)
     else:
         css = ''
-    with open(os.path.join(build, static[0], 'jupyter.css'), 'w') as file_out:
+    with open(os.path.join(static, 'jupyter.css'), 'w') as file_out:
         file_out.write(css)
-    app.add_stylesheet('jupyter.css')
-    app.env.gallery = JupyterGallery(build, static[0] if static else '')
 
 
 def setup(app):
