@@ -9,6 +9,7 @@ import csv
 from io import StringIO, BytesIO
 import os
 import re
+import shutil
 import sys
 import traceback
 
@@ -17,6 +18,7 @@ import docutils.nodes
 from IPython.core.interactiveshell import InteractiveShell
 from pygments import token
 from pygments.lexer import RegexLexer
+import sass
 from sphinx.highlighting import lexers
 import pandas as pd
 
@@ -287,6 +289,7 @@ class JupyterGallery:
             os.makedir(self.path)
 
         self.image = 0
+        self.images = []
 
     def next_image(self):
         self.image += 1
@@ -295,13 +298,26 @@ class JupyterGallery:
     def image_paths(self, image):
         path = os.path.join(self.path, image)
         uri = os.path.join(self.uri, image)
+        self.images.append((image, uri))
         return path, uri
 
 
 def init_app(app):
-    outdir = app.outdir
+    build = app.outdir
     static = app.config.html_static_path
-    app.env.gallery = JupyterGallery(outdir, static[0] if static else '')
+    here = os.path.abspath(os.path.dirname(__file__))
+
+    with open(os.path.join(here, 'jupyter.sass'), 'r') as file_in:
+        source = file_in.read()
+
+    if source:
+        css = sass.compile(string=source)
+    else:
+        css = ''
+    with open(os.path.join(build, static[0], 'jupyter.css'), 'w') as file_out:
+        file_out.write(css)
+    app.add_stylesheet('jupyter.css')
+    app.env.gallery = JupyterGallery(build, static[0] if static else '')
 
 
 def setup(app):
