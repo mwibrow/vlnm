@@ -94,9 +94,10 @@ class JupyterDirective(Directive):
         shell = get_shell()
         if 'reset' in self.options:
             shell.reset()
+
         if setup_matlab:
             shell.run_cell(
-                'import matplotlib\nmatplotlib.use("agg")',
+                'import matplotlib\nmatplotlib.use("agg")\n',
                 hidden=True)
 
         exc_result, stdout, _ = shell.run_cell(code, hidden=hidden)
@@ -184,9 +185,9 @@ class JupyterDirective(Directive):
         """Create an image from a matplotlib figure."""
         env = self.state.document.settings.env
 
-        dpi = options.get('image-dpi', 96)
+        dpi = options.get('image-dpi') or env.config.jupyter_image_dpi
         embed = options.get('embed-image', False)
-        fmt = options.get('image-format', 'png').lower()
+        fmt = (options.get('image-format') or env.config.jupyter_image_format).lower()
 
         if embed:
             output = BytesIO()
@@ -339,8 +340,10 @@ def init_app(app):
     setup_sass(os.path.join(build, static[0]))
     app.add_stylesheet('jupyter.css')
     app.env.gallery = JupyterGallery(build, static[0] if static else '')
-    app.add_config_value('jupyter_history', True, 'env')
-    app.add_config_value('jupyter_cell_counts', True, 'env')
+    app.add_config_value('jupyter_history', False, 'env')
+    app.add_config_value('jupyter_image_format', 'svg', 'env')
+    app.add_config_value('jupyter_image_dpi', 96, 'env')
+    app.add_config_value('jupyter_cell_counts', False, 'env')
 
 
 def setup_sass(static):
