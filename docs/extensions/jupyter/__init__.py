@@ -38,7 +38,8 @@ class JupyterDirective(Directive):
         'image-width': directives.unchanged,
         'image-height': directives.unchanged,
         'reset': directives.flag,
-        'matplotlib': directives.flag
+        'matplotlib': directives.flag,
+        'code-only': directives.flag
     }
 
     def make_prefix(self, prefix, cell_count):
@@ -91,6 +92,18 @@ class JupyterDirective(Directive):
 
         hidden = 'hidden' in self.options
 
+        parent = docutils.nodes.line_block(classes=['jupyter'])
+        if code_only:
+            node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
+            node['language'] = 'python'
+
+            block = self.jupyter_block(
+                history=self.history_node('In', cell_count),
+                children=[node])
+            parent += block
+            if 'code-only' in options:
+                return [parent]
+
         shell = get_shell()
         if 'reset' in self.options:
             shell.reset()
@@ -109,15 +122,6 @@ class JupyterDirective(Directive):
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
-
-        parent = docutils.nodes.line_block(classes=['jupyter'])
-        node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
-        node['language'] = 'python'
-
-        block = self.jupyter_block(
-            history=self.history_node('In', cell_count),
-            children=[node])
-        parent += block
 
         if error:
             stdout = re.sub(

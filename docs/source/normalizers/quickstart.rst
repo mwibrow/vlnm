@@ -21,7 +21,8 @@ This is what starting Python in a terminal on MacOS might look like:
 Alternatively, |vlnm| may be used from a Jupyter notebook, in which
 case starting a new notebook will automatically start Python.
 
-.. jupyter::
+.. ipython
+    :code-only:
 
     from vlnm import normalize
 
