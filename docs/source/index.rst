@@ -13,7 +13,6 @@ VLNM: Vowel normalization and plotting using Python
 
 
 .. ipython::
-    :reset:
 
     df = pd.DataFrame(dict(a=[1,2,3],b=[4,5,6]))
     print('hello')

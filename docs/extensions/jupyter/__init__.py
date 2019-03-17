@@ -44,22 +44,29 @@ class JupyterDirective(Directive):
     def run(self):
         options = self.options
         code = u'\n'.join(line for line in self.content)
+        numbers = False
 
         setup_matlab = False
         for key in options:
             if key.startswith('image') or key == 'matplotlib':
                 setup_matlab = True
 
+        hidden = 'hidden' in self.options
+
         shell = get_shell()
         if 'reset' in self.options:
             shell.reset()
         if setup_matlab:
-            shell.run_cell('import matplotlib\nmatplotlib.use("agg")')
+            shell.run_cell(
+                'import matplotlib\nmatplotlib.use("agg")',
+                hidden=True)
 
-        exc_result, stdout, _ = shell.run_cell(code)
+        exc_result, stdout, _ = shell.run_cell(code, hidden=hidden)
 
-        if 'hidden' in options:
+        if hidden:
             return []
+
+        history = shell.history
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
@@ -68,7 +75,10 @@ class JupyterDirective(Directive):
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
 
-        block = self.jupyter_block(prefix='In: ', children=[node])
+        block = self.jupyter_block(
+            prefix=f'In: [{history}]' if numbers else 'In:',
+            prefix_classes=['jupyter-prefix-in'],
+            children=[node])
         parent += block
 
         if error:
@@ -79,7 +89,8 @@ class JupyterDirective(Directive):
             node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
             block = self.jupyter_block(
-                prefix='Out: ', prefix_classes=['jupyter-error'], children=[node])
+                prefix=f'Out: [{history}]' if numbers else 'Out:',
+                prefix_classes=['jupyter-prefix-out jupyter-error'], children=[node])
             parent += block
         else:
             nodes, stdout = self.jupyter_results(result, stdout, **options)
@@ -88,7 +99,10 @@ class JupyterDirective(Directive):
                     stdout, stdout, classes=['jupyter-output'])
                 parent += self.jupyter_block(prefix=' ', children=[node])
             if nodes:
-                parent += self.jupyter_block(prefix='Out:', children=nodes)
+                parent += self.jupyter_block(
+                    prefix=f'Out: [{history}]' if numbers else 'Out:',
+                    prefix_classes=['jupyter-prefix-out'],
+                    children=nodes)
         return [parent]
 
     def jupyter_block(self, prefix=None, prefix_classes=None, children=None):
@@ -234,35 +248,39 @@ class JupyterGallery:
         return path, uri
 
 
-class JupyterInterpreter:
+class JupyterShell:
     """Helper class for managing shell interpreters."""
 
     _instance = None
 
+    def __new__(*_, **__):
+        raise RuntimeError('Use static get_instance method.')
+
     def __init__(self):
         self.shell = None
-        self.globals = {}
         self.locals = {}
-        self._locals = {}
+        self.history = 0
 
     @staticmethod
     def get_instance():
-        if JupyterInterpreter._instance is None:
-            JupyterInterpreter._instance = JupyterInterpreter()
-        return JupyterInterpreter._instance
+        if JupyterShell._instance is None:
+            obj = object.__new__(JupyterShell)
+            obj.__init__()
+            JupyterShell._instance = obj
+        return JupyterShell._instance
 
     def new(self):
         """Create a new shell."""
-        # Pointless as InteractiveShell is a singleton.
         self.shell = InteractiveShell(user_ns=self.locals)
 
     def reset(self):
         """Reset the shell."""
         self.shell.reset()
         self.locals = {}
+        self.history = 0
         self.new()
 
-    def run_cell(self, code):
+    def run_cell(self, code, hidden=False):
         """Run a cell."""
         if not self.shell:
             self.new()
@@ -273,31 +291,15 @@ class JupyterInterpreter:
 
             stdout = _stdout.getvalue()  # pylint: disable=no-member
             stderr = _stdout.getvalue()  # pylint: disable=no-member
+
+        if not hidden:
+            self.history += 1
         return result, stdout, stderr
 
 
 def get_shell():
-    shell = JupyterInterpreter.get_instance()
+    shell = JupyterShell.get_instance()
     return shell
-
-
-class IPythonShell:
-
-    def __init__(self):
-        self.globals = {}
-        self.locals = {}
-
-    def reset(self):
-        self.globals = {}
-        self.locals = {}
-
-    def run(self, code):
-        with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
-            with redirect_stdout(_stdout), redirect_stderr(_stderr):
-                exec(f'{code}\n', self.globals, self.locals)
-
-            stdout = _stdout.getvalue()  # pylint: disable=no-member
-            stderr = _stdout.getvalue()  # pylint: disable=no-member
 
 
 def init_app(app):
