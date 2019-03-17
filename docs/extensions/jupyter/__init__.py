@@ -41,12 +41,50 @@ class JupyterDirective(Directive):
         'matplotlib': directives.flag
     }
 
+    def make_prefix(self, prefix, cell_count):
+        options = self.options
+        if options.get('history'):
+            if options.get('numbers'):
+                return f'{prefix}: [{cell_count}]'
+            return f'{prefix}:'
+        return ''
+
+    def history_node(self, prefix, cell_count, empty=False, classes=None):
+        options = self.options
+        config = self.state.document.settings.env.config
+
+        history = config.jupyter_history
+        if options.get('history') is not None:
+            history = history and options.get('history')
+
+        if not history:
+            return None
+
+        cell_counts = config.jupyter_cell_counts
+        if options.get('cell-counts') is not None:
+            cell_counts = cell_counts and options.get('cell-counts')
+
+        classes = ['jupyter-history'] + (classes or [])
+        if history:
+            classes.append('jupyter-history')
+            text = f'{prefix}:'
+        if cell_counts:
+            classes.append('jupyter-cell-counts')
+            text = f'{prefix}: [{cell_count}]'
+        if empty:
+            text = ''
+
+        node = docutils.nodes.line_block(classes=classes)
+        node += docutils.nodes.literal(text, text)
+        return node
+
     def run(self):
         options = self.options
         code = u'\n'.join(line for line in self.content)
         numbers = False
-
+        history = False
         setup_matlab = False
+
         for key in options:
             if key.startswith('image') or key == 'matplotlib':
                 setup_matlab = True
@@ -66,7 +104,7 @@ class JupyterDirective(Directive):
         if hidden:
             return []
 
-        history = shell.history
+        cell_count = shell.cell_count
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
@@ -76,8 +114,7 @@ class JupyterDirective(Directive):
         node['language'] = 'python'
 
         block = self.jupyter_block(
-            prefix=f'In: [{history}]' if numbers else 'In:',
-            prefix_classes=['jupyter-prefix-in'],
+            history=self.history_node('In', cell_count),
             children=[node])
         parent += block
 
@@ -89,35 +126,29 @@ class JupyterDirective(Directive):
             node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
             node['language'] = 'ansi-color'
             block = self.jupyter_block(
-                prefix=f'Out: [{history}]' if numbers else 'Out:',
-                prefix_classes=['jupyter-prefix-out jupyter-error'], children=[node])
+                history=self.history_node('Out', cell_count, classes=['jupyter-error']),
+                children=[node])
             parent += block
         else:
             nodes, stdout = self.jupyter_results(result, stdout, **options)
             if stdout:
                 node = docutils.nodes.literal_block(
                     stdout, stdout, classes=['jupyter-output'])
-                parent += self.jupyter_block(prefix=' ', children=[node])
+                parent += self.jupyter_block(
+                    history=self.history_node('', cell_count, empty=True), children=[node])
             if nodes:
                 parent += self.jupyter_block(
-                    prefix=f'Out: [{history}]' if numbers else 'Out:',
-                    prefix_classes=['jupyter-prefix-out'],
+                    history=self.history_node('Out', cell_count),
                     children=nodes)
         return [parent]
 
-    def jupyter_block(self, prefix=None, prefix_classes=None, children=None):
+    def jupyter_block(self, history=None, children=None):
         """Create a Jupyter cell."""
-        prefix_classes = prefix_classes or []
         children = children or []
         block = docutils.nodes.line_block(classes=['jupyter-block'])
-        if prefix:
-            prefix_block = docutils.nodes.line_block(
-                classes=['jupyter-prefix'] + prefix_classes)
-            prefix_block += docutils.nodes.literal(prefix, prefix)
-            block += prefix_block
-        container = docutils.nodes.line_block(
-            classes=(['jupyter-container', 'jupyter-container-prefix']
-                     if prefix else ['jupyter-container']))
+        if history:
+            block += history
+        container = docutils.nodes.line_block(classes=(['jupyter-container']))
         for child in children:
             container += child
         block += container
@@ -259,7 +290,7 @@ class JupyterShell:
     def __init__(self):
         self.shell = None
         self.locals = {}
-        self.history = 0
+        self.cell_count = 0
 
     @staticmethod
     def get_instance():
@@ -277,7 +308,7 @@ class JupyterShell:
         """Reset the shell."""
         self.shell.reset()
         self.locals = {}
-        self.history = 0
+        self.cell_count = 0
         self.new()
 
     def run_cell(self, code, hidden=False):
@@ -293,7 +324,7 @@ class JupyterShell:
             stderr = _stdout.getvalue()  # pylint: disable=no-member
 
         if not hidden:
-            self.history += 1
+            self.cell_count += 1
         return result, stdout, stderr
 
 
@@ -308,6 +339,8 @@ def init_app(app):
     setup_sass(os.path.join(build, static[0]))
     app.add_stylesheet('jupyter.css')
     app.env.gallery = JupyterGallery(build, static[0] if static else '')
+    app.add_config_value('jupyter_history', True, 'env')
+    app.add_config_value('jupyter_cell_counts', True, 'env')
 
 
 def setup_sass(static):

@@ -7,7 +7,7 @@ div.jupyter-block.line-block {
   flex-direction: row;
 }
 
-div.jupyter-prefix.line-block {
+div.jupyter-history.line-block {
   font-family: monospace;
   font-size: 90%;
   width: 5ex;
@@ -15,18 +15,17 @@ div.jupyter-prefix.line-block {
   margin-top: calc(0.25rem + 1px);
   flex-shrink: 0;
 
+  &.jupyter-cell-counts {
+     width: 9ex;
+  }
+
   code {
     background-color: transparent !important;
   }
 }
 
-.jupyter-numbers {
-  div.jupyter-prefix.line-block {
-    width: 9ex;
-  }
-}
 
-div.jupyter-prefix.jupyter-error.line-block {
+div.jupyter-history.jupyter-error.line-block {
   code {
     .pre {
       color: #d32f2f !important;
