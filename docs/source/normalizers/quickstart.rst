@@ -22,7 +22,6 @@ Alternatively, |vlnm| may be used from a Jupyter notebook, in which
 case starting a new notebook will automatically start Python.
 
 .. ipython
-    :code-only:
 
     from vlnm import normalize
 
@@ -32,9 +31,48 @@ Normalizing a CSV file
 In perhaps the simplest case, |vlnm| can be used to normalize
 a CSV file containing
 
+
+.. ipython::
+    :code-only:
+
+    normalize('vowels.csv', 'normalized.csv', method='lobanov')
+
+.. ipython::
+    :code-only:
+
+    with open('vowels.csv', 'r') as file_in,
+            open('normalized.csv', 'w') as file_out:
+        normalize(file_in, file_out, method='lobanov')
+
+.. ipython::
+    :code-only:
+
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', sep='\t')
+
 Normalizing a DataFrame
 -----------------------
 
+.. ipython::
+    :code-only:
+
+    import pandas as pd
+    df = pd.read_csv('vowels.csv')
+    norm_df = normalize(df, method='lobanov', rename='{}_N')
+    norm_df.head()
 
 Using |vlnm| Python classes
 ---------------------------
+
+.. ipython::
+    :code-only:
+
+    import vlnm
+    norm = vlnm.get_normalizer('lobanov')
+    norm_df = norm(df, rename='{}_N')
+    norm_df.head()
+
+.. ipython::
+
+    import vlnm
+    print(vlnm.list_normalizers())
+

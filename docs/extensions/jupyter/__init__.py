@@ -82,6 +82,9 @@ class JupyterDirective(Directive):
     def run(self):
         options = self.options
         code = u'\n'.join(line for line in self.content)
+
+        code_only = 'code-only' in self.options
+
         numbers = False
         history = False
         setup_matlab = False
@@ -93,18 +96,20 @@ class JupyterDirective(Directive):
         hidden = 'hidden' in self.options
 
         parent = docutils.nodes.line_block(classes=['jupyter'])
+
+        shell = get_shell()
+        cell_count = shell.cell_count
+
         if code_only:
             node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
             node['language'] = 'python'
 
             block = self.jupyter_block(
-                history=self.history_node('In', cell_count),
+                history=self.history_node('In', cell_count, empty=True),
                 children=[node])
             parent += block
-            if 'code-only' in options:
-                return [parent]
+            return [parent]
 
-        shell = get_shell()
         if 'reset' in self.options:
             shell.reset()
 
@@ -119,6 +124,14 @@ class JupyterDirective(Directive):
             return []
 
         cell_count = shell.cell_count
+
+        node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
+        node['language'] = 'python'
+
+        block = self.jupyter_block(
+            history=self.history_node('In', cell_count, empty=True),
+            children=[node])
+        parent += block
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         result = exc_result.result
@@ -180,9 +193,10 @@ class JupyterDirective(Directive):
     def jupyter_result_list(self, results, stdout, **options):
         """Create a list of results."""
         nodes = []
-        for result in results:
-            _nodes, stdout = self, jupyter_results(result, stdout, **options)
-            nodes.extend(_nodes)
+        # if results:
+        #     for result in results:
+        #         _nodes, stdout = self.jupyter_results(result, stdout, **options)
+        #         nodes.extend(_nodes)
         return nodes, stdout
 
     def jupyter_result_figure(self, figure, stdout, **options):
