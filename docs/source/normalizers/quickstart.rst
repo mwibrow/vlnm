@@ -74,5 +74,5 @@ Using |vlnm| Python classes
 .. ipython::
 
     import vlnm
-    print(vlnm.list_normalizers())
+    vlnm.list_normalizers()
 

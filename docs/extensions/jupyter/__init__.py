@@ -197,6 +197,8 @@ class JupyterDirective(Directive):
         #     for result in results:
         #         _nodes, stdout = self.jupyter_results(result, stdout, **options)
         #         nodes.extend(_nodes)
+        stdout = re.sub(r'Out\s*\[\d+\]:\s*\n\[.*$', '', stdout, flags=re.RegexFlag.DOTALL)
+        print(results)
         return nodes, stdout
 
     def jupyter_result_figure(self, figure, stdout, **options):
