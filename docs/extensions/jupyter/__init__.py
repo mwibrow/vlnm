@@ -8,6 +8,7 @@ from contextlib import closing, redirect_stdout, redirect_stderr
 import csv
 from io import StringIO, BytesIO
 import os
+import pprint
 import re
 import shutil
 import sys
@@ -134,17 +135,17 @@ class JupyterDirective(Directive):
                 history=self.history_node('Out', cell_count, classes=['jupyter-error']),
                 children=[node])
             parent += block
-        # else:
-        #     nodes, stdout = self.jupyter_results(result, stdout, **options)
-        #     if stdout:
-        #         node = docutils.nodes.literal_block(
-        #             stdout, stdout, classes=['jupyter-output'])
-        #         parent += self.jupyter_block(
-        #             history=self.history_node('', cell_count, empty=True), children=[node])
-        #     if nodes:
-        #         parent += self.jupyter_block(
-        #             history=self.history_node('Out', cell_count),
-        #             children=nodes)
+        else:
+            nodes, stdout = self.jupyter_results(result, stdout, **options)
+            if stdout:
+                node = docutils.nodes.literal_block(
+                    stdout, stdout, classes=['jupyter-output'])
+                parent += self.jupyter_block(
+                    history=self.history_node('', empty=True), children=[node])
+            if nodes:
+                parent += self.jupyter_block(
+                    history=self.history_node('Out'),
+                    children=nodes)
         return [parent]
 
     def jupyter_block(self, history=None, children=None):
@@ -181,12 +182,20 @@ class JupyterDirective(Directive):
     def jupyter_result_list(self, results, stdout, **options):
         """Create a list of results."""
         nodes = []
-        # if results:
-        #     for result in results:
-        #         _nodes, stdout = self.jupyter_results(result, stdout, **options)
-        #         nodes.extend(_nodes)
-        stdout = re.sub(r'Out\s*\[\d+\]:\s*\n\[.*$', '', stdout, flags=re.RegexFlag.DOTALL)
-        print(results)
+        if results:
+            if len(results) != 1 or 'matplotlib' not in results[0].__class__.__module__:
+                stream = StringIO()
+                pprint.pprint(results, stream=stream, indent=1, depth=4)
+                literal = stream.getvalue()
+                stream.close()
+                node = docutils.nodes.literal_block(
+                    literal, literal, classes=['jupyter-output'])
+                nodes.append(node)
+            else:
+                for result in results:
+                    _nodes, stdout = self.jupyter_results(result, stdout, **options)
+                    nodes.extend(_nodes)
+
         return nodes, stdout
 
     def jupyter_result_figure(self, figure, stdout, **options):
