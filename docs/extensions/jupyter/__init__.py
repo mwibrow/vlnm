@@ -166,7 +166,6 @@ class JupyterDirective(Directive):
     def jupyter_results(self, results, stdout, **options):
         """Make jupyter results."""
         stdout = stdout or ''
-        print(results)
         if results is not None:
 
             klass = results.__class__.__name__
@@ -202,7 +201,7 @@ class JupyterDirective(Directive):
 
         return nodes, stdout
 
-    def jupyter_result_type(self, results, stdout, **options):
+    def jupyter_result_type(self, results, stdout, **options):  # pylint: disable=no-self-use
         """Create type."""
         literal = repr(results)
         node = docutils.nodes.literal_block(literal, literal)
