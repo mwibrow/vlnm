@@ -334,7 +334,7 @@ class JupyterShell:
         """Return the last cell number."""
         try:
             return max(self.user_ns.get('Out').keys())
-        except AttributeError:
+        except (AttributeError, ValueError):
             return None
 
     def run_cell(self, code, silent=False):

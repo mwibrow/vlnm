@@ -22,7 +22,7 @@ Alternatively, |vlnm| may be used from a Jupyter notebook, in which
 case `starting a new notebook <https://jupyter.readthedocs.io/en/latest/running.html>`_
 will automatically start Python,
 and |vlnm| can be imported by
-`running code https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Running%20Code.html`_
+`running code <https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Running%20Code.html>`_
 in the first `cell`:
 
 .. ipython::
