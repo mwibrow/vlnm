@@ -122,30 +122,33 @@ class JupyterDirective(Directive):
         parent += block
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
-        result = exc_result.result
+        results = exc_result.result
 
-        if error:
-            stdout = re.sub(
-                r'\n.*?(?=Traceback \(most recent call last\))',
-                '',
-                stdout)
-            node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-output'])
-            node['language'] = 'ansi-color'
-            block = self.jupyter_block(
-                history=self.history_node('Out', cell_count, classes=['jupyter-error']),
-                children=[node])
-            parent += block
-        else:
-            nodes, stdout = self.jupyter_results(result, stdout, **options)
-            if stdout:
-                node = docutils.nodes.literal_block(
-                    stdout, stdout, classes=['jupyter-output'])
-                parent += self.jupyter_block(
-                    history=self.history_node('', empty=True), children=[node])
-            if nodes:
-                parent += self.jupyter_block(
-                    history=self.history_node('Out'),
-                    children=nodes)
+        if error or stdout or results:
+            output = docutils.nodes.line_block(classes=['jupyter-output'])
+            if error:
+                stdout = re.sub(
+                    r'\n.*?(?=Traceback \(most recent call last\))',
+                    '',
+                    stdout)
+                node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-stdout'])
+                node['language'] = 'ansi-color'
+                block = self.jupyter_block(
+                    history=self.history_node('Out', cell_count, classes=['jupyter-error']),
+                    children=[node])
+                parent += block
+            else:
+                nodes, stdout = self.jupyter_results(results, stdout, **options)
+                if stdout:
+                    node = docutils.nodes.literal_block(
+                        stdout, stdout, classes=['jupyter-stdout'])
+                    output += self.jupyter_block(
+                        history=self.history_node('', empty=True), children=[node])
+                if nodes:
+                    output += self.jupyter_block(
+                        history=self.history_node('Out'),
+                        children=nodes)
+            parent += output
         return [parent]
 
     def jupyter_block(self, history=None, children=None):
