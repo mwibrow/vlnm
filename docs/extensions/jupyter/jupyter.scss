@@ -28,6 +28,10 @@ div.jupyter-history.line-block {
   }
 }
 
+.highlight-ansi-color .highlight pre {
+  background-color: transparent !important;
+}
+
 div.jupyter-history.jupyter-error.line-block {
   code {
     .pre {

@@ -122,3 +122,9 @@ Using |vlnm| Python classes
 
     import vlnm
     vlnm.list_normalizers()
+
+
+.. ipython::
+
+    import vlnm
+    vlnm.get_normalizer('neary')

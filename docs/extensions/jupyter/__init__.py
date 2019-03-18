@@ -166,6 +166,7 @@ class JupyterDirective(Directive):
     def jupyter_results(self, results, stdout, **options):
         """Make jupyter results."""
         stdout = stdout or ''
+        print(results)
         if results is not None:
 
             klass = results.__class__.__name__
@@ -192,7 +193,7 @@ class JupyterDirective(Directive):
                 literal = stream.getvalue()
                 stream.close()
                 node = docutils.nodes.literal_block(
-                    literal, literal, classes=['jupyter-output'])
+                    literal, literal)
                 nodes.append(node)
             else:
                 for result in results:
@@ -200,6 +201,12 @@ class JupyterDirective(Directive):
                     nodes.extend(_nodes)
 
         return nodes, stdout
+
+    def jupyter_result_type(self, results, stdout, **options):
+        """Create type."""
+        literal = repr(results)
+        node = docutils.nodes.literal_block(literal, literal)
+        return [node], stdout
 
     def jupyter_result_figure(self, figure, stdout, **options):
         """Create an image from a matplotlib figure."""

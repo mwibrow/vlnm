@@ -35,6 +35,7 @@ from vlnm.normalizers.vowel import (
 
 DATA_DIR = ''
 
+
 def read_csv(data, *args, **kwargs):
     """Read a csv file.
 
@@ -64,6 +65,7 @@ def read_csv(data, *args, **kwargs):
     if data_dir:
         return pd.read_csv(os.path.join(data_dir, data), *args, **kwargs)
     return pd.read_csv(data, *args, **kwargs)
+
 
 def normalize(data, file_out=None, method='default', sep=',', **kwargs):
     """Normalize vowel data in a pandas dataframe.
