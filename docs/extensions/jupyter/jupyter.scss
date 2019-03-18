@@ -1,5 +1,3 @@
-
-
 div.jupyter-block.line-block {
   width: 100%;
   margin-left: 0 !important;
@@ -16,14 +14,13 @@ div.jupyter-history.line-block {
   flex-shrink: 0;
 
   &.jupyter-cell-counts {
-     width: 9ex;
+    width: 9ex;
   }
 
   code {
     background-color: transparent !important;
   }
 }
-
 
 div.jupyter-history.jupyter-error.line-block {
   code {
@@ -45,14 +42,13 @@ div.jupyter-output {
 
 div.jupyter-cell {
   width: 100%;
+  overflow-x: scroll;
 }
 
 img.jupyter-image {
-
 }
 
 .jupyter {
-
   table.dataframe {
     border: none !important;
     box-shadow: none !important;

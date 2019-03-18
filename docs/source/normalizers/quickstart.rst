@@ -29,25 +29,65 @@ Normalizing a CSV file
 ----------------------
 
 In perhaps the simplest case, |vlnm| can be used to normalize
-a CSV file containing
+a CSV file containing the vowel data.
 
+So for example, assuming a CSV file
+called ``vowels.csv`` as a comma separated file
+with the columns **speaker**, **vowel**, **f1** and **f2**,
+such as:
+
+
+
+The file can be normalized according to :citet:`lobanov_1971`
+and automatically saved to a new file ``normalized.csv`` as follows:
 
 .. ipython::
     :code-only:
 
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
 
-.. ipython::
-    :code-only:
-
-    with open('vowels.csv', 'r') as file_in,
-            open('normalized.csv', 'w') as file_out:
-        normalize(file_in, file_out, method='lobanov')
+To save the normalized data to the same file, the second file name
+can be omitted:
 
 .. ipython::
     :code-only:
 
-    normalize('vowels.csv', 'normalized.csv', method='lobanov', sep='\t')
+    normalize('vowels.csv', method='lobanov')
+
+As this will overwrite the existing columns **f1** and **f2**
+the normalized data can be written to new columns using the
+``rename`` argument:
+
+.. ipython::
+    :code-only:
+
+    normalize('vowels.csv', method='lobanov', rename='{}_N')
+
+This will create new columns **f1_N** and **f2_N** containing
+the normalized data for the **f1** and **f2** columns,
+respectively.
+
+To change the separator used in the files the
+``sep`` argument can be used:
+
+.. ipython::
+    :code-only:
+
+    normalize('vowels.tsv', 'normalized.tsv', method='lobanov', sep='\t')
+
+Finally, one (or both) of the file arguments can be a
+`file object <https://docs.python.org/3/glossary.html#term-file-object>`_
+created using the
+`open() function <https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files>`_:
+
+.. ipython::
+    :code-only:
+
+    with open('vowels.csv', 'r') as file_in:
+        with open('normalized.csv', 'w') as file_out:
+            normalize(file_in, file_out, method='lobanov')
+
+
 
 Normalizing a DataFrame
 -----------------------
@@ -75,4 +115,3 @@ Using |vlnm| Python classes
 
     import vlnm
     vlnm.list_normalizers()
-

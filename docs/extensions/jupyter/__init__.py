@@ -31,7 +31,7 @@ class JupyterDirective(Directive):
     final_argument_whitespace = True
 
     option_spec = {
-        'hidden': directives.flag,
+        'silent': directives.flag,
         'image-dpi': directives.positive_int,
         'image-format': directives.unchanged,
         'image-embed': directives.flag,
@@ -42,6 +42,10 @@ class JupyterDirective(Directive):
         'code-only': directives.flag
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.shell = get_shell()
+
     def make_prefix(self, prefix, cell_count):
         options = self.options
         if options.get('history'):
@@ -50,7 +54,7 @@ class JupyterDirective(Directive):
             return f'{prefix}:'
         return ''
 
-    def history_node(self, prefix, cell_count, empty=False, classes=None):
+    def history_node(self, prefix='', empty=False, classes=None):
         options = self.options
         config = self.state.document.settings.env.config
 
@@ -66,13 +70,14 @@ class JupyterDirective(Directive):
             cell_counts = cell_counts and options.get('cell-counts')
 
         classes = ['jupyter-history'] + (classes or [])
-        if history:
-            classes.append('jupyter-history')
-            text = f'{prefix}:'
-        if cell_counts:
-            classes.append('jupyter-cell-counts')
-            text = f'{prefix}: [{cell_count}]'
-        if empty:
+        if prefix and not empty:
+            if history:
+                classes.append('jupyter-history')
+                text = f'{prefix}:'
+            if cell_counts:
+                classes.append('jupyter-cell-counts')
+                text = f'{prefix}:[{self.shell.get_cell_count()}]'
+        else:
             text = ''
 
         node = docutils.nodes.line_block(classes=classes)
@@ -83,53 +88,35 @@ class JupyterDirective(Directive):
         options = self.options
         code = u'\n'.join(line for line in self.content)
 
-        code_only = 'code-only' in self.options
-
-        numbers = False
-        history = False
-        setup_matlab = False
-
-        for key in options:
-            if key.startswith('image') or key == 'matplotlib':
-                setup_matlab = True
-
-        hidden = 'hidden' in self.options
-
         parent = docutils.nodes.line_block(classes=['jupyter'])
 
-        shell = get_shell()
-        cell_count = shell.cell_count
-
-        if code_only:
+        if 'code-only' in options:
             node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
             node['language'] = 'python'
-
             block = self.jupyter_block(
-                history=self.history_node('In', cell_count, empty=True),
+                history=self.history_node(empty=True),
                 children=[node])
             parent += block
             return [parent]
 
         if 'reset' in self.options:
-            shell.reset()
+            self.shell.reset()
 
-        if setup_matlab:
-            shell.run_cell(
+        if 'matplotlib' in self.options:
+            self.shell.run_cell(
                 'import matplotlib\nmatplotlib.use("agg")\n',
-                hidden=True)
+                silent=True)
 
-        exc_result, stdout, _ = shell.run_cell(code, hidden=hidden)
-
-        if hidden:
+        exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
+        if 'silent' in options:
             return []
 
-        cell_count = shell.cell_count
+        cell_count = self.shell.get_cell_count()
 
         node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
         node['language'] = 'python'
-
         block = self.jupyter_block(
-            history=self.history_node('In', cell_count, empty=True),
+            history=self.history_node('In ', cell_count),
             children=[node])
         parent += block
 
@@ -147,17 +134,17 @@ class JupyterDirective(Directive):
                 history=self.history_node('Out', cell_count, classes=['jupyter-error']),
                 children=[node])
             parent += block
-        else:
-            nodes, stdout = self.jupyter_results(result, stdout, **options)
-            if stdout:
-                node = docutils.nodes.literal_block(
-                    stdout, stdout, classes=['jupyter-output'])
-                parent += self.jupyter_block(
-                    history=self.history_node('', cell_count, empty=True), children=[node])
-            if nodes:
-                parent += self.jupyter_block(
-                    history=self.history_node('Out', cell_count),
-                    children=nodes)
+        # else:
+        #     nodes, stdout = self.jupyter_results(result, stdout, **options)
+        #     if stdout:
+        #         node = docutils.nodes.literal_block(
+        #             stdout, stdout, classes=['jupyter-output'])
+        #         parent += self.jupyter_block(
+        #             history=self.history_node('', cell_count, empty=True), children=[node])
+        #     if nodes:
+        #         parent += self.jupyter_block(
+        #             history=self.history_node('Out', cell_count),
+        #             children=nodes)
         return [parent]
 
     def jupyter_block(self, history=None, children=None):
@@ -176,6 +163,7 @@ class JupyterDirective(Directive):
         """Make jupyter results."""
         stdout = stdout or ''
         if results is not None:
+
             klass = results.__class__.__name__
             func = f'jupyter_result_{klass.lower()}'
 
@@ -273,6 +261,18 @@ def make_row(row_data):
     return row_node
 
 
+def pop_until_match(items, pattern):
+    """Pop from list."""
+    copy = items[:]
+    while copy:
+        match = re.match(pattern, copy.pop())
+        if match:
+            break
+    if match:
+        return copy
+    return items
+
+
 class JupyterGallery:
     """Helper class for generating names/URIs for linked images."""
 
@@ -284,7 +284,7 @@ class JupyterGallery:
             for path in os.listdir(self.path):
                 os.remove(os.path.join(self.path, path))
         else:
-            os.makedir(self.path)
+            os.makedirs(self.path)
 
         self.image = 0
         self.images = []
@@ -305,13 +305,12 @@ class JupyterShell:
 
     _instance = None
 
-    def __new__(*_, **__):
-        raise RuntimeError('Use static get_instance method.')
+    def __new__(cls, *__, **___):
+        raise RuntimeError(f'Use static get_instance method in instantiate {cls}.')
 
     def __init__(self):
         self.shell = None
-        self.locals = {}
-        self.cell_count = 0
+        self.user_ns = {}
 
     @staticmethod
     def get_instance():
@@ -323,29 +322,39 @@ class JupyterShell:
 
     def new(self):
         """Create a new shell."""
-        self.shell = InteractiveShell(user_ns=self.locals)
+        self.shell = InteractiveShell(user_ns=self.user_ns)
 
     def reset(self):
         """Reset the shell."""
         self.shell.reset()
-        self.locals = {}
-        self.cell_count = 0
+        self.user_ns = {}
         self.new()
 
-    def run_cell(self, code, hidden=False):
+    def get_cell_count(self):
+        """Return the last cell number."""
+        try:
+            return max(self.user_ns.get('Out').keys())
+        except AttributeError:
+            return None
+
+    def run_cell(self, code, silent=False):
         """Run a cell."""
         if not self.shell:
             self.new()
 
         with closing(StringIO()) as _stdout, closing(StringIO()) as _stderr:
             with redirect_stdout(_stdout), redirect_stderr(_stderr):
-                result = self.shell.run_cell(f'{code}\n')
+                result = self.shell.run_cell(
+                    f'{code}\n',
+                    store_history=not silent,
+                    silent=silent)
 
             stdout = _stdout.getvalue()  # pylint: disable=no-member
             stderr = _stdout.getvalue()  # pylint: disable=no-member
 
-        if not hidden:
-            self.cell_count += 1
+        if result:
+            pattern = r'^Out\s*\[{}\]'.format(self.get_cell_count())
+            stdout = '\n'.join(pop_until_match(stdout.split('\n'), pattern))
         return result, stdout, stderr
 
 
@@ -369,7 +378,7 @@ def init_app(app):
 def setup_sass(static):
     """Setup sass."""
     here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, 'jupyter.sass'), 'r') as file_in:
+    with open(os.path.join(here, 'jupyter.scss'), 'r') as file_in:
         source = file_in.read()
     if source:
         css = sass.compile(string=source)
