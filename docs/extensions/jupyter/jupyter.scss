@@ -1,3 +1,9 @@
+.jupyter {
+  div.line-block {
+    margin-left: 0 !important;
+  }
+}
+
 div.jupyter-block.line-block {
   width: 100%;
   margin-left: 0 !important;
@@ -43,9 +49,6 @@ div.jupyter-output {
 div.jupyter-cell {
   width: 100%;
   overflow-x: scroll;
-}
-
-img.jupyter-image {
 }
 
 .jupyter {
