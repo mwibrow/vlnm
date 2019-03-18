@@ -201,7 +201,7 @@ class JupyterDirective(Directive):
 
         return nodes, stdout
 
-    def jupyter_result_type(self, results, stdout, **options):  # pylint: disable=no-self-use
+    def jupyter_result_type(self, results, stdout, **__):  # pylint: disable=no-self-use
         """Create type."""
         literal = repr(results)
         node = docutils.nodes.literal_block(literal, literal)
