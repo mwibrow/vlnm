@@ -1,4 +1,6 @@
 .jupyter {
+  margin-top: 1.5rem !important;
+  margin-bottom: 2rem !important;
   div.line-block {
     margin-left: 0 !important;
   }
@@ -47,7 +49,7 @@ div.jupyter-container.line-block {
 }
 
 div.jupyter-output {
-  margin-top: 1px;
+  margin-top: calc(1rem + 1px);
 }
 
 div.jupyter-cell {

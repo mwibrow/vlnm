@@ -44,6 +44,15 @@ with the columns **speaker**, **vowel**, **f1** and **f2**,
 such as:
 
 
+Although in Jupyter the file can be previewed a bit more prettily
+using a |pandas| DataFrame:
+
+.. ipython::
+    :path: {root}/source/_data
+
+    import pandas as pd
+    pd.read_csv('pb1952.csv', nrows=5)
+
 
 The file can be normalized according to :citet:`lobanov_1971`
 and automatically saved to a new file ``normalized.csv`` as follows:
@@ -124,11 +133,7 @@ Using |vlnm| Python classes
     vlnm.list_normalizers()
 
 
-.. ipython::
-    :path: {root}/source/_data
 
-    from vlnm import preview
-    preview('pb1952.csv')
 
 
 .. ipython::
