@@ -129,3 +129,17 @@ Using |vlnm| Python classes
 
     from vlnm import preview
     preview('pb1952.csv')
+
+
+.. ipython::
+    :path: {root}/source/_data
+
+    import pandas as pd
+    print(pd.read_csv('pb1952.csv', nrows=5))
+
+Although in Jupyrer
+
+.. ipython::
+    :path: {root}/source/_data
+
+    pd.read_csv('pb1952.csv', nrows=5)

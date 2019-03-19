@@ -142,7 +142,7 @@ class JupyterDirective(Directive):
         error = exc_result.error_before_exec or exc_result.error_in_exec
         results = exc_result.result
 
-        if error or stdout or results:
+        if error or stdout or results is not None:
             output = docutils.nodes.line_block(classes=['jupyter-output'])
             if error:
                 stdout = re.sub(
@@ -395,7 +395,7 @@ class JupyterShell:
             stdout = _stdout.getvalue()  # pylint: disable=no-member
             stderr = _stdout.getvalue()  # pylint: disable=no-member
 
-        if result:
+        if result is not None:
             pattern = r'^Out\s*\[{}\]'.format(self.get_cell_count())
             stdout = '\n'.join(pop_until_match(stdout.split('\n'), pattern))
         return result, stdout, stderr
