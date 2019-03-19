@@ -125,6 +125,7 @@ Using |vlnm| Python classes
 
 
 .. ipython::
+    :path: {root}/source/_data
 
-    import vlnm
-    vlnm.get_normalizer('neary')
+    from vlnm import preview
+    preview('pb1952.csv')

@@ -4,7 +4,7 @@ Console directive.
 
 import base64
 from code import compile_command, InteractiveInterpreter
-from contextlib import closing, redirect_stdout, redirect_stderr
+from contextlib import closing, contextmanager, redirect_stdout, redirect_stderr
 import csv
 from io import StringIO, BytesIO
 import os
@@ -24,6 +24,19 @@ from sphinx.highlighting import lexers
 import pandas as pd
 
 
+@contextmanager
+def cd(newdir):  # pylint: disable=invalid-name
+    """Change working directory."""
+    curdir = os.getcwd()
+    if newdir != curdir:
+        os.chdir(os.path.expanduser(newdir))
+    try:
+        yield
+    finally:
+        if newdir != curdir:
+            os.chdir(curdir)
+
+
 class JupyterDirective(Directive):
     """Run code in an IPython shell."""
     has_content = True
@@ -40,7 +53,8 @@ class JupyterDirective(Directive):
         'image-height': directives.unchanged,
         'reset': directives.flag,
         'matplotlib': directives.flag,
-        'code-only': directives.flag
+        'code-only': directives.flag,
+        'path': directives.path
     }
 
     def __init__(self, *args, **kwargs):
@@ -108,7 +122,11 @@ class JupyterDirective(Directive):
                 'import matplotlib\nmatplotlib.use("agg")\n',
                 silent=True)
 
-        exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
+        path = options.get('path', os.getcwd()) or os.getcwd()
+        path = path.replace('{root}', os.getcwd())
+        with cd(path):
+            exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
+
         if 'silent' in options:
             return []
 
@@ -142,6 +160,7 @@ class JupyterDirective(Directive):
                 if stdout:
                     node = docutils.nodes.literal_block(
                         stdout, stdout, classes=['jupyter-stdout'])
+                    node['language'] = 'none'
                     output += self.jupyter_block(
                         history=self.history_node('', empty=True), children=[node])
                 if nodes:
@@ -179,8 +198,14 @@ class JupyterDirective(Directive):
                     return self.jupyter_result_figure(results.figure, stdout, **options)
             except AttributeError:
                 pass
-            raise TypeError(f'Unknown jupyter result: {klass}')
+            literal = repr(results)
+            node = docutils.nodes.literal_block(literal, literal)
+            return [node], stdout
         return [], stdout
+
+    def jupyter_result_tuple(self, results, stdout, **options):
+        """Create a tuple of results."""
+        return self.jupyter_result_list(results, stdout, **options)
 
     def jupyter_result_list(self, results, stdout, **options):
         """Create a list of results."""

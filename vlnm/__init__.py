@@ -2,7 +2,9 @@
 VLNM module
 ~~~~~~~~~~~
 """
+from itertools import islice
 import os
+import sys
 
 import pandas as pd
 
@@ -112,3 +114,10 @@ def normalize(data, file_out=None, method='default', sep=',', **kwargs):
     if file_out:
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
     return df_norm
+
+
+def preview(filename, n=5, stream=None):
+    """Preview a file."""
+    stream = stream or sys.stdout
+    with open(filename, 'r') as file_in:
+        stream.write(''.join(list(islice(file_in, n))))
