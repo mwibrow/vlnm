@@ -54,7 +54,8 @@ class JupyterDirective(Directive):
         'reset': directives.flag,
         'matplotlib': directives.flag,
         'code-only': directives.flag,
-        'path': directives.path
+        'path': directives.path,
+        'terminal': directives.flag,
     }
 
     def __init__(self, *args, **kwargs):
@@ -105,9 +106,11 @@ class JupyterDirective(Directive):
 
         parent = docutils.nodes.line_block(classes=['jupyter'])
 
-        if 'code-only' in options:
-            node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
-            node['language'] = 'python'
+        if 'code-only' in options or 'terminal' in options:
+            node = docutils.nodes.literal_block(
+                code, code,
+                classes=['jupyter-terminal' if 'terminal' in options else 'jupyter-cell'])
+            node['language'] = 'bash' if 'terminal' in options else 'python'
             block = self.jupyter_block(
                 history=self.history_node(empty=True),
                 children=[node])

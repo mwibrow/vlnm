@@ -1,0 +1,23 @@
+.vlnm-col {
+  font-style: italic;
+}
+
+.vlnm-tt {
+  font-family: monospace;
+}
+
+.vlnm-arg {
+  font-family: monospace;
+  color: #37474f;
+}
+
+.vlnm-csv {
+  font-family: monospace;
+  color: #0277bd;
+  &::before {
+    content: "'";
+  }
+  &::after {
+    content: "'";
+  }
+}

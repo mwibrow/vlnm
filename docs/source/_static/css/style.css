@@ -4,29 +4,28 @@
 }
 
 @font-face {
-  font-family: 'DejaVu Sans Mono';
+  font-family: "DejaVu Sans Mono";
   src: url(../fonts/DejaVu/DejaVuSansMono.ttf);
   font-style: normal;
   font-weight: normal;
 }
 
-
 @font-face {
-  font-family: 'DejaVu Sans Mono';
+  font-family: "DejaVu Sans Mono";
   src: url(../fonts/DejaVu/DejaVuSansMono-Oblique.ttf);
   font-style: italic;
   font-weight: normal;
 }
 
 @font-face {
-  font-family: 'DejaVu Sans Mono';
+  font-family: "DejaVu Sans Mono";
   src: url(../fonts/DejaVu/DejaVuSansMono-Bold.ttf);
   font-style: normal;
   font-weight: bold;
 }
 
 @font-face {
-  font-family: 'DejaVu Sans Mono';
+  font-family: "DejaVu Sans Mono";
   src: url(../fonts/DejaVu/DejaVuSansMono-BoldOblique.ttf);
   font-style: italic;
   font-weight: bold;
@@ -38,8 +37,11 @@
   }
 }
 
-code, .code, pre, .pre {
-  font-family: 'DejaVu Sans Mono', monospace;
+code,
+.code,
+pre,
+.pre {
+  font-family: "DejaVu Sans Mono", monospace;
 }
 
 div.code.highlight-py3ext .highlight pre {
@@ -106,25 +108,6 @@ div.highlight-pandas + div.highlight-python {
   padding-top: 0.5em;
 }
 
-.jupyter-cell .highlight pre {
-  background-color: #f7f7f7 !important;
-  padding: 0.25rem 0.5rem !important;
-  border-radius: 2px;
-  border: 1px solid #ccc;
-  margin-right: 1rem;
-}
-
-.jupyter-output .highlight pre {
-  background-color: transparent !important;
-  padding: 0.25rem 0.5rem !important;
-  margin-right: 1rem;
-}
-
-.jupyter-output.jupyter-error .highlight pre span {
-  color: #d32f2f !important;
-  font-style: italic;
-}
-
 .small-caps {
   text-transform: uppercase;
   font-size: 0.8em;
@@ -164,5 +147,3 @@ table.normalizers a {
   font-size: 150%;
   font-weight: normal;
 }
-
-

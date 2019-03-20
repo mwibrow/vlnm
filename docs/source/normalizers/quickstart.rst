@@ -5,22 +5,17 @@
 Getting started
 ===============
 
-|vlnm| can be used in a terminal (called the `command prompt`
-or `PowerShell` on Windows) running a Python process.
-This is what starting Python in a terminal on MacOS might look like:
+There are a few ways in which |vlnm| can be used:
 
-.. code::
+    - interactively in terminal (called the `command prompt` or `PowerShell` on Windows) running Python
+    - non-interactively by running a Python script containing |vlnm| commands
+    - interactively using a |Jupyter| notebook
 
-    $ python
-    Python 3.7.2 (default, Feb 25 2019, 09:00:08)
-    [Clang 10.0.0 (clang-1000.11.45.5)] on darwin
-    Type "help", "copyright", "credits" or "license" for more information.
-    >>> from vlnm import normalize
-    >>>
-
-Alternatively, |vlnm| may be used from a Jupyter notebook, in which
-case `starting a new notebook <https://jupyter.readthedocs.io/en/latest/running.html>`_
-will automatically start Python,
+By far the easiest way to use |vlnm| is the third option,
+and for simplicity this is the method that is assumed below.
+Having `installed Jupyter <https://jupyter.readthedocs.io/en/latest/install.html>`_
+Python can be automatically run by
+`starting a new notebook <https://jupyter.readthedocs.io/en/latest/running.html>`_
 and |vlnm| can be imported by
 `running code <https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Running%20Code.html>`_
 in the first `cell`:
@@ -29,19 +24,15 @@ in the first `cell`:
 
     from vlnm import normalize
 
-In the following examples, it is assumed that Jupyter notebook
-is being used (it is *much* easier than trying to do things in a terminal).
-
 Normalizing a CSV file
 ----------------------
 
 In perhaps the simplest case, |vlnm| can be used to normalize
 a CSV file containing the vowel data.
 
-So for example, assuming a CSV file
-called ``vowels.csv`` as a comma separated file
-with the columns **speaker**, **vowel**, **f1** and **f2**,
-such as:
+So for example, given a CSV file
+called :csv:`vowels.csv` as a comma separated file
+with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
 
 
 Although in Jupyter the file can be previewed a bit more prettily
@@ -55,7 +46,7 @@ using a |pandas| DataFrame:
 
 
 The file can be normalized according to :citet:`lobanov_1971`
-and automatically saved to a new file ``normalized.csv`` as follows:
+and automatically saved to a new file :csv:`normalized.csv` as follows:
 
 .. ipython::
     :code-only:
@@ -70,21 +61,21 @@ can be omitted:
 
     normalize('vowels.csv', method='lobanov')
 
-As this will overwrite the existing columns **f1** and **f2**
+As this will overwrite the existing columns :col:`f1` and :col:`f2`
 the normalized data can be written to new columns using the
-``rename`` argument:
+:arg:`rename` argument:
 
 .. ipython::
     :code-only:
 
     normalize('vowels.csv', method='lobanov', rename='{}_N')
 
-This will create new columns **f1_N** and **f2_N** containing
-the normalized data for the **f1** and **f2** columns,
+This will create new columns :col:`f1_N` and :col:`f2_N` containing
+the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
 
 To change the separator used in the files the
-``sep`` argument can be used:
+:arg:`sep` argument can be used:
 
 .. ipython::
     :code-only:

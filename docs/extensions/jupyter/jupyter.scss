@@ -99,3 +99,32 @@ div.jupyter-cell {
     color: #0097a7;
   }
 }
+
+.jupyter-cell .highlight pre {
+  background-color: #f7f7f7 !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  margin-right: 1rem;
+}
+
+.jupyter-output .highlight pre {
+  background-color: transparent !important;
+  padding: 0.25rem 0.5rem !important;
+  margin-right: 1rem;
+}
+
+.jupyter-output.jupyter-error .highlight pre span {
+  color: #d32f2f !important;
+  font-style: italic;
+}
+
+.jupyter-terminal .highlight pre {
+  background-color: #263238 !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 2px;
+  color: #eceff1 !important;
+  span {
+    color: #eceff1 !important;
+  }
+}

@@ -3,12 +3,13 @@ Some VLNM-specific stuff.
 """
 
 import importlib
+import os
 import re
 
 import docutils.nodes
 import docutils.utils
 import docutils.statemachine
-
+import sass
 from sphinx.util.docutils import SphinxDirective
 
 
@@ -139,9 +140,45 @@ def reindent(docstring):
     return lines
 
 
+def make_inline(tag, cls=None):
+    """Create an inline role."""
+    cls = cls or tag
+
+    def _inline(
+            typ, rawtext, text, lineno, inliner,  # pylint: disable=unused-argument
+            options=None, content=None):  # pylint: disable=unused-argument
+        return [docutils.nodes.inline(text, text, classes=[f'vlnm-{cls}'])], []
+    return _inline
+
+
+def setup_sass(static):
+    """Setup sass."""
+    here = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(here, 'vlnm.scss'), 'r') as file_in:
+        source = file_in.read()
+    if source:
+        css = sass.compile(string=source)
+    else:
+        css = ''
+    with open(os.path.join(static, 'vlnm.css'), 'w') as file_out:
+        file_out.write(css)
+
+
+def init_app(app):
+    build = app.outdir
+    static = app.config.html_static_path
+    setup_sass(os.path.join(build, static[0]))
+    app.add_stylesheet('vlnm.css')
+
+
 def setup(app):
     """
     Set up the sphinx extension.
     """
+    app.connect('builder-inited', init_app)
+
+    for role in ['col', 'arg', 'tt', 'csv']:
+        app.add_role(role, make_inline(role))
+
     app.add_directive('normalizers-table', NormalizersDirective)
     app.add_directive('normalizers-summaries', NormalizerSummariesDirective)
