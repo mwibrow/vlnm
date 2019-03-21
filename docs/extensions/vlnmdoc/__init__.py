@@ -1,7 +1,7 @@
 """
 Some VLNM-specific stuff.
 """
-
+from distutils.dir_util import copy_tree
 import importlib
 import os
 import re
@@ -87,7 +87,7 @@ class NormalizerSummariesDirective(SphinxDirective):
 
         # module_names = sorted(list(modules.keys()))
         # for module_name in module_names:
-            #module = importlib.import_module(module_name)
+            # module = importlib.import_module(module_name)
             # module_title = module.__doc__.strip().split('\n')[0]
             # module_doc = '\n'.join(module.__doc__.strip().split('\n')[2:])
             # input_lines = [f'.. rubric:: {module_title}', '   :class: module', module_doc, '']
@@ -151,24 +151,45 @@ def make_inline(tag, cls=None):
     return _inline
 
 
-def setup_sass(static):
+WHERE_AM_I = os.path.abspath(os.path.dirname(__file__))
+
+
+def setup_sass(css_path, **sass_vars):
     """Setup sass."""
-    here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, 'vlnm.scss'), 'r') as file_in:
+
+    sass_vars = [f'${var.replace("_", "-")}: {val};' for var, val in sass_vars.items()]
+    header = '\n'.join(sass_vars) + '\n'
+    with open(os.path.join(WHERE_AM_I, 'vlnm.scss'), 'r') as file_in:
         source = file_in.read()
     if source:
-        css = sass.compile(string=source)
+        css = sass.compile(string=header + source)
     else:
         css = ''
-    with open(os.path.join(static, 'vlnm.css'), 'w') as file_out:
+    with open(css_path, 'w') as file_out:
         file_out.write(css)
 
 
 def init_app(app):
-    build = app.outdir
-    static = app.config.html_static_path
-    setup_sass(os.path.join(build, static[0]))
-    app.add_stylesheet('vlnm.css')
+    build_dir = app.outdir
+    try:
+        static_dir = app.config.html_static_path[0]
+    except (AttributeError, IndexError):
+        static_dir = ''
+
+    vlnm_dir = 'vlnm'
+    font_dir = os.path.join(vlnm_dir, 'fonts')
+    # font_path = os.path.join(build_dir, static_dir, font_dir)
+    # os.makedirs(font_path, exist_ok=True)
+    # copy_tree(os.path.join(WHERE_AM_I, 'fonts'), font_path)
+
+    css_dir = os.path.join(vlnm_dir, 'css')
+    css_path = os.path.join(build_dir, static_dir, css_dir)
+    os.makedirs(css_path, exist_ok=True)
+
+    setup_sass(
+        os.path.join(css_path, 'vlnm.css'),
+        font_dir=os.path.join(static_dir, font_dir))
+    app.add_stylesheet(os.path.join(css_dir, 'vlnm.css'))
 
 
 def setup(app):

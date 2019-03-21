@@ -1,5 +1,85 @@
+$font-dir: "." !default;
+
+// @font-face {
+//   font-family: "Merriweather";
+//   src: url(/#{$font-dir}/Merriweather/Merriweather-Light.ttf);
+//   font-style: normal;
+//   font-weight: normal;
+// }
+
+// @font-face {
+//   font-family: "Merriweather";
+//   src: url(/#{$font-dir}/Merriweather/Merriweather-LightItalic.ttf);
+//   font-style: italic;
+//   font-weight: normal;
+// }
+
+// @font-face {
+//   font-family: "Merriweather";
+//   src: url(/#{$font-dir}/Merriweather/Merriweather-Bold.ttf);
+//   font-style: normal;
+//   font-weight: bold;
+// }
+
+// @font-face {
+//   font-family: "Merriweather";
+//   src: url(/#{$font-dir}/Merriweather/Merriweather-BoldItalic.ttf);
+//   font-style: italic;
+//   font-weight: bold;
+// }
+
+// @font-face {
+//   font-family: "MerriweatherSans";
+//   src: url(/#{$font-dir}/Merriweather_Sans/MerriweatherSans-Light.ttf);
+//   font-style: normal;
+//   font-weight: normal;
+// }
+
+// @font-face {
+//   font-family: "MerriweatherSans";
+//   src: url(/#{$font-dir}/Merriweather_Sans/MerriweatherSans-LightItalic.ttf);
+//   font-style: italic;
+//   font-weight: normal;
+// }
+
+// @font-face {
+//   font-family: "MerriweatherSans";
+//   src: url(/#{$font-dir}/Merriweather_Sans/MerriweatherSans-Bold.ttf);
+//   font-style: normal;
+//   font-weight: bold;
+// }
+
+// @font-face {
+//   font-family: "MerriweatherSans";
+//   src: url(/#{$font-dir}/Merriweather_Sans/MerriweatherSans-BoldItalic.ttf);
+//   font-style: italic;
+//   font-weight: bold;
+// }
+
+@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans|Merriweather:300,700|Source+Code+Pro");
+
+body,
+.body {
+  font-family: "Merriweather" !important;
+  p {
+    line-height: 1.5 !important;
+  }
+}
+.section {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Merriweather" !important;
+    font-weight: bold !important;
+  }
+}
+
 .vlnm-col {
-  font-style: italic;
+  font-weight: 700;
+  font-family: "Merriweather Sans";
 }
 
 .vlnm-tt {

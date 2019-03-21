@@ -31,6 +31,66 @@
   font-weight: bold;
 }
 
+@font-face {
+  font-family: "MerriweatherLight";
+  src: url(../fonts/Merriweather/Merriweather-Light.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+/*
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Regular.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Italic.ttf);
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Bold.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-BoldItalic.ttf);
+  font-style: italic;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "MerriweatherBlack";
+  src: url(../fonts/Merriweather/Merriweather-Black.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "MerriweatherSans";
+  src: url(../fonts/Merriweather_Sans/MerriweatherSans-Light.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+body {
+  font-family: "MerriweatherLight" !important;
+  font-weight: normal;
+}
+.section h1,
+.section h2,
+.section h3 {
+  font-family: "Merriweather" !important;
+  font-weight: bold;
+} */
+
 @media screen and (min-width: 1080px) {
   div.document {
     width: 1040px;
@@ -41,7 +101,8 @@ code,
 .code,
 pre,
 .pre {
-  font-family: "DejaVu Sans Mono", monospace;
+  font-family: "Source Code Pro", monospace;
+  font-size: 100%;
 }
 
 div.code.highlight-py3ext .highlight pre {
