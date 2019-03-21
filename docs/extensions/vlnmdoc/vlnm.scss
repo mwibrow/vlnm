@@ -57,11 +57,24 @@ $color-string: #000000 !default;
 //   font-weight: bold;
 // }
 
-@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans|Merriweather:300,700|Inconsolata|Source+Code+Pro|Source+Serif+Pro");
+@mixin serif-font() {
+  font-family: "Merriweather", "Georgia", "Libre Baskerville", "Times New Roman",
+    "Times", serif !important;
+}
+
+@mixin sans-font() {
+  font-family: "Merriweather Sans", "DejaVu Sans", "Helvetica", serif !important;
+}
+
+@mixin mono-font() {
+  font-family: "DejaVu Sans Mono", "Monaco", "Courier New", monospace !important;
+}
+
+@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans:300,700|Merriweather:300,700|Inconsolata|Source+Code+Pro|Source+Serif+Pro");
 
 body,
 .body {
-  font-family: "Merriweather" !important;
+  @include serif-font();
   p {
     line-height: 1.5 !important;
     hyphens: none !important;
@@ -74,14 +87,14 @@ body,
   h4,
   h5,
   h6 {
-    font-family: "Merriweather" !important;
+    @include serif-font();
     font-weight: bold !important;
   }
 }
 
 .vlnm-col {
   font-weight: 600;
-  font-family: "DejaVu Sans Mono";
+  @include sans-font();
 }
 
 .vlnm-tt {
@@ -89,7 +102,7 @@ body,
 }
 
 .vlnm-arg {
-  font-family: "DejaVu Sans Mono";
+  @include mono-font();
   font-size: 100%;
   background-color: #f7f7f7;
   padding: 0.125rem 0.25rem 0.25rem;
@@ -98,7 +111,8 @@ body,
 }
 
 .vlnm-csv {
-  font-family: "DejaVu Sans Mono";
+  @include mono-font();
+  font-size: 90%;
   color: $color-string;
   &::before {
     content: "'";

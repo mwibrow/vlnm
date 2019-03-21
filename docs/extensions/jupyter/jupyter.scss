@@ -61,7 +61,7 @@ div.jupyter-cell {
   table.dataframe {
     border: none !important;
     box-shadow: none !important;
-    font-family: "MerriweatherSans", "OpenSans", sans-serif;
+    font-family: "Merriweather Sans", sans-serif !important;
     font-size: 90%;
     margin-top: 0.5rem;
   }
@@ -77,10 +77,12 @@ div.jupyter-cell {
   table.dataframe td,
   table.dataframe th {
     line-height: 1.5;
+    font-weight: 300;
   }
 
-  table.dataframe td:first-of-type {
-    font-weight: bold;
+  table.dataframe td:first-of-type,
+  table.dataframe th {
+    font-weight: 700;
   }
   table.dataframe .row-even {
     background-color: #eceff1;
