@@ -16,6 +16,8 @@ from sphinx.util.docutils import SphinxDirective
 import vlnm
 from vlnm import get_normalizer, list_normalizers
 
+from .mdcolors import mdcolor
+
 
 class NormalizersDirective(SphinxDirective):
     """List normalizers in a table."""
@@ -156,7 +158,10 @@ WHERE_AM_I = os.path.abspath(os.path.dirname(__file__))
 
 def setup_sass(css_path, **sass_vars):
     """Setup sass."""
-
+    colors = dict(
+        color_string=mdcolor('light-blue', 700)
+    )
+    sass_vars.update(colors)
     sass_vars = [f'${var.replace("_", "-")}: {val};' for var, val in sass_vars.items()]
     header = '\n'.join(sass_vars) + '\n'
     with open(os.path.join(WHERE_AM_I, 'vlnm.scss'), 'r') as file_in:

@@ -1,4 +1,5 @@
 $font-dir: "." !default;
+$color-string: #000000 !default;
 
 // @font-face {
 //   font-family: "Merriweather";
@@ -56,13 +57,14 @@ $font-dir: "." !default;
 //   font-weight: bold;
 // }
 
-@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans|Merriweather:300,700|Source+Code+Pro");
+@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans|Merriweather:300,700|Inconsolata|Source+Code+Pro|Source+Serif+Pro");
 
 body,
 .body {
   font-family: "Merriweather" !important;
   p {
     line-height: 1.5 !important;
+    hyphens: none !important;
   }
 }
 .section {
@@ -78,8 +80,8 @@ body,
 }
 
 .vlnm-col {
-  font-weight: 700;
-  font-family: "Merriweather Sans";
+  font-weight: 600;
+  font-family: "DejaVu Sans Mono";
 }
 
 .vlnm-tt {
@@ -87,13 +89,17 @@ body,
 }
 
 .vlnm-arg {
-  font-family: monospace;
+  font-family: "DejaVu Sans Mono";
+  font-size: 100%;
+  background-color: #f7f7f7;
+  padding: 0.125rem 0.25rem 0.25rem;
+  border-radius: 1px;
   color: #37474f;
 }
 
 .vlnm-csv {
-  font-family: monospace;
-  color: #0277bd;
+  font-family: "DejaVu Sans Mono";
+  color: $color-string;
   &::before {
     content: "'";
   }
