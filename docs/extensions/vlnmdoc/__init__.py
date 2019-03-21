@@ -167,7 +167,8 @@ def setup_sass(css_path, **sass_vars):
     with open(os.path.join(WHERE_AM_I, 'vlnm.scss'), 'r') as file_in:
         source = file_in.read()
     if source:
-        css = sass.compile(string=header + source)
+        css = sass.compile(string=header + source, include_paths=[
+            os.path.join(WHERE_AM_I, 'styles')])
     else:
         css = ''
     with open(css_path, 'w') as file_out:
