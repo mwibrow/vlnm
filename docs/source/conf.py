@@ -35,7 +35,7 @@ sys.path.insert(0,
 # material = importlib.import_module('material')
 # mdcolor = material.mdcolor
 
-from extensions.highlighter.colors import mdcolor
+from extensions.vlnmdoc.mdcolors import mdcolor
 # -- Project information -----------------------------------------------------
 
 project = u'VLNM'
@@ -63,7 +63,6 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'ipa',
-    'highlighter',
     'jupyter',
     'natbib',
     'plotting',
@@ -98,7 +97,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'material'
+# pygments_style = 'material'
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -6,9 +6,9 @@ import setuptools
 
 ENTRY_POINTS = """
 [pygments.lexers]
-py3ext = extensions.highlighter.lexers:Python3LexerExtended
+py3ext = extensions.vlnmdoc.highlighter.lexers:Python3LexerExtended
 [pygments.styles]
-material = extensions.highlighter.styles:MaterialStyle
+material = extensions.vlnmdoc.highlighter.styles:MaterialStyle
 """
 
 
@@ -33,7 +33,7 @@ def setup(_app):
         version='0.1',
         description=__doc__,
         author='Mark Wibrow',
-        packages=['extensions.highlighter'],
+        packages=['extensions.vlnmdoc.highlighter'],
         entry_points=ENTRY_POINTS,
         cmdclass={
             'deepclean': CleanCommand,

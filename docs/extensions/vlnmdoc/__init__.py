@@ -16,6 +16,7 @@ from sphinx.util.docutils import SphinxDirective
 import vlnm
 from vlnm import get_normalizer, list_normalizers
 
+from .highlighter import setup as setup_highlighter
 from .mdcolors import mdcolor
 
 
@@ -202,6 +203,8 @@ def setup(app):
     """
     Set up the sphinx extension.
     """
+    setup_highlighter(app)
+    app.config.pygments_style = 'material'
     app.connect('builder-inited', init_app)
 
     for role in ['col', 'arg', 'tt', 'csv']:
