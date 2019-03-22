@@ -34,8 +34,18 @@ So for example, given a CSV file
 called :csv:`vowels.csv` as a comma separated file
 with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
 
+.. ipython::
+    :no-code:
+    :path: {root}/source/_data
 
-Although in Jupyter the file can be previewed a bit more prettily
+    with open('pb1952.csv', 'r') as file_in:
+        for _ in range(6):
+            print(next(file_in).strip())
+    print('... other rows omitted')
+
+
+Although it is worth noting, that in Jupyter
+the file can be previewed a bit more prettily
 using a |pandas| DataFrame:
 
 .. ipython::
@@ -52,6 +62,20 @@ and automatically saved to a new file :csv:`normalized.csv` as follows:
     :code-only:
 
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
+
+.. ipython::
+    :no-code:
+    :path: {root}/source/_data
+
+    import io
+    df = pd.read_csv('pb1952.csv')
+    norm_df = normalize(df, method='lobanov')
+    stream = io.StringIO()
+    norm_df.to_csv(stream, index=False, float_format='%.6f')
+    data = stream.getvalue()
+    stream.close()
+    lines = data.split('\n')
+    print('\n'.join(lines[:6]))
 
 To save the normalized data to the same file, the second file name
 can be omitted:

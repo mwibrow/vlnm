@@ -13,13 +13,14 @@ import re
 import shutil
 import sys
 import traceback
+from unittest.mock import mock_open, patch
 
 from docutils.parsers.rst import directives, Directive
 import docutils.nodes
 from IPython.core.interactiveshell import InteractiveShell
 from pygments import token
 from pygments.lexer import RegexLexer
-import sass
+
 from sphinx.highlighting import lexers
 import pandas as pd
 
@@ -35,6 +36,40 @@ def cd(newdir):  # pylint: disable=invalid-name
     finally:
         if newdir != curdir:
             os.chdir(curdir)
+
+
+class MockOpen:
+    """Class for selectively mocking the builfin open function."""
+
+    def __init__(self, fns=None, modes=None):
+        self.fns = fns or []
+        self.modes = modes or []
+        self.mock = None
+        self.patch = None
+        self.open = open
+
+    def _open(self, fn, mode=None, **kwargs):
+        if mode in self.modes and fn in self.fns:
+            self.mock = mock_open()
+            self.patch = patch('builtins.open', self.mock)
+            self.patch.start()
+            return self.mock(fn, mode=mode, **kwargs)
+        else:
+            return self.open(fn, mode=mode, **kwargs)
+
+    def __enter__(self):
+        __builtins__.open = self._open
+        return self
+
+    def __exit__(self, *args):
+        patch.stopall()
+        __builtins__.open = self.open
+
+    def get_writes(self):
+        """Get writes for a mocked open."""
+        if self.mock:
+            handle = self.mock()
+            return [args[0] for args, kwargs in handle.write.call_args_list]
 
 
 class JupyterDirective(Directive):
@@ -54,8 +89,11 @@ class JupyterDirective(Directive):
         'reset': directives.flag,
         'matplotlib': directives.flag,
         'code-only': directives.flag,
+        'no-code': directives.flag,
         'path': directives.path,
         'terminal': directives.flag,
+        'highlight-output': directives.unchanged,
+        'class': directives.unchanged
     }
 
     def __init__(self, *args, **kwargs):
@@ -104,7 +142,9 @@ class JupyterDirective(Directive):
         options = self.options
         code = u'\n'.join(line for line in self.content)
 
-        parent = docutils.nodes.line_block(classes=['jupyter'])
+        classes = self.options.get('class')
+        parent = docutils.nodes.line_block(
+            classes=['jupyter'] + ([classes] if classes else []))
 
         if 'code-only' in options or 'terminal' in options:
             node = docutils.nodes.literal_block(
@@ -135,12 +175,13 @@ class JupyterDirective(Directive):
 
         cell_count = self.shell.get_cell_count()
 
-        node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
-        node['language'] = 'python'
-        block = self.jupyter_block(
-            history=self.history_node('In ', cell_count),
-            children=[node])
-        parent += block
+        if 'no-code' not in options:
+            node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
+            node['language'] = 'python'
+            block = self.jupyter_block(
+                history=self.history_node('In ', cell_count),
+                children=[node])
+            parent += block
 
         error = exc_result.error_before_exec or exc_result.error_in_exec
         results = exc_result.result
@@ -163,7 +204,7 @@ class JupyterDirective(Directive):
                 if stdout:
                     node = docutils.nodes.literal_block(
                         stdout, stdout, classes=['jupyter-stdout'])
-                    node['language'] = 'none'
+                    node['language'] = self.options.get('highlight-output', 'none')
                     output += self.jupyter_block(
                         history=self.history_node('', empty=True), children=[node])
                 if nodes:
@@ -412,8 +453,7 @@ def get_shell():
 def init_app(app):
     build = app.outdir
     static = app.config.html_static_path
-    setup_sass(os.path.join(build, static[0]))
-    app.add_stylesheet('jupyter.css')
+
     app.env.gallery = JupyterGallery(build, static[0] if static else '')
     app.add_config_value('jupyter_history', False, 'env')
     app.add_config_value('jupyter_image_format', 'svg', 'env')
@@ -421,17 +461,13 @@ def init_app(app):
     app.add_config_value('jupyter_cell_counts', False, 'env')
 
 
-def setup_sass(static):
-    """Setup sass."""
-    here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, 'jupyter.scss'), 'r') as file_in:
-        source = file_in.read()
-    if source:
-        css = sass.compile(string=source)
-    else:
-        css = ''
-    with open(os.path.join(static, 'jupyter.css'), 'w') as file_out:
-        file_out.write(css)
+def config_sass(app, config):
+    dirname = os.path.dirname(__file__)
+    output = 'jupyter.css'
+    config.sass_configs['jupyter'] = dict(
+        entry=os.path.join(dirname, 'jupyter.scss'),
+        output=output)
+    app.add_stylesheet(output)
 
 
 def setup(app):
@@ -439,5 +475,6 @@ def setup(app):
     Set up the sphinx extension.
     """
     app.connect('builder-inited', init_app)
+    app.connect('config-inited', config_sass)
     app.add_directive('ipython', JupyterDirective)
     app.add_directive('jupyter', JupyterDirective)

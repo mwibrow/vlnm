@@ -171,7 +171,7 @@ volume = join[
     ]
 ]
 
-doi = link[
+doi = link(classes=['natbib'])[
     join['https://www.doi.org/', field['doi']],
     join['doi:', field['doi']]
 ]

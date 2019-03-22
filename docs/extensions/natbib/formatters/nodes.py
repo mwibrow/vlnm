@@ -61,8 +61,9 @@ class Node:
             return True
         return False
 
-    def __call__(self, **kwargs):
+    def __call__(self, classes=None, **kwargs):
         node = self.clone()
+        node.classes = classes or []
         node.kwargs.update(kwargs)
         node.called = True  # pylint: disable=protected-access
         return node
@@ -210,7 +211,11 @@ class Join(Node):
 
     def format(self, **kwargs):
         """Format this node."""
-        parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+        parent = kwargs.get('parent')
+        if parent is None:
+            parent = (
+                docutils.nodes.inline('', '', classes=self.classes)
+                if self.classes else docutils.nodes.inline('', ''))
         sep = self.kwargs.get('sep')
         last_sep = self.kwargs.get('last_sep')
         children = []
@@ -375,10 +380,10 @@ class Reference(Node):
             refuri = '{}#{}'.format(
                 '' if docname == 'index' else docname, entry.key)
             ref_node = docutils.nodes.reference(
-                '', '', classes=['xref cite'], internal=True, refuri=refuri)
+                '', '', classes=['xref cite'] + self.classes, internal=True, refuri=refuri)
         else:
             ref_node = docutils.nodes.reference(
-                '', '', classes=['xref cite'], **self.kwargs)
+                '', '', classes=['xref cite'] + self.classes, **self.kwargs)
 
         ref_node += join[self.children].format(**kwargs)
         return ref_node
@@ -408,7 +413,7 @@ class Link(Node):
         else:
             link_text = uri
         ref_node = docutils.nodes.reference(
-            link_text, link_text, classes=['xref'], internal=False, refuri=uri)
+            link_text, link_text, classes=['xref'] + self.classes, internal=False, refuri=uri)
         return ref_node
 
 

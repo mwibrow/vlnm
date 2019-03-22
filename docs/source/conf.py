@@ -21,8 +21,8 @@ import sys
 import pandas as pd
 
 
-# sys.path.insert(0,
-#                 os.path.abspath(os.path.join('.', 'lib')))
+sys.path.insert(0,
+                os.path.abspath(os.path.join('.')))
 sys.path.insert(0,
                 os.path.abspath(os.path.join('..')))
 sys.path.insert(0,
@@ -34,8 +34,8 @@ sys.path.insert(0,
 
 # material = importlib.import_module('material')
 # mdcolor = material.mdcolor
+from _lib.mdcolors import mdcolor
 
-from extensions.vlnmdoc.mdcolors import mdcolor
 # -- Project information -----------------------------------------------------
 
 project = u'VLNM'
@@ -65,11 +65,10 @@ extensions = [
     'ipa',
     'jupyter',
     'natbib',
-    'plotting',
-    'console',
-    'tables',
     'typehints',
-    'vlnmdoc'
+    'vlnmdoc',
+    'sass_compile',
+
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -97,7 +96,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-# pygments_style = 'material'
+pygments_style = '_lib.style.MaterialStyle'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -113,7 +112,7 @@ html_favicon = '_static/favicon.ico'
 #
 html_theme_options = {
     # Logo
-    'logo': 'images/vlnm.png',
+    'logo': 'images/logo.svg',
     'logo_name': True,
     'logo_text_align': 'center',
     #

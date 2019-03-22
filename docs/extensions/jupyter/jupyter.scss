@@ -54,7 +54,10 @@ div.jupyter-output {
 
 div.jupyter-cell {
   width: 100%;
-  overflow-x: scroll;
+  overflow-x: auto;
+  .highlight pre {
+    margin-right: 0;
+  }
 }
 
 .jupyter {
@@ -122,7 +125,11 @@ div.jupyter-cell {
   font-style: italic;
 }
 
+.jupyter-terminal.highlight-bash {
+  width: 100%;
+}
 .jupyter-terminal .highlight pre {
+
   background-color: #263238 !important;
   padding: 0.25rem 0.5rem !important;
   border-radius: 2px;

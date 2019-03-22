@@ -1,20 +1,10 @@
+@import "abstract";
+@import "typography";
+@import "alabaster";
+@import "jupyter";
+
 $font-dir: "." !default;
 $color-string: #000000 !default;
-
-@mixin serif-font() {
-  font-family: "Merriweather", "Georgia", "Libre Baskerville", "Times New Roman",
-    "Times", serif !important;
-}
-
-@mixin sans-font() {
-  font-family: "Merriweather Sans", "DejaVu Sans", "Helvetica", serif !important;
-}
-
-@mixin mono-font() {
-  font-family: "DejaVu Sans Mono", "Monaco", "Courier New", monospace !important;
-}
-
-@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans:300,700|Merriweather:300,700|Inconsolata|Source+Code+Pro|Source+Serif+Pro");
 
 body,
 .body {
@@ -36,6 +26,13 @@ body,
   }
 }
 
+.natbib {
+  color: $natbib;
+}
+
+div.math {
+  margin: 1rem 0 1.5rem;
+}
 .vlnm-col {
   font-weight: 600;
   @include sans-font();
@@ -45,13 +42,16 @@ body,
   font-family: monospace;
 }
 
-.vlnm-arg {
+.vlnm-arg,
+code,
+code.py-class,
+code.py-obj {
   @include mono-font();
   font-size: 100%;
-  background-color: #f7f7f7;
-  padding: 0.125rem 0.25rem 0.25rem;
+  background-color: $vlnm-code;
+  padding: 0.125rem 0.25rem 0.125rem;
   border-radius: 1px;
-  color: #37474f;
+  color: $md-blue-grey-800;
 }
 
 .vlnm-csv {

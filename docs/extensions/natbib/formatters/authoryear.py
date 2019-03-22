@@ -184,7 +184,7 @@ class AuthorYearFormatter(Formatter):
             join[
                 ifelse[
                     boolean[True],  # Why
-                    ref[
+                    ref(classes=['natbib'])[
                         authors(
                             last_names_only=True,
                             last_sep=' and ' if starred else ' & ',
@@ -197,17 +197,15 @@ class AuthorYearFormatter(Formatter):
                 join(sep=', ')[[
                     ifelse[
                         boolean[i > 0],
-                        ref[field['year_suffix']].format(
+                        ref(classes=['natbib'])[field['year_suffix']].format(
                             entry=bibcache[key], docname=docname),
-                        ref[year].format(
+                        ref(classes=['natbib'])[year].format(
                             entry=bibcache[key], docname=docname)
                     ]
                     for i, key in enumerate(group)
                 ]],
                 optional[post_text],
-                optional[boolean[parenthesis], ')'],
-                ref[field['year_suffix']].format(
-                    entry=bibcache['watt_fabricius_2002'], docname=docname),
+                optional[boolean[parenthesis], ')']
             ] for group in groups
         ]].format()
 
@@ -223,11 +221,11 @@ class AuthorYearFormatter(Formatter):
             pre_text = post_text = ''
 
         cite_template = join(sep=', ')[
-            ref[authors(
+            ref(classes=['natbib'])[authors(
                 last_names_only=True,
                 last_sep=' and ' if starred else ' & ',
                 et_al=not starred)],
-            ref[year]
+            ref(classes=['natbib'])[year]
         ]
 
         groups = get_key_groups(keys, bibcache)
