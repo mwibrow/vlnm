@@ -79,7 +79,7 @@ a terminal:
 .. ipython::
     :terminal:
 
-    pip3 install vlnm
+    pip3 install https://github.com/mwibrow/vlnm/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -100,7 +100,7 @@ a terminal:
 .. ipython::
     :terminal:
 
-    pip3 install vlnm
+    pip3 install https://github.com/mwibrow/vlnm/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -122,7 +122,9 @@ Everything is harder on Windows 🙄
 
 |vlnm| is untested on windows, but experience
 suggests that Python should be set up using
-|anaconda|. After using the ``conda`` command
+|anaconda| and instead of the Windows command
+prompt use `Anaconda Prompt`.
+After using the ``conda`` command
 to install pip3 and shapely (as described above),
 |vlnm| can be installed by executing the following
 command at the command prompt:
