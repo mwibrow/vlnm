@@ -6,6 +6,12 @@
 .. |coverage| image:: https://coveralls.io/repos/github/mwibrow/vlnm/badge.svg
     :target: https://coveralls.io/github/mwibrow/vlnm
 
+.. |license| image:: https://img.shields.io/github/license/mwibrow/vlnm.svg
+    :target: https://github.com/mwibrow/vlnm/blob/master/LICENSE
+
+.. |last commit| image:: https://img.shields.io/github/last-commit/mwibrow/vlnm/master.svg
+    :target: https://github.com/mwibrow/vlnm/commits/master
+
 .. |vlnm| replace:: **VLNM**
 
 .. |anaconda| replace:: Anaconda_

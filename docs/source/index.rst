@@ -6,6 +6,7 @@ VLNM: Vowel normalization and plotting using Python
 :Release: |release|
 :Date:    |today|
 
+|license| |build status| |coverage|
 
 What is VLNM?
 -------------

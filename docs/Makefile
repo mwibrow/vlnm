@@ -9,7 +9,7 @@ clean:
 	rm -r $(BLDDIR)
 
 html:
-	sphinx-build $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+	sphinx-build -E -a $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
 
 watch:
 	sphinx-autobuild $(WATCH) $(IGNORE) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)

@@ -122,6 +122,7 @@ html_theme_options = {
     # Github
     'github_user': 'mwibrow',
     'github_repo': 'vlnm',
+    'github_count': False,
     # Fonts
     'code_font_family': 'Monospace',
     # Colors
@@ -144,9 +145,7 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         'about.html',
-        'statusbadges.html',
         'navigation.html',
-        'searchbox.html'
     ]
 }
 
