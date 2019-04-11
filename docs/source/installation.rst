@@ -15,8 +15,7 @@ Python
 ^^^^^^
 
 |vlnm| was written using Python version 3.6,
-but should work on any version of Python >= 3.0.
-Python versions 2.7 and lower are not supported.
+Python versions 3.5 and lower are not supported.
 Many operating systems (e.g., Ubuntu Linux and MacOS)
 come with Python preinstalled, but it may be
 an unsupported version.
@@ -118,7 +117,7 @@ Then |vlnm| can be installed using the command above.
 Windows
 ^^^^^^^
 
-Everything is harder on Windows 🙄
+Everything is more complicated on Windows 🙄
 
 |vlnm| is untested on windows, but experience
 suggests that Python should be set up using

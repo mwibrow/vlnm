@@ -18,10 +18,10 @@ vowel, formant and speaker --- see e.g., :citealp:`flynn_foulkes_2011`).
 
 The normalizers have been implemented in modules whose names
 suggest some correspondence to the most prominent `intrinsic` property
-as described by the literature, but this is merely
+as described by the literature, but this is mostly
 coincidental: normalizers have been more-or-less logically
-grouped but the names of the modules should not be taken to
-indiciate any accepted classify in the literature.
+grouped, but the names of the modules should not be taken to
+indiciate any accepted classification of normalizers in the literature.
 
 
 

@@ -21,6 +21,7 @@ from IPython.core.interactiveshell import InteractiveShell
 from pygments import token
 from pygments.lexer import RegexLexer
 
+import numpy as np
 from sphinx.highlighting import lexers
 import pandas as pd
 
@@ -323,10 +324,11 @@ class JupyterDirective(Directive):
             colspec = docutils.nodes.colspec(colwidth=1)
             tgroup += colspec
 
+        dtypes = [None] + [df[column].dtype for column in df.columns]
         rows = [make_row([''] + list(df.columns))]
 
         for row in df.itertuples():
-            rows.append(make_row(row))
+            rows.append(make_row(row, dtypes))
 
         thead = docutils.nodes.thead()
         thead.extend(rows[:1])
@@ -337,11 +339,16 @@ class JupyterDirective(Directive):
         return [table], stdout
 
 
-def make_row(row_data):
+def make_row(row_data, dtypes=None, formatters=None):
     """Make a row_node from an iterable of data."""
     row_node = docutils.nodes.row()
-    for cell in row_data:
-        content = str(cell)
+    formatters = formatters or dict()
+    dtypes = dtypes or [None] * len(row_data)
+    for cell, dtype in zip(row_data, dtypes):
+        if dtype == np.float:
+            content = formatters.get('float', '{}').format(cell)
+        else:
+            content = str(cell)
         entry = docutils.nodes.entry()
         entry += docutils.nodes.inline(content, content)
         row_node += entry

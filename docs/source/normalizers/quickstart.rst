@@ -41,7 +41,6 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
     with open('pb1952.csv', 'r') as file_in:
         for _ in range(6):
             print(next(file_in).strip())
-    print('... other rows omitted')
 
 
 Although it is worth noting, that in Jupyter
@@ -63,6 +62,8 @@ and automatically saved to a new file :csv:`normalized.csv` as follows:
 
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
 
+This will create a file which starts with the following data:
+
 .. ipython::
     :no-code:
     :path: {root}/source/_data
@@ -71,11 +72,14 @@ and automatically saved to a new file :csv:`normalized.csv` as follows:
     df = pd.read_csv('pb1952.csv')
     norm_df = normalize(df, method='lobanov')
     stream = io.StringIO()
-    norm_df.to_csv(stream, index=False, float_format='%.6f')
-    data = stream.getvalue()
+    norm_df.to_csv(stream, index=False, float_format='%g')
+    #data = stream.getvalue()
+    stream.seek(0)
+    df = pd.read_csv(stream)
     stream.close()
-    lines = data.split('\n')
-    print('\n'.join(lines[:6]))
+    #lines = data.split('\n')
+    #print('\n'.join(lines[:6]))
+    df.head(5)
 
 To save the normalized data to the same file, the second file name
 can be omitted:
