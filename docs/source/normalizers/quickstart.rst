@@ -36,19 +36,24 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
     :globals:
         dataframe:
             formatters:
-                float64: '{:.03f}'
-
-
-.. ipython::
+                float64: '{:.05f}'
+        imports:
+            - 'import matplotlib'
+            - 'matplotlib.use("agg")'
+            - 'import pandas as pd'
     :options:
+        hidden: yes
         path: '{root}/source/_data'
 
-    import pandas as pd
+    pb_df = pd.read_csv('pb1952.csv')
+
+.. ipython::
+
     from vlnm import normalize
 
-    df = pd.read_csv('pb1952.csv')
+    df = pb_df[['speaker', 'vowel', 'f1', 'f2']]
     df = normalize(df, method='lobanov')
-    df.head(20)
+    df.head(5)
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily

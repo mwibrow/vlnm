@@ -149,6 +149,11 @@ class JupyterDirective(YAMLDirective):
                 'import matplotlib\nmatplotlib.use("agg")\n',
                 silent=True)
 
+        if 'imports' in self.options:
+            imports = '\n'.join(self.options['imports'])
+            self.shell.run_cell(
+                imports + '\n',
+                silent=True)
         path = options.get('path', os.getcwd()) or os.getcwd()
         path = path.replace('{root}', os.getcwd())
         with cd(path):
