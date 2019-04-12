@@ -64,7 +64,7 @@ div.jupyter-cell {
   table.dataframe {
     border: none !important;
     box-shadow: none !important;
-    font-family: "Merriweather Sans", sans-serif !important;
+    font-family: "Table", sans-serif !important;
     font-size: 90%;
     margin-top: 0.5rem;
   }
@@ -89,10 +89,6 @@ div.jupyter-cell {
   }
   table.dataframe .row-even {
     background-color: #eceff1;
-  }
-
-  table.dataframe .column-IPA {
-    font-family: "IPA";
   }
 
   .highlight-ansi-color .-Color-Red {

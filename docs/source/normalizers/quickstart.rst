@@ -36,17 +36,19 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
     :globals:
         dataframe:
             formatters:
-                float: '%64'
-    :options:
-        display:
-            - cell
-            - results
+                float64: '{:.03f}'
 
-    print('hello')
 
 .. ipython::
+    :options:
+        path: '{root}/source/_data'
 
-    print('goodbye')
+    import pandas as pd
+    from vlnm import normalize
+
+    df = pd.read_csv('pb1952.csv')
+    df = normalize(df, method='lobanov')
+    df.head(20)
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily

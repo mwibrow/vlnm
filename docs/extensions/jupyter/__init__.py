@@ -342,10 +342,12 @@ def make_row(row_data, columns=None, dtypes=None, formatters=None):
             dtype = repr(dtype)
         content = formatters.get(dtype, '{}').format(cell)
 
-        entry = docutils.nodes.entry()
+        entry = docutils.nodes.entry(
+            classes=['column-{}'.format(column), 'column-{}'.format(dtype)])
         if column:
-            entry += docutils.nodes.inline(content, content,
-                                           classes=['column-{}'.format(column)])
+            entry += docutils.nodes.inline(
+                content, content,
+                classes=['column-{}'.format(column), 'column-{}'.format(dtype)])
         else:
             entry += docutils.nodes.inline(content, content)
         row_node += entry
