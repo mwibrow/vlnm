@@ -301,10 +301,9 @@ class JupyterDirective(YAMLDirective):
     def jupyter_result_dataframe(self, df, stdout, **_options):
         """Special typsetting of a dataframe."""
 
-        try:
-            formatters = self.options['dataframe']['formatters']
-        except KeyError:
-            formatters = {}
+        df_options = self.options.get('dataframe', {})
+        formatters = df_options.get('formatters', {})
+        index = df_options.get('index')
 
         stdout = re.sub(
             r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
@@ -320,11 +319,16 @@ class JupyterDirective(YAMLDirective):
             colspec = docutils.nodes.colspec(colwidth=1)
             tgroup += colspec
 
-        dtypes = [None] + [df[column].dtype for column in df.columns]
-        columns = ['index'] + list(df.columns)
-        rows = [make_row([''] + list(df.columns))]
+        dtypes = [None] if index else []
+        dtypes += [df[column].dtype for column in df.columns]
+
+        columns = [''] if index else []
+        columns += list(df.columns)
+        rows = [make_row(columns)]
 
         for row in df.itertuples():
+            if not index:
+                row = row[1:]
             rows.append(make_row(row, columns, dtypes, formatters))
 
         thead = docutils.nodes.thead()

@@ -37,6 +37,7 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
         dataframe:
             formatters:
                 float64: '{:.05f}'
+            index: yes
         imports:
             - 'import matplotlib'
             - 'matplotlib.use("agg")'
