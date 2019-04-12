@@ -91,6 +91,10 @@ div.jupyter-cell {
     background-color: #eceff1;
   }
 
+  table.dataframe .column-IPA {
+    font-family: "IPA";
+  }
+
   .highlight-ansi-color .-Color-Red {
     color: #d32f2f;
   }
@@ -129,7 +133,6 @@ div.jupyter-cell {
   width: 100%;
 }
 .jupyter-terminal .highlight pre {
-
   background-color: #263238 !important;
   padding: 0.25rem 0.5rem !important;
   border-radius: 2px;

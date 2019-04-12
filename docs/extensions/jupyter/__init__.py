@@ -294,6 +294,11 @@ class JupyterDirective(YAMLDirective):
     def jupyter_result_dataframe(self, df, stdout, **_options):
         """Special typsetting of a dataframe."""
 
+        try:
+            formatters = self.options['dataframe']['formatters']
+        except KeyError:
+            formatters = {}
+
         stdout = re.sub(
             r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
             '',
@@ -309,10 +314,11 @@ class JupyterDirective(YAMLDirective):
             tgroup += colspec
 
         dtypes = [None] + [df[column].dtype for column in df.columns]
+        columns = ['index'] + list(df.columns)
         rows = [make_row([''] + list(df.columns))]
 
         for row in df.itertuples():
-            rows.append(make_row(row, dtypes))
+            rows.append(make_row(row, columns, dtypes, formatters))
 
         thead = docutils.nodes.thead()
         thead.extend(rows[:1])
@@ -323,18 +329,25 @@ class JupyterDirective(YAMLDirective):
         return [table], stdout
 
 
-def make_row(row_data, dtypes=None, formatters=None):
+def make_row(row_data, columns=None, dtypes=None, formatters=None):
     """Make a row_node from an iterable of data."""
     row_node = docutils.nodes.row()
     formatters = formatters or dict()
     dtypes = dtypes or [None] * len(row_data)
-    for cell, dtype in zip(row_data, dtypes):
-        if dtype == np.float:
-            content = formatters.get('float', '{}').format(cell)
-        else:
-            content = str(cell)
+    columns = columns or [None] * len(row_data)
+    for cell, column, dtype in zip(row_data, columns, dtypes):
+        try:
+            dtype = dtype.name
+        except AttributeError:
+            dtype = repr(dtype)
+        content = formatters.get(dtype, '{}').format(cell)
+
         entry = docutils.nodes.entry()
-        entry += docutils.nodes.inline(content, content)
+        if column:
+            entry += docutils.nodes.inline(content, content,
+                                           classes=['column-{}'.format(column)])
+        else:
+            entry += docutils.nodes.inline(content, content)
         row_node += entry
     return row_node
 
