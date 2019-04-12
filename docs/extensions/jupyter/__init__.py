@@ -62,8 +62,10 @@ class YAMLDirective(Directive):
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
             block_text, state, state_machine)
+        if 'clear-globals' in self.options:
+            self.GLOBALS.clear()
         if 'globals' in self.options:
-            JUPYTER_GLOBAL_OPTIONS.update(**self.options['globals'])
+            self.GLOBALS.update(**self.options['globals'])
             del self.options['globals']
         options = self.options.get('options', {})
         options.update(**{key: value for key, value in JUPYTER_GLOBAL_OPTIONS.items()})
