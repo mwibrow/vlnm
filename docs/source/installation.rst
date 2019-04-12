@@ -28,11 +28,6 @@ Having installed Anaconda it may be necesary to install
 the Python package manager ``pip3``, by running the
 following command in a terminal:
 
-.. ipython::
-    :code-only:
-    :terminal:
-
-    conda install pip3
 
 However, the Anaconda distribution is large (to say the least) and
 includes a considerable number of tools which are not needed
@@ -54,10 +49,6 @@ If Python was installed using
 Anaconda then shapely should be installed first
 using:
 
-.. ipython::
-    :terminal:
-
-    conda install shapely
 
 Other solutions and/or workarounds are described below
 for different operation systems.
@@ -75,10 +66,6 @@ Linux
 To install |vlnm| use the following command in
 a terminal:
 
-.. ipython::
-    :terminal:
-
-    pip3 install https://github.com/mwibrow/vlnm/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -96,10 +83,6 @@ MacOS
 To install |vlnm| use the following command in
 a terminal:
 
-.. ipython::
-    :terminal:
-
-    pip3 install https://github.com/mwibrow/vlnm/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -107,10 +90,7 @@ the GEOS library required by shapely),
 then |homebrew| can be used to install the
 GEOS library:
 
-.. ipython::
-    :terminal:
 
-    brew install geos
 
 Then |vlnm| can be installed using the command above.
 
@@ -127,8 +107,3 @@ After using the ``conda`` command
 to install pip3 and shapely (as described above),
 |vlnm| can be installed by executing the following
 command at the command prompt:
-
-.. ipython::
-    :terminal:
-
-    pip3 install vlnm

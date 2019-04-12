@@ -2,6 +2,7 @@
 Console directive.
 """
 
+import abc
 import base64
 from code import compile_command, InteractiveInterpreter
 from contextlib import closing, contextmanager, redirect_stdout, redirect_stderr
@@ -20,10 +21,10 @@ import docutils.nodes
 from IPython.core.interactiveshell import InteractiveShell
 from pygments import token
 from pygments.lexer import RegexLexer
-
 import numpy as np
 from sphinx.highlighting import lexers
 import pandas as pd
+import yaml
 
 
 @contextmanager
@@ -39,67 +40,48 @@ def cd(newdir):  # pylint: disable=invalid-name
             os.chdir(curdir)
 
 
-class MockOpen:
-    """Class for selectively mocking the builfin open function."""
+class YAMLDirective(Directive):
+    """Directive which parses options as YAML"""
 
-    def __init__(self, fns=None, modes=None):
-        self.fns = fns or []
-        self.modes = modes or []
-        self.mock = None
-        self.patch = None
-        self.open = open
+    GLOBALS = {}
 
-    def _open(self, fn, mode=None, **kwargs):
-        if mode in self.modes and fn in self.fns:
-            self.mock = mock_open()
-            self.patch = patch('builtins.open', self.mock)
-            self.patch.start()
-            return self.mock(fn, mode=mode, **kwargs)
-        else:
-            return self.open(fn, mode=mode, **kwargs)
-
-    def __enter__(self):
-        __builtins__.open = self._open
-        return self
-
-    def __exit__(self, *args):
-        patch.stopall()
-        __builtins__.open = self.open
-
-    def get_writes(self):
-        """Get writes for a mocked open."""
-        if self.mock:
-            handle = self.mock()
-            return [args[0] for args, kwargs in handle.write.call_args_list]
-
-
-class JupyterDirective(Directive):
-    """Run code in an IPython shell."""
     has_content = True
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
 
     option_spec = {
-        'silent': directives.flag,
-        'image-dpi': directives.positive_int,
-        'image-format': directives.unchanged,
-        'image-embed': directives.flag,
-        'image-width': directives.unchanged,
-        'image-height': directives.unchanged,
-        'reset': directives.flag,
-        'matplotlib': directives.flag,
-        'code-only': directives.flag,
-        'no-code': directives.flag,
-        'path': directives.path,
-        'terminal': directives.flag,
-        'highlight-output': directives.unchanged,
-        'class': directives.unchanged
+        'options': directives.unchanged,
+        'globals': directives.unchanged,
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name, arguments, options, content, lineno,
+                 content_offset, block_text, state, state_machine):
+
+        options = {key: yaml.load(value or '') for key, value in options.items()}
+        super().__init__(
+            name, arguments, options, content, lineno, content_offset,
+            block_text, state, state_machine)
+        if 'globals' in self.options:
+            JUPYTER_GLOBAL_OPTIONS.update(**self.options['globals'])
+            del self.options['globals']
+        options = self.options.get('options', {})
+        options.update(**{key: value for key, value in JUPYTER_GLOBAL_OPTIONS.items()})
+        self.options = options
         self.shell = get_shell()
+
+    @abc.abstractmethod
+    def run(self):
+        """Subclasses to override."""
+
+
+JUPYTER_GLOBAL_OPTIONS = {}
+
+
+class JupyterDirective(YAMLDirective):
+    """Run code in an IPython shell."""
+
+    GLOBALS = JUPYTER_GLOBAL_OPTIONS
 
     def make_prefix(self, prefix, cell_count):
         options = self.options
@@ -141,6 +123,7 @@ class JupyterDirective(Directive):
 
     def run(self):
         options = self.options
+        print(options)
         code = u'\n'.join(line for line in self.content)
 
         classes = self.options.get('class')
@@ -310,6 +293,7 @@ class JupyterDirective(Directive):
 
     def jupyter_result_dataframe(self, df, stdout, **_options):
         """Special typsetting of a dataframe."""
+
         stdout = re.sub(
             r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
             '',
