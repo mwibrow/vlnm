@@ -43,47 +43,61 @@ def cd(newdir):  # pylint: disable=invalid-name
 class YAMLDirective(Directive):
     """Directive which parses options as YAML"""
 
-    GLOBALS = {}
+    CONFIG = {}
 
     has_content = True
     required_arguments = 0
     optional_arguments = 0
-    final_argument_whitespace = True
-
-    option_spec = {
-        'options': directives.unchanged,
-        'globals': directives.unchanged,
-    }
+    final_argument_whitespace = False
 
     def __init__(self, name, arguments, options, content, lineno,
                  content_offset, block_text, state, state_machine):
 
-        options = {key: yaml.load(value or '') for key, value in options.items()}
+        config, content = self._parse_config(content)
+
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
             block_text, state, state_machine)
-        if 'clear-globals' in self.options:
-            self.GLOBALS.clear()
-        if 'globals' in self.options:
-            self.GLOBALS.update(**self.options['globals'])
-            del self.options['globals']
-        options = self.options.get('options', {})
-        options.update(**{key: value for key, value in JUPYTER_GLOBAL_OPTIONS.items()})
-        self.options = options
-        self.shell = get_shell()
+        if 'configure' in config:
+            self.CONFIG.clear()
+            self.CONFIG.update(config['configure'])
+            del config['configure']
+        config.update(**self.CONFIG)
+        self.options = config
+
+    @staticmethod
+    def _parse_config(content):
+        content = [line for line in content]
+        events = []
+        config = {}
+        try:
+            for event in yaml.parse('\n'.join(content)):
+                events.append(event)
+        except yaml.scanner.ScannerError:
+            pass
+
+        if events:
+            content = content[events[-1].end_mark.line:]
+            config = yaml.safe_load(yaml.emit(events))
+
+        return config, content
 
     @abc.abstractmethod
     def run(self):
         """Subclasses to override."""
 
 
-JUPYTER_GLOBAL_OPTIONS = {}
+JUPYTER_CONFIG = {}
 
 
 class JupyterDirective(YAMLDirective):
     """Run code in an IPython shell."""
 
-    GLOBALS = JUPYTER_GLOBAL_OPTIONS
+    CONFIG = JUPYTER_CONFIG
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        self.shell = get_shell()
 
     def make_prefix(self, prefix, cell_count):
         options = self.options
