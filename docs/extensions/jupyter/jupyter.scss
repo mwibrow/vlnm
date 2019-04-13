@@ -61,35 +61,31 @@ div.jupyter-cell {
 }
 
 .jupyter {
-  table.dataframe {
+  table {
     border: none !important;
     box-shadow: none !important;
     font-family: "Table", sans-serif !important;
     font-size: 90%;
     margin-top: 0.5rem;
-  }
-  table.dataframe td {
-    border: none !important;
-  }
-  table.dataframe th {
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
+
+    border-collapse: collapse;
+
+    thead {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      font-weight: bold;
+    }
+
+    td, th {
+      border: none;
+      padding: 0.25rem 1rem;
+      &.column-index {
+        font-weight: bold;
+        padding: 0.25rem 0.5rem !important;
+      }
+
+    }
   }
 
-  table.dataframe td,
-  table.dataframe th {
-    line-height: 1.5;
-    font-weight: 300;
-  }
-
-  table.dataframe .column-,
-  table.dataframe th {
-    font-weight: 700;
-  }
-  table.dataframe .row-even {
-    background-color: #eceff1;
-  }
 
   .highlight-ansi-color .-Color-Red {
     color: #d32f2f;

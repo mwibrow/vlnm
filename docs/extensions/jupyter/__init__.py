@@ -52,9 +52,7 @@ class YAMLDirective(Directive):
 
     def __init__(self, name, arguments, options, content, lineno,
                  content_offset, block_text, state, state_machine):
-
         config, content = self._parse_config(content)
-
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
             block_text, state, state_machine)
@@ -75,10 +73,12 @@ class YAMLDirective(Directive):
                 events.append(event)
         except yaml.scanner.ScannerError:
             pass
-
         if events:
-            content = content[events[-1].end_mark.line:]
             config = yaml.safe_load(yaml.emit(events))
+            if isinstance(config, dict):
+                content = content[events[-1].end_mark.line + 1:]
+            else:
+                config = {}
 
         return config, content
 
@@ -96,7 +96,7 @@ class JupyterDirective(YAMLDirective):
     CONFIG = JUPYTER_CONFIG
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.shell = get_shell()
 
     def make_prefix(self, prefix, cell_count):
@@ -165,6 +165,9 @@ class JupyterDirective(YAMLDirective):
                 'import matplotlib\nmatplotlib.use("agg")\n',
                 silent=True)
 
+        if 'before' in options:
+            self.shell.run_cell(options['before'], silent=True)
+
         if 'imports' in self.options:
             imports = '\n'.join(self.options['imports'])
             self.shell.run_cell(
@@ -175,7 +178,7 @@ class JupyterDirective(YAMLDirective):
         with cd(path):
             exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
 
-        if 'silent' in options:
+        if 'hidden' in options:
             return []
 
         cell_count = self.shell.get_cell_count()
@@ -314,69 +317,83 @@ class JupyterDirective(YAMLDirective):
 
     def jupyter_result_dataframe(self, df, stdout, **_options):
         """Special typsetting of a dataframe."""
-
-        df_options = self.options.get('dataframe', {})
-        formatters = df_options.get('formatters', {})
-        index = df_options.get('index')
-
         stdout = re.sub(
             r'Out\[\d+\]:\s*\n{0}$\n'.format(df),
             '',
             stdout,
             flags=re.RegexFlag.DOTALL)
 
-        table = docutils.nodes.table(classes=['dataframe'])
-        tgroup = docutils.nodes.tgroup(cols=len(df.columns) + 1)
-        table += tgroup
+        table = HTML.table(classes=['dataframe'])
+        thead = HTML.thead()
+        tbody = HTML.tbody()
 
-        for _ in range(len(df.columns) + 1):
-            colspec = docutils.nodes.colspec(colwidth=1)
-            tgroup += colspec
+        row = HTML.tr(classes=['head'])
+        row += HTML.th(classes=['column-index'])
+        for column in df.columns:
+            row += HTML.th(
+                content=column,
+                classes=['column-{}'.format(column)])
+        thead += row
 
-        dtypes = [None] if index else []
-        dtypes += [df[column].dtype for column in df.columns]
+        columns = ['index'] + [column for column in df.columns]
+        for i, data in enumerate(df.itertuples()):
+            row = HTML.tr(classes=[
+                'row-{}'.format(i + 1),
+                'row-{}'.format('odd' if i % 2 else 'even')
+            ])
+            for value, column in zip(data, columns):
+                row += HTML.td(
+                    content=value,
+                    classes=[
+                        'column-{}'.format(column)
+                    ])
+            print(row.to_html())
+            tbody += row
+        table += thead
+        table += tbody
 
-        columns = [''] if index else []
-        columns += list(df.columns)
-        rows = [make_row(columns)]
+        raw = table.to_html()
+        node = docutils.nodes.raw(raw, raw, format='html')
+        return [node], stdout
 
-        for row in df.itertuples():
-            if not index:
-                row = row[1:]
-            rows.append(make_row(row, columns, dtypes, formatters))
+class Tag:
 
-        thead = docutils.nodes.thead()
-        thead.extend(rows[:1])
-        tgroup += thead
-        tbody = docutils.nodes.tbody()
-        tbody.extend(rows[1:])
-        tgroup += tbody
-        return [table], stdout
+    def __init__(self, tag=None, content='', classes=[]):
+        self.tag = tag or self.__class__.__name__
+        self.content = content
+        self.classes = classes
+        self.children = []
 
-
-def make_row(row_data, columns=None, dtypes=None, formatters=None):
-    """Make a row_node from an iterable of data."""
-    row_node = docutils.nodes.row()
-    formatters = formatters or dict()
-    dtypes = dtypes or [None] * len(row_data)
-    columns = columns or [None] * len(row_data)
-    for cell, column, dtype in zip(row_data, columns, dtypes):
-        try:
-            dtype = dtype.name
-        except AttributeError:
-            dtype = repr(dtype)
-        content = formatters.get(dtype, '{}').format(cell)
-
-        entry = docutils.nodes.entry(
-            classes=['column-{}'.format(column), 'column-{}'.format(dtype)])
-        if column:
-            entry += docutils.nodes.inline(
-                content, content,
-                classes=['column-{}'.format(column), 'column-{}'.format(dtype)])
+    def add_child(self, tag):
+        if isinstance(tag, list):
+            self.children.extend(tag)
         else:
-            entry += docutils.nodes.inline(content, content)
-        row_node += entry
-    return row_node
+            self.children.append(tag)
+        return self
+
+    def __add__(self, tag):
+        self.add_child(tag)
+        return self
+
+    def to_html(self):
+        tag = self.tag
+        if self.children:
+            content = '\n'.join(child.to_html() for child in self.children)
+        else:
+            content = self.content
+        return '<{} class="{}">\n{}</{}>'.format(
+            tag, ' '.join(self.classes), content, tag)
+
+    def __repr__(self):
+        return self.to_html()
+
+class HTML:
+    class table(Tag): pass
+    class thead(Tag): pass
+    class tbody(Tag): pass
+    class tr(Tag): pass
+    class th(Tag): pass
+    class td(Tag): pass
 
 
 def pop_until_match(items, pattern):
