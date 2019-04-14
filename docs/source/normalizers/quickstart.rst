@@ -1,5 +1,25 @@
 .. include:: ../defs.rst
 
+.. ipython::
+    configure:
+        dataframe:
+            formatters:
+                float64: '{:.05f}'
+            index: yes
+            dtypes:
+                speaker: str
+                vowel: str
+        before: |
+            import matplotlib
+            matplotlib.use("agg")
+            import pandas as pd
+            from vlnm import normalize
+    hidden: yes
+    path: '{root}/source/_data'
+
+    pb_df = pd.read_csv('pb1952.csv')
+    csv_df = pb_df[['speaker', 'vowel', 'f0', 'f1']]
+
 .. _section_normalization_quickstart:
 
 Getting started
@@ -30,35 +50,35 @@ a CSV file containing the vowel data.
 
 So for example, given a CSV file
 called :csv:`vowels.csv` as a comma separated file
-with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
+with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
+which starts with the following data:
 
 .. ipython::
-    configure:
-        dataframe:
-            formatters:
-                float64: '{:.05f}'
-            index: yes
-            dtypes:
-                speaker: str
-                vowel: str
-        before: |
-            import matplotlib
-            matplotlib.use("agg")
-            import pandas as pd
-    hidden: yes
-    path: '{root}/source/_data'
 
-    pb_df = pd.read_csv('pb1952.csv')
+    from io import StringIO
+    stream = StringIO()
+    csv_df.head(8).to_csv(stream, index=False)
+    stream.seek(0)
+    print(stream.getvalue())
+
+
+The the file can be normalized as follows:
 
 .. ipython::
-    dataframe:
-        index: no
+    run: no
 
     from vlnm import normalize
+    normalize('vowel.csv', 'normalized.csv', method='lobanov')
 
-    df = pb_df[['speaker', 'vowel', 'f1', 'f2']]
-    df = normalize(df, method='lobanov')
-    df.head(5)
+.. ipython::
+
+    from io import StringIO
+
+    ndf = normalize(csv_df, method='lobanov')
+    stream = StringIO()
+    ndf.head(8).to_csv(stream, index=False)
+    stream.seek(0)
+    print(stream.getvalue())
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily

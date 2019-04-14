@@ -166,13 +166,15 @@ class JupyterDirective(YAMLDirective):
 
     def run(self):
         options = self.options
-        code = u'\n'.join(line for line in self.content)
-
+        code = u'\n'.join(line for line in self.content).strip()
         classes = self.options.get('class')
+        hide = self.options.get('hide', [])
+        run = self.options.get('run', True)
+
         parent = docutils.nodes.line_block(
             classes=['jupyter'] + ([classes] if classes else []))
 
-        if 'code-only' in options or 'terminal' in options:
+        if not run:
             node = docutils.nodes.literal_block(
                 code, code,
                 classes=['jupyter-terminal' if 'terminal' in options else 'jupyter-cell'])
@@ -186,19 +188,9 @@ class JupyterDirective(YAMLDirective):
         if 'reset' in self.options:
             self.shell.reset()
 
-        if 'matplotlib' in self.options:
-            self.shell.run_cell(
-                'import matplotlib\nmatplotlib.use("agg")\n',
-                silent=True)
-
         if 'before' in options:
             self.shell.run_cell(options['before'], silent=True)
 
-        if 'imports' in self.options:
-            imports = '\n'.join(self.options['imports'])
-            self.shell.run_cell(
-                imports + '\n',
-                silent=True)
         path = options.get('path', os.getcwd()) or os.getcwd()
         path = path.replace('{root}', os.getcwd())
         with cd(path):
@@ -209,7 +201,7 @@ class JupyterDirective(YAMLDirective):
 
         cell_count = self.shell.get_cell_count()
 
-        if 'no-code' not in options:
+        if hide and 'code' not in hide:
             node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
             node['language'] = 'python'
             block = self.jupyter_block(

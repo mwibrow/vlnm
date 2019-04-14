@@ -43,7 +43,6 @@ class Tag:
             attributes = ''
         html = '<{}{}{}>\n{}</{}>'.format(
             tag, klasses, attributes, content, tag)
-        print(html)
         return html
 
     def __repr__(self):
