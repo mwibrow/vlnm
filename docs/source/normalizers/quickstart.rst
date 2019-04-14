@@ -48,6 +48,8 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
     pb_df = pd.read_csv('pb1952.csv')
 
 .. ipython::
+    dataframe:
+        index: no
 
     from vlnm import normalize
 

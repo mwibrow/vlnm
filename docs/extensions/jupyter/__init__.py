@@ -6,6 +6,7 @@ import abc
 import base64
 from code import compile_command, InteractiveInterpreter
 from contextlib import closing, contextmanager, redirect_stdout, redirect_stderr
+import copy
 import csv
 from io import StringIO, BytesIO
 import os
@@ -25,6 +26,8 @@ import numpy as np
 from sphinx.highlighting import lexers
 import pandas as pd
 import yaml
+
+import jupyter.html as HTML
 
 
 @contextmanager
@@ -60,8 +63,16 @@ class YAMLDirective(Directive):
             self.CONFIG.clear()
             self.CONFIG.update(config['configure'])
             del config['configure']
-        config.update(**self.CONFIG)
-        self.options = config
+        self.options = self._merge(config, copy.deepcopy(self.CONFIG))
+
+    def _merge(self, source, destination):
+        for key, value in source.items():
+            if isinstance(value, dict):
+                node = destination.setdefault(key, {})
+                self._merge(source[key], node)
+            else:
+                destination[key] = value
+        return destination
 
     @staticmethod
     def _parse_config(content):
@@ -69,14 +80,29 @@ class YAMLDirective(Directive):
         events = []
         config = {}
         try:
+            mappings = 0
             for event in yaml.parse('\n'.join(content)):
+                if isinstance(event, yaml.events.MappingStartEvent):
+                    mappings += 1
+                if isinstance(event, yaml.events.MappingEndEvent):
+                    mappings -= 1
                 events.append(event)
         except yaml.scanner.ScannerError:
-            pass
+            for _ in range(mappings):
+                events.append(yaml.events.MappingEndEvent())
+            events.append(yaml.events.DocumentEndEvent())
+            events.append(yaml.events.StreamEndEvent())
         if events:
+            line = 0
+            for event in events[-1::-1]:
+                try:
+                    line = event.end_mark.line + 1
+                    break
+                except AttributeError:
+                    pass
             config = yaml.safe_load(yaml.emit(events))
             if isinstance(config, dict):
-                content = content[events[-1].end_mark.line + 1:]
+                content = content[line:]
             else:
                 config = {}
 
@@ -139,7 +165,6 @@ class JupyterDirective(YAMLDirective):
 
     def run(self):
         options = self.options
-        print(options)
         code = u'\n'.join(line for line in self.content)
 
         classes = self.options.get('class')
@@ -323,12 +348,17 @@ class JupyterDirective(YAMLDirective):
             stdout,
             flags=re.RegexFlag.DOTALL)
 
-        table = HTML.table(classes=['dataframe'])
+        options = self.options.get('dataframe', {})
+        index = options.get('index', True)
+        formatters = options.get('formatters', {})
+
+        table = HTML.table(classes=['dataframe'] + [] if index else ['no-index'])
         thead = HTML.thead()
         tbody = HTML.tbody()
 
         row = HTML.tr(classes=['head'])
-        row += HTML.th(classes=['column-index'])
+        if index:
+            row += HTML.th(classes=['column-index'])
         for column in df.columns:
             row += HTML.th(
                 content=column,
@@ -336,18 +366,22 @@ class JupyterDirective(YAMLDirective):
         thead += row
 
         columns = ['index'] + [column for column in df.columns]
+        dtypes = [None] + [df[column].dtype.name for column in df.columns]
         for i, data in enumerate(df.itertuples()):
             row = HTML.tr(classes=[
                 'row-{}'.format(i + 1),
                 'row-{}'.format('odd' if i % 2 else 'even')
             ])
-            for value, column in zip(data, columns):
-                row += HTML.td(
-                    content=value,
-                    classes=[
-                        'column-{}'.format(column)
-                    ])
-            print(row.to_html())
+            for j, zipped in enumerate(zip(data, columns, dtypes)):
+                value, column, dtype = zipped
+                if dtype in formatters:
+                    value = formatters[dtype].format(value)
+                if index or j > 0:
+                    classes = ['column-{}'.format(column)]
+                    classes.append('column-dtype-{}'.format(dtype))
+
+                    row += HTML.td(content=value, classes=classes)
+
             tbody += row
         table += thead
         table += tbody
@@ -355,45 +389,6 @@ class JupyterDirective(YAMLDirective):
         raw = table.to_html()
         node = docutils.nodes.raw(raw, raw, format='html')
         return [node], stdout
-
-class Tag:
-
-    def __init__(self, tag=None, content='', classes=[]):
-        self.tag = tag or self.__class__.__name__
-        self.content = content
-        self.classes = classes
-        self.children = []
-
-    def add_child(self, tag):
-        if isinstance(tag, list):
-            self.children.extend(tag)
-        else:
-            self.children.append(tag)
-        return self
-
-    def __add__(self, tag):
-        self.add_child(tag)
-        return self
-
-    def to_html(self):
-        tag = self.tag
-        if self.children:
-            content = '\n'.join(child.to_html() for child in self.children)
-        else:
-            content = self.content
-        return '<{} class="{}">\n{}</{}>'.format(
-            tag, ' '.join(self.classes), content, tag)
-
-    def __repr__(self):
-        return self.to_html()
-
-class HTML:
-    class table(Tag): pass
-    class thead(Tag): pass
-    class tbody(Tag): pass
-    class tr(Tag): pass
-    class th(Tag): pass
-    class td(Tag): pass
 
 
 def pop_until_match(items, pattern):
