@@ -351,40 +351,56 @@ class JupyterDirective(YAMLDirective):
         options = self.options.get('dataframe', {})
         index = options.get('index', True)
         formatters = options.get('formatters', {})
+        dtypes = options.get('dtypes', {})
 
-        table = HTML.table(classes=['dataframe'] + [] if index else ['no-index'])
+        classes = [] if index else ['no-index']
+        table = HTML.table(classes=['dataframe'] + classes)
+
         thead = HTML.thead()
-        tbody = HTML.tbody()
+        tbody = None
 
         row = HTML.tr(classes=['head'])
         if index:
             row += HTML.th(classes=['column-index'])
         for column in df.columns:
-            row += HTML.th(
-                content=column,
-                classes=['column-{}'.format(column)])
+            dtype = df[column].dtype.name
+            if dtype in HTML.dtypes:
+                row += HTML.dtypes[dtype].th(column)
+            else:
+                row += HTML.th(
+                    content=column,
+                    classes=['column-{}'.format(column)])
         thead += row
 
-        columns = ['index'] + [column for column in df.columns]
-        dtypes = [None] + [df[column].dtype.name for column in df.columns]
-        for i, data in enumerate(df.itertuples()):
-            row = HTML.tr(classes=[
-                'row-{}'.format(i + 1),
-                'row-{}'.format('odd' if i % 2 else 'even')
-            ])
-            for j, zipped in enumerate(zip(data, columns, dtypes)):
-                value, column, dtype = zipped
-                if dtype in formatters:
-                    value = formatters[dtype].format(value)
-                if index or j > 0:
-                    classes = ['column-{}'.format(column)]
-                    classes.append('column-dtype-{}'.format(dtype))
+        if len(df):
+            tbody = HTML.tbody()
+            columns = ['index'] + [column for column in df.columns]
+            dtypes = [None] + [
+                dtypes.get(
+                    column,
+                    df.iloc[0][column].__class__.__name__) for column in df.columns]
+            for i, data in enumerate(df.itertuples()):
+                row = HTML.tr(classes=[
+                    'row-{}'.format(i + 1),
+                    'row-{}'.format('odd' if i % 2 else 'even')
+                ])
+                for j, zipped in enumerate(zip(data, columns, dtypes)):
+                    value, column, dtype = zipped
 
-                    row += HTML.td(content=value, classes=classes)
+                    if dtype in HTML.dtypes:
+                        row += HTML.dtypes[dtype].td(value, formatters.get(dtype))
+                    else:
+                        if index or j > 0:
+                            classes = ['column-{}'.format(column)]
+                            classes.append('column-dtype-{}'.format(dtype))
 
-            tbody += row
-        table += thead
-        table += tbody
+                            row += HTML.td(content=value, classes=classes)
+
+                tbody += row
+        if thead:
+            table += thead
+        if tbody:
+            table += tbody
 
         raw = table.to_html()
         node = docutils.nodes.raw(raw, raw, format='html')

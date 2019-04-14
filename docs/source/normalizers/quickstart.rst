@@ -38,6 +38,9 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
             formatters:
                 float64: '{:.05f}'
             index: yes
+            dtypes:
+                speaker: str
+                vowel: str
         before: |
             import matplotlib
             matplotlib.use("agg")
@@ -54,6 +57,7 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`
     from vlnm import normalize
 
     df = pb_df[['speaker', 'vowel', 'f1', 'f2']]
+    df = normalize(df, method='lobanov')
     df.head(5)
 
 Although it is worth noting, that in Jupyter

@@ -73,14 +73,24 @@ div.jupyter-cell {
     thead {
       border-bottom: 1px solid rgba(0, 0, 0, 0.12);
       font-weight: bold;
+
     }
 
     td, th {
       border: none;
       padding: 0.25rem 1rem;
+
       &.column-index {
         font-weight: bold;
         padding: 0.25rem 0.5rem !important;
+      }
+
+      &.column-dtype-str {
+        text-align: center;
+      }
+
+      &.column-dtype-int64 {
+        text-align: right;
       }
 
     }

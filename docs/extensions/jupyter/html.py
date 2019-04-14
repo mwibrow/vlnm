@@ -38,13 +38,16 @@ class Tag:
             attributes = ' {}'.format(
                 ' '.join(
                     '{}={}'.format(name, value)
-                    for name, value in self.attributes.values()))
+                    for name, value in self.attributes.items()))
         else:
             attributes = ''
-        return '<{}{}{}>\n{}</{}>'.format(
+        html = '<{}{}{}>\n{}</{}>'.format(
             tag, klasses, attributes, content, tag)
+        print(html)
+        return html
 
     def __repr__(self):
+
         return self.to_html()
 
 
@@ -70,3 +73,41 @@ class th(Tag):
 
 class td(Tag):
     pass
+
+
+class Float64:
+
+    @staticmethod
+    def th(column):
+        tag = th(
+            content=column,
+            classes=['column-{}'.format(column), 'column-dtype-float64'],
+            attributes={
+                'colspan': 2,
+                'style': '"text-align: center;"'})
+        return tag
+
+    @staticmethod
+    def td(value, formatter=None):
+        if formatter:
+            value = formatter.format(value)
+        integer, mantissa = str(value).split('.')
+        return [
+            td(
+                content=integer,
+                classes=[],
+                attributes={
+                    'style': '"text-align: right; padding-right: 0;"'
+                }),
+            td(
+                content='.{}'.format(mantissa),
+                classes=[],
+                attributes={
+                    'style': '"text-align: left; padding-left: 0;"'
+                })
+        ]
+
+
+dtypes = {
+    'float64': Float64
+}
