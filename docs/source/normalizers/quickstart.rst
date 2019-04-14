@@ -54,12 +54,13 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
 which starts with the following data:
 
 .. ipython::
+    class: csv
 
     from io import StringIO
     stream = StringIO()
     csv_df.head(8).to_csv(stream, index=False)
     stream.seek(0)
-    print(stream.getvalue())
+    print(stream.getvalue().strip())
 
 
 The the file can be normalized as follows:
@@ -76,6 +77,7 @@ the following data:
 
 
 .. ipython::
+    class: csv
 
     from io import StringIO
 

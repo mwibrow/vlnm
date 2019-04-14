@@ -112,6 +112,8 @@ div.jupyter-cell {
   }
 }
 
+
+
 .jupyter-cell .highlight pre {
   background-color: #f7f7f7 !important;
   padding: 0.25rem 0.5rem !important;
@@ -141,5 +143,16 @@ div.jupyter-cell {
   color: #eceff1 !important;
   span {
     color: #eceff1 !important;
+  }
+}
+
+.jupyter {
+  &.csv {
+    .jupyter-stdout {
+      width: 100%;
+      .highlight pre {
+        background-color: #e7e7e7 !important;
+      }
+    }
   }
 }
