@@ -70,6 +70,11 @@ The the file can be normalized as follows:
     from vlnm import normalize
     normalize('vowel.csv', 'normalized.csv', method='lobanov')
 
+
+Which will produce a file ``normalized.csv`` including
+the following data:
+
+
 .. ipython::
 
     from io import StringIO
