@@ -14,6 +14,7 @@ import pprint
 import re
 import shutil
 import sys
+import textwrap
 import traceback
 from unittest.mock import mock_open, patch
 
@@ -51,20 +52,33 @@ class YAMLDirective(Directive):
 
     has_content = True
     required_arguments = 0
-    optional_arguments = 1
+    optional_arguments = 0
     final_argument_whitespace = False
 
     option_spec = {
         'options': directives.unchanged
     }
+
     def __init__(self, name, arguments, options, content, lineno,
                  content_offset, block_text, state, state_machine):
+        lines = block_text.split('\n')[1:]
+        config, content = [], []
+        target = config
+        for line in lines:
+            if line.strip() == '':
+                target.append(line)
+                target = content
+            else:
+                target.append(line)
+
+        config = textwrap.dedent('\n'.join(config))
+        content = textwrap.dedent('\n'.join(content)).split('\n')
+
+        config = yaml.safe_load(config) or {}
 
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
             block_text, state, state_machine)
-
-        config = yaml.safe_load(self.options.get('options', '')) or {}
 
         if 'configure' in config:
             self.CONFIG.clear()

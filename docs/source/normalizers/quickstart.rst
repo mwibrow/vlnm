@@ -1,22 +1,21 @@
 .. include:: ../defs.rst
 
 .. ipython::
-    :options:
-        configure:
-            dataframe:
-                formatters:
-                    float64: '{:.05f}'
-                index: yes
-                dtypes:
-                    speaker: str
-                    vowel: str
-            before: |
-                import matplotlib
-                matplotlib.use("agg")
-                import pandas as pd
-                from vlnm import normalize
-        hidden: yes
-        path: '{root}/source/_data'
+    configure:
+        dataframe:
+            formatters:
+                float64: '{:.05f}'
+            index: yes
+            dtypes:
+                speaker: str
+                vowel: str
+        before: |
+            import matplotlib
+            matplotlib.use("agg")
+            import pandas as pd
+            from vlnm import normalize
+    hidden: yes
+    path: '{root}/source/_data'
 
     pb_df = pd.read_csv('pb1952.csv')
     csv_df = pb_df[['speaker', 'vowel', 'f0', 'f1']]
@@ -43,8 +42,7 @@ in the first `cell`:
 
 
 .. ipython::
-    :options:
-        hidden: yes
+    hidden: yes
 
     import os
     with Shell.chdir(Shell.tmpdir):
@@ -67,16 +65,14 @@ which starts with the following data:
 
 
 .. ipython::
-    :options:
-        path: '{tmpdir}'
+    path: '{tmpdir}'
 
     from vlnm import preview
     preview('vowels.csv', n=6)
 
 
 .. ipython::
-    :options:
-        path: '{tmpdir}'
+    path: '{tmpdir}'
 
     from vlnm import normalize
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
@@ -85,10 +81,10 @@ Which will produce a file ``normalized.csv`` including
 the following data:
 
 .. ipython::
-    :options:
-        path: '{tmpdir}'
+    path: '{tmpdir}'
 
     preview('normalized.csv', n=6)
+
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily
