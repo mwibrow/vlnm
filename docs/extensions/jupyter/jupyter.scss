@@ -71,13 +71,16 @@ div.jupyter-cell {
     border-collapse: collapse;
 
     thead {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      tr {
+        border: none !important;
+      }
       font-weight: bold;
-
+      border-bottom: 1px solid #cdcdcd;
     }
 
-    td, th {
-      border: none;
+    td,
+    th {
+      border: none !important;
       padding: 0.25rem 1rem;
 
       &.column-index {
@@ -92,10 +95,8 @@ div.jupyter-cell {
       &.column-dtype-int64 {
         text-align: right;
       }
-
     }
   }
-
 
   .highlight-ansi-color .-Color-Red {
     color: #d32f2f;
@@ -111,8 +112,6 @@ div.jupyter-cell {
     color: #0097a7;
   }
 }
-
-
 
 .jupyter-cell .highlight pre {
   background-color: #f7f7f7 !important;

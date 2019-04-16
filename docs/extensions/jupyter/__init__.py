@@ -36,7 +36,7 @@ def cd(newdir):  # pylint: disable=invalid-name
     """Change working directory."""
     curdir = os.getcwd()
     if newdir != curdir:
-        os.chdir(os.path.expanduser(newdir))
+        os.chdir(os.path.realpath(os.path.expanduser(newdir)))
     try:
         yield
     finally:
@@ -188,11 +188,18 @@ class JupyterDirective(YAMLDirective):
         if 'reset' in self.options:
             self.shell.reset()
 
+        self.shell.update_user_ns(Sphinx=self.state.document.settings.env.app)
+
+        if 'shell' in options:
+            self.shell.run_cell(options['shell'], silent=True)
         if 'before' in options:
             self.shell.run_cell(options['before'], silent=True)
 
         path = options.get('path', os.getcwd()) or os.getcwd()
         path = path.replace('{root}', os.getcwd())
+        path = path.replace('{conf}', self.state.document.settings.env.app.confdir)
+        path = path.replace('{tmpdir}', self.shell.tmpdir)
+
         with cd(path):
             exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
 
@@ -201,7 +208,7 @@ class JupyterDirective(YAMLDirective):
 
         cell_count = self.shell.get_cell_count()
 
-        if hide and 'code' not in hide:
+        if 'code' not in hide:
             node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
             node['language'] = 'python'
             block = self.jupyter_block(
@@ -365,7 +372,7 @@ class JupyterDirective(YAMLDirective):
                     classes=['column-{}'.format(column)])
         thead += row
 
-        if len(df):
+        if not df.empty:
             tbody = HTML.tbody()
             columns = ['index'] + [column for column in df.columns]
             dtypes = [None] + [
@@ -438,6 +445,10 @@ def init_app(app):
     app.add_config_value('jupyter_cell_counts', False, 'env')
 
 
+def cleanup(*_args):
+    get_shell().cleanup()
+
+
 def config_sass(app, config):
     dirname = os.path.dirname(__file__)
     output = 'jupyter.css'
@@ -452,6 +463,7 @@ def setup(app):
     Set up the sphinx extension.
     """
     app.connect('builder-inited', init_app)
+    app.connect('build-finished', cleanup)
     app.connect('config-inited', config_sass)
     app.add_directive('ipython', JupyterDirective)
     app.add_directive('jupyter', JupyterDirective)

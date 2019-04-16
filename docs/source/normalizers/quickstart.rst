@@ -54,38 +54,25 @@ with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
 which starts with the following data:
 
 .. ipython::
-    class: csv
 
-    from io import StringIO
-    stream = StringIO()
-    csv_df.head(8).to_csv(stream, index=False)
-    stream.seek(0)
-    print(stream.getvalue().strip())
-
-
-The the file can be normalized as follows:
+    import os, shutil
+    with Shell.chdir(Shell.tmpdir):
+        shutil.copy(
+            os.path.join(Sphinx.confdir, '_data', 'pb1952.csv'),
+            'pb1952.csv')
+        df = pd.read_csv('pb1952.csv')
+        df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
 
 .. ipython::
-    run: no
+    path: '{tmpdir}'
 
     from vlnm import normalize
-    normalize('vowel.csv', 'normalized.csv', method='lobanov')
-
+    normalize('vowels.csv', 'normalize.csv', method='lobanov')
+    pd.read_csv('normalize.csv').head()
 
 Which will produce a file ``normalized.csv`` including
 the following data:
 
-
-.. ipython::
-    class: csv
-
-    from io import StringIO
-
-    ndf = normalize(csv_df, method='lobanov')
-    stream = StringIO()
-    ndf.head(8).to_csv(stream, index=False)
-    stream.seek(0)
-    print(stream.getvalue())
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily
