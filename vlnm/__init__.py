@@ -115,36 +115,3 @@ def normalize(data, file_out=None, method='default', sep=',', **kwargs):
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
         return None
     return df_norm
-
-
-def preview(filename, lines=5, encoding=None):
-    """Preview a file."""
-    with open(filename, 'rb', encoding=encoding) as fid:
-        if lines > 0:
-            generator = _preview_head(fid, lines, encoding=encoding)
-        else:
-            return
-        for line in generator:
-            yield line
-
-
-def _preview_head(fid, lines, encoding=None, buffsize=2048):
-    line = b''
-    fid.seek(0, os.SEEK_END)
-    fsize = fid.tell()
-    fid.seek(0)
-    while lines > 0 and fid.tell() < fsize:
-        buff = fid.read(buffsize)
-        for i in range(len(buff)):
-            bit1 = buff[i:i+1]
-            bit2 = buff[i:i+2]
-            if bit1 in b'\r\n' or bit2 in b'\r\n':
-                yield line.decode(encoding) if encoding else line.decode()
-                line = b''
-                lines -= 1
-                if lines == 0:
-                    break
-            else:
-                line += buff[i:i+1]
-    if fid.tell() == fsize and line:
-        yield line.decode(encoding) if encoding else line.decode()

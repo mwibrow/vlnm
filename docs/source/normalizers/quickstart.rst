@@ -50,17 +50,25 @@ Normalizing a CSV file
 In perhaps the simplest case, |vlnm| can be used to normalize
 a CSV file containing the vowel data.
 
-So for example, given a CSV file
+So, assume a CSV file
 called :csv:`vowels.csv` as a comma separated file
 with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
-which starts with the following data:
+which - in its raw form - might start off looking like this:
 
 
 .. ipython::
 
-    from vlnm import preview
-    for line in preview('vowels.csv', lines=6):
-        print(line)
+    import pandas as pd
+    print(pd.read_csv('vowels.csv', nrows=5).to_csv(index=False).strip())
+
+
+It is worth noting, however, that in Jupyter
+the file can be previewed a bit more prettily
+using a |pandas| DataFrame:
+
+.. ipython::
+
+    pd.read_csv('vowels.csv').head()
 
 
 .. ipython::
@@ -73,8 +81,7 @@ the following data:
 
 .. ipython::
 
-    for line in preview('normalized.csv', lines=6):
-        print(line)
+    pd.read_csv('normalized.csv').head()
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily
@@ -99,7 +106,10 @@ As this will overwrite the existing columns :col:`f1` and :col:`f2`
 the normalized data can be written to new columns using the
 :arg:`rename` argument:
 
+.. ipython::
 
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', rename='{}_N')
+    pd.read_csv('normalized.csv').head()
 
 This will create new columns :col:`f1_N` and :col:`f2_N` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
