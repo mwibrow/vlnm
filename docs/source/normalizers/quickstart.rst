@@ -59,7 +59,8 @@ which starts with the following data:
 .. ipython::
 
     from vlnm import preview
-    preview('vowels.csv', n=6)
+    for line in preview('vowels.csv', lines=6):
+        print(line)
 
 
 .. ipython::
@@ -72,8 +73,8 @@ the following data:
 
 .. ipython::
 
-    preview('normalized.csv', n=6)
-
+    for line in preview('normalized.csv', lines=6):
+        print(line)
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily
