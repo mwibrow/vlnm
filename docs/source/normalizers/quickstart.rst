@@ -50,26 +50,32 @@ Normalizing a CSV file
 In perhaps the simplest case, |vlnm| can be used to normalize
 a CSV file containing the vowel data.
 
-So, assume a CSV file
-called :csv:`vowels.csv` as a comma separated file
+Given a CSV file
+called :csv:`vowels.csv`
 with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
 which - in its raw form - might start off looking like this:
 
 
 .. ipython::
 
-    import pandas as pd
-    print(pd.read_csv('vowels.csv', nrows=5).to_csv(index=False).strip())
+    with open('vowels.csv') as csv_file:
+        for i in range(6):
+            print(next(csv_file), end='')
 
 
-It is worth noting, however, that in Jupyter
-the file can be previewed a bit more prettily
+However, it is worth noting, however that in Jupyter
+CSV files can can be previewed a bit more prettily
 using a |pandas| DataFrame:
 
 .. ipython::
 
     pd.read_csv('vowels.csv').head()
 
+
+To normalize the formant data in this CSV file
+according to :citet:`lobanov_1971`
+and automatically save to a new file :csv:`normalized.csv`,
+the ``normalize`` function can be used:
 
 .. ipython::
 
@@ -83,26 +89,8 @@ the following data:
 
     pd.read_csv('normalized.csv').head()
 
-Although it is worth noting, that in Jupyter
-the file can be previewed a bit more prettily
-using a |pandas| DataFrame:
-
-
-
-The file can be normalized according to :citet:`lobanov_1971`
-and automatically saved to a new file :csv:`normalized.csv` as follows:
-
-
-This will create a file which starts with the following data:
-
-
-
-To save the normalized data to the same file, the second file name
-can be omitted:
-
-
-
-As this will overwrite the existing columns :col:`f1` and :col:`f2`
+As this overwrites the existing
+columns :col:`f1` and :col:`f2`,
 the normalized data can be written to new columns using the
 :arg:`rename` argument:
 
@@ -115,10 +103,6 @@ This will create new columns :col:`f1_N` and :col:`f2_N` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
 
-To change the separator used in the files the
-:arg:`sep` argument can be used:
-
-
 
 Finally, one (or both) of the file arguments can be a
 `file object <https://docs.python.org/3/glossary.html#term-file-object>`_
@@ -126,7 +110,11 @@ created using the
 `open() function <https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files>`_:
 
 
+.. ipython::
+    run: no
 
+    with open('vowels.csv') as csv_in, open('normalized.csv', 'w') as csv_out:
+        normalize(csv_in, csv_out, method='lobanov')
 
 Normalizing a DataFrame
 -----------------------
