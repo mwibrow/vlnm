@@ -113,6 +113,7 @@ def normalize(data, file_out=None, method='default', sep=',', **kwargs):
 
     if file_out:
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
+        return None
     return df_norm
 
 

@@ -51,15 +51,21 @@ class YAMLDirective(Directive):
 
     has_content = True
     required_arguments = 0
-    optional_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = False
 
+    option_spec = {
+        'options': directives.unchanged
+    }
     def __init__(self, name, arguments, options, content, lineno,
                  content_offset, block_text, state, state_machine):
-        config, content = self._parse_config(content)
+
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
             block_text, state, state_machine)
+
+        config = yaml.safe_load(self.options.get('options', '')) or {}
+
         if 'configure' in config:
             self.CONFIG.clear()
             self.CONFIG.update(config['configure'])
@@ -77,12 +83,23 @@ class YAMLDirective(Directive):
 
     @staticmethod
     def _parse_config(content):
-        content = [line for line in content]
+        lines = [line for line in content]
+        groups = []
+        group = []
+        for line in content:
+            group.append(line)
+            if line.strip() == '':
+                groups.append(group)
+                group = []
+        if group:
+            groups.append(group)
+        print(groups)
+        lines = [line for line in content]
         events = []
         config = {}
         try:
             mappings = 0
-            for event in yaml.parse('\n'.join(content)):
+            for event in yaml.parse('\n'.join(lines)):
                 if isinstance(event, yaml.events.MappingStartEvent):
                     mappings += 1
                 if isinstance(event, yaml.events.MappingEndEvent):
@@ -103,9 +120,10 @@ class YAMLDirective(Directive):
                     pass
             config = yaml.safe_load(yaml.emit(events))
             if isinstance(config, dict):
-                content = content[line:]
+                lines = lines[line:]
             else:
                 config = {}
+        content = lines
 
         return config, content
 

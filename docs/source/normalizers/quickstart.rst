@@ -1,21 +1,22 @@
 .. include:: ../defs.rst
 
 .. ipython::
-    configure:
-        dataframe:
-            formatters:
-                float64: '{:.05f}'
-            index: yes
-            dtypes:
-                speaker: str
-                vowel: str
-        before: |
-            import matplotlib
-            matplotlib.use("agg")
-            import pandas as pd
-            from vlnm import normalize
-    hidden: yes
-    path: '{root}/source/_data'
+    :options:
+        configure:
+            dataframe:
+                formatters:
+                    float64: '{:.05f}'
+                index: yes
+                dtypes:
+                    speaker: str
+                    vowel: str
+            before: |
+                import matplotlib
+                matplotlib.use("agg")
+                import pandas as pd
+                from vlnm import normalize
+        hidden: yes
+        path: '{root}/source/_data'
 
     pb_df = pd.read_csv('pb1952.csv')
     csv_df = pb_df[['speaker', 'vowel', 'f0', 'f1']]
@@ -41,6 +42,17 @@ and |vlnm| can be imported by
 in the first `cell`:
 
 
+.. ipython::
+    :options:
+        hidden: yes
+
+    import os
+    with Shell.chdir(Shell.tmpdir):
+        Shell.copy(
+            [Sphinx.confdir, '_data', 'pb1952.csv'],
+            'pb1952.csv')
+        df = pd.read_csv('pb1952.csv')
+        df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
 
 Normalizing a CSV file
 ----------------------
@@ -53,26 +65,30 @@ called :csv:`vowels.csv` as a comma separated file
 with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
 which starts with the following data:
 
-.. ipython::
-
-    import os
-    with Shell.chdir(Shell.tmpdir):
-        Shell.copy(
-            [Sphinx.confdir, '_data', 'pb1952.csv'],
-            'pb1952.csv')
-        df = pd.read_csv('pb1952.csv')
-        df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
 
 .. ipython::
-    path: '{tmpdir}'
+    :options:
+        path: '{tmpdir}'
+
+    from vlnm import preview
+    preview('vowels.csv', n=6)
+
+
+.. ipython::
+    :options:
+        path: '{tmpdir}'
 
     from vlnm import normalize
-    normalize('vowels.csv', 'normalize.csv', method='lobanov')
-    pd.read_csv('normalize.csv').head()
+    normalize('vowels.csv', 'normalized.csv', method='lobanov')
 
 Which will produce a file ``normalized.csv`` including
 the following data:
 
+.. ipython::
+    :options:
+        path: '{tmpdir}'
+
+    preview('normalized.csv', n=6)
 
 Although it is worth noting, that in Jupyter
 the file can be previewed a bit more prettily
