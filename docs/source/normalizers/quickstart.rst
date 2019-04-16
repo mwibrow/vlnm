@@ -55,10 +55,10 @@ which starts with the following data:
 
 .. ipython::
 
-    import os, shutil
+    import os
     with Shell.chdir(Shell.tmpdir):
-        shutil.copy(
-            os.path.join(Sphinx.confdir, '_data', 'pb1952.csv'),
+        Shell.copy(
+            [Sphinx.confdir, '_data', 'pb1952.csv'],
             'pb1952.csv')
         df = pd.read_csv('pb1952.csv')
         df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)

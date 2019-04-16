@@ -6,6 +6,7 @@ from contextlib import contextmanager, closing, redirect_stderr, redirect_stdout
 from io import StringIO
 import os
 import re
+import shutil
 import tempfile
 
 from IPython import InteractiveShell
@@ -108,6 +109,15 @@ class JupyterShell:
         finally:
             if newdir != curdir:
                 os.chdir(curdir)
+
+    @staticmethod
+    def copy(source, destination):
+        """Copy a file."""
+        if isinstance(source, (list, tuple)):
+            source = os.path.join(*source)
+        if isinstance(destination, (list, tuple)):
+            destination = os.path.join(*destination)
+        shutil.copy(source, destination)
 
 
 def get_shell():
