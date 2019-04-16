@@ -14,11 +14,14 @@
             matplotlib.use("agg")
             import pandas as pd
             from vlnm import normalize
+        path: '{tmpdir}'
     hidden: yes
-    path: '{root}/source/_data'
 
-    pb_df = pd.read_csv('pb1952.csv')
-    csv_df = pb_df[['speaker', 'vowel', 'f0', 'f1']]
+    Shell.copy(
+        [Sphinx.confdir, '_data', 'pb1952.csv'],
+        'pb1952.csv')
+    df = pd.read_csv('pb1952.csv')
+    df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
 
 .. _section_normalization_quickstart:
 
@@ -41,17 +44,6 @@ and |vlnm| can be imported by
 in the first `cell`:
 
 
-.. ipython::
-    hidden: yes
-
-    import os
-    with Shell.chdir(Shell.tmpdir):
-        Shell.copy(
-            [Sphinx.confdir, '_data', 'pb1952.csv'],
-            'pb1952.csv')
-        df = pd.read_csv('pb1952.csv')
-        df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
-
 Normalizing a CSV file
 ----------------------
 
@@ -65,14 +57,12 @@ which starts with the following data:
 
 
 .. ipython::
-    path: '{tmpdir}'
 
     from vlnm import preview
     preview('vowels.csv', n=6)
 
 
 .. ipython::
-    path: '{tmpdir}'
 
     from vlnm import normalize
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
@@ -81,7 +71,6 @@ Which will produce a file ``normalized.csv`` including
 the following data:
 
 .. ipython::
-    path: '{tmpdir}'
 
     preview('normalized.csv', n=6)
 

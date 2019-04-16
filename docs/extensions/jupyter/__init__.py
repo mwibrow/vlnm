@@ -196,6 +196,13 @@ class JupyterDirective(YAMLDirective):
         node += docutils.nodes.literal(text, text)
         return node
 
+    def normalize_path(self, path):
+        path = path or os.getcwd()
+        path = path.replace('{root}', os.getcwd())
+        path = path.replace('{conf}', self.state.document.settings.env.app.confdir)
+        path = path.replace('{tmpdir}', self.shell.tmpdir)
+        return path
+
     def run(self):
         options = self.options
         code = u'\n'.join(line for line in self.content).strip()
@@ -227,10 +234,11 @@ class JupyterDirective(YAMLDirective):
         if 'before' in options:
             self.shell.run_cell(options['before'], silent=True)
 
-        path = options.get('path', os.getcwd()) or os.getcwd()
-        path = path.replace('{root}', os.getcwd())
-        path = path.replace('{conf}', self.state.document.settings.env.app.confdir)
-        path = path.replace('{tmpdir}', self.shell.tmpdir)
+        if 'chdir' in options:
+            chdir = self.normalize_path(options['chdir'])
+            self.CONFIG.update(path=chdir)
+            self.options['path'] = chdir
+        path = self.normalize_path(options.get('path'))
 
         with cd(path):
             exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
