@@ -65,3 +65,35 @@ code.py-obj {
     content: "'";
   }
 }
+
+h1 {
+  a.reference {
+    text-decoration: none !important;
+    border: none;
+  }
+  code,
+  code.xref {
+    background-color: rgba(0, 0, 0, 0.0625);
+    border-left: 0.25em solid rgba(0, 0, 0, 0.0625);
+    border-radius: 0;
+    border-bottom: none;
+    padding: 0.125em 0.5em 0.125em 0.333em;
+  }
+}
+dl.function,
+dl.class {
+  hyphens: none !important;
+  margin-top: 2rem;
+  &:first-child {
+    margin-top: 0;
+  }
+  dt {
+    hyphens: none !important;
+    background-color: rgba(0, 0, 0, 0.0625);
+    padding: 0.25rem 0.125rem 0.375rem 0.5rem;
+    border-left: 5px solid rgba(0, 0, 0, 0.0625);
+    padding-left: 2.5rem;
+    text-indent: -2rem;
+    margin-bottom: 0.5rem;
+  }
+}

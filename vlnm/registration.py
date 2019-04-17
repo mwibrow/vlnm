@@ -1,5 +1,7 @@
 """
-Helper functions.
+The :mod:`vlnm.registration` module implements
+helper functions for documenting normalizer classes
+and registering them for use with the :func:`normalize` function.
 """
 
 from typing import Dict, List
@@ -9,38 +11,59 @@ from .utils import nameify
 NORMALIZERS = {}
 
 
-def register_normalizer(cls, *aliases: str, index: Dict = None):
+def register_normalizer(klass, name: str, index: Dict = None):
     """Register a normalizer to be used with the normalize function.
 
     Parameters
     ----------
-    cls:
+    klass: :class:`Normalizer`
         A normalizer class.
-    *aliases:
-        Names that can be used to refer to access the class in the
+    name:
+        Name that can be used to refer to access the class in the
         :func:`.get_normalizer` function.
     index:
         A dictionary in which the normalizer class will be registered.
         If omitted, the global index will be used.
+
+    Returns
+    -------
+        A decorator function.
+
+    Example
+    -------
+
+    .. ipython::
+        run: no
+
+        class CustomNormalizer(Normalizer):
+            # Custom normalizer definition.
+
+        register_normalizer(CustomNormalizer, 'custom-normalizer')
+
     """
     index = NORMALIZERS if index is None else index
-    for alias in aliases:
-        index[alias] = cls
+    index[name] = klass
 
 
 def register(name: str):
     """Decorator for registering a normalizer class.
 
-    Parameters:
+    Parameters
+    ----------
         name:
             The name to use for the class.
             Internally, the :func:`.register_normalizer`
-            function is called:
+            function is called.
+
+    Returns
+    -------
+         A decorator function.
 
     Example
     -------
 
-    .. code::
+    .. ipython::
+        run: no
 
         @register('custom-normalizer')
         class CustomNormalizer(Normalizer):
@@ -62,14 +85,30 @@ def classify(vowel: str = None, formant: str = None, speaker: str = None):
 
     This is used solely for documenting normalizers.
 
+    Parameters
+    ----------
+        vowel:
+            One of ``intrinsic`` or ``extrinsic``.
+        formant:
+            One of ``intrinsic`` or ``extrinsic``
+        speaker:
+            One of ``intrinsic`` or ``extrinsic``
+
+    Returns
+    -------
+        A decorator function.
+
     Example
     -------
 
-    .. code::
+    .. ipython::
+        run: no
+        before: from vlnm.registration import classify
 
         @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
         class WattFabriciusNormalizer(CentroidNormalizer):
             # Rest of definition.
+
     """
     def _decorator(cls):
         setattr(cls, 'classify', dict(
@@ -92,6 +131,16 @@ def get_normalizer(name: str, index: Dict = None):
     Returns
     -------
         The normalizer class.
+
+    Example
+    -------
+
+    .. ipython::
+        before: from vlnm.registration import get_normalizer
+
+        nrm = get_normalizer('lobanov')
+        print(nrm)
+
     """
     index = index or NORMALIZERS
     index_lower = {key.lower(): key for key in index}
@@ -117,18 +166,32 @@ def get_normalizer(name: str, index: Dict = None):
     raise ValueError('No normalizer specified')
 
 
-def list_normalizers(index: Dict = None) -> List[str]:
-    """Return a list of normalizers.
+def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
+    """Return a list of available normalizers.
 
     Parameters
     ----------
-    register:
+    sorted:
+        Whether to sort the list by alphabetical order
+    index:
         The register in which the normalizer was registered.
         If omitted, the global register will be used.
 
     Returns
     -------
+        :
         A list of the names for the available normalizers.
+
+    Example
+    -------
+
+    .. ipython::
+
+        from vlnm.registration import list_normalizers
+        list_normalizers()
+
     """
     index = index if index is not None else NORMALIZERS
+    if sort:
+        return sorted(list(index.keys()))
     return list(index.keys())
