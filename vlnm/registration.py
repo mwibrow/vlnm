@@ -11,7 +11,7 @@ from .utils import nameify
 NORMALIZERS = {}
 
 
-def register_normalizer(klass, name: str, index: Dict = None):
+def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
     """Register a normalizer to be used with the normalize function.
 
     Parameters

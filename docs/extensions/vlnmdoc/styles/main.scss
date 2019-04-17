@@ -67,7 +67,7 @@ code.py-obj {
   }
 }
 
-h1 {
+h1, h2, h3 {
   a.reference {
     text-decoration: none !important;
     border: none;
@@ -106,6 +106,16 @@ dl.class {
       text-decoration: none;
       border-bottom: none;
     }
+  }
+}
+
+dl.field-list.simple {
+  dt {
+    background-color: transparent !important;
+    border: none;
+    padding: 0;
+    text-indent: 0;
+    margin-bottom: 0;
   }
 }
 
