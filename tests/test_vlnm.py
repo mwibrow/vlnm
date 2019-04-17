@@ -6,9 +6,8 @@ from io import StringIO
 import os
 import unittest
 
-from vlnm import (
-    normalize,
-    read_csv)
+from pandas import read_csv
+from vlnm import normalize
 from vlnm import register_normalizer
 from vlnm.normalizers.speaker import LobanovNormalizer
 
@@ -60,31 +59,4 @@ class TestNormalize(unittest.TestCase):
         output = StringIO()
         normalize(self.df, output, method='lobanov')
         actual = output.getvalue().split('\n')[0].split(',')
-        self.assertListEqual(actual, expected)
-
-
-class TestReadCSV(unittest.TestCase):
-    """
-    Tests for the read_csv function.
-    """
-
-    def test_read(self):
-        """
-        Read file with path.
-        """
-        expected = ['speaker', 'f1', 'f2', 'vowel']
-        df = read_csv(os.path.join(
-            ROOT, 'fixtures', 'hawkins_midgely_2005.csv'))
-        actual = list(df.columns)
-        self.assertListEqual(actual, expected)
-
-    def test_read_data_dir(self):
-        """
-        Read file with data_dir.
-        """
-        expected = ['speaker', 'f1', 'f2', 'vowel']
-        df = read_csv(
-            'hawkins_midgely_2005.csv',
-            data_dir=os.path.join(ROOT, 'fixtures'))
-        actual = list(df.columns)
         self.assertListEqual(actual, expected)

@@ -2,8 +2,10 @@
 VLNM module
 ~~~~~~~~~~~
 """
-from itertools import islice
+
+import io
 import os
+from typing import Union
 import sys
 
 import pandas as pd
@@ -12,6 +14,8 @@ from vlnm.registration import (
     get_normalizer,
     list_normalizers,
     register_normalizer)
+
+from vlnm.normalizers.base import Normalizer
 
 from vlnm.normalizers.centroid import (
     WattFabricius1Normalizer,
@@ -35,60 +39,28 @@ from vlnm.normalizers.formant import (
 from vlnm.normalizers.vowel import (
     BarkDifferenceNormalizer)
 
-DATA_DIR = ''
 
-
-def read_csv(data, *args, **kwargs):
-    """Read a csv file.
-
-    Parameters
-    ----------
-
-    data : :obj:`str` or :obj:`File`
-        A path to a file containing the data,
-        a file handle to an open file containing the data.
-
-    *args :
-        Passed on to `pandas.read_csv`.
-
-    Keywords
-    --------
-
-    **kwargs :
-        Passed on to `pandas.read_csv`.
-
-    Returns
-    -------
-
-    An instance of `pandas.DataFrame`.
-
-    """
-    data_dir = kwargs.pop('data_dir', DATA_DIR)
-    if data_dir:
-        return pd.read_csv(os.path.join(data_dir, data), *args, **kwargs)
-    return pd.read_csv(data, *args, **kwargs)
-
-
-def normalize(data, file_out=None, method='default', sep=',', **kwargs):
+def normalize(
+        data: Union[str, io.TextIOWrapper, pd.DataFrame],
+        file_out: Union[str, io.TextIOWrapper] = None,
+        method: str = 'default',
+        sep: str = ',', **kwargs):
     """Normalize vowel data in a pandas dataframe.
 
     Parameters
     ----------
 
-    data : :obj:`str` or :obj:`File` or :obj:`DataFrame`
+    data:
         A path to a file containing the data,
         a file handle to an open file containing the data,
-        or a data-frame containing the data
-
-    Keywords
-    --------
-    file_out : obj:`str` or obj:`File`
+        or a data-frame containing the data.
+    file_out:
         If specified, a file path or a file handle
         to which the output data will be saved (using `DataFrame.to_csv`).
-    method : :obj:`str`
+    method:
         The name of a normalization method.
         Method names can be found using the `list_normalizer` function.
-    sep : :obj:`str`
+    sep:
         The column separator in a file.
     **kwargs :
         Other keyword arguments passed on to the normalizer class.
@@ -98,7 +70,7 @@ def normalize(data, file_out=None, method='default', sep=',', **kwargs):
         A `DataFrame` containing the normalized data.
     """
     try:
-        df = read_csv(data, sep=sep, header=0)
+        df = pd.read_csv(data, sep=sep, header=0)
     except (TypeError, ValueError):
         df = data
 

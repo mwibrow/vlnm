@@ -2,14 +2,14 @@
 Helper functions.
 """
 
-from typing import Dict, List, Type
+from typing import Dict, List
 
 from .utils import nameify
 
 NORMALIZERS = {}
 
 
-def register_normalizer(cls: Type['Normalizer'], *aliases: str, index: Dict = None):
+def register_normalizer(cls, *aliases: str, index: Dict = None):
     """Register a normalizer to be used with the normalize function.
 
     Parameters
@@ -78,8 +78,8 @@ def classify(vowel: str = None, formant: str = None, speaker: str = None):
     return _decorator
 
 
-def get_normalizer(name: str, index: Dict = None) -> Type['Normalizer']:
-    """Return a normalizer.
+def get_normalizer(name: str, index: Dict = None):
+    """Return a normalizer class.
 
     Parameters
     ----------

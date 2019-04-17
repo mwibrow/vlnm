@@ -48,7 +48,6 @@ in the first cell:
 
     import vlnm
 
-
 Unless otherwise stated the data used in these examples
 is based on :citet:`peterson_barney_1952` which
 was extraced from :citet:`boersma_weenink_2018`.
@@ -57,14 +56,13 @@ was extraced from :citet:`boersma_weenink_2018`.
 Normalizing a CSV file
 ----------------------
 
-In perhaps the simplest case, |vlnm| can be used to normalize
-a CSV file containing the vowel data.
-
-Given a CSV file
-called :csv:`vowels.csv`
-with the columns :col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`,
-which - in its raw form - might start off looking like this:
-
+In perhaps the simplest case, |vlnm| can be used to
+normlize a CSV file containing the vowel data.
+This CSV file could contain many columns, but for simplicity,
+it is assumed the file has the columns
+:col:`speaker`, :col:`vowel`, :col:`f1` and :col:`f2`.
+The first few lines of the file can be previewed as
+follows:
 
 .. ipython::
 
@@ -73,23 +71,33 @@ which - in its raw form - might start off looking like this:
             print(next(csv_file), end='')
 
 
-However, it is worth noting, however that in Jupyter
+However, it is worth noting that in Jupyter,
 CSV files can can be previewed a bit more prettily
 using a |pandas| DataFrame:
 
 .. ipython::
 
+    import pandas as pd
     pd.read_csv('vowels.csv').head()
 
 
 To normalize the formant data in this CSV file
-according to :citet:`lobanov_1971`
-and automatically save to a new file :csv:`normalized.csv`,
-the ``normalize`` function can be used:
+the ``normalize`` function can be used, which
+is imported using the following code:
 
 .. ipython::
 
     from vlnm import normalize
+
+To normalize the file :csv:`vowels.csv`
+according to :citet:`lobanov_1971`
+and automatically save to a new file :csv:`normalized.csv`,
+the ``normalize`` function can be used.
+This can be imported using the following code:
+
+
+.. ipython::
+
     normalize('vowels.csv', 'normalized.csv', method='lobanov')
 
 Which will produce a file ``normalized.csv`` including
@@ -129,6 +137,26 @@ created using the
 Normalizing a DataFrame
 -----------------------
 
+In many cases, some pre-processing of the CSV file could
+be required, in which case it is easier to load the CSV
+file
+.. ipython::
+
+    import pandas as pd
+    df = pd.read_csv('vowels.csv')
+    # Do something with the dataframe.
+    ndf = normalize(df, method='lobanov')
+    ndf.head()
+
 
 Using |vlnm| Python classes
 ---------------------------
+
+
+Tab-delmited and whitespace delimited files can be loaded by specifying the ``sep`` keyword
+with ``sep=r'`t'`` for tab
+Note that files are always saved as CSV files.
+To save normalized data with a different delimiter
+
+.. ipython::
+    run: no

@@ -23,7 +23,19 @@ coincidental: normalizers have been more-or-less logically
 grouped, but the names of the modules should not be taken to
 indiciate any accepted classification of normalizers in the literature.
 
+:mod:`vlnm`
+-----------------------
+.. toctree::
+   :maxdepth: 1
 
+   vlnm
+
+:mod:`vlnm.registration`
+------------------------
+.. toctree::
+   :maxdepth: 1
+
+   registration
 
 :mod:`vlnm.normalizers`
 -----------------------
