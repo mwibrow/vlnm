@@ -33,13 +33,22 @@ class AuthorYearFormatter(Formatter):
 
     @staticmethod
     def online_template():
-        """Tempalte for an online reference."""
+        """Template for an online reference."""
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             title,
             'Online resource:',
             url[join[field['url']]],
-            join['(accessed ', field['accessed'], ')']
+            join['(accessed ', field['accessed'], ').']
+        ]
+
+    @staticmethod
+    def software_template():
+        """Template for software reference."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            join[emph[field['title']], ', ', join['version ', field['version']]],
+            join['(', url[join[field['url']]], ' accessed ', field['accessed'], ').']
         ]
 
     @staticmethod

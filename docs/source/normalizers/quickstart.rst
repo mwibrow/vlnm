@@ -41,7 +41,17 @@ Python can be automatically run by
 `starting a new notebook <https://jupyter.readthedocs.io/en/latest/running.html>`_
 and |vlnm| can be imported by
 `running code <https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Running%20Code.html>`_
-in the first `cell`:
+in the first cell:
+
+.. ipython::
+    run: no
+
+    import vlnm
+
+
+Unless otherwise stated the data used in these examples
+is based on :citet:`peterson_barney_1952` which
+was extraced from :citet:`boersma_weenink_2018`.
 
 
 Normalizing a CSV file
