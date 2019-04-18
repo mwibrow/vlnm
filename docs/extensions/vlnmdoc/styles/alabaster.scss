@@ -1,10 +1,7 @@
-
-
 body {
   background-color: $md-white;
   color: $md-black;
 }
-
 
 /* Fix bullets in sidebar navigation */
 
@@ -18,7 +15,7 @@ li.toctree-l2 {
   ::before {
     content: "\2022";
     color: $md-grey-900;
-    @include media('<=tablet') {
+    @include media("<=tablet") {
       color: $md-white;
     }
     font-weight: bold;
@@ -36,9 +33,8 @@ a {
   }
 }
 
-div.sphinxsidebar  {
-
-  @include media ('<=tablet') {
+div.sphinxsidebar {
+  @include media("<=tablet") {
     color: $md-white;
     background-color: $md-blue-grey-900;
     a {
@@ -48,7 +44,8 @@ div.sphinxsidebar  {
       color: $md-white;
     }
   }
-
 }
 
-
+div.body {
+  min-width: initial !important;
+}

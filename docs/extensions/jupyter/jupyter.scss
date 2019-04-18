@@ -6,11 +6,17 @@
   }
 }
 
-div.jupyter-block.line-block {
-  width: 100%;
-  margin-left: 0 !important;
-  display: flex;
-  flex-direction: row;
+div {
+  .jupyter-block.line-block,
+  .jupyter-container.line-block {
+    width: 100%;
+    max-width: calc(100vw - 60px);
+    overflow-x: auto;
+    margin-left: 0 !important;
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+  }
 }
 
 div.jupyter-history.line-block {
@@ -40,12 +46,6 @@ div.jupyter-history.jupyter-error.line-block {
       color: #d32f2f !important;
     }
   }
-}
-
-div.jupyter-container.line-block {
-  display: flex;
-  flex-grow: 1;
-  margin-left: 0;
 }
 
 div.jupyter-output {
