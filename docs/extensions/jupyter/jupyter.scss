@@ -1,21 +1,21 @@
 .jupyter {
   margin-top: 0.5rem !important;
   margin-bottom: 1rem !important;
-  div.line-block {
-    margin-left: 0 !important;
-  }
-}
+  div {
+    &.line-block {
+      margin-left: 0 !important;
+    }
 
-div {
-  .jupyter-block.line-block,
-  .jupyter-container.line-block {
-    width: 100%;
-    max-width: calc(100vw - 60px);
-    overflow-x: auto;
-    margin-left: 0 !important;
-    display: flex;
-    flex-direction: row;
-    padding: 0;
+    &.jupyter-block.line-block,
+    &.jupyter-container.line-block {
+      width: 100%;
+      max-width: calc(100vw - 60px);
+      overflow-x: auto;
+      margin-left: 0 !important;
+      display: flex;
+      flex-direction: row;
+      padding: 0;
+    }
   }
 }
 
@@ -130,28 +130,4 @@ div.jupyter-cell {
 .jupyter-output.jupyter-error .highlight pre span {
   color: #d32f2f !important;
   font-style: italic;
-}
-
-.jupyter-terminal.highlight-bash {
-  width: 100%;
-}
-.jupyter-terminal .highlight pre {
-  background-color: #263238 !important;
-  padding: 0.25rem 0.5rem !important;
-  border-radius: 2px;
-  color: #eceff1 !important;
-  span {
-    color: #eceff1 !important;
-  }
-}
-
-.jupyter {
-  &.csv {
-    .jupyter-stdout {
-      width: 100%;
-      .highlight pre {
-        background-color: #e7e7e7 !important;
-      }
-    }
-  }
 }
