@@ -140,6 +140,7 @@ Normalizing a DataFrame
 In many cases, some pre-processing of the CSV file could
 be required, in which case it is easier to load the CSV
 file
+
 .. ipython::
 
     import pandas as pd

@@ -27,8 +27,8 @@ div.jupyter-history.line-block {
   margin-top: calc(0.25rem + 1px);
   flex-shrink: 0;
 
-  &.jupyter-cell-counts {
-    width: 9ex;
+  &.jupyter-cell-counts code .pre {
+    color: #303f9f !important;
   }
 
   code {

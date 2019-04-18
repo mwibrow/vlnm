@@ -95,52 +95,6 @@ class YAMLDirective(Directive):
                 destination[key] = value
         return destination
 
-    @staticmethod
-    def _parse_config(content):
-        lines = [line for line in content]
-        groups = []
-        group = []
-        for line in content:
-            group.append(line)
-            if line.strip() == '':
-                groups.append(group)
-                group = []
-        if group:
-            groups.append(group)
-        print(groups)
-        lines = [line for line in content]
-        events = []
-        config = {}
-        try:
-            mappings = 0
-            for event in yaml.parse('\n'.join(lines)):
-                if isinstance(event, yaml.events.MappingStartEvent):
-                    mappings += 1
-                if isinstance(event, yaml.events.MappingEndEvent):
-                    mappings -= 1
-                events.append(event)
-        except yaml.scanner.ScannerError:
-            for _ in range(mappings):
-                events.append(yaml.events.MappingEndEvent())
-            events.append(yaml.events.DocumentEndEvent())
-            events.append(yaml.events.StreamEndEvent())
-        if events:
-            line = 0
-            for event in events[-1::-1]:
-                try:
-                    line = event.end_mark.line + 1
-                    break
-                except AttributeError:
-                    pass
-            config = yaml.safe_load(yaml.emit(events))
-            if isinstance(config, dict):
-                lines = lines[line:]
-            else:
-                config = {}
-        content = lines
-
-        return config, content
-
     @abc.abstractmethod
     def run(self):
         """Subclasses to override."""
@@ -166,7 +120,7 @@ class JupyterDirective(YAMLDirective):
             return f'{prefix}:'
         return ''
 
-    def history_node(self, prefix='', empty=False, classes=None):
+    def history_node(self, empty=False, classes=None):
         options = self.options
         config = self.state.document.settings.env.config
 
@@ -177,18 +131,13 @@ class JupyterDirective(YAMLDirective):
         if not history:
             return None
 
-        cell_counts = config.jupyter_cell_counts
-        if options.get('cell-counts') is not None:
-            cell_counts = cell_counts and options.get('cell-counts')
-
         classes = ['jupyter-history'] + (classes or [])
-        if prefix and not empty:
-            if history:
-                classes.append('jupyter-history')
-                text = f'{prefix}:'
-            if cell_counts:
+
+        if not empty:
+            cell_count = self.options.get('cell_count', self.shell.get_cell_count() or 1)
+            if cell_count:
                 classes.append('jupyter-cell-counts')
-                text = f'{prefix}:[{self.shell.get_cell_count()}]'
+                text = f'[{cell_count}]'
         else:
             text = ''
 
@@ -246,13 +195,11 @@ class JupyterDirective(YAMLDirective):
         if 'hidden' in options:
             return []
 
-        cell_count = self.shell.get_cell_count()
-
         if 'code' not in hide:
             node = docutils.nodes.literal_block(code, code, classes=['jupyter-cell'])
             node['language'] = 'python'
             block = self.jupyter_block(
-                history=self.history_node('In ', cell_count),
+                history=self.history_node(),
                 children=[node])
             parent += block
 
@@ -269,7 +216,7 @@ class JupyterDirective(YAMLDirective):
                 node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-stdout'])
                 node['language'] = 'ansi-color'
                 block = self.jupyter_block(
-                    history=self.history_node('Out', cell_count, classes=['jupyter-error']),
+                    history=self.history_node(classes=['jupyter-error']),
                     children=[node])
                 parent += block
             else:
@@ -279,7 +226,7 @@ class JupyterDirective(YAMLDirective):
                         stdout, stdout, classes=['jupyter-stdout'])
                     node['language'] = self.options.get('highlight-output', 'none')
                     output += self.jupyter_block(
-                        history=self.history_node('', empty=True), children=[node])
+                        history=self.history_node(empty=True), children=[node])
                 if nodes:
                     output += self.jupyter_block(
                         history=self.history_node('Out'),
