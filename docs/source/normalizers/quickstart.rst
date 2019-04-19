@@ -50,7 +50,7 @@ in the first cell:
 
 Unless otherwise stated the data used in these examples
 is based on :citet:`peterson_barney_1952` which
-was extraced from :citet:`boersma_weenink_2018`.
+was extraced from PRAAT :citep:`boersma_weenink_2018`.
 
 
 Normalizing a CSV file
@@ -107,8 +107,25 @@ the following data:
 
     pd.read_csv('normalized.csv').head()
 
-As this overwrites the existing
-columns :col:`f1` and :col:`f2`,
+
+Instead of two file names, one (or both) of the file arguments
+to the :func:`normalize` function can be a
+`file object <https://docs.python.org/3/glossary.html#term-file-object>`_
+created using the
+`open() function <https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files>`_:
+
+.. ipython::
+    run: no
+
+    with open('vowels.csv') as csv_in, open('normalized.csv', 'w') as csv_out:
+        normalize(csv_in, csv_out, method='lobanov')
+
+
+Renaming columns
+^^^^^^^^^^^^^^^^
+By default, most normalizers will happily overwrite
+existing formant columns. If the original columns
+should be retained,
 the normalized data can be written to new columns using the
 :arg:`rename` argument:
 
@@ -121,43 +138,102 @@ This will create new columns :col:`f1_N` and :col:`f2_N` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
 
+Tab and whitespace delimited files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Finally, one (or both) of the file arguments can be a
-`file object <https://docs.python.org/3/glossary.html#term-file-object>`_
-created using the
-`open() function <https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files>`_:
-
+Tab-delmited and whitespace delimited files can be normalzied by
+using the ``sep`` keyword:
 
 .. ipython::
     run: no
 
-    with open('vowels.csv') as csv_in, open('normalized.csv', 'w') as csv_out:
-        normalize(csv_in, csv_out, method='lobanov')
+    # Tab-delimited columns
+    normalize('vowels.csv', 'normalized.csv', sep=r'\t', method='lobanov')
+
+    # Whitespace delimited columns
+    normalize('vowels.csv', 'normalized.csv', sep=r'\s+', method='lobanov')
+
+Note that files will always be saved as comma separated files.
+If greater flexibility is required saving (or loading)
+vowel data, then the data should be loaded into
+a |Pandas| Dataframe as shown below
+(this is actually what |vlnm| does internally).
+
+Passing arguments to a normalizer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Arguments can be passed to a normalizer using addition keyword
+arguments in the :func:`normalizer` function.
+For example, the :class:`LobanovNormalizer` class
+assumes the speaker labels are
+in a column named :col:`speaker`.
+If the speaker labels are in a different column,
+for example, :col:`Talker` then this can be passed
+to the normalizer as follows:
+
+.. ipython::
+    run: no
+
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', speaker='Talker')
+
+Keyword arguments for each normalizer are described
+in the :ref:`section_normalization_api`.
+
+
 
 Normalizing a DataFrame
 -----------------------
 
 In many cases, some pre-processing of the CSV file could
 be required, in which case it is easier to load the CSV
-file
+file into a Dataframe using the ``read_csv`` function from the
+|Pandas| package. This provides considerably more
+flexibility regarding the file format, along
+with selection of columns, handling of null values and so on
+(for details see the Pandas `documentation <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html>`_).
+
+To normalize the formant data in the Dataframe,
+simply pass the variable containing the data
+to the first argument of the :func:`normalize` function:
 
 .. ipython::
 
-    import pandas as pd
+    import pandas as pd # If this hasn't been imported before.
     df = pd.read_csv('vowels.csv')
-    # Do something with the dataframe.
-    ndf = normalize(df, method='lobanov')
-    ndf.head()
+    norm_df = normalize(df, method='lobanov')
+
+The file can be saved using the
+``to_csv`` method:
+
+.. ipython::
+
+    norm_df.to_csv('normalized.csv', index=False)
+
+(Note that ``index=False`` is added to avoid the row numbers
+saved to the file, along witht the normalized data.)
+
 
 
 Using |vlnm| Python classes
 ---------------------------
 
+The :func:`normalize` function is a wrapper around
+the normalizer classes. For example,
+|vlnm| recognizes that the argument ``method='lobanoc'``
+corresponds to the :class:`LobanovNormalizer` class.
 
-Tab-delmited and whitespace delimited files can be loaded by specifying the ``sep`` keyword
-with ``sep=r'`t'`` for tab
-Note that files are always saved as CSV files.
-To save normalized data with a different delimiter
+It is perfectly possibly to use these classes directly
+and it may be easier to do so, if comparing several
+normalizers. To use the class it must be imported
+first and instantiated. All normalizer classes
+have a ``normalize`` method whose first argument
+is a Dataframe:
 
 .. ipython::
-    run: no
+
+    from vlnm import LobanovNormalizer
+
+    norm = LobanovNormalizer(rename='{}_N')
+    df = pd.read_csv('vowels.csv')
+    norm_df = norm.normalize(df)
+    norm_df.head()

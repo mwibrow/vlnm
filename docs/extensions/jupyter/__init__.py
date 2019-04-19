@@ -53,24 +53,6 @@ class YAMLDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = False
 
-    @staticmethod
-    def _parse_block_text(block_text):
-        lines = block_text.split('\n')[1:]
-        config, content = [], []
-        target = config
-        for line in lines:
-            if line.strip() == '':
-                target.append(line)
-                target = content
-            else:
-                target.append(line)
-
-        config = textwrap.dedent('\n'.join(config))
-        content = textwrap.dedent('\n'.join(content)).split('\n')
-
-        config = yaml.safe_load(config) or {}
-        return config, content
-
     def __init__(self, name, arguments, options, content, lineno,
                  content_offset, block_text, state, state_machine):
 
@@ -95,6 +77,24 @@ class YAMLDirective(Directive):
                 destination[key] = value
         return destination
 
+    @staticmethod
+    def _parse_block_text(block_text):
+        lines = block_text.split('\n')[1:]
+        config, content = [], []
+        target = config
+        for line in lines:
+            if line.strip() == '':
+                target.append(line)
+                target = content
+            else:
+                target.append(line)
+
+        config = textwrap.dedent('\n'.join(config))
+        content = textwrap.dedent('\n'.join(content)).split('\n')
+
+        config = yaml.safe_load(config) or {}
+        return config, content
+
     @abc.abstractmethod
     def run(self):
         """Subclasses to override."""
@@ -111,14 +111,6 @@ class JupyterDirective(YAMLDirective):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.shell = get_shell()
-
-    def make_prefix(self, prefix, cell_count):
-        options = self.options
-        if options.get('history'):
-            if options.get('numbers'):
-                return f'{prefix}: [{cell_count}]'
-            return f'{prefix}:'
-        return ''
 
     def history_node(self, empty=False, classes=None):
         options = self.options

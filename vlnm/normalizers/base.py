@@ -75,7 +75,7 @@ class Normalizer:
         """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
-            rename=rename,
+            rename=rename or self.options.get('rename'),
             **{key: value for key, value in kwargs.items()
                if value is not None})
 
