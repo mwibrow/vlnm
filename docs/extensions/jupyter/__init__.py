@@ -4,7 +4,6 @@ Console directive.
 
 import abc
 import base64
-from code import compile_command, InteractiveInterpreter
 from contextlib import closing, contextmanager, redirect_stdout, redirect_stderr
 import copy
 import csv
@@ -16,7 +15,6 @@ import shutil
 import sys
 import textwrap
 import traceback
-from unittest.mock import mock_open, patch
 
 from docutils.parsers.rst import directives, Directive
 import docutils.nodes
@@ -55,12 +53,8 @@ class YAMLDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = False
 
-    option_spec = {
-        'options': directives.unchanged
-    }
-
-    def __init__(self, name, arguments, options, content, lineno,
-                 content_offset, block_text, state, state_machine):
+    @staticmethod
+    def _parse_block_text(block_text):
         lines = block_text.split('\n')[1:]
         config, content = [], []
         target = config
@@ -75,6 +69,12 @@ class YAMLDirective(Directive):
         content = textwrap.dedent('\n'.join(content)).split('\n')
 
         config = yaml.safe_load(config) or {}
+        return config, content
+
+    def __init__(self, name, arguments, options, content, lineno,
+                 content_offset, block_text, state, state_machine):
+
+        config, content = self._parse_block_text(block_text)
 
         super().__init__(
             name, arguments, options, content, lineno, content_offset,
