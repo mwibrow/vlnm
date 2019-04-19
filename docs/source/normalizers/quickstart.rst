@@ -108,8 +108,8 @@ the following data:
     pd.read_csv('normalized.csv').head()
 
 
-Instead of two file names, one (or both) of the file arguments
-to the :func:`normalize` function can be a
+Instead of passing file names to the :func:`normalize` function,
+one (or both) of the arguments can be a
 `file object <https://docs.python.org/3/glossary.html#term-file-object>`_
 created using the
 `open() function <https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files>`_:

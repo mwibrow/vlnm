@@ -4,7 +4,7 @@ helper functions for documenting normalizer classes
 and registering them for use with the :func:`normalize` function.
 """
 
-from typing import Dict, List
+from typing import Dict
 
 from .utils import nameify
 
@@ -136,8 +136,8 @@ def get_normalizer(name: str, index: Dict = None):
     -------
 
     .. ipython::
-        before: from vlnm.registration import get_normalizer
 
+        from vlnm.registration import get_normalizer
         nrm = get_normalizer('lobanov')
         print(nrm)
 
@@ -164,34 +164,3 @@ def get_normalizer(name: str, index: Dict = None):
             'Unknown normalizer {name}'.format(
                 name=nameify([name], quote='\'')))
     raise ValueError('No normalizer specified')
-
-
-def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
-    """Return a list of available normalizers.
-
-    Parameters
-    ----------
-    sorted:
-        Whether to sort the list by alphabetical order
-    index:
-        The register in which the normalizer was registered.
-        If omitted, the global register will be used.
-
-    Returns
-    -------
-        :
-        A list of the names for the available normalizers.
-
-    Example
-    -------
-
-    .. ipython::
-
-        from vlnm.registration import list_normalizers
-        list_normalizers()
-
-    """
-    index = index if index is not None else NORMALIZERS
-    if sort:
-        return sorted(list(index.keys()))
-    return list(index.keys())

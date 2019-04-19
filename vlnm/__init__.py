@@ -5,17 +5,19 @@ VLNM module
 
 import io
 import os
-from typing import Union
+from typing import Dict, List, Optional, Union
 import sys
 
 import pandas as pd
 
 from vlnm.registration import (
+    NORMALIZERS,
     get_normalizer,
-    list_normalizers,
     register_normalizer)
 
-from vlnm.normalizers.base import Normalizer
+from vlnm.normalizers.base import (
+    DefaultNormalizer,
+    Normalizer)
 
 from vlnm.normalizers.centroid import (
     WattFabricius1Normalizer,
@@ -44,30 +46,33 @@ def normalize(
         data: Union[str, io.TextIOWrapper, pd.DataFrame],
         file_out: Union[str, io.TextIOWrapper] = None,
         method: str = 'default',
-        sep: str = ',', **kwargs):
-    """Normalize vowel data in a pandas dataframe.
+        sep: str = ',', **kwargs) -> Optional[pd.DataFrame]:
+    """Normalize vowel data.
 
     Parameters
     ----------
 
     data:
-        A path to a file containing the data,
+        A path to a CSV file containing the data,
         a file handle to an open file containing the data,
-        or a data-frame containing the data.
+        or a Pandas :class:`DataFrame` containing the data.
     file_out:
-        If specified, a file path or a file handle
-        to which the output data will be saved (using `DataFrame.to_csv`).
+        An optional a file path or a file handle
+        to which the output data will be saved (using ``DataFrame.to_csv``).
     method:
         The name of a normalization method.
-        Method names can be found using the `list_normalizer` function.
+        Method names can be found using the :func:`list_normalizers` function.
     sep:
         The column separator in a file.
     **kwargs :
         Other keyword arguments passed on to the normalizer class.
 
 
-    Returns:
-        A `DataFrame` containing the normalized data.
+    Returns
+    -------
+    :
+        If ``file_out`` is not specified, a Pandas :class:`DataFrame`
+        containing the normalized data.
     """
     try:
         df = pd.read_csv(data, sep=sep, header=0)
@@ -87,3 +92,34 @@ def normalize(
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
         return None
     return df_norm
+
+
+def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
+    """Return a list of available normalizers.
+
+    Parameters
+    ----------
+    sorted:
+        Whether to sort the list by alphabetical order
+    index:
+        The register in which the normalizer was registered.
+        If omitted, the global register will be used.
+
+    Returns
+    -------
+    :
+        A list containing the names of the available normalizers.
+
+    Example
+    -------
+
+    .. ipython::
+
+        from vlnm import list_normalizers
+        list_normalizers()
+
+    """
+    index = index if index is not None else NORMALIZERS
+    if sort:
+        return sorted(list(index.keys()))
+    return list(index.keys())

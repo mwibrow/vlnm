@@ -8,6 +8,7 @@ for vowel normalizers as well as the
 so can be used as a control when comparing normalization methods.
 
 """
+import inspect
 from typing import Callable, List, Union
 
 import pandas as pd
@@ -18,6 +19,19 @@ from ..registration import classify, register
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
 
 
+def uninstantiable(cls):
+    def new(klass, *_, **__):
+        if klass == cls:
+            raise TypeError('Class "{}" cannot be instantiated'.format(cls.__name__))
+        obj = object.__new__(klass)
+        return obj
+    cls.__new__ = new
+    cls.__doc__ += '\n\n    `This class can only be instantiated by child classes`.\n'
+    return cls
+
+
+@docstring
+@uninstantiable
 class Normalizer:
     """Base normalizer class.
 
@@ -55,7 +69,7 @@ class Normalizer:
         # Parameters (configuration and options) supplied to _norm method.
         self.params = {}
 
-        self.formants = ['f0', 'f1', 'f2', 'f3']
+        self.formants = ['f{}'.format(i) for i in range(self.MAX_FX)]
 
     def _get_config(self):
         config = {}
@@ -161,6 +175,7 @@ class Normalizer:
 
 
 @docstring
+@uninstantiable
 class FxNormalizer(Normalizer):
     """Base class for normalizers which require specification of individual formants.
 
@@ -213,6 +228,8 @@ class FxNormalizer(Normalizer):
             yield formant_spec
 
 
+@docstring
+@uninstantiable
 class FormantsNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants.
 
@@ -237,6 +254,8 @@ class FormantsNormalizer(Normalizer):
         yield dict(formants=self.formants)
 
 
+@docstring
+@uninstantiable
 class TransformNormalizer(FormantsNormalizer):
     """Base class for normalizers which simply transform formants.
     """
@@ -249,6 +268,8 @@ class TransformNormalizer(FormantsNormalizer):
         return df
 
 
+@docstring
+@uninstantiable
 class FormantsTransformNormalizer(TransformNormalizer):
     """Base clase for normalizers transform each formant independently.
 
@@ -279,6 +300,19 @@ class DefaultNormalizer(FormantsNormalizer):
     {% formants %}
     {% rename %}
 
+    Examples
+    --------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import DefaultNormalizer
+
+        normalizer = DefaultNormalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
 
     def __init__(self, formants: List[str] = None, rename: Union[str, dict] = None):
@@ -289,4 +323,4 @@ class DefaultNormalizer(FormantsNormalizer):
         """
         {% normalize %}
         """
-        super().normalize(df, **kwargs)
+        return super().normalize(df, **kwargs)
