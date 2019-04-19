@@ -31,8 +31,9 @@ from vlnm.normalizers.speaker import (
     GerstmanNormalizer,
     LCENormalizer,
     LobanovNormalizer,
+    NearyExpNormalizer,
     NearyGMNormalizer,
-    ExpNearyNormalizer,
+    NearyGMExpNormalizer,
     NearyNormalizer)
 from vlnm.normalizers.formant import (
     BarkNormalizer,
@@ -101,7 +102,7 @@ def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
 
     Parameters
     ----------
-    sorted:
+    sort:
         Whether to sort the list by alphabetical order
     index:
         The register in which the normalizer was registered.
