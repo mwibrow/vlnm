@@ -2,8 +2,6 @@
 Formant intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Formant intrinsic normalizers normalize
-formant data
 """
 import numpy as np
 
@@ -40,6 +38,19 @@ class BarkNormalizer(FormantsTransformNormalizer):
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
 
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import BarkNormalizer
+
+        normalizer = BarkNormalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(transform=hz_to_bark)
 
@@ -65,6 +76,20 @@ class ErbNormalizer(FormantsTransformNormalizer):
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import ErbNormalizer
+
+        normalizer = ErbNormalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(transform=hz_to_erb)
 
@@ -84,6 +109,20 @@ class Log10Normalizer(FormantsTransformNormalizer):
     ----------
     {% formants %}
     {% rename %}
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import Log10Normalizer
+
+        normalizer = Log10Normalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(transform=np.log10)
 
@@ -103,6 +142,20 @@ class LogNormalizer(FormantsTransformNormalizer):
     ----------
     {% formants %}
     {% rename %}
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import LogNormalizer
+
+        normalizer = LogNormalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(transform=np.log)
 
@@ -128,5 +181,19 @@ class MelNormalizer(FormantsTransformNormalizer):
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import MelNormalizer
+
+        normalizer = MelNormalizer(rename='{}_N')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(transform=hz_to_mel)

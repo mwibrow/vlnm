@@ -10,9 +10,10 @@ import pandas as pd
 
 from ..docstrings import docstring
 from .base import register, classify
-from .base import Normalizer, FormantsNormalizer, FxNormalizer
+from .base import uninstantiable, Normalizer, FormantsNormalizer, FxNormalizer
 
 
+@uninstantiable
 class SpeakerNormalizer(Normalizer):
     """Base class for speaker intrinsic normalizers."""
 
@@ -45,6 +46,19 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
     {% formants %}
     {% speaker %}
     {% rename %}
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import GerstmanNormalizer
+
+        normalizer = GerstmanNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
     """
 
     def __init__(
@@ -94,6 +108,20 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
     {% speaker %}
     {% formants %}
     {% rename %}
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import LCENormalizer
+
+        normalizer = LCENormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
 
     def __init__(
@@ -137,7 +165,22 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
     Parameters
     ----------
     {% formants %}
+    {% speaker %}
     {% rename %}
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import LobanovNormalizer
+
+        normalizer = LobanovNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
 
     def __init__(
@@ -185,6 +228,19 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
         using the exponential function with base :math:`e`.
     {% rename %}
 
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import NearyNormalizer
+
+        normalizer = NearyNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
     config = dict(
         columns=['speaker', 'f1', 'f2', 'f3'],
@@ -230,6 +286,20 @@ class ExpNearyNormalizer(NearyNormalizer):
     """Neary normalizer with the ``exp`` parameter automatically set to ``True``.
 
     See :cite:`thomas_kendel_2007` for discussion.
+
+    Example
+    -------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import ExpNearyNormalizer
+
+        normalizer = ExpNearyNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
     """
 
     def __init__(
@@ -273,6 +343,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
     {% rename %}
+
 
     """
 

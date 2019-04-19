@@ -428,7 +428,9 @@ def cleanup(*_args):
     get_shell().cleanup()
 
 
-def config_sass(app, config):
+def config_app(app, config):
+    JUPYTER_CONFIG.update(**config.jupyter_config)
+    # Configure SASS
     dirname = os.path.dirname(__file__)
     output = 'jupyter.css'
     config.sass_configs['jupyter'] = dict(
@@ -441,8 +443,9 @@ def setup(app):
     """
     Set up the sphinx extension.
     """
+    app.add_config_value('jupyter_config', {}, 'html')
     app.connect('builder-inited', init_app)
     app.connect('build-finished', cleanup)
-    app.connect('config-inited', config_sass)
+    app.connect('config-inited', config_app)
     app.add_directive('ipython', JupyterDirective)
     app.add_directive('jupyter', JupyterDirective)

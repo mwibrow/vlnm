@@ -28,9 +28,11 @@ from vlnm.normalizers.gender import (
     BladenNormalizer,
     NordstromNormalizer)
 from vlnm.normalizers.speaker import (
+    GerstmanNormalizer,
     LCENormalizer,
     LobanovNormalizer,
     NearyGMNormalizer,
+    ExpNearyNormalizer,
     NearyNormalizer)
 from vlnm.normalizers.formant import (
     BarkNormalizer,
