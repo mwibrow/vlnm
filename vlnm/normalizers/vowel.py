@@ -47,6 +47,21 @@ class BarkDifferenceNormalizer(FxNormalizer):
         *containing only the formant data*,
         and return the transformed data.
 
+    Example
+    -------
+
+    The :class:`BarkDifference` normalizer returns columns
+    :col:`z1` (if :math:`F_0` is present), :col:`z2`, :col:`z3`:
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import BarkDifferenceNormalizer
+
+        normalizer = BarkDifferenceNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
 
     """
     config = dict(

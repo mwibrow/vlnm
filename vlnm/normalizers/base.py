@@ -85,7 +85,7 @@ class Normalizer:
         return self.normalize(df, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame, rename=None, **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, rename=None, groups=None, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
@@ -111,7 +111,12 @@ class Normalizer:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
         self._prenormalize(df)
-        norm_df = self._normalize(df)
+        groups = self.config.get('groups')
+        if groups:
+            norm_df = df.group_by(groups, as_index=False).apply(
+                lambda group_df: self._normalize(group_df)).reset_index(drop=True)
+        else:
+            norm_df = self._normalize(df)
         self._postnormalize(norm_df)
         return norm_df
 

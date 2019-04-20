@@ -83,7 +83,7 @@ REPLACEMENTS = dict(
         The frequency data on the Bark scale.
     """,
     normalize=r"""
-    Normalize formant data in a DataFrame.
+    Normalize formant data in a :class:`DataFrame`.
 
     Parameters
     ----------
@@ -93,12 +93,12 @@ REPLACEMENTS = dict(
     Other parameters
     ----------------
     :
-        For other parameters see the documentation for the constructor.
+        Other parameters are passed to the parent class.
 
     Returns
     -------
     :
-        The normalized data.
+        A :class:`DataFrame` containing the normalized data.
     """)
 
 

@@ -19,7 +19,7 @@ import os
 import sys
 
 import pandas as pd
-
+import yaml
 
 sys.path.insert(0,
                 os.path.abspath(os.path.join('.')))
@@ -31,6 +31,8 @@ sys.path.insert(0,
                 os.path.abspath(os.path.join('..', '..')))
 sys.path.insert(0,
                 os.path.abspath(os.path.join('..', '..', 'vlnm')))
+
+HERE = os.path.realpath(os.path.dirname(__file__))
 
 # material = importlib.import_module('material')
 # mdcolor = material.mdcolor
@@ -233,3 +235,7 @@ napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_private_with_doc = False
 napoleon_use_param = True
+
+with open(os.path.join(HERE, 'jupyter.config.yaml')) as file_in:
+    config = file_in.read()
+jupyter_config = yaml.safe_load(config)

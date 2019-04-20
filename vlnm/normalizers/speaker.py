@@ -69,7 +69,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
         super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -122,7 +122,7 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
         super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -177,7 +177,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
         super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -243,7 +243,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
         super().__init__(formants=formants, exp=exp, rename=rename, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -290,7 +290,7 @@ class NearyExpNormalizer(NearyNormalizer):
         super().__init__(formants=formants, exp=True, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -360,7 +360,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
             speaker=speaker, exp=exp, rename=rename)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)
 
@@ -407,6 +407,6 @@ class NearyGMExpNormalizer(NearyNormalizer):
         super().__init__(formants=formants, exp=True, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         """{% normalize %}"""
         return super().normalize(df)

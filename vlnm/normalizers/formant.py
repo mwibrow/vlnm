@@ -4,6 +4,7 @@ Formant intrinsic normalizers
 
 """
 import numpy as np
+import pandas as pd
 
 from ..docstrings import docstring
 from .base import classify, register, FormantsTransformNormalizer
@@ -54,6 +55,11 @@ class BarkNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_bark)
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        return super().normalize(df)
+
 
 @docstring
 @register('erb')
@@ -93,6 +99,11 @@ class ErbNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_erb)
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        return super().normalize(df)
+
 
 @docstring
 @register('log10')
@@ -126,6 +137,11 @@ class Log10Normalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=np.log10)
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        return super().normalize(df)
+
 
 @docstring
 @register('log')
@@ -158,6 +174,11 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=np.log)
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        return super().normalize(df)
 
 
 @docstring
@@ -197,3 +218,8 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=hz_to_mel)
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """{% normalize %}"""
+        return super().normalize(df)
