@@ -31,13 +31,22 @@ class BarkDifferenceNormalizer(FxNormalizer):
     Where :math:`B` is a function converting the :math:`i\mbox{th}`
     formant measured in hertz to the Bark scale.
 
+
+    **Parameters**
+        * f0
+        * f2
+        * f3
+
+    :param f0…f3: :class:`DataFrame` columns that correspond to
+        the formant data. If not specified, |vlnm|
+        will look for formant data in
+        the columns :col:`f0`, :col:`f1`, … and so on.
+    :type f0…f3: :obj:`str` | :obj:`list` of :obj:`str`
+
     Parameters
     ----------
 
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
+
     {% rename %}
     transform:
         Replace the function that transforms formants from

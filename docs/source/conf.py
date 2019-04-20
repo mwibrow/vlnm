@@ -234,7 +234,7 @@ add_module_names = False
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_private_with_doc = False
-napoleon_use_param = True
+napoleon_use_param = False
 
 with open(os.path.join(HERE, 'jupyter.config.yaml')) as file_in:
     config = file_in.read()
