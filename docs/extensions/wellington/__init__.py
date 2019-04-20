@@ -32,7 +32,7 @@ class VlnmDocstring(NumpyDocstring):
         # type: (unicode, unicode, List[unicode]) -> List[unicode]
         _desc = self._strip_empty(_desc)
         has_desc = any(_desc)
-        separator = has_desc and ' -- ' or ''
+        separator = ''  # has_desc and ' -- ' or ''
         if _name:
             if _type:
                 if '`' in _type:
@@ -51,10 +51,16 @@ class VlnmDocstring(NumpyDocstring):
 
         if has_desc:
             _desc = self._fix_field_desc(_desc)
-            if _desc[0]:
-                return [field + _desc[0]] + _desc[1:]
-            else:
-                return [field] + _desc
+            print(_desc)
+            # if _desc[0]:
+            #     return [field + _desc[0]] + _desc[1:]
+            # else:
+            #     return [field] + _desc
+            # if _desc[0]:
+            #     return [field] + _desc[:]
+            # else:
+            #     return [field] + [_desc]
+            return [field] + [''] + _desc
         else:
             return [field]
 

@@ -321,10 +321,16 @@ def process_docstring(app, what, name, obj, options, lines):
                         insert_index += 1
                     lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
             else:
-                searchfor = ':param {}:'.format(argname)
+                # searchfor = ':param {}:'.format(argname)
+                # for i, line in enumerate(lines):
+                #     if line.startswith(searchfor):
+                #         lines.insert(i, ':type {}: {}'.format(argname, formatted_annotation))
+                #         break
+                searchfor = '* **{}**'.format(argname)
                 for i, line in enumerate(lines):
-                    if line.startswith(searchfor):
-                        lines.insert(i, ':type {}: {}'.format(argname, formatted_annotation))
+                    if searchfor in line:
+                        lines[i] = line.replace(searchfor, '{} ({})'.format(
+                            searchfor, formatted_annotation))
                         break
 
 

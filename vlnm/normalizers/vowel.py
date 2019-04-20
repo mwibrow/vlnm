@@ -31,12 +31,13 @@ class BarkDifferenceNormalizer(FxNormalizer):
     Where :math:`B` is a function converting the :math:`i\mbox{th}`
     formant measured in hertz to the Bark scale.
 
-    :param f0: *, f1*
-        Formant
+
 
     Parameters
     ----------
 
+    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
+        Formants
     {% f0 %}
     {% f1 %}
     {% f2 %}
@@ -96,7 +97,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
             formants: List[str] = None,
-            rename: str = None,
+            rename: Union[str, dict] = None,
             transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
             **kwargs):
         super().__init__(
