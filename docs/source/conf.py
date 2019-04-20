@@ -60,7 +60,8 @@ release = '0.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
+    # 'sphinx.ext.napoleon',
+    'wellington',
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
@@ -239,3 +240,5 @@ napoleon_use_param = True
 with open(os.path.join(HERE, 'jupyter.config.yaml')) as file_in:
     config = file_in.read()
 jupyter_config = yaml.safe_load(config)
+
+primary_domain = 'pyv'

@@ -31,6 +31,9 @@ class BarkDifferenceNormalizer(FxNormalizer):
     Where :math:`B` is a function converting the :math:`i\mbox{th}`
     formant measured in hertz to the Bark scale.
 
+    :param f0: *, f1*
+        Formant
+
     Parameters
     ----------
 
