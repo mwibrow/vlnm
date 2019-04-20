@@ -54,11 +54,28 @@ class BarkDifferenceNormalizer(FxNormalizer):
     :col:`z1` (if :math:`F_0` is present), :col:`z2`, :col:`z3`:
 
     .. ipython::
+        dataframe:
+            formatters:
+                float64: '{:.03f}'
 
         import pandas as pd
         from vlnm import BarkDifferenceNormalizer
 
         normalizer = BarkDifferenceNormalizer()
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
+    To rename these columns, use the ``rename`` argument
+    with a dictionary:
+
+    .. ipython::
+        dataframe:
+            formatters:
+                float64: '{:.03f}'
+
+        normalizer = BarkDifferenceNormalizer(
+            rename=dict(z1='f1-f0', z2='f2-f1', z3='f3-f2'))
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -84,16 +101,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
             rename=rename, transform=transform, **kwargs)
 
     @docstring
-    def normalize(
-            self,
-            df: pd.DataFrame,
-            f0: Union[str, List[str]] = None,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
-            rename: str = None,
-            transform: Callable[[numpy.ndarray], numpy.ndarray] = None,
-            **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         r"""Normalize formant data.
 
         Parameters
@@ -112,9 +120,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
 
             A dataframe containing the normalized formants.
         """
-        return super().normalize(
-            df, f0=f0, f1=f1, f2=f2, f3=f3,
-            rename=rename, transform=transform)
+        return super().normalize(df, **kwargs)
 
     def _norm(self, df):
 

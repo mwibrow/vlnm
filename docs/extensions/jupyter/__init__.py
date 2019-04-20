@@ -15,6 +15,7 @@ import shutil
 import sys
 import textwrap
 import traceback
+import warnings
 
 from docutils.parsers.rst import directives, Directive
 import docutils.nodes
@@ -151,6 +152,8 @@ class JupyterDirective(YAMLDirective):
         hide = self.options.get('hide', [])
         run = self.options.get('run', True)
 
+        errors = self.options.get('errors', 'warn')
+
         parent = docutils.nodes.line_block(
             classes=['jupyter'] + ([classes] if classes else []))
 
@@ -201,16 +204,23 @@ class JupyterDirective(YAMLDirective):
         if error or stdout or results is not None:
             output = docutils.nodes.line_block(classes=['jupyter-output'])
             if error:
-                stdout = re.sub(
-                    r'\n.*?(?=Traceback \(most recent call last\))',
-                    '',
-                    stdout)
-                node = docutils.nodes.literal_block(stdout, stdout, classes=['jupyter-stdout'])
-                node['language'] = 'ansi-color'
-                block = self.jupyter_block(
-                    history=self.history_node(classes=['jupyter-error']),
-                    children=[node])
-                parent += block
+                if errors == 'show':
+                    stdout = re.sub(
+                        r'\n.*?(?=Traceback \(most recent call last\))',
+                        '',
+                        stdout)
+                    node = docutils.nodes.literal_block(
+                        stdout, stdout, classes=['jupyter-stdout'])
+                    node['language'] = 'ansi-color'
+                    block = self.jupyter_block(
+                        history=self.history_node(classes=['jupyter-error']),
+                        children=[node])
+                    parent += block
+                elif errors == 'warn':
+                    print('\n\033[93mJupyter error:\n  {}\nIn:\n{}\n'.format(
+                        error, code), file=sys.stderr)
+                else:
+                    raise error
             else:
                 nodes, stdout = self.jupyter_results(results, stdout, **options)
                 if stdout:
