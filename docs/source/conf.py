@@ -65,6 +65,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
     'ipa',
     'jupyter',
     'natbib',
@@ -242,3 +243,9 @@ with open(os.path.join(HERE, 'jupyter.config.yaml')) as file_in:
 jupyter_config = yaml.safe_load(config)
 
 primary_domain = 'py'
+
+
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/3', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None)
+}

@@ -280,17 +280,21 @@ class FormantsTransformNormalizer(TransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
+
+    formants:
     transform:
         A function which takes |dataframe| containing
         formant data, transforms the data
         and returns (a possibly new) |dataframe|.
+    rename:
     """
 
     def __init__(
             self,
             formants: List[str] = None,
-            transform: Callable[[pd.DataFrame], pd.DataFrame] = None, **kwargs):
+            transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+            rename: Union[str, dict] = None,
+            **kwargs):
         super().__init__(formants=formants, transform=transform, **kwargs)
 
 

@@ -4,65 +4,26 @@ Module for inserting common documentation snippits into docstrings.
 import re
 
 REPLACEMENTS = dict(
-    f0=r"""
-    f0 :
-        The |dataframe| column(s) which contains the :math:`F_0` data.
-        If not given defaults to ``'f0'``.
-    """,
-    f1=r"""
-    f1 :
-        The |dataframe| column(s) which contains the :math:`F_1` data.
-        If not given defaults to ``'f1'``.
-    """,
-    f2=r"""
-    f2 :
-        The |dataframe| column(s) which contains the :math:`F_2` data.
-        If not given defaults to ``'f2'``.
-    """,
-    f3=r"""
-    f3 :
-        The |dataframe| column(s) which contains the :math:`F_3` data.
-        If not given defaults to ``'f3'``.
-    """,
-    f0_f3=r"""
-    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
-        :py:class:`DataFrame` columns containing
-        formant data. If not specified, assumed to be
-        :col:`f0`, :col:`f1`, etc.
-    """,
-    formants=r"""
-    formants :
-        A list of DataFrame columns which contains the formant data.
-        If not given, the normalizer will use
-        any DataFrame columns found in the list
-        ``['f0', 'f1', 'f2', 'f3]``.
-    """,
     speaker=r"""
-    speaker: :obj:`str`
         The DataFrame column which contains the speaker labels.
         If not given, defaults to ``'speaker'``.
     """,
     vowel=r"""
-    vowel: :obj:`str`
         The DataFrame column which contains the vowel labels.
         If not given, defaults to ``'vowel'``.
     """,
     rename=r"""
-    rename:
         If specified as a :obj:`str`
         rename output columns according to the
-        specified pattern. The characters ``{}`` will
-        be replaced with the default output column,
-        so using ``rename='{}_N'`` will suffix all
-        output columns with ``_N``.
+        specified pattern replacing ``{}``
+        the output column.
 
         If specified as a :obj:`dict`,
-        columns will be renamed if they have an entry
-        in the dictionary, otherwise they will not be
-        renamed. The new name will be the value
-        given in the dictionary. If that value is
-        :obj:`None` the column will be removed from
-        the data.
+        output columns will only be renamed if they have an entry
+        in the dictionary, taking the value in
+        the dictionary as the new column name.
+        If the value is :obj:`None` the
+        output column will be removed.
     """,
     kwargs=r"""
     **kwargs
@@ -102,48 +63,64 @@ REPLACEMENTS = dict(
         A dataframe containing the normalized formants.
     """)
 
+REPLACEMENTS.update(**{
+    'f0, f1, f2, f3:': r"""
+    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
 
-WSP_RE = re.compile(r'^(\s*)')
+        :class:`DataFrame` columns containing formant data.
+        If omitted, any columns from the list
+        ``['f0', 'f1', 'f2', 'f3', 'f4', 'f5']`` that
+        are in the DataFrame will be used.
+    """,
+    'formants:': r"""
+        The :class:`DataFrame` columns containing the formant data.
+        If omitted, any columns matching ``'f0'``, ``'f1'``, …,
+        ``'f5'``, that are in the DataFrame will be used.
+    """,
+    'rename:': r"""
+        If specified as a :obj:`str`
+        rename output columns according to the
+        specified pattern replacing ``{}``
+        with the output column.
+
+        If specified as a :obj:`dict`,
+        output columns will only be renamed if they have an entry
+        in the dictionary, taking the value in
+        the dictionary as the new column name.
+        If the value is :obj:`None` the
+        output column will be removed.
+    """,
+    'speaker:': r"""
+        The DataFrame column which contains the speaker labels.
+        If not given, defaults to ``'speaker'``.
+    """,
+    'vowel:': r"""
+        The DataFrame column which contains the vowel labels.
+        If not given, defaults to ``'vowel'``.
+    """,
+})
 
 
-def reindent(text, indent=0):
-    """Reindint a multi line string."""
-    lines = text.split('\n')
-    while not lines[0]:
-        lines = lines[1:]
-    while not lines[-1]:
-        lines = lines[-1:]
-    whitespace = [len(WSP_RE.match(line).group(1))
-                  for line in lines]
-    min_indent = min(
-        space for line, space in zip(lines, whitespace) if line.strip())
-    reindented = []
-    for i, line in enumerate(lines):
-        if line.strip() and whitespace[i] > 0:
-            line = re.sub(
-                r'^\s+', ' ' * (whitespace[i] - min_indent + indent), line)
-        reindented.append(line)
-    return '\n'.join(reindented)
-
-
-SUBS_RE = re.compile(r'^(\s*)\{%([^%]+)%\}')
+PARAM_RE = r'^\s*([A-z0-9_ ,]+:)'
 
 
 def docstring(obj):
-    """Replace element in docstrings."""
     if obj.__doc__:
-        lines = obj.__doc__.split('\n')
         docs = []
+        lines = obj.__doc__.split('\n')
+        state = None
         for line in lines:
-            match = SUBS_RE.match(line)
-            if match:
-                indent, key = match.groups()
-                key = key.strip()
-                replacement = REPLACEMENTS.get(key)
-                if replacement:
-                    line = reindent(replacement, indent=len(indent))
             docs.append(line)
+            match = re.match(PARAM_RE, line)
+            if match:
+                key = match.groups()[0]
+                if key in REPLACEMENTS:
+                    replacement = REPLACEMENTS[key]
+                    if replacement.strip().startswith(key):
+                        docs = docs[:-1]
+                    docs.extend(replacement.split('\n'))
         obj.__doc__ = '\n'.join(docs)
-    elif obj.__name__ in REPLACEMENTS:
-        obj.__doc__ = REPLACEMENTS[obj.__name__]
+    else:
+        if obj.__name__ in REPLACEMENTS:
+            obj.__doc__ = REPLACEMENTS[obj.__name__]
     return obj

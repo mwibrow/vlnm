@@ -329,7 +329,7 @@ def process_docstring(app, what, name, obj, options, lines):
                 else:
                     for i, line in enumerate(lines):
                         if line.startswith(':returns:'):
-                            lines[i] = ':returns: {}'.format(formatted_annotation)
+                            lines[i] = ':returns: * {}'.format(formatted_annotation)
                             break
             else:
                 if use_param:

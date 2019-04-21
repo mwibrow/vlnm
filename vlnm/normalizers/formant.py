@@ -30,14 +30,15 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Bark scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+    rename:
 
     Example
     -------
@@ -57,7 +58,6 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -74,14 +74,15 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the ERB scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+    rename:
 
     Example
     -------
@@ -101,7 +102,6 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -118,8 +118,8 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+    formants:
+    rename:
 
     Example
     -------
@@ -139,7 +139,6 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -156,8 +155,9 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
+    rename:
 
     Example
     -------
@@ -177,7 +177,6 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -194,14 +193,15 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Mel scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+    rename:
 
     Example
     -------
@@ -221,5 +221,4 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
