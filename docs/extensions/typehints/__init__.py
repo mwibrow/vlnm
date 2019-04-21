@@ -340,7 +340,6 @@ def process_docstring(app, what, name, obj, options, lines):
                                 argname, formatted_annotation))
                             break
                 else:
-
                     searchfor = '* **{}**'.format(argname)
                     searchfro = r'\s+\*?\s*\*\*{}\*\*'
                     in_params = False

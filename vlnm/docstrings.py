@@ -4,27 +4,6 @@ Module for inserting common documentation snippits into docstrings.
 import re
 
 REPLACEMENTS = dict(
-    speaker=r"""
-        The DataFrame column which contains the speaker labels.
-        If not given, defaults to ``'speaker'``.
-    """,
-    vowel=r"""
-        The DataFrame column which contains the vowel labels.
-        If not given, defaults to ``'vowel'``.
-    """,
-    rename=r"""
-        If specified as a :obj:`str`
-        rename output columns according to the
-        specified pattern replacing ``{}``
-        the output column.
-
-        If specified as a :obj:`dict`,
-        output columns will only be renamed if they have an entry
-        in the dictionary, taking the value in
-        the dictionary as the new column name.
-        If the value is :obj:`None` the
-        output column will be removed.
-    """,
     kwargs=r"""
     **kwargs
         Other keyword arguments passed to the parent class.
@@ -65,15 +44,15 @@ REPLACEMENTS = dict(
 
 REPLACEMENTS.update(**{
     'f0:': r"""
-        :class:`DataFrame` columns containing :math:`F_0` data.
+        DataFrame columns containing :math:`F_0` data.
         If omitted, defaults to ``'f0'``.
     """,
     'f1:': r"""
-        :class:`DataFrame` columns containing :math:`F_1` data.
+        DataFrame columns containing :math:`F_1` data.
         If omitted, defaults to ``'f1'``.
     """,
     'f2:': r"""
-        :class:`DataFrame` columns containing :math:`F_2` data.
+        DataFrame columns containing :math:`F_2` data.
         If omitted, defaults to ``'f2'``.
     """,
     'f0, f1, f2, f3:': r"""

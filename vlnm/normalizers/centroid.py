@@ -53,18 +53,18 @@ LEXICAL_SET = [
 
 def _get_apice_formants(
         df: pd.DataFrame,
-        apices: Dict[str, str],
+        points: Dict[str, str],
         vowel: str,
         formants: List[str],
         **_kwargs) -> pd.DataFrame:
-    r"""Helper function for extracting formant means for vowel space apices.
+    r"""Helper function for extracting formant means for vowel space points.
 
     Parameters
     ----------
     df :
         The formant data for single speaker.
-    apices :
-        A dictionary whose keys are the lexical set keywords for apices
+    points :
+        A dictionary whose keys are the lexical set keywords for points
         of the vowel space, and whose values are the vowel labels in
         the DataFrame.
     vowel :
@@ -81,9 +81,9 @@ def _get_apice_formants(
         and the index will contain the apice labels.
 
     """
-    if not apices:
-        apices = {key: key for key in df[vowel].unique()}
-    vowels = list(apices.values())
+    if not points:
+        points = {key: key for key in df[vowel].unique()}
+    vowels = list(points.values())
     vowels_df = df[df[vowel].isin(vowels)]
     grouped = vowels_df.groupby(vowel)
 
@@ -94,7 +94,7 @@ def _get_apice_formants(
     apice_df = grouped.agg(_agg)[formants]
 
     # Rename the index using the apice map keys.
-    secipa = {value: key for key, value in apices.items()}
+    secipa = {value: key for key, value in points.items()}
     apice_df.index = apice_df.index.map(secipa)
 
     return apice_df
@@ -120,7 +120,7 @@ class CentroidNormalizer(SpeakerNormalizer):
 
     config = dict(
         columns=['speaker', 'vowel'],
-        keywords=['speaker', 'vowel', 'apices'])
+        keywords=['speaker', 'vowel', 'points'])
 
     def __init__(
             self,
@@ -134,19 +134,19 @@ class CentroidNormalizer(SpeakerNormalizer):
             formants=formants,
             speaker=speaker,
             vowel=vowel,
-            apices=points,
+            points=points,
             rename=rename,
             **kwargs)
 
     @staticmethod
     def get_centroid(
             df: pd.DataFrame,
-            apices: Dict[str, str] = None,
+            points: Dict[str, str] = None,
             **kwargs):  # pylint: disable=missing-docstring
-        apices = apices or {}
+        points = points or {}
         formants = kwargs.get('formants', [])
         vowel = kwargs.get('vowel', 'vowel')
-        apice_df = _get_apice_formants(df, apices, vowel, formants)
+        apice_df = _get_apice_formants(df, points, vowel, formants)
         centroid = apice_df.mean(axis=0)
         return centroid
 
@@ -203,7 +203,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
             formants=formants, speaker=speaker, vowel=vowel, **kwargs)
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):  # pylint: disable=missing-docstring
+    def get_centroid(df, points=None, **kwargs):  # pylint: disable=missing-docstring
         vowel = kwargs.get('vowel')
         formants = kwargs.get('formants')
         subset = [vowel]
@@ -221,6 +221,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
         return super().normalize(df, **kwargs)
 
 
+@docstring
 @register('wattfab1')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
@@ -271,46 +272,54 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
     trap:
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
+    points:
+        Alternative method for specifying the
+        :smallcaps:`fleece` and :smallcaps:`trap`
+        labels, consisting of a dictionary with the
+        keys ``'fleece'`` and ``'trap'``,
+        whose values correspond to their respective labels.
     rename:
 
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['apices', 'fleece', 'trap']
+        keywords=['points', 'fleece', 'trap']
     )
 
-    def __init__(self,
-                 f1: Union[str, List[str]],
-                 f2: Union[str, List[str]],
-                 speaker: str = 'speaker',
-                 vowel: str = 'vowel',
-                 fleece: str = 'fleece',
-                 trap: str = 'trap',
-                 rename: Union[str, dict] = None,
-                 **kwargs):
+    def __init__(
+            self,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            fleece: str = 'fleece',
+            trap: str = 'trap',
+            points: dict = None,
+            rename: Union[str, dict] = None,
+            **kwargs):
+        points = points or dict(
+            fleece=fleece,
+            trap=trap)
         super().__init__(
             formants=formants,
             speaker=speaker,
             vowel=vowel,
-            apices=dict(fleece=fleece, trap=trap),
+            points=points,
             rename=rename,
             **kwargs)
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):
-        apices = apices or dict(fleece='fleece', trap='trap')
+    def get_centroid(df, points=None, **kwargs):
+        points = points or dict(fleece='fleece', trap='trap')
         vowel = kwargs.get('vowel', 'vowel')
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
         formants = [f1, f2]
-        apice_df = _get_apice_formants(df, apices, vowel, formants)
+        apice_df = _get_apice_formants(df, points, vowel, formants)
         apice_df.loc['goose'] = apice_df.loc['fleece']
         apice_df.loc['goose', f2] = apice_df.loc['fleece', f1]
         centroid = apice_df.mean(axis=0)
         return centroid
-
-    def __init__(self, f1=None, f2=None, points=None, **kwargs):
-        super().__init__(f1=f1, f2=f2, apices=points, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -320,6 +329,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
 WattFabriciusNormalizer = WattFabricius1Normalizer
 
 
+@docstring
 @register('wattfab2')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius2Normalizer(WattFabricius1Normalizer):
@@ -366,7 +376,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['apices', 'fleece', 'trap']
+        keywords=['points', 'fleece', 'trap']
     )
 
     def __init__(self,
@@ -382,20 +392,20 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
             formants=formants,
             speaker=speaker,
             vowel=vowel,
-            apices=dict(fleece=fleece, trap=trap),
+            points=dict(fleece=fleece, trap=trap),
             rename=rename,
             **kwargs)
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):
-        apices = apices or dict(fleece='fleece', trap='trap')
+    def get_centroid(df, points=None, **kwargs):
+        points = points or dict(fleece='fleece', trap='trap')
         vowel = kwargs.get('vowel', 'vowel')
         f1 = kwargs.get('f1', 'f1')
         f2 = kwargs.get('f2', 'f2')
 
         formants = [f1, f2]
 
-        apice_df = _get_apice_formants(df, apices, vowel, formants)
+        apice_df = _get_apice_formants(df, points, vowel, formants)
         apice_df.loc['goose'] = apice_df.loc['fleece']
         apice_df.loc['goose', f2] = apice_df.loc['fleece', f1]
 
@@ -412,6 +422,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         return super().normalize(df, **kwargs)
 
 
+@docstring
 @register('wattfab3')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class WattFabricius3Normalizer(WattFabricius1Normalizer):
@@ -473,15 +484,15 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
             formants=formants,
             speaker=speaker,
             vowel=vowel,
-            apices=dict(fleece=fleece, trap=trap),
+            points=dict(fleece=fleece, trap=trap),
             rename=rename,
             **kwargs)
 
     @staticmethod
-    def get_centroid(df, apices=None, **kwargs):
+    def get_centroid(df, points=None, **kwargs):
         formants = kwargs.get('formants')
         vowel = kwargs.get('vowel', 'vowel')
-        apice_df = _get_apice_formants(df, apices or {}, vowel, formants)
+        apice_df = _get_apice_formants(df, points or {}, vowel, formants)
 
         def _agg(agg_df):
             names = {f: agg_df[f].mean() for f in formants}
@@ -574,7 +585,7 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
         If not given (or overridden in the `normalize` method)
         defaults to ``'vowel'``.
 
-    apices : :obj:`dict`
+    points : :obj:`dict`
         A dictionary specifying labels for the required vowels
         to construct the centroid (shown in the table above).
         The keys for the dictionary should be from the
@@ -626,7 +637,7 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
 
     """
     config = dict(
-        keywords=['apices', 'f1', 'f2'],
+        keywords=['points', 'f1', 'f2'],
         columns=['speaker', 'vowel', 'f1', 'f2'],
         options={})
 
@@ -636,10 +647,10 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
             f2: str = 'f2',
             speaker: str = 'speaker',
             vowel: str = 'vowel',
-            apices: Dict[str, str] = None,
+            points: Dict[str, str] = None,
             **kwargs):
         super().__init__(
-            apices=apices, f1=f1, f2=f2,
+            points=points, f1=f1, f2=f2,
             speaker=speaker, vowel=vowel, **kwargs)
 
     @docstring
@@ -649,13 +660,13 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
     @staticmethod
     def get_centroid(
             df: pd.DataFrame,
-            apices: Dict[str, str] = None, **kwargs):
+            points: Dict[str, str] = None, **kwargs):
 
         f1 = kwargs.get('f1')
         f2 = kwargs.get('f2')
         formants = [f1, f2]
         vowel = kwargs.get('vowel')
-        apice_df = _get_apice_formants(df, apices, vowel, formants)
+        apice_df = _get_apice_formants(df, points, vowel, formants)
 
         centroid_df = apice_df.copy()
 
@@ -669,7 +680,7 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
         return centroid
 
     def _keyword_default(self, keyword: str, df: pd.DataFrame = None) -> Any:
-        if keyword == 'apices':
+        if keyword == 'points':
             lexical_set = ['kit', 'goose', 'fleece', 'start', 'thought', 'trap']
             return {key: key for key in lexical_set}
         return super()._keyword_default(keyword, df=df)
@@ -728,7 +739,7 @@ class SchwaNormalizer(CentroidNormalizer):
 
     def _normalize(self, df):
         schwa = self.options['schwa'] or 'ə'
-        self.options['apices'] = {'letter': schwa}
+        self.options['points'] = {'letter': schwa}
         return super()._normalize(df)
 
     def _norm(self, df):
