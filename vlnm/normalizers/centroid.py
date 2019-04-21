@@ -10,7 +10,7 @@ divided the formants for each vowel by the
 correspoinding formant of the centroid.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -138,6 +138,10 @@ class CentroidNormalizer(SpeakerNormalizer):
         df[formants] /= centroid
         return df
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
 
 @docstring
 @register('convex-hull')
@@ -198,6 +202,10 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
         centroid = points.mean(axis=1)
         return centroid
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
 
 @register('wattfab1')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
@@ -257,41 +265,12 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
         centroid = apice_df.mean(axis=0)
         return centroid
 
-    def normalize(
-            self,
-            df: pd.DataFrame,
-            apices: Dict[str, str] = None,
-            **kwargs) -> pd.DataFrame:
-        """
-        Normalize a dataframe.
-        Note that a :class:`WattFabriciusNormalizer` instance is `callable`,
-        and the call is forwarded to this method.
+    def __init__(self, f1=None, f2=None, points=None, **kwargs):
+        super().__init__(f1=f1, f2=f2, apices=points, **kwargs)
 
-
-
-        Parameters
-        ----------
-
-        df : :class:`pandas.DataFrame`
-            Formant data.
-
-        apices
-        fleece : :obj:`str`
-            Vowel label for the :smallcaps:`fleece` vowel.
-
-        trap : :obj:`str`
-            Vowel label for the :smallcaps:`trap` vowel.
-
-        **kwargs
-            Other keyword arguments passed on to the parent class.
-
-        Returns
-        -------
-        :class:`pandas.DataFrame`
-            A with the normalized formants.
-        """
-        apices = apices or dict(fleece='fleece', trap='trap')
-        return super().normalize(df, apices=apices, **kwargs)
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
 
 WattFabriciusNormalizer = WattFabricius1Normalizer
@@ -353,6 +332,10 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         centroid = apice_df.apply(_means)
         return centroid
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
 
 @register('wattfab3')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
@@ -400,6 +383,10 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
 
         centroid = apice_df.mean(axis=0)
         return centroid
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
 
 @register('bigham')
@@ -546,19 +533,9 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
             apices=apices, f1=f1, f2=f2,
             speaker=speaker, vowel=vowel, **kwargs)
 
-    def normalize(
-            self,
-            df: pd.DataFrame,
-            f1: 'str' = None,
-            f2: 'str' = None,
-            apices: Dict[str, str] = None,
-            speaker: 'str' = None,
-            vowel: 'str' = None,
-            rename: 'str' = None,
-            **_kwargs):
-        return super().normalize(
-            df, f1=f1, f2=f2, apices=apices,
-            speaker=speaker, vowel=vowel, rename=rename)
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
     @staticmethod
     def get_centroid(
@@ -598,14 +575,50 @@ class SchwaNormalizer(CentroidNormalizer):
 
         F_i^\prime = \frac{F_i}{F_{i}^{[ə]}} - 1
 
+    Parameters
+    ----------
+
+    formants:
+        The :class:`DataFrame` columns containing the formant data.
+        If omitted, any columns matching ``'f0'``, ``'f1'``, …,
+        ``'f5'``, that are in the DataFrame will be used.
+    speaker:
+        The :class:`DataFrame` column containing the speaker labels.
+        If omitted, defaults to ``'speaker'``.
+    vowel:
+        The :class:`DataFrame` column containing the vowel labels.
+        If omitted, defaults to ``'vowel'``.
+    schwa:
+        The vowel label for the schwa vowel.
+        If omitted, defaults to ``'ə'``
+    rename:
+        If given, rename the normalized formants.
+        See the documentation for the :class:`~vlnm.normalizers.base.DefaultNormalizer`
+        class for details.
+
     """
     config = dict(
         columns=['speaker', 'vowel'],
         keywords=['schwa']
     )
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            schwa: str = 'ə',
+            rename: Union[str, dict] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            schwa=schwa,
+            rename=rename)
+
     def _normalize(self, df):
-        schwa = self.options['schwa']
+        schwa = self.options['schwa'] or 'ə'
         self.options['apices'] = {'letter': schwa}
         return super()._normalize(df)
 
@@ -614,3 +627,7 @@ class SchwaNormalizer(CentroidNormalizer):
         formants = self.params['formants']
         df[formants] -= 1.
         return df
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)

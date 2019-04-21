@@ -85,22 +85,21 @@ REPLACEMENTS = dict(
         The frequency data on the Bark scale.
     """,
     normalize=r"""
-    Normalize formant data in a :class:`DataFrame`.
+    Normalize formant data.
 
     Parameters
     ----------
-    df :
-        The formant data to normalize.
 
-    Other parameters
-    ----------------
-    :
-        Other parameters are passed to the parent class.
+    df:
+        DataFrame containing formant data.
+
+    **kwargs:
+        Passed to the parent method.
 
     Returns
     -------
     :
-        A :class:`DataFrame` containing the normalized data.
+        A dataframe containing the normalized formants.
     """)
 
 
@@ -132,16 +131,19 @@ SUBS_RE = re.compile(r'^(\s*)\{%([^%]+)%\}')
 
 def docstring(obj):
     """Replace element in docstrings."""
-    lines = obj.__doc__.split('\n')
-    docs = []
-    for line in lines:
-        match = SUBS_RE.match(line)
-        if match:
-            indent, key = match.groups()
-            key = key.strip()
-            replacement = REPLACEMENTS.get(key)
-            if replacement:
-                line = reindent(replacement, indent=len(indent))
-        docs.append(line)
-    obj.__doc__ = '\n'.join(docs)
+    if obj.__doc__:
+        lines = obj.__doc__.split('\n')
+        docs = []
+        for line in lines:
+            match = SUBS_RE.match(line)
+            if match:
+                indent, key = match.groups()
+                key = key.strip()
+                replacement = REPLACEMENTS.get(key)
+                if replacement:
+                    line = reindent(replacement, indent=len(indent))
+            docs.append(line)
+        obj.__doc__ = '\n'.join(docs)
+    elif obj.__name__ in REPLACEMENTS:
+        obj.__doc__ = REPLACEMENTS[obj.__name__]
     return obj

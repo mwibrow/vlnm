@@ -101,22 +101,6 @@ class BarkDifferenceNormalizer(FxNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        r"""Normalize formant data.
-
-        Parameters
-        ----------
-
-        df:
-            DataFrame containing formant data.
-
-        **kwargs:
-            Passed to the parent method.
-
-        Returns
-        -------
-        :
-            A dataframe containing the normalized formants.
-        """
         return super().normalize(df, **kwargs)
 
     def _norm(self, df):
