@@ -1,6 +1,7 @@
 """
 Wellington Extension
 """
+# pylint: disable=protected-access
 
 from sphinx.ext.napoleon import _patch_python_domain, Config, _skip_member
 from sphinx.ext.napoleon.docstring import NumpyDocstring
@@ -12,7 +13,7 @@ class VlnmDocstring(NumpyDocstring):
         # type: (unicode, List[Tuple[unicode, unicode, List[unicode]]]) -> List[unicode]
         field_type = ':%s:' % field_type.strip()
         padding = ' ' * len(field_type)
-        multi = len(fields) > 1
+        multi = True  # len(fields) > 1
         lines = []  # type: List[unicode]
         for _name, _type, _desc in fields:
             field = self._format_field(_name, _type, _desc)
@@ -51,18 +52,8 @@ class VlnmDocstring(NumpyDocstring):
 
         if has_desc:
             _desc = self._fix_field_desc(_desc)
-            print(_desc)
-            # if _desc[0]:
-            #     return [field + _desc[0]] + _desc[1:]
-            # else:
-            #     return [field] + _desc
-            # if _desc[0]:
-            #     return [field] + _desc[:]
-            # else:
-            #     return [field] + [_desc]
             return [field] + [''] + _desc
-        else:
-            return [field]
+        return [field]
 
 
 def _process_docstring(app, what, name, obj, options, lines):
@@ -97,15 +88,6 @@ def _process_docstring(app, what, name, obj, options, lines):
         .. note:: `lines` is modified *in place*
     """
     result_lines = lines
-    docstring = None  # type: GoogleDocstring
-    # if app.config.napoleon_numpy_docstring:
-    #     docstring = NumpyDocstring(result_lines, app.config, app, what, name,
-    #                                obj, options)
-    #     result_lines = docstring.lines()
-    # if app.config.napoleon_google_docstring:
-    #     docstring = GoogleDocstring(result_lines, app.config, app, what, name,
-    #                                 obj, options)
-    #     result_lines = docstring.lines()
     docstring = VlnmDocstring(result_lines, app.config, app, what, name,
                               obj, options)
     result_lines = docstring.lines()

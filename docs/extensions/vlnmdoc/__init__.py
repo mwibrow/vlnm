@@ -15,7 +15,6 @@ from sphinx.util.docutils import SphinxDirective
 import vlnm
 from vlnm import get_normalizer, list_normalizers
 
-from .domains.python import PythonDomain
 from .fonts import setup_fonts
 from .normalizers import NormalizersDirective, NormalizerSummariesDirective
 
@@ -78,4 +77,3 @@ def setup(app):
 
     app.add_directive('normalizers-table', NormalizersDirective)
     app.add_directive('normalizers-summaries', NormalizerSummariesDirective)
-    app.add_domain(PythonDomain)

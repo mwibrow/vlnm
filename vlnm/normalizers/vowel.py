@@ -36,12 +36,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
     Parameters
     ----------
 
-    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
-        Formants
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
+    {% f0_f3 %}
     {% rename %}
     transform:
         Replace the function that transforms formants from
@@ -110,18 +105,16 @@ class BarkDifferenceNormalizer(FxNormalizer):
 
         Parameters
         ----------
-        df :
+
+        df:
             DataFrame containing formant data.
 
-        Other parameters
-        ----------------
-        :
-            For the other parameters see the constructor.
+        **kwargs:
+            Passed to the parent method.
 
         Returns
         -------
         :
-
             A dataframe containing the normalized formants.
         """
         return super().normalize(df, **kwargs)

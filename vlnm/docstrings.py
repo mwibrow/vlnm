@@ -25,8 +25,10 @@ REPLACEMENTS = dict(
         If not given defaults to ``'f3'``.
     """,
     f0_f3=r"""
-    f0, f1, f2, f3 : :obj:`str`
-        The DataFrame columns which contains the formant data.
+    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
+        :py:class:`DataFrame` columns containing
+        formant data. If not specified, assumed to be
+        :col:`f0`, :col:`f1`, etc.
     """,
     formants=r"""
     formants :

@@ -162,7 +162,6 @@ def foo(annotation):
               hasattr(annotation, '__union_params__')):
             prefix = ':py:data:'
             class_name = 'Union'
-            print(annotation.__args__)
             if hasattr(annotation, '__union_params__'):
                 params = annotation.__union_params__
             elif hasattr(annotation, '__args__'):
@@ -280,6 +279,11 @@ def process_docstring(app, what, name, obj, options, lines):
     if isinstance(obj, property):
         obj = obj.fget
 
+    try:
+        use_param = app.config.napoleon_use_param
+    except AttributeError:
+        use_param = False
+
     formatter = Formatter()
     if callable(obj):
         if what in ('class', 'exception'):
@@ -306,32 +310,48 @@ def process_docstring(app, what, name, obj, options, lines):
                     continue
 
                 insert_index = len(lines)
-                for i, line in enumerate(lines):
-                    if line.startswith(':rtype:'):
-                        insert_index = None
-                        break
-                    elif line.startswith(':return:') or line.startswith(':returns:'):
-                        insert_index = i
 
-                if insert_index is not None:
-                    if insert_index == len(lines):
-                        # Ensure that :rtype: doesn't get joined with a paragraph of text, which
-                        # prevents it being interpreted.
-                        lines.append('')
-                        insert_index += 1
-                    lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
+                if use_param:
+                    for i, line in enumerate(lines):
+                        if line.startswith(':rtype:'):
+                            insert_index = None
+                            break
+                        elif line.startswith(':return:') or line.startswith(':returns:'):
+                            insert_index = i
+
+                    if insert_index is not None:
+                        if insert_index == len(lines):
+                            # Ensure that :rtype: doesn't get joined with a paragraph of text, which
+                            # prevents it being interpreted.
+                            lines.append('')
+                            insert_index += 1
+                        lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
+                else:
+                    for i, line in enumerate(lines):
+                        if line.startswith(':returns:'):
+                            lines[i] = ':returns: {}'.format(formatted_annotation)
+                            break
             else:
-                # searchfor = ':param {}:'.format(argname)
-                # for i, line in enumerate(lines):
-                #     if line.startswith(searchfor):
-                #         lines.insert(i, ':type {}: {}'.format(argname, formatted_annotation))
-                #         break
-                searchfor = '* **{}**'.format(argname)
-                for i, line in enumerate(lines):
-                    if searchfor in line:
-                        lines[i] = line.replace(searchfor, '{} ({})'.format(
-                            searchfor, formatted_annotation))
-                        break
+                if use_param:
+                    searchfor = ':param {}:'.format(argname)
+                    for i, line in enumerate(lines):
+                        if line.startswith(searchfor):
+                            lines.insert(i, ':type {}: {}'.format(
+                                argname, formatted_annotation))
+                            break
+                else:
+
+                    searchfor = '* **{}**'.format(argname)
+                    searchfro = r'\s+\*?\s*\*\*{}\*\*'
+                    in_params = False
+                    for i, line in enumerate(lines):
+                        if line.startswith(':'):
+                            in_params = line.startswith(':Parameters:')
+                        if in_params and '**{}**'.format(argname) in line:
+                            lines[i] = line.replace(
+                                '**{}**'.format(argname),
+                                '**{}** ({})'.format(argname, formatted_annotation))
+                            break
 
 
 def config_ready(app, config):
