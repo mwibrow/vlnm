@@ -36,8 +36,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
     Parameters
     ----------
 
-    {% f0_f3 %}
-    {% rename %}
+    f0, f1, f2, f3:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Bark scale.
@@ -45,6 +44,7 @@ class BarkDifferenceNormalizer(FxNormalizer):
         (e.g., :py:class:`pandas.DataFrame`, or :py:class:`numpy.ndarray`)
         *containing only the formant data*,
         and return the transformed data.
+    rename:
 
     Example
     -------

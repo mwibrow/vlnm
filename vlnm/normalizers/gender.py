@@ -40,7 +40,7 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% formants %}
+    formants:
     gender:
         The |dataframe| column containing the gender labels.
     female:
@@ -49,7 +49,8 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
-    {% rename %}
+    rename:
+
     """
     config = dict(
         columns=['gender'],
@@ -88,19 +89,8 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
         return hz_to_bark(df[formants]) - indicator
 
     @docstring
-    def normalize(
-            self,
-            df: pd.DataFrame,
-            formants: List[str] = None,
-            gender: str = 'gender',
-            female: str = 'F',
-            male: str = 'M',
-            rename: str = None,
-            **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
-        return super().normalize(
-            df, formants=formants, gender=gender, female=female, male=male,
-            rename=rename, **kwargs)
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
 
 @docstring
@@ -130,10 +120,7 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
 
     Parameters
     ----------
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
+    f0, f1, f2, f3:
     gender:
         The |dataframe| column containing the gender labels.
     female:
@@ -142,7 +129,7 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
-    {% rename %}
+    rename:
 
     """
     config = dict(
@@ -160,7 +147,7 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
             gender: str = 'gender',
             female: str = 'F',
             male: str = 'M',
-            rename: str = None,
+            rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
@@ -212,8 +199,5 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     def normalize(
             self,
             df: pd.DataFrame,
-            rename: str = None,
             **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
-        return super().normalize(
-            df, rename=rename, **kwargs)
+        return super().normalize(df, **kwargs)

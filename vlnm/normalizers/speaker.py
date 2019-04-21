@@ -43,9 +43,10 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% speaker %}
-    {% rename %}
+
+    formants:
+    speaker:
+    rename:
 
     Example
     -------
@@ -70,7 +71,6 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -97,9 +97,10 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% speaker %}
-    {% formants %}
-    {% rename %}
+
+    formants:
+    speaker:
+    rename:
 
     Example
     -------
@@ -123,7 +124,6 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -152,9 +152,10 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% speaker %}
-    {% rename %}
+
+    formants:
+    speaker:
+    rename:
 
     Example
     -------
@@ -178,7 +179,6 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -208,12 +208,12 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
     Parameters
     ----------
 
-    {% formants %}
-    {% speaker %}
+    formants:
+    speaker:
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
-    {% rename %}
+    rename:
 
     Example
     -------
@@ -238,13 +238,12 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
             self,
             formants: List[str] = None,
             exp: bool = False,
-            rename: str = None,
+            rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(formants=formants, exp=exp, rename=rename, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _keyword_default(self, keyword, df=None):
@@ -268,6 +267,13 @@ class NearyExpNormalizer(NearyNormalizer):
 
     See :cite:`thomas_kendel_2007` for discussion.
 
+    Parameters
+    ----------
+
+    formants:
+    speaker:
+    rename:
+
     Example
     -------
 
@@ -286,12 +292,13 @@ class NearyExpNormalizer(NearyNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            speaker: str = 'speaker',
+            rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(formants=formants, exp=True, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -304,7 +311,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
     The Neary 'Grand Mean' normalizer log-transforms each formant
     and then substracts the mean log-transform of *all* formants
     under-considraton for a given speaker.
-    This may be |f1| and |f2| :citep:`flynn_foulkes_2011`
+    This is usually |f1| and |f2| :citep:`flynn_foulkes_2011`
     or |f1|, |f2|, and |f3| :citep:`clopper_2009`:
 
     .. math::
@@ -319,15 +326,13 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
 
     Parameters
     ----------
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
-    {% formants %}
-    {% speaker %}
+
+    formants:
+    speaker:
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
-    {% rename %}
+    rename:
 
 
     .. ipython::
@@ -349,19 +354,18 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
-            speaker: str = None,
+            formants: List[str] = None,
+            speaker: str = 'speaker',
             exp: bool = False,
-            rename: str = None):
+            rename: Union[str, dict] = None):
         super().__init__(
-            f1=f1, f2=f2, f3=f3,
-            speaker=speaker, exp=exp, rename=rename)
+            formants=formants,
+            speaker=speaker,
+            exp=exp,
+            rename=rename)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _keyword_default(self, keyword, df=None):
@@ -385,6 +389,13 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
     See :citet:`flynn_foulkes_2011` and :citet:`thomas_kendel_2007` for discussion.
 
+    Parameters
+    ----------
+
+    formants:
+    speaker:
+    rename:
+
     Example
     -------
 
@@ -403,10 +414,11 @@ class NearyGMExpNormalizer(NearyNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            speaker: str = 'speaker',
+            rename: Union[str, dict] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=True, **kwargs)
+        super().__init__(formants=formants, speaker=speaker, exp=True, rename=rename, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
