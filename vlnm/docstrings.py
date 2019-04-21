@@ -4,14 +4,6 @@ Module for inserting common documentation snippits into docstrings.
 import re
 
 REPLACEMENTS = dict(
-    kwargs=r"""
-    **kwargs
-        Other keyword arguments passed to the parent class.
-    """,
-    normalized_data=r"""
-    `pandas.DataFrame`
-        The normalized data.
-    """,
     hz_to_bark=r"""
     Parameters
     ----------
@@ -55,12 +47,16 @@ REPLACEMENTS.update(**{
         DataFrame columns containing :math:`F_2` data.
         If omitted, defaults to ``'f2'``.
     """,
+    'f3:': r"""
+        DataFrame columns containing :math:`F_2` data.
+        If omitted, defaults to ``'f2'``.
+    """,
     'f0, f1, f2, f3:': r"""
     f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
 
         :class:`DataFrame` columns containing formant data.
         If omitted, any columns from the list
-        ``['f0', 'f1', 'f2', 'f3', 'f4', 'f5']`` that
+        ``['f0', 'f1', 'f2', 'f3']`` that
         are in the DataFrame will be used.
     """,
     'formants:': r"""
@@ -89,6 +85,27 @@ REPLACEMENTS.update(**{
         The DataFrame column which contains the vowel labels.
         If not given, defaults to ``'vowel'``.
     """,
+    '**kwargs:': r"""
+    **kwargs:
+        Keyword arguments passed to parent constructor.
+    """,
+    'normalize': r"""
+    Normalize formant data.
+
+    Parameters
+    ----------
+
+    df:
+        DataFrame containing formant data.
+
+    **kwargs:
+        Passed to the parent method.
+
+    Returns
+    -------
+    :
+        A dataframe containing the normalized formants.
+    """
 })
 
 
@@ -96,6 +113,7 @@ PARAM_RE = r'^\s*([A-z0-9_ ,]+:)'
 
 
 def docstring(obj):
+    context = type(obj).__name__
     if obj.__doc__:
         docs = []
         lines = obj.__doc__.split('\n')
@@ -105,8 +123,12 @@ def docstring(obj):
             match = re.match(PARAM_RE, line)
             if match:
                 key = match.groups()[0]
-                if key in REPLACEMENTS:
-                    replacement = REPLACEMENTS[key]
+                replacement = REPLACEMENTS.get(
+                    (key, context),
+                    REPLACEMENTS.get(
+                        (key, None),
+                        REPLACEMENTS.get(key)))
+                if replacement:
                     if replacement.strip().startswith(key):
                         docs = docs[:-1]
                     docs.extend(replacement.split('\n'))

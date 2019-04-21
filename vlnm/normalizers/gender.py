@@ -50,6 +50,7 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
     rename:
+    **kwargs:
 
     """
     config = dict(
@@ -130,6 +131,7 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
     rename:
+    **kwargs:
 
     """
     config = dict(

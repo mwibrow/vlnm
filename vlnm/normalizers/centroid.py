@@ -288,8 +288,8 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
             speaker: str = 'speaker',
             vowel: str = 'vowel',
             fleece: str = 'fleece',
@@ -380,8 +380,8 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
     )
 
     def __init__(self,
-                 f1: Union[str, List[str]],
-                 f2: Union[str, List[str]],
+                 f1: Union[str, List[str]] = 'f1',
+                 f2: Union[str, List[str]] = 'f2',
                  speaker: str = 'speaker',
                  vowel: str = 'vowel',
                  fleece: str = 'fleece',
@@ -467,13 +467,14 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
     rename:
+    **kwargs:
 
     """
 
     def __init__(
             self,
-            f1: Union[str, List[str]],
-            f2: Union[str, List[str]],
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
             speaker: str = 'speaker',
             vowel: str = 'vowel',
             fleece: str = 'fleece',
@@ -509,6 +510,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         return super().normalize(df, **kwargs)
 
 
+@docstring
 @register('bigham')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class BighamNormalizer(CentroidNormalizer, FxNormalizer):
@@ -565,75 +567,22 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
 
     Parameters
     ----------
-    f1 : :obj:`str`
-        The DataFrame column which contains the :math:`F_1` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f1'``.
 
-    f2 : :obj:`str`
-        The DataFrame column which contains the :math:`F_2` data.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'f2'``.
-
-    speaker: :obj:`str`
-        The DataFrame column which contains the speaker labels.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'speaker'``.
-
-    vowel: :obj:`str`
-        The DataFrame column which contains the vowel labels.
-        If not given (or overridden in the `normalize` method)
-        defaults to ``'vowel'``.
-
-    points : :obj:`dict`
+    f1:
+    f2:
+    speaker:
+    vowel:
+    points:
         A dictionary specifying labels for the required vowels
         to construct the centroid (shown in the table above).
         The keys for the dictionary should be from the
-        lexical set keywords (see table below)
+        lexical set keywords :citet:`wells_1982`:
+        ``'kit'``, ``'goose'``, ``'fleece'``, ``'start'``, ``'thought'``, ``'trap'``,
         and *all* keys need to be specified.
+        If omitted, the normalizer will assume that the vowels
+        are already labeled according to the lexical set keywords.
+    rename:
 
-        If this parameter is omitted, the normalizer will assume that the vowels
-        are already labeled according to the lexical set keywords
-        taken from :citet:`wells_1982`:
-
-
-    .. list-table:: Lexical set keywords with corresponding dictionary keys
-        :header-rows: 1
-        :align: center
-        :class: centered
-
-        * - Keyword
-          - SSBE vowel
-          - Dictionary key
-        * - :smallcaps:`kit`
-          - :ipa:`ɪ`
-          - ``kit``
-        * - :smallcaps:`goose`
-          - :ipa:`u`
-          - ``goose``
-        * - :smallcaps:`fleece`
-          - :ipa:`i`
-          - ``fleece``
-        * - :smallcaps:`start`
-          - :ipa:`ɑ`
-          - ``fleece``
-        * - :smallcaps:`thought`
-          - :ipa:`ɔ`
-          - ``thought``
-        * - :smallcaps:`trap`
-          - :ipa:`æ`
-          - ``trap``
-
-    kwargs :
-        Other keyword arguments passed to the parent class.
-
-    Returns
-    -------
-    `pandas.DataFrame`
-        The normalized data.
-
-    Example
-    -------
 
     """
     config = dict(
@@ -699,22 +648,13 @@ class SchwaNormalizer(CentroidNormalizer):
     ----------
 
     formants:
-        The :class:`DataFrame` columns containing the formant data.
-        If omitted, any columns matching ``'f0'``, ``'f1'``, …,
-        ``'f5'``, that are in the DataFrame will be used.
     speaker:
-        The :class:`DataFrame` column containing the speaker labels.
-        If omitted, defaults to ``'speaker'``.
     vowel:
-        The :class:`DataFrame` column containing the vowel labels.
-        If omitted, defaults to ``'vowel'``.
     schwa:
         The vowel label for the schwa vowel.
         If omitted, defaults to ``'ə'``
     rename:
-        If given, rename the normalized formants.
-        See the documentation for the :class:`~vlnm.normalizers.base.DefaultNormalizer`
-        class for details.
+    kwargs:
 
     """
     config = dict(
