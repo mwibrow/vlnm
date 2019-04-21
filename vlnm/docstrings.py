@@ -85,9 +85,8 @@ REPLACEMENTS.update(**{
         The DataFrame column which contains the vowel labels.
         If not given, defaults to ``'vowel'``.
     """,
-    '**kwargs:': r"""
-    **kwargs:
-        Keyword arguments passed to parent constructor.
+    'kwargs:': r"""
+        Keyword arguments passed to the parent constructor.
     """,
     'normalize': r"""
     Normalize formant data.
@@ -131,6 +130,8 @@ def docstring(obj):
                 if replacement:
                     if replacement.strip().startswith(key):
                         docs = docs[:-1]
+                    if docs[-1].strip().startswith('kwargs'):
+                        docs[-1] = docs[-1].replace('kwargs', r'\*\*kwargs')
                     docs.extend(replacement.split('\n'))
         obj.__doc__ = '\n'.join(docs)
     else:

@@ -115,6 +115,7 @@ class CentroidNormalizer(SpeakerNormalizer):
     points:
         List of vowel labels corresponding to each 'corner' of the speakers vowel space.
     rename:
+    kwargs:
 
     """
 
@@ -279,6 +280,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
     rename:
+    kwargs:
 
     """
     config = dict(
@@ -372,6 +374,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
     rename:
+    kwargs:
 
     """
     config = dict(
@@ -467,7 +470,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
     rename:
-    **kwargs:
+    kwargs:
 
     """
 
@@ -582,7 +585,7 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
         If omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords.
     rename:
-
+    kwargs:
 
     """
     config = dict(
@@ -635,6 +638,8 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
         return super()._keyword_default(keyword, df=df)
 
 
+
+@docstring
 @register('schwa')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class SchwaNormalizer(CentroidNormalizer):
@@ -656,6 +661,8 @@ class SchwaNormalizer(CentroidNormalizer):
     rename:
     kwargs:
 
+    Example
+    -------
     """
     config = dict(
         columns=['speaker', 'vowel'],
