@@ -64,6 +64,18 @@ REPLACEMENTS = dict(
     """)
 
 REPLACEMENTS.update(**{
+    'f0:': r"""
+        :class:`DataFrame` columns containing :math:`F_0` data.
+        If omitted, defaults to ``'f0'``.
+    """,
+    'f1:': r"""
+        :class:`DataFrame` columns containing :math:`F_1` data.
+        If omitted, defaults to ``'f1'``.
+    """,
+    'f2:': r"""
+        :class:`DataFrame` columns containing :math:`F_2` data.
+        If omitted, defaults to ``'f2'``.
+    """,
     'f0, f1, f2, f3:': r"""
     f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
 

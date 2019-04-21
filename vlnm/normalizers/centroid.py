@@ -108,17 +108,35 @@ class CentroidNormalizer(SpeakerNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% speaker %}
-    {% vowel %}
-    apices:
-        List of vowel labels corresponding to each apex of the speakers vowel space.
-    {% rename %}
+
+    formants:
+    speaker:
+    vowel:
+    points:
+        List of vowel labels corresponding to each 'corner' of the speakers vowel space.
+    rename:
+
     """
 
     config = dict(
         columns=['speaker', 'vowel'],
         keywords=['speaker', 'vowel', 'apices'])
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            points: List[str] = None,
+            rename: Union[str, dict] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            apices=points,
+            rename=rename,
+            **kwargs)
 
     @staticmethod
     def get_centroid(
@@ -172,14 +190,10 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantsNormalizer):
     Parameters
     ----------
 
-    {% formants %}
-    {% speaker %}
-    {% vowel %}
-    {% kwargs %}
-
-    Returns
-    -------
-    {{normalized_data}}
+    formants:
+    speaker:
+    vowel:
+    rename:
 
     """
 
@@ -244,13 +258,43 @@ class WattFabricius1Normalizer(CentroidNormalizer, FxNormalizer):
     the :smallcaps:`fleece`, :smallcaps:`trap`
     and (derived) :smallcaps:`goose` vowels, respectively.
 
+    Parameters
+    ----------
 
+    f1:
+    f2:
+    speaker:
+    vowel:
+    fleece:
+        Vowel label corresponding to the :smallcaps:`fleece` vowel.
+        If omitted, defaults to ``'fleece'``.
+    trap:
+        Vowel label corresponding to the :smallcaps:`trap` vowel.
+        If omitted, defaults to ``'trap'``.
+    rename:
 
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['apices']
+        keywords=['apices', 'fleece', 'trap']
     )
+
+    def __init__(self,
+                 f1: Union[str, List[str]],
+                 f2: Union[str, List[str]],
+                 speaker: str = 'speaker',
+                 vowel: str = 'vowel',
+                 fleece: str = 'fleece',
+                 trap: str = 'trap',
+                 rename: Union[str, dict] = None,
+                 **kwargs):
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            apices=dict(fleece=fleece, trap=trap),
+            rename=rename,
+            **kwargs)
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
@@ -304,12 +348,43 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
 
         F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}
 
-    """
+    Parameters
+    ----------
 
+    f1:
+    f2:
+    speaker:
+    vowel:
+    fleece:
+        Vowel label corresponding to the :smallcaps:`fleece` vowel.
+        If omitted, defaults to ``'fleece'``.
+    trap:
+        Vowel label corresponding to the :smallcaps:`trap` vowel.
+        If omitted, defaults to ``'trap'``.
+    rename:
+
+    """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
-        keywords=['apices']
+        keywords=['apices', 'fleece', 'trap']
     )
+
+    def __init__(self,
+                 f1: Union[str, List[str]],
+                 f2: Union[str, List[str]],
+                 speaker: str = 'speaker',
+                 vowel: str = 'vowel',
+                 fleece: str = 'fleece',
+                 trap: str = 'trap',
+                 rename: Union[str, dict] = None,
+                 **kwargs):
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            apices=dict(fleece=fleece, trap=trap),
+            rename=rename,
+            **kwargs)
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
@@ -366,7 +441,41 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         F_j^{[u^\prime]} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}
 
     where :math:`P` is the set of point vowels.
+
+    Parameters
+    ----------
+
+    f1:
+    f2:
+    speaker:
+    vowel:
+    fleece:
+        Vowel label corresponding to the :smallcaps:`fleece` vowel.
+        If omitted, defaults to ``'fleece'``.
+    trap:
+        Vowel label corresponding to the :smallcaps:`trap` vowel.
+        If omitted, defaults to ``'trap'``.
+    rename:
+
     """
+
+    def __init__(
+            self,
+            f1: Union[str, List[str]],
+            f2: Union[str, List[str]],
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            fleece: str = 'fleece',
+            trap: str = 'trap',
+            rename: Union[str, dict] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            apices=dict(fleece=fleece, trap=trap),
+            rename=rename,
+            **kwargs)
 
     @staticmethod
     def get_centroid(df, apices=None, **kwargs):
