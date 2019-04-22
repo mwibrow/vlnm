@@ -151,14 +151,13 @@ def docstring(obj):
             try:
                 name = obj.name
                 docs.extend([
-                    '    To use this normalizer in the :func:`normalize` function, ',
+                    '    To use this normalizer in the :func:`vlnm.normalize` function, ',
                     '    use ``method=\'{}\'``:'.format(name),
                     '',
                     '    .. ipython::',
                     '        run: no',
                     '',
                     '        from vlnm import normalize',
-                    '',
                     "        normalize('vowels.csv', 'normalized.csv', method='{}')".format(
                         name),
                     ''])
