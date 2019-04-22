@@ -8,6 +8,7 @@ from Hz to other scales.
 
 import numpy as np
 
+
 def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
     r"""Convert from Hz to Bark scale.
 
@@ -67,7 +68,7 @@ def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
 
     Return
     ------
-    :py:class:`numpy.ndarray`
+    :
         The converted data.
     """
     if method == 'greenwood':
@@ -100,12 +101,12 @@ def hz_to_mel(frq: np.ndarray) -> np.ndarray:
     Parameters
     ----------
 
-    frq :
+    frq:
         The frequency data to convert.
 
     Return
     ------
-    :py:class:`numpy.ndarray`
+    :
         The converted data.
     """
     return 1127. * np.log(1. + frq / 700.)
@@ -128,7 +129,7 @@ def hz_to_erb(frq: np.ndarray) -> np.ndarray:
 
     Return
     ------
-    :py:class:`numpy.ndarray`
+    :
         The converted data.
     """
     return 21.4 * np.log(1 + 0.00437 * frq)
@@ -149,7 +150,7 @@ def hz_to_log(frq: np.ndarray) -> np.ndarray:
 
     Return
     ------
-    :py:class:`numpy.ndarray`
+    :
         The converted data.
     """
     return np.log(frq)
@@ -170,7 +171,7 @@ def hz_to_log10(frq: np.ndarray) -> np.ndarray:
 
     Return
     ------
-    :py:class:`numpy.ndarray`
+    :
         The converted data.
     """
     return np.log(frq)

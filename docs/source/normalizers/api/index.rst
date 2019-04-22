@@ -1,4 +1,4 @@
-.. include:: ../defs.rst
+.. include:: ./defs.rst
 
 .. _section_normalization_api:
 
@@ -37,9 +37,15 @@ indiciate any accepted classification of normalizers in the literature.
 
    registration
 
+:mod:`vlnm.conversion`
+----------------------
+.. toctree::
+   :maxdepth: 1
+
+   conversion
+
 :mod:`vlnm.normalizers`
 -----------------------
-
 .. toctree::
    :maxdepth: 1
 

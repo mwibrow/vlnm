@@ -1,4 +1,4 @@
-.. include:: ../defs.rst
+.. include:: ./defs.rst
 
 :mod:`vlnm.registration`
 ========================

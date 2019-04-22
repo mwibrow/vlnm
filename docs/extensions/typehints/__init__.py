@@ -327,10 +327,14 @@ def process_docstring(app, what, name, obj, options, lines):
                             insert_index += 1
                         lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
                 else:
+                    index = None
                     for i, line in enumerate(lines):
-                        if line.startswith(':returns:'):
-                            lines[i] = ':returns: * {}'.format(formatted_annotation)
+                        if (line.lower().startswith(':return:') or
+                                line.lower().startswith(':returns:')):
+                            index = i
                             break
+                    if index is not None:
+                        lines.insert(index, ':rtype: {}'.format(formatted_annotation))
             else:
                 if use_param:
                     searchfor = ':param {}:'.format(argname)
@@ -351,6 +355,8 @@ def process_docstring(app, what, name, obj, options, lines):
                                 '**{}**'.format(argname),
                                 '**{}** ({})'.format(argname, formatted_annotation))
                             break
+        # if obj.__name__ == 'list_normalizers':
+        #     print('\n'.join(lines))
 
 
 def config_ready(app, config):

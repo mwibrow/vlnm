@@ -12,7 +12,7 @@ NORMALIZERS = {}
 
 
 def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
-    """Register a normalizer to be used with the normalize function.
+    """Register a normalizer to be used with the :func:`~vlnm.normalize` function.
 
     Parameters
     ----------

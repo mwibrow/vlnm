@@ -34,7 +34,7 @@ REPLACEMENTS = dict(
         A dataframe containing the normalized formants.
     """)
 
-REPLACEMENTS.update(**{
+REPLACEMENTS = {
     'f0:': r"""
         DataFrame columns containing :math:`F_0` data.
         If omitted, defaults to ``'f0'``.
@@ -85,8 +85,8 @@ REPLACEMENTS.update(**{
         The DataFrame column which contains the vowel labels.
         If not given, defaults to ``'vowel'``.
     """,
-    'kwargs:': r"""
-        Keyword arguments passed to the parent constructor.
+    ('__init__', 'kwargs:'): r"""
+        Optional keyword arguments passed to the parent constructor.
     """,
     'normalize': r"""
     Normalize formant data.
@@ -105,7 +105,7 @@ REPLACEMENTS.update(**{
     :
         A dataframe containing the normalized formants.
     """
-})
+}
 
 
 PARAM_RE = r'^\s*([A-z0-9_ ,]+:)'
