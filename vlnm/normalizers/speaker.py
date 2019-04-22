@@ -14,7 +14,7 @@ import pandas as pd
 
 from ..docstrings import docstring
 from .base import register, classify
-from .base import uninstantiable, Normalizer, FormantsNormalizer, FxNormalizer
+from .base import uninstantiable, Normalizer, FormantIntrinsicNormalizer, FormantExtrinsicNormalizer
 
 
 @uninstantiable
@@ -34,7 +34,7 @@ class SpeakerNormalizer(Normalizer):
 @docstring
 @register('gerstman')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class GerstmanNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     r"""Normalize formants according to :citet:`gerstman_1968`.
 
     Formants are normalized by subtracting the speaker's minimum value
@@ -88,7 +88,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('lce')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
+class LCENormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
     Formants are normalized by "linear compression or expansion"
@@ -139,7 +139,7 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('lobanov')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class LobanovNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
     This uses the formula given in :citet:`{% lobanov_1971 %}`:
@@ -196,7 +196,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('neary')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     r"""Normalize by subtracting log-transformed formant means for each speaker.
 
     .. math::
@@ -309,7 +309,7 @@ class NearyExpNormalizer(NearyNormalizer):
 @docstring
 @register('nearygm')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
-class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
+class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
     r"""Normalize by subtracting the speaker's mean log-transformed formants.
 
     The Neary 'Grand Mean' normalizer log-transforms each formant

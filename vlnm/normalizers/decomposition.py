@@ -24,10 +24,10 @@ from ..docstrings import docstring
 from .base import (
     register,
     classify,
-    FormantsNormalizer)
+    FormantIntrinsicNormalizer)
 
 
-class DecompositionNormalizer(FormantsNormalizer):
+class DecompositionNormalizer(FormantIntrinsicNormalizer):
     """Base class for decomposition Normalizers."""
 
     def __init__(self, cls, columns=None, rename=None, **kwargs):

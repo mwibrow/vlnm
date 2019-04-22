@@ -59,10 +59,19 @@ REPLACEMENTS = {
         ``['f0', 'f1', 'f2', 'f3']`` that
         are in the DataFrame will be used.
     """,
+    'f0, f1, f2, f3, f4, f5:': r"""
+    f0, f1, f2, f3, f4, f5: :obj:`str` or :obj:`list` of :obj:`str`
+
+        :class:`DataFrame` columns containing formant data.
+        If omitted, any columns from the list
+        ``['f0', 'f1', 'f2', 'f3', 'f4', 'f5']`` that
+        are in the DataFrame will be used.
+    """,
     'formants:': r"""
         The :class:`DataFrame` columns containing the formant data.
-        If omitted, any columns matching ``'f0'``, ``'f1'``, …,
-        ``'f5'``, that are in the DataFrame will be used.
+        If omitted, any columns matching
+        ``'f0'``, ``'f1'``, ``'f2'``, ``'f3'``, ``'f4'``, or ``'f5'``
+        will be used.
     """,
     'rename:': r"""
         If specified as a :obj:`str`
@@ -87,6 +96,10 @@ REPLACEMENTS = {
     """,
     ('__init__', 'kwargs:'): r"""
         Optional keyword arguments passed to the parent constructor.
+    """,
+    'groups:': r"""
+        One or more Dataframe columns over which to group
+        the data before applying the normalizer.
     """,
     'normalize': r"""
     Normalize formant data.
@@ -138,9 +151,16 @@ def docstring(obj):
             try:
                 name = obj.name
                 docs.extend([
-                    '    .. note::',
-                    '        To use this normalizer in the :func:`normalize` function, ',
-                    '        use ``method=\'{}\'``.'.format(name),
+                    '    To use this normalizer in the :func:`normalize` function, ',
+                    '    use ``method=\'{}\'``:'.format(name),
+                    '',
+                    '    .. ipython::',
+                    '        run: no',
+                    '',
+                    '        from vlnm import normalize',
+                    '',
+                    "        normalize('vowels.csv', 'normalized.csv', method='{}')".format(
+                        name),
                     ''])
             except AttributeError:
                 pass

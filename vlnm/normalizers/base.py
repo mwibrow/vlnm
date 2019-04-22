@@ -42,11 +42,6 @@ class Normalizer:
     The :class:`Normalizer` class forms the base of all
     normalizers and custom normalizers should all interit
     from this class or one of its subclasses.
-
-    Parameters
-    ----------
-    **kwargs:
-        Keyword arguments used by child classes.
     """
 
     MAX_FX = 5
@@ -90,7 +85,6 @@ class Normalizer:
 
     @docstring
     def normalize(self, df: pd.DataFrame, rename=None, groups=None, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
             rename=rename or self.options.get('rename'),
@@ -185,19 +179,8 @@ class Normalizer:
 
 @docstring
 @uninstantiable
-class FxNormalizer(Normalizer):
+class FormantExtrinsicNormalizer(Normalizer):
     """Base class for normalizers which require specification of individual formants.
-
-    The :class:`FxNormalizer` class should be used as parent class
-    for any normalizer which needs to access specific formant
-    columns.
-
-    Parameters
-    ----------
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
     """
 
     MAX_FX = 5
@@ -208,17 +191,18 @@ class FxNormalizer(Normalizer):
             f1: Union[str, List[str]] = 'f1',
             f2: Union[str, List[str]] = 'f2',
             f3: Union[str, List[str]] = 'f3',
+            f4: Union[str, List[str]] = 'f4',
+            f5: Union[str, List[str]] = 'f5',
             **kwargs):
         super().__init__(**kwargs)
         formants = dict(
             f0=f0 or 'f0',
             f1=f1 or 'f1',
             f2=f2 or 'f2',
-            f3=f3 or 'f3')
-        for i in range(4, self.MAX_FX + 1):
-            fx = f'f{i}'
-            if fx in kwargs:
-                formants.update(**{fx: kwargs.pop(fx, fx)})
+            f3=f3 or 'f3',
+            f4=f4 or 'f4',
+            f5=f5 or 'f5')
+
         self.formants = self._sanitize_formants(formants)
 
     def _sanitize_formants(self, formants):
@@ -239,16 +223,12 @@ class FxNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class FormantsNormalizer(Normalizer):
+class FormantIntrinsicNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants.
 
-    The :class:`FormantsNormalizer` should be used as the base
+    The :class:`FormantIntrinsicNormalizer` should be used as the base
     class for normalizers whose implementation does not need
     to distinguish between specific formants.
-
-    Parameters
-    ----------
-    {% formants %}
     """
 
     def __init__(
@@ -265,7 +245,7 @@ class FormantsNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class TransformNormalizer(FormantsNormalizer):
+class TransformNormalizer(FormantIntrinsicNormalizer):
     """Base class for normalizers which simply transform formants.
     """
 
@@ -281,16 +261,6 @@ class TransformNormalizer(FormantsNormalizer):
 @uninstantiable
 class FormantsTransformNormalizer(TransformNormalizer):
     """Base clase for normalizers transform each formant independently.
-
-    Parameters
-    ----------
-
-    formants:
-    transform:
-        A function which takes |dataframe| containing
-        formant data, transforms the data
-        and returns (a possibly new) |dataframe|.
-    rename:
     """
 
     def __init__(
@@ -305,13 +275,15 @@ class FormantsTransformNormalizer(TransformNormalizer):
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
-class DefaultNormalizer(FormantsNormalizer):
+class DefaultNormalizer(FormantIntrinsicNormalizer):
     """'Default' normalizer which returns formant data unaltered.
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+    formants:
+    rename:
+    **kwargs:
+        Optional keyword arguments passed to the parent constructor.
 
     Examples
     --------
@@ -328,12 +300,13 @@ class DefaultNormalizer(FormantsNormalizer):
 
     """
 
-    def __init__(self, formants: List[str] = None, rename: Union[str, dict] = None):
+    def __init__(
+            self,
+            formants: List[str] = None,
+            rename: Union[str, dict] = None,
+            **kwargs):
         super().__init__(formants=formants, rename=rename)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """
-        {% normalize %}
-        """
         return super().normalize(df, **kwargs)

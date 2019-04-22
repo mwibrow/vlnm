@@ -160,7 +160,7 @@ class Helper:
             actual = sorted(actual)
             self.assertListEqual(actual, expected)
 
-    class TestFxNormalizerBase(TestNormalizerBase):
+    class TestFormantExtrinsicNormalizerBase(TestNormalizerBase):
         """Common tests for normalizer classes with a FxNormalizderBase."""
 
         def test_fx_spec(self):
