@@ -8,7 +8,7 @@
 import inspect
 import re
 import typing
-from typing import get_type_hints, TypeVar, Any, AnyStr, Generic, Union
+from typing import ForwardRef, get_type_hints, TypeVar, Any, AnyStr, Generic, Union
 
 from sphinx.util.inspect import Signature
 
@@ -104,6 +104,8 @@ class Formatter:
 
     def format_type(self, annotation):
         """Type type."""
+        if isinstance(annotation.__args__[0], ForwardRef):
+            return 'class :py:class:`{}`'.format(annotation.__args__[0].__forward_arg__)
         return 'class :py:class:`{}`'.format(annotation.__args__[0].__name__)
 
     def format_callable(self, annotation):

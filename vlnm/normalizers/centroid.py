@@ -638,7 +638,6 @@ class BighamNormalizer(CentroidNormalizer, FxNormalizer):
         return super()._keyword_default(keyword, df=df)
 
 
-
 @docstring
 @register('schwa')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')

@@ -115,6 +115,7 @@ def docstring(obj):
     context = type(obj).__name__
     if obj.__doc__:
         docs = []
+
         lines = obj.__doc__.split('\n')
         state = None
         for line in lines:
@@ -133,6 +134,16 @@ def docstring(obj):
                     if docs[-1].strip().startswith('kwargs'):
                         docs[-1] = docs[-1].replace('kwargs', r'\*\*kwargs')
                     docs.extend(replacement.split('\n'))
+        if obj.__name__.endswith('Normalizer'):
+            try:
+                name = obj.name
+                docs.extend([
+                    '    .. note::',
+                    '        To use this normalizer in the :func:`normalize` function, ',
+                    '        use ``method=\'{}\'``.'.format(name),
+                    ''])
+            except AttributeError:
+                pass
         obj.__doc__ = '\n'.join(docs)
     else:
         if obj.__name__ in REPLACEMENTS:
