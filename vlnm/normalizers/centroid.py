@@ -8,6 +8,10 @@ of a speaker's vowel space
 and use this to normalize the formant data by
 divided the formants for each vowel by the
 correspoinding formant of the centroid.
+
+.. normalizers-list::
+    :module: vlnm.normalizers.centroid
+
 """
 
 from typing import Any, Dict, List, Union

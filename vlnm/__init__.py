@@ -97,13 +97,16 @@ def normalize(
     return df_norm
 
 
-def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
+def list_normalizers(sort: bool = True, module: str = None, index: Dict = None) -> List[str]:
     """Return a list of available normalizers.
 
     Parameters
     ----------
     sort:
         Whether to sort the list by alphabetical order
+    module:
+        List normalizers in the specified module.
+        If omitted, all available normalizers will be listed.
     index:
         The register in which the normalizer was registered.
         If omitted, the global register will be used.
@@ -123,6 +126,14 @@ def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
 
     """
     index = index if index is not None else NORMALIZERS
+    names = list(index.keys())
     if sort:
-        return sorted(list(index.keys()))
-    return list(index.keys())
+        names = sorted(names)
+    if module:
+        filtered = []
+        for name in names:
+            normalizer = get_normalizer(name)
+            if normalizer.__module__.startswith(module):
+                filtered.append(name)
+        names = filtered
+    return names

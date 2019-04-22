@@ -7,6 +7,10 @@ for vowel normalizers as well as the
 :class:`.DefaultNormalizer` which returns data unnormalized
 so can be used as a control when comparing normalization methods.
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.base
+
 """
 import inspect
 from typing import Callable, List, Union

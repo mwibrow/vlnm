@@ -7,6 +7,10 @@ on the speaker's identified/identifying gender.
 Note, that as defined in the literature
 :citep:`e.g., {% bladon_etal_1984, nordstrom_1977 %}`
 the normalizers use a binary gender classification.
+
+.. normalizers-list::
+    :module: vlnm.normalizers.gender
+
 """
 from typing import List, Union
 

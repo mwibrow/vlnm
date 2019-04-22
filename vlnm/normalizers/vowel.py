@@ -1,6 +1,10 @@
 """
 Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. normalizers-list::
+    :module: vlnm.normalizers.vowel
+
 """
 from typing import Callable, List, Union
 

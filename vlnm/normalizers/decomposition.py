@@ -10,6 +10,10 @@ for example, to project
 data (i.e., four-dimensional data)
 onto two dimensions.
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.decomposition
+
 """
 
 from typing import List, Union
@@ -57,11 +61,8 @@ class PCANormalizer(DecompositionNormalizer):
         The required number of components.
         Should be equal to or less than the number of columns.
         This parameter is passed to the PCA estimator.
-    {% rename %}
-
-    Other parameters
-    ----------------
-    :
+    rename:
+    **kwargs:
         All other paremeters are passed to the PCA estimator.
 
     """
@@ -75,11 +76,31 @@ class PCANormalizer(DecompositionNormalizer):
         super().__init__(
             PCA, columns=columns, rename=rename, n_components=n_components, **kwargs)
 
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
+
+@docstring
 @register('nmf')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class NMFNormalizer(DecompositionNormalizer):
     """Normalize data using Non-negative Matrix Factorization (NMF).
+
+    Parameters
+    ----------
+    columns:
+        The columns of the |dataframe| which contain the
+        features to use in PCA.
+        This does not have to be formant data, but *must*
+        be numeric.
+    n_components:
+        The required number of components.
+        Should be equal to or less than the number of columns.
+        This parameter is passed to the PCA estimator.
+    rename:
+    **kwargs:
+        All other paremeters are passed to the NMF estimator.
 
     """
 
@@ -91,3 +112,7 @@ class NMFNormalizer(DecompositionNormalizer):
             **kwargs):
         super().__init__(
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
+
+    @docstring
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)

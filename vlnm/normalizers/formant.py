@@ -2,6 +2,11 @@
 Formant intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.formant
+
+
 """
 import numpy as np
 import pandas as pd

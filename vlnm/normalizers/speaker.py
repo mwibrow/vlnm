@@ -2,6 +2,10 @@
 Speaker-based normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.speaker
+
 """
 from typing import List, Union
 
