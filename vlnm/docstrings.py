@@ -76,9 +76,9 @@ SUBSTITUTIONS = {
             if it is key in the dictionary, with the corresponding
             value as the new name (or removed if that value is ``None``).
         """),
-    'groups:': dict(
+    'group:': dict(
         description=r"""
-            One or more Dataframe columns over which to group
+            One or more :class:`DataFrame` columns over which to group
             the data before applying the normalizer.
         """)
 }

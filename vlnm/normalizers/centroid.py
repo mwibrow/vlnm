@@ -119,6 +119,7 @@ class CentroidNormalizer(SpeakerNormalizer):
     points:
         List of vowel labels corresponding to each 'corner' of the speakers vowel space.
     rename:
+    group:
     kwargs:
 
     """
@@ -199,6 +200,8 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantIntrinsicNormalizer):
     speaker:
     vowel:
     rename:
+    group:
+    kwargs:
 
     """
 
@@ -284,6 +287,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
     rename:
+    group:
     kwargs:
 
     """
@@ -378,7 +382,14 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
     trap:
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
+    points:
+        Alternative method for specifying the
+        :smallcaps:`fleece` and :smallcaps:`trap`
+        labels, consisting of a dictionary with the
+        keys ``'fleece'`` and ``'trap'``,
+        whose values correspond to their respective labels.
     rename:
+    group:
     kwargs:
 
     """
@@ -394,14 +405,16 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
                  vowel: str = 'vowel',
                  fleece: str = 'fleece',
                  trap: str = 'trap',
+                 points: dict = None,
                  rename: Union[str, dict] = None,
                  **kwargs):
+        points = points or dict(fleece=fleece, trap=trap)
         super().__init__(
             f1=f1,
             f2=f2,
             speaker=speaker,
             vowel=vowel,
-            points=dict(fleece=fleece, trap=trap),
+            points=points,
             rename=rename,
             **kwargs)
 
@@ -475,7 +488,14 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
     trap:
         Vowel label corresponding to the :smallcaps:`trap` vowel.
         If omitted, defaults to ``'trap'``.
+    points:
+        Alternative method for specifying the
+        :smallcaps:`fleece` and :smallcaps:`trap`
+        labels, consisting of a dictionary with the
+        keys ``'fleece'`` and ``'trap'``,
+        whose values correspond to their respective labels.
     rename:
+    group:
     kwargs:
 
     """
@@ -592,8 +612,8 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         If omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords.
     rename:
-    **kwargs:
-        Optional keyword arguments passed to the parent constructor.
+    group:
+    kwargs:
 
     """
     config = dict(
@@ -666,6 +686,7 @@ class SchwaNormalizer(CentroidNormalizer):
         The vowel label for the schwa vowel.
         If omitted, defaults to ``'ə'``
     rename:
+    group:
     kwargs:
 
     Example
