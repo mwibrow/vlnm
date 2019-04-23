@@ -307,7 +307,8 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
             fleece=fleece,
             trap=trap)
         super().__init__(
-            formants=formants,
+            f1=f1,
+            f2=f2,
             speaker=speaker,
             vowel=vowel,
             points=points,
@@ -396,7 +397,8 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
                  rename: Union[str, dict] = None,
                  **kwargs):
         super().__init__(
-            formants=formants,
+            f1=f1,
+            f2=f2,
             speaker=speaker,
             vowel=vowel,
             points=dict(fleece=fleece, trap=trap),
@@ -489,7 +491,8 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
             rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(
-            formants=formants,
+            f1=f1,
+            f2=f2,
             speaker=speaker,
             vowel=vowel,
             points=dict(fleece=fleece, trap=trap),
@@ -589,7 +592,8 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         If omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords.
     rename:
-    kwargs:
+    **kwargs:
+        Optional keyword arguments passed to the parent constructor.
 
     """
     config = dict(

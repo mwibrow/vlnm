@@ -130,7 +130,6 @@ def docstring(obj):
         docs = []
 
         lines = obj.__doc__.split('\n')
-        state = None
         for line in lines:
             docs.append(line)
             match = re.match(PARAM_RE, line)

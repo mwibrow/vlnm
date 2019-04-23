@@ -264,6 +264,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
         return df
 
 
+@docstring
 @register('neary-exp')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class NearyExpNormalizer(NearyNormalizer):
@@ -299,7 +300,7 @@ class NearyExpNormalizer(NearyNormalizer):
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=True, **kwargs)
+        super().__init__(formants=formants, speaker=speaker, exp=True, rename=rename, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -386,6 +387,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
         return df
 
 
+@docstring
 @register('nearygm-exp')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
 class NearyGMExpNormalizer(NearyNormalizer):
