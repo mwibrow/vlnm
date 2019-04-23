@@ -4,36 +4,29 @@ Module for inserting common documentation snippits into docstrings.
 import re
 import textwrap
 
-REPLACEMENTS = dict(
-    hz_to_bark=r"""
-    Parameters
-    ----------
-    frq:
-        A numpy array-compatible data structure
-        (e.g., ``numpy.ndarray``, ``pandas.DataFrame``, etc.).
 
-    Returns
-    -------
-    Array-like
-        The frequency data on the Bark scale.
-    """,
-    normalize=r"""
-    Normalize formant data.
-
-    Parameters
-    ----------
-
-    df:
-        DataFrame containing formant data.
-
-    **kwargs:
-        Passed to the parent method.
-
-    Returns
-    -------
-    :
-        A dataframe containing the normalized formants.
-    """)
+SUBSTITUTIONS = {
+    'f0:': dict(
+        description=r"""
+            DataFrame columns containing :math:`F_0` data.
+            If omitted, defaults to ``'f0'``."""),
+    'f1:': dict(
+        description=r"""
+            DataFrame columns containing :math:`F_1` data.
+            If omitted, defaults to ``'f1'``."""),
+    'f0 - f3:': dict(
+        parameter=r"""f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`""",
+        description=r"""
+            :class:`DataFrame` columns containing formant data.
+            If omitted, any columns from the list
+            ``['f0', 'f1', 'f2', 'f3']`` that
+            are in the DataFrame will be used."""),
+    ('kwargs:', 'type'): dict(
+        parameter=r"""\*\*kwargs:""",
+        description=r"""
+            Optional keyword arguments passed to the parent constructor.
+        """)
+}
 
 REPLACEMENTS = {
     'f0:': r"""
@@ -182,8 +175,6 @@ def docstring(obj):
             except AttributeError:
                 pass
         obj.__doc__ = textwrap.indent('\n'.join(docs), indent)
-        if 'Nordstrom' in obj.__name__:
-            print(obj.__doc__)
 
     else:
         if obj.__name__ in REPLACEMENTS:
