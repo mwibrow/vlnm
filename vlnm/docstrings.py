@@ -2,6 +2,7 @@
 Module for inserting common documentation snippits into docstrings.
 """
 import re
+import textwrap
 
 REPLACEMENTS = dict(
     hz_to_bark=r"""
@@ -124,12 +125,29 @@ REPLACEMENTS = {
 PARAM_RE = r'^\s*([A-z0-9_ ,]+:)'
 
 
+def get_doc_indent(doc):
+    lines = doc.split('\n')
+    indent = ''
+    for line in lines:
+        if line.strip():
+            match = re.match(r'(\s+)', line)
+            if match:
+                indent = match.groups()[0]
+        if indent:
+            break
+    return indent
+
+
 def docstring(obj):
     context = type(obj).__name__
     if obj.__doc__:
         docs = []
+        obj_doc = obj.__doc__
+        indent = get_doc_indent(obj_doc)
+        if not obj_doc.startswith(indent):
+            obj_doc = '\n' + indent + obj_doc
 
-        lines = obj.__doc__.split('\n')
+        lines = textwrap.dedent(obj_doc).split('\n')
         for line in lines:
             docs.append(line)
             match = re.match(PARAM_RE, line)
@@ -143,6 +161,7 @@ def docstring(obj):
                 if replacement:
                     if replacement.strip().startswith(key):
                         docs = docs[:-1]
+                        replacement = replacement.strip()
                     if docs[-1].strip().startswith('kwargs'):
                         docs[-1] = docs[-1].replace('kwargs', r'\*\*kwargs')
                     docs.extend(replacement.split('\n'))
@@ -150,19 +169,22 @@ def docstring(obj):
             try:
                 name = obj.name
                 docs.extend([
-                    '    To use this normalizer in the :func:`vlnm.normalize` function, ',
-                    '    use ``method=\'{}\'``:'.format(name),
+                    'To use this normalizer in the :func:`vlnm.normalize` function, ',
+                    'use ``method=\'{}\'``:'.format(name),
                     '',
-                    '    .. ipython::',
-                    '        run: no',
+                    '.. ipython::',
+                    '    run: no',
                     '',
-                    '        from vlnm import normalize',
-                    "        normalize('vowels.csv', 'normalized.csv', method='{}')".format(
+                    '    from vlnm import normalize',
+                    "    normalize('vowels.csv', 'normalized.csv', method='{}')".format(
                         name),
                     ''])
             except AttributeError:
                 pass
-        obj.__doc__ = '\n'.join(docs)
+        obj.__doc__ = textwrap.indent('\n'.join(docs), indent)
+        if 'Nordstrom' in obj.__name__:
+            print(obj.__doc__)
+
     else:
         if obj.__name__ in REPLACEMENTS:
             obj.__doc__ = REPLACEMENTS[obj.__name__]
