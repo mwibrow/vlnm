@@ -94,7 +94,7 @@ REPLACEMENTS = {
         The DataFrame column which contains the vowel labels.
         If not given, defaults to ``'vowel'``.
     """,
-    ('__init__', 'kwargs:'): r"""
+    ('kwargs:', 'type'): r"""
         Optional keyword arguments passed to the parent constructor.
     """,
     'groups:': r"""
