@@ -16,7 +16,7 @@ onto two dimensions.
 
 """
 
-from typing import List, Union
+from typing import List, Union, Type
 import pandas as pd
 from sklearn.decomposition import PCA, NMF
 
@@ -30,12 +30,18 @@ from .base import (
 class DecompositionNormalizer(FormantIntrinsicNormalizer):
     """Base class for decomposition Normalizers."""
 
-    def __init__(self, cls, columns=None, rename=None, **kwargs):
-        super().__init__(formants=columns, rename=rename)
+    def __init__(
+            self,
+            cls: Type,
+            columns: List[str] = None,
+            rename: Union[str, List[str]] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(formants=columns, rename=rename, group_by=group_by)
         self.estimator = cls(**kwargs)
 
     def _norm(self, df: pd.DataFrame, **kwargs):
-        columns = kwargs['formants']
+        columns = kwargs['formants']  # NB not necessarily formants.
         data = df[columns].to_numpy()
         fit = self.estimator.fit_transform(data)
         df.drop(columns, axis=1)
@@ -59,22 +65,32 @@ class PCANormalizer(DecompositionNormalizer):
         be numeric.
     n_components:
         The required number of components.
-        Should be equal to or less than the number of columns.
-        This parameter is passed to the PCA estimator.
+        Should be equal to or less than the number of columns
+        specified.
+
+    Other paramters
+    ---------------
     rename:
+    group_by:
     \*\*kwargs:
-        All other paremeters are passed to the PCA estimator.
+        All other paremeters are passed to the
+        constructor of the :class:`sklearn.decomposition.PCA`
+        class.
 
     """
 
     def __init__(
             self,
             columns: List[str] = None,
-            rename: Union[str, dict] = None,
             n_components: int = 2,
+            rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(
-            PCA, columns=columns, rename=rename, n_components=n_components, **kwargs)
+            PCA,
+            columns=columns,
+            rename=rename,
+            n_components=n_components,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -91,16 +107,22 @@ class NMFNormalizer(DecompositionNormalizer):
     ----------
     columns:
         The columns of the |dataframe| which contain the
-        features to use in PCA.
+        features to use in NMF.
         This does not have to be formant data, but *must*
         be numeric.
     n_components:
         The required number of components.
-        Should be equal to or less than the number of columns.
-        This parameter is passed to the PCA estimator.
+        Should be equal to or less than the number of columns
+        specified.
+
+    Other paramters
+    ---------------
     rename:
+    group_by:
     \*\*kwargs:
-        All other paremeters are passed to the NMF estimator.
+        All other paremeters are passed to the
+        constructor of the :class:`sklearn.decomposition.NMF`
+        class.
 
     """
 
