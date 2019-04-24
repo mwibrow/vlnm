@@ -53,7 +53,12 @@ class BladenNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
     kwargs:
 
     """
@@ -68,12 +73,13 @@ class BladenNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
             gender: str = 'gender',
             female: str = 'F',
             male: str = 'M',
-            rename: str = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             gender=gender, female=female, male=male, rename=rename,
-            **kwargs)
+            group_by=group_by, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -123,6 +129,7 @@ class NordstromNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
 
+
     Parameters
     ----------
     f0, f1, f2, f3:
@@ -134,7 +141,12 @@ class NordstromNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
     kwargs:
 
     """
@@ -154,11 +166,12 @@ class NordstromNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
             female: str = 'F',
             male: str = 'M',
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
             gender=gender, female=female, male=male, rename=rename,
-            **kwargs)
+            group_by=group_by, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':

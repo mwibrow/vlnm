@@ -8,7 +8,7 @@ Formant intrinsic normalizers
 
 
 """
-from typing import Callable, List
+from typing import Callable, List, Union
 import numpy as np
 import pandas as pd
 
@@ -48,6 +48,8 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     Other parameters
     ----------------
+    rename:
+    group_by:
     kwargs:
 
 
@@ -71,10 +73,14 @@ class BarkNormalizer(FormantsTransformNormalizer):
             self,
             formants: List[str] = None,
             transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             transform=transform,
+            rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @docstring
@@ -107,6 +113,8 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     Other parameters
     ----------------
+    rename:
+    group_by:
     kwargs:
 
 
@@ -130,10 +138,14 @@ class ErbNormalizer(FormantsTransformNormalizer):
             self,
             formants: List[str] = None,
             transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             transform=transform,
+            rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @docstring
@@ -160,6 +172,8 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     Other parameters
     ----------------
+    rename:
+    group_by:
     kwargs:
 
 
@@ -182,9 +196,15 @@ class Log10Normalizer(FormantsTransformNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
+            transform=transform,
+            rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @docstring
@@ -211,6 +231,8 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     Other parameters
     ----------------
+    rename:
+    group_by:
     kwargs:
 
 
@@ -233,9 +255,15 @@ class LogNormalizer(FormantsTransformNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
+            transform=transform,
+            rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @docstring
@@ -268,6 +296,8 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     Other parameters
     ----------------
+    rename:
+    group_by:
     kwargs:
 
 
@@ -291,10 +321,14 @@ class MelNormalizer(FormantsTransformNormalizer):
             self,
             formants: List[str] = None,
             transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             transform=transform,
+            rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @docstring

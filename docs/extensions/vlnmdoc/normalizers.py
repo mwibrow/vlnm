@@ -77,7 +77,7 @@ class NormalizersListDirective(SphinxDirective):
         module = self.options.get('module', 'vlnm')
         names = list_normalizers(module=module)
         input_lines = [
-            'The following normalizers are implemented in ``{module}``:'.format(
+            'The following normalizers are implemented in the ``{module}`` module:'.format(
                 module=module)
         ]
         for name in names:

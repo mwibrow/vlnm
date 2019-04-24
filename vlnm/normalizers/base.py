@@ -338,8 +338,8 @@ class ChainNormalizer(Normalizer):
 
         normalizers = [
             BarkNormalizer(rename='{}*'),
-            LobanovNormalizer(
-                formants=['f1_N', 'f2_N'])]
+            LobanovNormalizer(formants=['f1*', 'f2*'])
+        ]
         normalizer = ChainNormalizer(normalizers)
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)

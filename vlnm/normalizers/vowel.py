@@ -9,7 +9,7 @@ Vowel intrinsic normalizers
 from typing import Callable, List, Union
 
 import pandas as pd
-import numpy
+import numpy as np
 
 from .base import classify, register
 from .base import FormantExtrinsicNormalizer
@@ -48,7 +48,14 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
         (e.g., :py:class:`pandas.DataFrame`, or :py:class:`numpy.ndarray`)
         *containing only the formant data*,
         and return the transformed data.
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -95,13 +102,13 @@ class BarkDifferenceNormalizer(FormantExtrinsicNormalizer):
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
-            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
             rename: Union[str, dict] = None,
-            transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
-            rename=rename, transform=transform, **kwargs)
+            rename=rename, group_by=group_by, transform=transform, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:

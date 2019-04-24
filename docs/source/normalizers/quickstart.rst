@@ -177,6 +177,20 @@ data over one or more columns and normalize each group separately:
     normalize('vowels.csv', 'normalized.csv', method='lobanov', group_by='type')
     pd.read_csv('normalized.csv').head()
 
+It is worth noting that this is almost identical to the following code:
+
+.. ipython::
+    run: no
+
+    import pandas as pd
+    from vlnm import LobanovNormalizer
+
+    normalizer = LobanovNormalizer()
+    df = pd.read_csv('vowels.csv')
+    norm_df = df.group_by('type', as_index=False).apply(normalizer.normalize)
+    norm_df = norm_df.reset_index(drop=True)
+    norm_df.to_csv('normalized.csv', index=False)
+
 Although ``group_by`` can be used with most normalizers,
 it only usually makes sense to used it with speaker extrinsic
 normalizers.
