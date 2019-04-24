@@ -177,6 +177,10 @@ data over one or more columns and normalize each group separately:
     normalize('vowels.csv', 'normalized.csv', method='lobanov', group_by='type')
     pd.read_csv('normalized.csv').head()
 
+Although ``group_by`` can be used with most normalizers,
+it only usually makes sense to used it with speaker extrinsic
+normalizers.
+
 Tab and whitespace delimited files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

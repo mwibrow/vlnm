@@ -50,7 +50,14 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     formants:
     speaker:
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -70,8 +77,15 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
             self,
             formants: List[str] = None,
             speaker: str = 'speaker',
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -104,7 +118,14 @@ class LCENormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     formants:
     speaker:
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -123,8 +144,15 @@ class LCENormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -159,7 +187,14 @@ class LobanovNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     formants:
     speaker:
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -178,8 +213,15 @@ class LobanovNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -217,7 +259,14 @@ class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -243,8 +292,9 @@ class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
             formants: List[str] = None,
             exp: bool = False,
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=exp, rename=rename, **kwargs)
+        super().__init__(formants=formants, exp=exp, rename=rename, group_by=group_by, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -277,10 +327,17 @@ class NearyExpNormalizer(NearyNormalizer):
 
     formants:
     speaker:
-    rename:
 
-    Example
-    -------
+
+    Other Parameters
+    ----------------
+    rename:
+    group_by:
+    kwargs:
+
+
+    Examples
+    --------
 
     .. ipython::
 
@@ -299,8 +356,10 @@ class NearyExpNormalizer(NearyNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, speaker=speaker, exp=True, rename=rename, **kwargs)
+        super().__init__(formants=formants, speaker=speaker, exp=True,
+                         rename=rename, group_by=group_by, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -337,8 +396,17 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
-    rename:
 
+
+    Other Parameters
+    ----------------
+    rename:
+    group_by:
+    kwargs:
+
+
+    Examples
+    --------
 
     .. ipython::
 
@@ -362,12 +430,16 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             exp: bool = False,
-            rename: Union[str, dict] = None):
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
         super().__init__(
             formants=formants,
             speaker=speaker,
             exp=exp,
-            rename=rename)
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -400,7 +472,14 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
     formants:
     speaker:
+
+
+    Other Parameters
+    ----------------
     rename:
+    group_by:
+    kwargs:
+
 
     Example
     -------
@@ -422,8 +501,15 @@ class NearyGMExpNormalizer(NearyNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, speaker=speaker, exp=True, rename=rename, **kwargs)
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            exp=True,
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
