@@ -177,11 +177,15 @@ REPLACEMENTS = {
         'rename:': dict(
             description=r"""
             Rename output columns.
+            See :ref:`renaming columns <normalization_renaming>`
+            for details.
         """),
         'group_by:': dict(
             description=r"""
             One or more columns over which to group
             the data before normalization.
+            See :ref:`grouping data <normalization_grouping>`
+            for details.
         """)
     },
     'normalize': r"""

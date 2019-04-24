@@ -121,13 +121,19 @@ created using the
         normalize(csv_in, csv_out, method='lobanov')
 
 
+.. _normalization_renaming:
+
 Renaming columns
 ^^^^^^^^^^^^^^^^
 By default, most normalizers will happily overwrite
 existing formant columns. If the original columns
 should be retained,
 the normalized data can be written to new columns using the
-:arg:`rename` argument:
+:arg:`rename` argument.
+The value passed to this argument can take two forms.
+In the first, a simple string can be passed,
+and the characters ``{}`` will be replaced by the
+original output columns:
 
 .. ipython::
 
@@ -137,6 +143,39 @@ the normalized data can be written to new columns using the
 This will create new columns :col:`f1*` and :col:`f2*` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
+
+Alternatively, the :arg:`rename` argument can be a dictionary.
+Columns will be renamed only if they have a key in the
+dictionary, and will take the name of the corresponding value,
+unless that value is ``None`` in which case the column
+will be removed:
+
+.. ipython::
+
+    rename = {'f1': 'norm1', 'f2': None}
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', rename=rename)
+    pd.read_csv('normalized.csv').head()
+
+.. _normalization_grouping:
+
+Grouping data
+^^^^^^^^^^^^^
+
+In rare cases, perhaps when using a speaker extrinsic normalizer
+which relies on population level calculations
+(e.g., :citealp:`nordstrom_1977`)
+with different populations (e.g., children and adults) in the
+same data set, it is necessary to consider these populations
+seperately as different groups.
+In thses cases the ``group_by`` parameter can be used to group
+data over one or more columns and normalize each group separately:
+
+.. ipython::
+    run: no
+
+    rename = {'f1': 'norm1', 'f2': None}
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', group_by='type')
+    pd.read_csv('normalized.csv').head()
 
 Tab and whitespace delimited files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
