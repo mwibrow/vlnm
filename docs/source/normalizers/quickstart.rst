@@ -134,7 +134,7 @@ the normalized data can be written to new columns using the
     normalize('vowels.csv', 'normalized.csv', method='lobanov', rename='{}*')
     pd.read_csv('normalized.csv').head()
 
-This will create new columns :col:`f1_N` and :col:`f2_N` containing
+This will create new columns :col:`f1*` and :col:`f2*` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
 

@@ -83,14 +83,7 @@ def normalize(
     except (TypeError, ValueError):
         df = data
 
-    try:
-        df_norm = method.normalize(df, **kwargs)
-    except (AttributeError, TypeError):
-        try:
-            df_norm = method().normalize(df, **kwargs)
-        except TypeError:
-            df_norm = get_normalizer(method)().normalize(
-                df, **kwargs)
+    df_norm = get_normalizer(method)(**kwargs).normalize(df)
 
     if file_out:
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
