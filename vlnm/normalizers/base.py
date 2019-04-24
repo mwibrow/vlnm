@@ -296,7 +296,7 @@ class DefaultNormalizer(FormantIntrinsicNormalizer):
         import pandas as pd
         from vlnm import DefaultNormalizer
 
-        normalizer = DefaultNormalizer(rename='{}_N')
+        normalizer = DefaultNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -337,7 +337,7 @@ class ChainNormalizer(Normalizer):
         from vlnm import ChainNormalizer, BarkNormalizer, LobanovNormalizer
 
         normalizers = [
-            BarkNormalizer(rename='{}_N'),
+            BarkNormalizer(rename='{}*'),
             LobanovNormalizer(
                 formants=['f1_N', 'f2_N'])]
         normalizer = ChainNormalizer(normalizers)

@@ -131,7 +131,7 @@ the normalized data can be written to new columns using the
 
 .. ipython::
 
-    normalize('vowels.csv', 'normalized.csv', method='lobanov', rename='{}_N')
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', rename='{}*')
     pd.read_csv('normalized.csv').head()
 
 This will create new columns :col:`f1_N` and :col:`f2_N` containing
@@ -233,7 +233,7 @@ is a Dataframe:
 
     from vlnm import LobanovNormalizer
 
-    norm = LobanovNormalizer(rename='{}_N')
+    norm = LobanovNormalizer(rename='{}*')
     df = pd.read_csv('vowels.csv')
     norm_df = norm.normalize(df)
     norm_df.head()

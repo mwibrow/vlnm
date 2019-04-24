@@ -107,7 +107,7 @@ class NordstromNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = F_i \left(
+        F_i^* = F_i \left(
                 1 + I(F_i)\left(
                     \frac{
                         \mu_{F_3}^{\small{male}}

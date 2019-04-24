@@ -43,7 +43,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = 999 \frac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^* = 999 \frac{F_i - \min{F_i}}{\max{F_i}}
 
     Parameters
     ----------
@@ -60,7 +60,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
         import pandas as pd
         from vlnm import GerstmanNormalizer
 
-        normalizer = GerstmanNormalizer(rename='{}_N')
+        normalizer = GerstmanNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -97,7 +97,7 @@ class LCENormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{\max{F_i}}
+        F_i^* = \frac{F_i}{\max{F_i}}
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ class LCENormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
         import pandas as pd
         from vlnm import LCENormalizer
 
-        normalizer = LCENormalizer(rename='{}_N')
+        normalizer = LCENormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -146,7 +146,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
+        F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
 
     Where :math:`\mu_{F_i}` is the mean of the formant :math:`F_i`
     and :math:`\sigma_{F_i}` is the 'rms deviation' (:citealp:`lobanov_1971`, p.606)
@@ -169,7 +169,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
         import pandas as pd
         from vlnm import LobanovNormalizer
 
-        normalizer = LobanovNormalizer(rename='{}_N')
+        normalizer = LobanovNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -201,7 +201,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = T\left(
+        F_i^* = T\left(
             \log\left(F_i\right) - \frac{1}{n}
                 \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
         \right)
@@ -227,7 +227,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
         import pandas as pd
         from vlnm import NearyNormalizer
 
-        normalizer = NearyNormalizer(rename='{}_N')
+        normalizer = NearyNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -287,7 +287,7 @@ class NearyExpNormalizer(NearyNormalizer):
         import pandas as pd
         from vlnm import NearyExpNormalizer
 
-        normalizer = NearyExpNormalizer(rename='{}_N')
+        normalizer = NearyExpNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -321,7 +321,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = T\left(
+        F_i^* = T\left(
             \log\left(F_i\right) - \frac{1}{n}
                 \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
         \right)
@@ -345,7 +345,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
         import pandas as pd
         from vlnm import NearyGMNormalizer
 
-        normalizer = NearyGMNormalizer(rename='{}_N')
+        normalizer = NearyGMNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -410,7 +410,7 @@ class NearyGMExpNormalizer(NearyNormalizer):
         import pandas as pd
         from vlnm import NearyGMExpNormalizer
 
-        normalizer = NearyGMExpNormalizer(rename='{}_N')
+        normalizer = NearyGMExpNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()

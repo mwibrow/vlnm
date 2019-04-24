@@ -57,7 +57,7 @@ class TestLCENormalizer(Helper.SpeakerNormalizerTests):
 
         actual = LCENormalizer().normalize(
             self.df,
-            rename='{}_N',
+            rename='{}*',
             speaker='speaker')
         self.assertEqual(len(actual), len(expected))
 

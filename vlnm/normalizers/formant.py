@@ -30,7 +30,7 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-        F_i^N =  26.81 \ln\left(
+        F_i^* =  26.81 \ln\left(
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53
 
@@ -59,7 +59,7 @@ class BarkNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import BarkNormalizer
 
-        normalizer = BarkNormalizer(rename='{}_N')
+        normalizer = BarkNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -91,7 +91,7 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-       F_i^N = 21.4 \ln\left(1 + 0.00437{F_i}\right)
+       F_i^* = 21.4 \ln\left(1 + 0.00437{F_i}\right)
 
     Parameters
     ----------
@@ -118,7 +118,7 @@ class ErbNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import ErbNormalizer
 
-        normalizer = ErbNormalizer(rename='{}_N')
+        normalizer = ErbNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -150,7 +150,7 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
      .. math::
 
-       F_i^N = \log_{10}\left(F_i\right)
+       F_i^* = \log_{10}\left(F_i\right)
 
 
     Parameters
@@ -171,7 +171,7 @@ class Log10Normalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import Log10Normalizer
 
-        normalizer = Log10Normalizer(rename='{}_N')
+        normalizer = Log10Normalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -201,7 +201,7 @@ class LogNormalizer(FormantsTransformNormalizer):
 
      .. math::
 
-       F_i^N = \log\left(F_i\right)
+       F_i^* = \log\left(F_i\right)
 
     Parameters
     ----------
@@ -222,7 +222,7 @@ class LogNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import LogNormalizer
 
-        normalizer = LogNormalizer(rename='{}_N')
+        normalizer = LogNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -252,7 +252,7 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-       F_i^N = 1127 \ln\left(1 + \frac{F_i}{700}\right)
+       F_i^* = 1127 \ln\left(1 + \frac{F_i}{700}\right)
 
     Parameters
     ----------
@@ -279,7 +279,7 @@ class MelNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import MelNormalizer
 
-        normalizer = MelNormalizer(rename='{}_N')
+        normalizer = MelNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()

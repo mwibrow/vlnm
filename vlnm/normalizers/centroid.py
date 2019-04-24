@@ -187,7 +187,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantIntrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{S_i}
+        F_i^* = \frac{F_i}{S_i}
 
     where
 
@@ -268,7 +268,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{S(F_i)}
+        F_i^* = \frac{F_i}{S(F_i)}
 
     Where:
 
@@ -376,7 +376,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{S(F_i)}
+        F_i^* = \frac{F_i}{S(F_i)}
 
     Where:
 
@@ -486,7 +486,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{S(F_i)}
+        F_i^* = \frac{F_i}{S(F_i)}
 
     Where:
 
@@ -621,7 +621,7 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{S(F_i)}
+        F_i^* = \frac{F_i}{S(F_i)}
 
     Where:
 
@@ -722,7 +722,7 @@ class SchwaNormalizer(CentroidNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{F_{i}^{[ə]}} - 1
+        F_i^* = \frac{F_i}{F_{i}^{[ə]}} - 1
 
     Parameters
     ----------
