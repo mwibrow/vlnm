@@ -118,6 +118,10 @@ class CentroidNormalizer(SpeakerNormalizer):
     vowel:
     points:
         List of vowel labels corresponding to each 'corner' of the speakers vowel space.
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:
@@ -201,6 +205,10 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantIntrinsicNormalizer):
     formants:
     speaker:
     vowel:
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:
@@ -299,6 +307,10 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         labels, consisting of a dictionary with the
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:
@@ -386,7 +398,6 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
 
     Parameters
     ----------
-
     f1:
     f2:
     speaker:
@@ -403,6 +414,10 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         labels, consisting of a dictionary with the
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:
@@ -513,7 +528,8 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
 
-    Other Parameters
+
+    Other parameters
     ----------------
     rename:
     group_by:
@@ -637,6 +653,10 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         and *all* keys need to be specified.
         If omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords.
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:
@@ -713,6 +733,10 @@ class SchwaNormalizer(CentroidNormalizer):
     schwa:
         The vowel label for the schwa vowel.
         If omitted, defaults to ``'ə'``
+
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     kwargs:

@@ -50,7 +50,7 @@ code.py-obj {
   @include mono-font();
   font-size: 100%;
   background-color: $vlnm-code;
-  padding: 0.0rem 0.25rem 0.0rem;
+  padding: 0rem 0.25rem 0rem;
   border-radius: 1px;
   color: $md-blue-grey-800;
 }
@@ -67,7 +67,9 @@ code.py-obj {
   }
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   a.reference {
     text-decoration: none !important;
     border: none;
@@ -128,20 +130,20 @@ p.rubric code {
 }
 
 dl.field-list > dd {
-	flex-basis: 100%;
-	padding-left: 1em;
-	margin-left: 0em;
-	margin-bottom: 0em;
-
-
+  flex-basis: 100%;
+  padding-left: 1em;
+  margin-left: 0em;
+  margin-bottom: 0em;
 }
 
 dl.field-list {
-  dt.field-odd, dt.field-even {
+  dt.field-odd,
+  dt.field-even {
     background-color: transparent !important;
     border: none !important;
     margin-left: 0px;
     margin-bottom: 0px;
+    margin-top: 8px;
     padding-left: 30px;
   }
   dd {

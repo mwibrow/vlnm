@@ -8,6 +8,7 @@ Formant intrinsic normalizers
 
 
 """
+from typing import Callable, List
 import numpy as np
 import pandas as pd
 
@@ -43,7 +44,12 @@ class BarkNormalizer(FormantsTransformNormalizer):
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
-    rename:
+
+
+    Other parameters
+    ----------------
+    kwargs:
+
 
     Example
     -------
@@ -60,6 +66,16 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=hz_to_bark)
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -87,7 +103,12 @@ class ErbNormalizer(FormantsTransformNormalizer):
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
-    rename:
+
+
+    Other parameters
+    ----------------
+    kwargs:
+
 
     Example
     -------
@@ -105,6 +126,16 @@ class ErbNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_erb)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df)
@@ -121,10 +152,16 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
        F_i^N = \log_{10}\left(F_i\right)
 
+
     Parameters
     ----------
     formants:
-    rename:
+
+
+    Other parameters
+    ----------------
+    kwargs:
+
 
     Example
     -------
@@ -141,6 +178,14 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=np.log10)
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -162,7 +207,12 @@ class LogNormalizer(FormantsTransformNormalizer):
     ----------
 
     formants:
-    rename:
+
+
+    Other parameters
+    ----------------
+    kwargs:
+
 
     Example
     -------
@@ -179,6 +229,14 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=np.log)
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -206,7 +264,12 @@ class MelNormalizer(FormantsTransformNormalizer):
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
-    rename:
+
+
+    Other parameters
+    ----------------
+    kwargs:
+
 
     Example
     -------
@@ -223,6 +286,16 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     """
     config = dict(transform=hz_to_mel)
+
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:

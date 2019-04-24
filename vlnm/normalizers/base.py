@@ -12,7 +12,7 @@ so can be used as a control when comparing normalization methods.
     :module: vlnm.normalizers.base
 
 """
-import inspect
+
 from typing import Callable, List, Union
 
 import pandas as pd
@@ -112,7 +112,7 @@ class Normalizer:
         groups = self.config.get('groups')
         if groups:
             norm_df = df.group_by(groups, as_index=False).apply(
-                lambda group_df: self._normalize(group_df)).reset_index(drop=True)
+                self._normalize).reset_index(drop=True)
         else:
             norm_df = self._normalize(df)
         self._postnormalize(norm_df)
@@ -267,7 +267,6 @@ class FormantsTransformNormalizer(TransformNormalizer):
             self,
             formants: List[str] = None,
             transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
-            rename: Union[str, dict] = None,
             **kwargs):
         super().__init__(formants=formants, transform=transform, **kwargs)
 
@@ -281,6 +280,9 @@ class DefaultNormalizer(FormantIntrinsicNormalizer):
     Parameters
     ----------
     formants:
+
+    Other parameters
+    ----------------
     rename:
     **kwargs:
         Optional keyword arguments passed to the parent constructor.
