@@ -155,6 +155,10 @@ def doc_summary(lines):
     """Extract summary of docs."""
     summary = []
     for line in lines:
+        stripped = line.strip().lower()
+        if (stripped.startswith('to use this normalizer') or
+                stripped.startswith('use ``method')):
+            continue
         if line.startswith('Parameters') or line.startswith('Example'):
             break
         summary.append(line)

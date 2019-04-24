@@ -17,6 +17,7 @@ from typing import Callable, List, Union
 
 import pandas as pd
 
+from .. import get_normalizer
 from ..docstrings import docstring
 from ..registration import classify, register
 
@@ -312,3 +313,67 @@ class DefaultNormalizer(FormantIntrinsicNormalizer):
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
+
+
+@docstring
+@register('chain')
+@classify(vowel=None, formant=None, speaker=None)
+class ChainNormalizer(Normalizer):
+    r"""
+    Run multiple normalizers in sequence.
+
+    Parameters
+    ----------
+    normalizers:
+        A list of normalizers.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import ChainNormalizer, BarkNormalizer, LobanovNormalizer
+
+        normalizers = [
+            BarkNormalizer(rename='{}_N'),
+            LobanovNormalizer(
+                formants=['f1_N', 'f2_N'])]
+        normalizer = ChainNormalizer(normalizers)
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
+
+    """
+
+    def __init__(
+            self,
+            normalizers: Union[List[str], List[Normalizer]] = None):
+
+        super().__init__()
+        self.normalizers = normalizers
+
+    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalize a DataFrame.
+
+        Parameters
+        ----------
+        df:
+            The DataFrame containing the formant data.
+
+        Returns
+        -------
+        :
+            The normalized data.
+        """
+        norm_df = df
+        for normalizer in self.normalizers:
+            try:
+                norm_df = normalizer.normalize(df)
+            except AttributeError:
+                normalizer = get_normalizer(normalizer)
+                norm_df = normalizer.normalize(df)
+        return norm_df

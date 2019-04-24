@@ -16,6 +16,7 @@ from vlnm.registration import (
     register_normalizer)
 
 from vlnm.normalizers.base import (
+    ChainNormalizer,
     DefaultNormalizer,
     Normalizer)
 
