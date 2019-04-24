@@ -48,7 +48,7 @@ class DecompositionNormalizer(FormantIntrinsicNormalizer):
 @register('pca')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class PCANormalizer(DecompositionNormalizer):
-    """Normalize data using Principle Components Analysis (PCA).
+    r"""Normalize data using Principle Components Analysis (PCA).
 
     Parameters
     ----------
@@ -62,7 +62,7 @@ class PCANormalizer(DecompositionNormalizer):
         Should be equal to or less than the number of columns.
         This parameter is passed to the PCA estimator.
     rename:
-    **kwargs:
+    \*\*kwargs:
         All other paremeters are passed to the PCA estimator.
 
     """
@@ -85,7 +85,7 @@ class PCANormalizer(DecompositionNormalizer):
 @register('nmf')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class NMFNormalizer(DecompositionNormalizer):
-    """Normalize data using Non-negative Matrix Factorization (NMF).
+    r"""Normalize data using Non-negative Matrix Factorization (NMF).
 
     Parameters
     ----------
@@ -99,7 +99,7 @@ class NMFNormalizer(DecompositionNormalizer):
         Should be equal to or less than the number of columns.
         This parameter is passed to the PCA estimator.
     rename:
-    **kwargs:
+    \*\*kwargs:
         All other paremeters are passed to the NMF estimator.
 
     """

@@ -119,7 +119,7 @@ class CentroidNormalizer(SpeakerNormalizer):
     points:
         List of vowel labels corresponding to each 'corner' of the speakers vowel space.
     rename:
-    group:
+    group_by:
     kwargs:
 
     """
@@ -135,6 +135,7 @@ class CentroidNormalizer(SpeakerNormalizer):
             vowel: str = 'vowel',
             points: List[str] = None,
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
@@ -142,6 +143,7 @@ class CentroidNormalizer(SpeakerNormalizer):
             vowel=vowel,
             points=points,
             rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @staticmethod
@@ -200,15 +202,26 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantIntrinsicNormalizer):
     speaker:
     vowel:
     rename:
-    group:
+    group_by:
     kwargs:
 
     """
 
     def __init__(
-            self, formants=None, speaker='speaker', vowel='vowel', **kwargs):
+            self,
+            formants=None,
+            speaker='speaker',
+            vowel='vowel',
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
         super().__init__(
-            formants=formants, speaker=speaker, vowel=vowel, **kwargs)
+            formants=formants,
+            speaker=speaker,
+            vowel=vowel,
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     @staticmethod
     def get_centroid(df, points=None, **kwargs):  # pylint: disable=missing-docstring
@@ -287,7 +300,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
     rename:
-    group:
+    group_by:
     kwargs:
 
     """
@@ -306,6 +319,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
             trap: str = 'trap',
             points: dict = None,
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         points = points or dict(
             fleece=fleece,
@@ -317,6 +331,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
             vowel=vowel,
             points=points,
             rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @staticmethod
@@ -389,7 +404,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
     rename:
-    group:
+    group_by:
     kwargs:
 
     """
@@ -398,16 +413,18 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
         keywords=['points', 'fleece', 'trap']
     )
 
-    def __init__(self,
-                 f1: Union[str, List[str]] = 'f1',
-                 f2: Union[str, List[str]] = 'f2',
-                 speaker: str = 'speaker',
-                 vowel: str = 'vowel',
-                 fleece: str = 'fleece',
-                 trap: str = 'trap',
-                 points: dict = None,
-                 rename: Union[str, dict] = None,
-                 **kwargs):
+    def __init__(
+            self,
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            fleece: str = 'fleece',
+            trap: str = 'trap',
+            points: dict = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
+            **kwargs):
         points = points or dict(fleece=fleece, trap=trap)
         super().__init__(
             f1=f1,
@@ -416,6 +433,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
             vowel=vowel,
             points=points,
             rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @staticmethod
@@ -494,9 +512,13 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
         labels, consisting of a dictionary with the
         keys ``'fleece'`` and ``'trap'``,
         whose values correspond to their respective labels.
+
+    Other Parameters
+    ----------------
     rename:
-    group:
+    group_by:
     kwargs:
+
 
     """
 
@@ -508,15 +530,19 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
             vowel: str = 'vowel',
             fleece: str = 'fleece',
             trap: str = 'trap',
+            points: dict = None,
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
+        points = points or dict(fleece=fleece, trap=trap)
         super().__init__(
             f1=f1,
             f2=f2,
             speaker=speaker,
             vowel=vowel,
-            points=dict(fleece=fleece, trap=trap),
+            points=points,
             rename=rename,
+            group_by=group_by,
             **kwargs)
 
     @staticmethod
@@ -612,7 +638,7 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
         If omitted, the normalizer will assume that the vowels
         are already labeled according to the lexical set keywords.
     rename:
-    group:
+    group_by:
     kwargs:
 
     """
@@ -628,10 +654,12 @@ class BighamNormalizer(CentroidNormalizer, FormantExtrinsicNormalizer):
             speaker: str = 'speaker',
             vowel: str = 'vowel',
             points: Dict[str, str] = None,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             points=points, f1=f1, f2=f2,
-            speaker=speaker, vowel=vowel, **kwargs)
+            speaker=speaker, vowel=vowel, rename=rename, group_by=group_by, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -686,7 +714,7 @@ class SchwaNormalizer(CentroidNormalizer):
         The vowel label for the schwa vowel.
         If omitted, defaults to ``'ə'``
     rename:
-    group:
+    group_by:
     kwargs:
 
     Example
@@ -704,13 +732,16 @@ class SchwaNormalizer(CentroidNormalizer):
             vowel: str = 'vowel',
             schwa: str = 'ə',
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             speaker=speaker,
             vowel=vowel,
             schwa=schwa,
-            rename=rename)
+            rename=rename,
+            group_by=group_by,
+            **kwargs)
 
     def _normalize(self, df):
         schwa = self.options['schwa'] or 'ə'
