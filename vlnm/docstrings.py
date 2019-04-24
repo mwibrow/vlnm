@@ -167,7 +167,40 @@ REPLACEMENTS = {
             One or more columns over which to group
             the data before normalization.
         """)
-    }
+    },
+    'type.other parameters': {
+        'kwargs:': dict(
+            parameter=r"""\*\*kwargs:""",
+            description=r"""
+            Optional keyword arguments passed to the parent constructor.
+        """),
+        'rename:': dict(
+            description=r"""
+            Rename output columns.
+        """),
+        'group_by:': dict(
+            description=r"""
+            One or more columns over which to group
+            the data before normalization.
+        """)
+    },
+    'normalize': r"""
+        Normalize formant data.
+
+        Parameters
+        ----------
+
+        df:
+            DataFrame containing formant data.
+
+        **kwargs:
+            Passed to the parent method.
+
+        Returns
+        -------
+        :
+            A DataFrame containing the normalized formants.
+        """
 }
 
 
@@ -255,7 +288,20 @@ def docstring(obj):
         docs = []
         indent, obj_doc = dedent_docs(obj_doc)
         for section, lines in doc_sections(obj_doc):
-            docs.extend(docstring_section(obj, section, lines, indent))
+            section_lines = docstring_section(obj, section, lines, indent)
+            if section.lower() == 'parameters':
+                try:
+                    name = obj.name
+                    section_lines = [
+                        'To use this normalizer in the :func:`vlnm.normalize` function, ',
+                        "use ``method='{}'``.".format(name),
+                        '',
+                        ''
+                    ] + section_lines
+                except AttributeError:
+                    pass
+            docs.extend(section_lines)
+
         obj.__doc__ = textwrap.indent('\n'.join(docs), indent)
     else:
         if obj.__name__ in REPLACEMENTS:

@@ -87,6 +87,7 @@ class PCANormalizer(DecompositionNormalizer):
             columns: List[str] = None,
             n_components: int = 2,
             rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             PCA,
@@ -133,9 +134,10 @@ class NMFNormalizer(DecompositionNormalizer):
 
     def __init__(
             self,
-            columns=None,
-            rename=None,
-            n_components=2,
+            columns: List[str] = None,
+            n_components: int = 2,
+            rename: Union[str, dict] = None,
+            group_by: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
