@@ -24,9 +24,11 @@ from ..docstrings import docstring
 from .base import (
     register,
     classify,
-    FormantIntrinsicNormalizer)
+    FormantIntrinsicNormalizer,
+    uninstantiable)
 
 
+@uninstantiable
 class DecompositionNormalizer(FormantIntrinsicNormalizer):
     """Base class for decomposition Normalizers."""
 
@@ -68,8 +70,9 @@ class PCANormalizer(DecompositionNormalizer):
         Should be equal to or less than the number of columns
         specified.
 
-    Other paramters
-    ---------------
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     \*\*kwargs:
@@ -101,7 +104,8 @@ class PCANormalizer(DecompositionNormalizer):
 @register('nmf')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
 class NMFNormalizer(DecompositionNormalizer):
-    r"""Normalize data using Non-negative Matrix Factorization (NMF).
+    r"""
+    Normalize data using Non-negative Matrix Factorization (NMF).
 
     Parameters
     ----------
@@ -115,8 +119,9 @@ class NMFNormalizer(DecompositionNormalizer):
         Should be equal to or less than the number of columns
         specified.
 
-    Other paramters
-    ---------------
+
+    Other parameters
+    ----------------
     rename:
     group_by:
     \*\*kwargs:

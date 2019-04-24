@@ -247,5 +247,6 @@ primary_domain = 'py'
 
 intersphinx_mapping = {
     'python': ('http://docs.python.org/3', None),
-    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None)
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+    'sklearn': ('http://scikit-learn.org/stable', None),
 }
