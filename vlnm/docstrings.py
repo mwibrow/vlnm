@@ -3,93 +3,8 @@ Module for inserting common documentation snippits into docstrings.
 """
 import re
 import textwrap
+from typing import Any, List
 
-
-REPLACEMENTS = {
-    'f0:': r"""
-        DataFrame columns containing :math:`F_0` data.
-        If omitted, defaults to ``'f0'``.
-    """,
-    'f1:': r"""
-        DataFrame columns containing :math:`F_1` data.
-        If omitted, defaults to ``'f1'``.
-    """,
-    'f2:': r"""
-        DataFrame columns containing :math:`F_2` data.
-        If omitted, defaults to ``'f2'``.
-    """,
-    'f3:': r"""
-        DataFrame columns containing :math:`F_2` data.
-        If omitted, defaults to ``'f2'``.
-    """,
-    'f0, f1, f2, f3:': r"""
-    f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`
-
-        :class:`DataFrame` columns containing formant data.
-        If omitted, any columns from the list
-        ``['f0', 'f1', 'f2', 'f3']`` that
-        are in the DataFrame will be used.
-    """,
-    'f0, f1, f2, f3, f4, f5:': r"""
-    f0, f1, f2, f3, f4, f5: :obj:`str` or :obj:`list` of :obj:`str`
-
-        :class:`DataFrame` columns containing formant data.
-        If omitted, any columns from the list
-        ``['f0', 'f1', 'f2', 'f3', 'f4', 'f5']`` that
-        are in the DataFrame will be used.
-    """,
-    'formants:': r"""
-        The :class:`DataFrame` columns containing the formant data.
-        If omitted, any columns matching
-        ``'f0'``, ``'f1'``, ``'f2'``, ``'f3'``, ``'f4'``, or ``'f5'``
-        will be used.
-    """,
-    'rename:': r"""
-        If specified as a :obj:`str`
-        rename output columns according to the
-        specified pattern replacing ``{}``
-        with the output column.
-
-        If specified as a :obj:`dict`,
-        output columns will only be renamed if they have an entry
-        in the dictionary, taking the value in
-        the dictionary as the new column name.
-        If the value is :obj:`None` the
-        output column will be removed.
-    """,
-    'speaker:': r"""
-        The DataFrame column which contains the speaker labels.
-        If not given, defaults to ``'speaker'``.
-    """,
-    'vowel:': r"""
-        The DataFrame column which contains the vowel labels.
-        If not given, defaults to ``'vowel'``.
-    """,
-    ('kwargs:', 'type'): r"""
-        Optional keyword arguments passed to the parent constructor.
-    """,
-    'groups:': r"""
-        One or more Dataframe columns over which to group
-        the data before applying the normalizer.
-    """,
-    'normalize': r"""
-    Normalize formant data.
-
-    Parameters
-    ----------
-
-    df:
-        DataFrame containing formant data.
-
-    **kwargs:
-        Passed to the parent method.
-
-    Returns
-    -------
-    :
-        A dataframe containing the normalized formants.
-    """
-}
 
 REPLACEMENTS = {
     'type.parameters': {
@@ -219,7 +134,7 @@ def replace_parameter(parameter, replacement, indent):
     return lines
 
 
-PARAM_RE = r'^\s*([A-z0-9_ ,]+:)'
+PARAM_RE = r'^\s*([A-z0-9_ ,-]+:)'
 INDENT_RE = r'(\s*)'
 UNDERLINE_RE = r'(\~+)|(-+)|(\=+)|(\^+)|(\.+)'
 
@@ -228,7 +143,7 @@ PATTERNS = [
 ]
 
 
-def get_doc_indent(doc):
+def get_doc_indent(doc: str):
     """
     Return the initial whitespace
     """
@@ -244,7 +159,7 @@ def get_doc_indent(doc):
     return indent
 
 
-def doc_sections(docs):
+def doc_sections(docs: str):
     """
     Iterate over the sections of a document.
     """
@@ -274,7 +189,7 @@ def doc_sections(docs):
         yield name, section
 
 
-def dedent_docs(docs, indent=None):
+def dedent_docs(docs: str, indent: str = None):
     """
     Dedent docstring, optionally returning indent.
     """
@@ -286,7 +201,10 @@ def dedent_docs(docs, indent=None):
     return _indent, textwrap.dedent(docs)
 
 
-def docstring(obj):
+def docstring(obj: Any):
+    """
+    Process the docstring for an object.
+    """
     obj_doc = obj.__doc__
     if obj_doc:
         docs = []
@@ -313,7 +231,10 @@ def docstring(obj):
     return obj
 
 
-def docstring_section(obj, section, lines, indent):
+def docstring_section(obj: Any, section: str, lines: List[str], indent: str):
+    """
+    Process a docstring section.
+    """
     docs = []
     for line in lines:
         replaced = False

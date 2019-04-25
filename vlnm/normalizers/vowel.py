@@ -40,7 +40,7 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
     Parameters
     ----------
 
-    f0, f1, f2, f3:
+    f0 - f3:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Bark scale.
