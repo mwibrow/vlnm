@@ -278,7 +278,7 @@ is sufficient. These normalizers take a ``formants``
 parameter and to explictly indicate which columns contain formant data
 the ``formants`` parameter can take a list of columns:
 
-.. code-block::
+.. ipython::
 
     formants=['f1@20', 'f1@50', 'f1@80', 'f2@20', 'f2@50', 'f2@80']
 
@@ -288,7 +288,7 @@ to compactly specify multiple formants.
 For example, the following matches exactly the columns specified
 above:
 
-.. code-block::
+.. ipython::
 
     formants=r'f[12]@[258]0'
 
@@ -300,15 +300,16 @@ require parameters ``f0``, ``f1``, ``f2``, and so on
 Each parameter takes a list of formants:
 
 
-.. code-block::
-
+.. ipython::
+    run: no
 
     f1=['f1@20', 'f1@50', 'f1@80'], f2=['f2@20', 'f2@50', 'f2@80']
 
 
 Again, a regular expression can be used instead of a list:
 
-.. code-block::
+.. ipython::
+    run: no
 
     f1=r'f1@[258]0', f2=r'f2@[258]0'
 
