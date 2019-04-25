@@ -237,6 +237,39 @@ Keyword arguments for each normalizer are described
 in the :ref:`section_normalization_api`.
 
 
+Alternative column names
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+All normalizers assume the formant data is in
+columns :col:`f0`, :col:`f1` and so on,
+that is a lower case ``f`` followed by a number.
+For basic use cases, if the formant columns are not named
+in this fashion it is trivial to rename the columns
+prior to normalization using the :method:`pandas.DataFrame.rename`
+method.
+
+In some cases, however, particularly when there are
+multiple measurements for a particular formant across
+a single vowel, it will be necessary to explictly
+state which columns contain the formant data.
+
+|vlnm| has two different ways of specif
+`Formant general` normalizers don't need to know
+what the individual formants are: a list of all formants
+is sufficient. These normalizers accept a ``formants``
+parameter.
+
+`Formant specific` normalizers need to know which
+columns contain specific formants. These normalizers
+require ``f0``, ``f1`` parameters.
+
+It is even possible to use a :ref:`regular expression <https://docs.python.org/3/howto/regex.html>`
+to compactly specify multiple formants
+
+.. ipython::
+    run: no
+
+    formants=r'f\d@\d+'
 
 Normalizing a DataFrame
 -----------------------
