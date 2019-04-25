@@ -63,6 +63,11 @@ class Normalizer:
         self.default_options = self.config.get('options', {}).copy()
         self.default_options.update(**kwargs)
 
+        # Did the user specify formants?
+        keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
+        self.user_formants = {
+            key: kwargs[key] for key in keys if kwargs.get(key)}
+
         # Options set up in normalize method.
         self.options = {}
 
@@ -84,6 +89,18 @@ class Normalizer:
     def __call__(self, df, **kwargs):
         return self.normalize(df, **kwargs)
 
+    @staticmethod
+    def _check_user_formants(df, user_formants):
+        if user_formants:
+            for key in user_formants:
+                if isinstance(key, list):
+                    for sub_key in key:
+                        if not sub_key in df.columns:
+                            return sub_key
+                elif not key in df.columns:
+                    return key
+        return None
+
     @docstring
     def normalize(self, df: pd.DataFrame, rename=None, groups=None, **kwargs) -> pd.DataFrame:
         self.options = self.default_options.copy()
@@ -91,6 +108,15 @@ class Normalizer:
             rename=rename or self.options.get('rename'),
             **{key: value for key, value in kwargs.items()
                if value is not None})
+
+        # Did the user specify formants?
+        keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
+        self.user_formants.update(
+            **{key: kwargs[key] for key in keys if kwargs.get(key)})
+        missing = self._check_user_formants(df, self.user_formants)
+        if missing:
+            raise ValueError(
+                'Formant "{}" not a column in DataFrame'.format(missing))
 
         # Check keywords.
         for keyword in self.config['keywords']:
@@ -109,6 +135,9 @@ class Normalizer:
                     if not col in df:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
+
+        # Check formant columns are in the data frame.
+
         self._prenormalize(df)
         groups = self.config.get('groups')
         if groups:
@@ -188,12 +217,12 @@ class FormantSpecificNormalizer(Normalizer):
 
     def __init__(
             self,
-            f0: Union[str, List[str]] = 'f0',
-            f1: Union[str, List[str]] = 'f1',
-            f2: Union[str, List[str]] = 'f2',
-            f3: Union[str, List[str]] = 'f3',
-            f4: Union[str, List[str]] = 'f4',
-            f5: Union[str, List[str]] = 'f5',
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            f4: Union[str, List[str]] = None,
+            f5: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(**kwargs)
         formants = dict(
