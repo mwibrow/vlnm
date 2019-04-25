@@ -241,11 +241,11 @@ Alternative column names
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 All normalizers assume the formant data is in
-columns :col:`f0`, :col:`f1` and so on,
-that is a lower case ``f`` followed by a number.
+columns :col:`f0`, :col:`f1`, :col:`f2`, … and so on,
+that is a lower case `f` followed by a number.
 For basic use cases, if the formant columns are not named
 in this fashion it is trivial to rename the columns
-prior to normalization using the :method:`pandas.DataFrame.rename`
+prior to normalization using the :meth:`pandas.DataFrame.rename`
 method.
 
 In some cases, however, particularly when there are
@@ -253,23 +253,66 @@ multiple measurements for a particular formant across
 a single vowel, it will be necessary to explictly
 state which columns contain the formant data.
 
-|vlnm| has two different ways of specif
-`Formant general` normalizers don't need to know
-what the individual formants are: a list of all formants
-is sufficient. These normalizers accept a ``formants``
-parameter.
+|vlnm| has two different ways of specifying formant
+columns, depending on whether the normalizer
+is `formant generic` or `formant specific`.
+For example, the :class:`BarkNormalizer` class
+(``method='bark'``) is a formant generic
+normalizer: it only needs to know which columns contain
+any formant data, and normalizes them `en masse`.
+By contrast the :class:`BighamNormalizer` class
+(``method='bigham'``), constructs 'derived' vowels
+from :math:`F_1` and :math:`F_2` formants, so needs
+to know which columns correspond specifically
+to the :math:`F_1` and :math:`F_2` formants; this
+class is a `formant specific` normalizer.
+It is important to note that this distinction bears no relation to
+the classification of normalizers as being 'formant intrinsic'
+or 'formant extrinsic' (see e.g., :citealp:`flynn_foulkes_2011`):
+this merely represents a more logical
+grouping based on programming convenience.
 
-`Formant specific` normalizers need to know which
-columns contain specific formants. These normalizers
-require ``f0``, ``f1`` parameters.
+As formant generic normalizers don't need to know
+what the individual formants are, a list of all formants
+is sufficient. These normalizers take a ``formants``
+parameter and to explictly indicate which columns contain formant data
+the ``formants`` parameter can take a list of columns:
 
-It is even possible to use a :ref:`regular expression <https://docs.python.org/3/howto/regex.html>`
-to compactly specify multiple formants
+.. code-block::
 
-.. ipython::
-    run: no
+    formants=['f1@20', 'f1@50', 'f1@80', 'f2@20', 'f2@50', 'f2@80']
 
-    formants=r'f\d@\d+'
+Alternatively, it is possible to use a
+`regular expression <https://docs.python.org/3/howto/regex.html>`_
+to compactly specify multiple formants.
+For example, the following matches exactly the columns specified
+above:
+
+.. code-block::
+
+    formants=r'f[12]@[258]0'
+
+
+As formant specific normalizers need to know which
+columns contain specific formants, these normalizers
+require parameters ``f0``, ``f1``, ``f2``, and so on
+(the exact parameters may differ depending on the normalizer).
+Each parameter takes a list of formants:
+
+
+.. code-block::
+
+
+    f1=['f1@20', 'f1@50', 'f1@80'], f2=['f2@20', 'f2@50', 'f2@80']
+
+
+Again, a regular expression can be used instead of a list:
+
+.. code-block::
+
+    f1=r'f1@[258]0', f2=r'f2@[258]0'
+
+
 
 Normalizing a DataFrame
 -----------------------

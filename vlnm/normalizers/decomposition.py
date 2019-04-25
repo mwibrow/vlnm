@@ -24,12 +24,12 @@ from ..docstrings import docstring
 from .base import (
     register,
     classify,
-    FormantGeneralNormalizer,
+    FormantGenericNormalizer,
     uninstantiable)
 
 
 @uninstantiable
-class DecompositionNormalizer(FormantGeneralNormalizer):
+class DecompositionNormalizer(FormantGenericNormalizer):
     """Base class for decomposition Normalizers."""
 
     def __init__(

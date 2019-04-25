@@ -22,7 +22,7 @@ from vlnm.docstrings import docstring
 from .base import (
     classify,
     register,
-    FormantGeneralNormalizer,
+    FormantGenericNormalizer,
     FormantSpecificNormalizer)
 from .speaker import SpeakerNormalizer
 
@@ -30,7 +30,7 @@ from .speaker import SpeakerNormalizer
 @docstring
 @register('bladen')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class BladenNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
+class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
     .. math::

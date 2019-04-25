@@ -270,10 +270,10 @@ class FormantSpecificNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class FormantGeneralNormalizer(Normalizer):
+class FormantGenericNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants.
 
-    The :class:`FormantGeneralNormalizer` should be used as the base
+    The :class:`FormantGenericNormalizer` should be used as the base
     class for normalizers whose implementation does not need
     to distinguish between specific formants.
     """
@@ -292,7 +292,7 @@ class FormantGeneralNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class TransformNormalizer(FormantGeneralNormalizer):
+class TransformNormalizer(FormantGenericNormalizer):
     """Base class for normalizers which simply transform formants.
     """
 
@@ -321,7 +321,7 @@ class FormantsTransformNormalizer(TransformNormalizer):
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
-class DefaultNormalizer(FormantGeneralNormalizer):
+class DefaultNormalizer(FormantGenericNormalizer):
     """'Default' normalizer which returns formant data unaltered.
 
     Parameters

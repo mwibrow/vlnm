@@ -14,7 +14,7 @@ import pandas as pd
 
 from ..docstrings import docstring
 from .base import register, classify
-from .base import uninstantiable, Normalizer, FormantGeneralNormalizer, FormantSpecificNormalizer
+from .base import uninstantiable, Normalizer, FormantGenericNormalizer, FormantSpecificNormalizer
 
 
 @uninstantiable
@@ -34,7 +34,7 @@ class SpeakerNormalizer(Normalizer):
 @docstring
 @register('gerstman')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class GerstmanNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
+class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formants according to :citet:`gerstman_1968`.
 
     Formants are normalized by subtracting the speaker's minimum value
@@ -102,7 +102,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
 @docstring
 @register('lce')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LCENormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
+class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
     Formants are normalized by "linear compression or expansion"
@@ -167,7 +167,7 @@ class LCENormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
 @docstring
 @register('lobanov')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LobanovNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
+class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
     This uses the formula given in :citet:`{% lobanov_1971 %}`:
@@ -238,7 +238,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
 @docstring
 @register('neary')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class NearyNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
+class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize by subtracting log-transformed formant means for each speaker.
 
     .. math::

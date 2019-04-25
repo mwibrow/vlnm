@@ -21,7 +21,7 @@ import pandas as pd
 from scipy.spatial import ConvexHull
 
 from ..docstrings import docstring
-from .base import classify, register, FormantGeneralNormalizer, FormantSpecificNormalizer
+from .base import classify, register, FormantGenericNormalizer, FormantSpecificNormalizer
 from .speaker import SpeakerNormalizer
 
 LEXICAL_SET = [
@@ -176,7 +176,7 @@ class CentroidNormalizer(SpeakerNormalizer):
 @docstring
 @register('convex-hull')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class ConvexHullNormalizer(CentroidNormalizer, FormantGeneralNormalizer):
+class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     r"""Normalize using the geometric center of the convex hull enclosing the speakers vowel space.
 
     The convex hull normalizer establishes the speaker's vowel
