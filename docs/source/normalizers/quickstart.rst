@@ -272,6 +272,10 @@ or 'formant extrinsic' (see e.g., :citealp:`flynn_foulkes_2011`):
 this merely represents a more logical
 grouping based on programming convenience.
 
+
+Formant generic normalizers
+"""""""""""""""""""""""""""
+
 As formant generic normalizers don't need to know
 what the individual formants are, a list of all formants
 is sufficient. These normalizers take a ``formants``
@@ -292,6 +296,8 @@ above:
 
     formants=r'f[12]@[258]0'
 
+Formant specific normalizers
+""""""""""""""""""""""""""""
 
 As formant specific normalizers need to know which
 columns contain specific formants, these normalizers
@@ -306,12 +312,16 @@ Each parameter takes a list of formants:
     f1=['f1@20', 'f1@50', 'f1@80'], f2=['f2@20', 'f2@50', 'f2@80']
 
 
-Again, a regular expression can be used instead of a list:
+Again, a regular expression can be used instead of a list,
+but it is important to note that care should be taken
+to ensure the columns in the DataFrame
+are in the appropriate order.
 
 .. ipython::
     run: no
 
     f1=r'f1@[258]0', f2=r'f2@[258]0'
+
 
 
 
