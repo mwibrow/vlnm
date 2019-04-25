@@ -13,6 +13,7 @@ so can be used as a control when comparing normalization methods.
 
 """
 
+import re
 from typing import Callable, List, Union
 
 import pandas as pd
@@ -110,13 +111,14 @@ class Normalizer:
                if value is not None})
 
         # Did the user specify formants?
-        keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
-        self.user_formants.update(
-            **{key: kwargs[key] for key in keys if kwargs.get(key)})
-        missing = self._check_user_formants(df, self.user_formants)
-        if missing:
-            raise ValueError(
-                'Formant "{}" not a column in DataFrame'.format(missing))
+        # keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
+        # self.user_formants.update(
+        #     **{key: kwargs[key] for key in keys if kwargs.get(key)})
+        # missing = self._check_user_formants(df, self.user_formants)
+        # if missing:
+        #     raise ValueError(
+        #         'Formant "{}" not a column in DataFrame'.format(missing))
+        self._get_formant_columns(df)
 
         # Check keywords.
         for keyword in self.config['keywords']:
@@ -136,8 +138,6 @@ class Normalizer:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
 
-        # Check formant columns are in the data frame.
-
         self._prenormalize(df)
         groups = self.config.get('groups')
         if groups:
@@ -147,6 +147,15 @@ class Normalizer:
             norm_df = self._normalize(df)
         self._postnormalize(norm_df)
         return norm_df
+
+    def _get_formant_columns(self, df):
+        formants = self.options.get('formants', self.formants) or self.formants
+        try:
+            formants = [
+                column for column in df.columns if re.match(formants, column)]
+        except TypeError:
+            pass
+        self.formants = formants
 
     def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
         """Get default keyword arguments."""
@@ -234,6 +243,14 @@ class FormantSpecificNormalizer(Normalizer):
             f5=f5 or 'f5')
 
         self.formants = self._sanitize_formants(formants)
+
+    def _get_formant_columns(self, df):
+        for key in self.formants.keys():
+            if len(self.formants[key]) == 1:
+                formant = self.formants[key][0]
+                self.formants[key] = [
+                    column for column in df.columns if re.match(formant, column)]
+        self.formants = {key: value for key, value in self.formants.items() if value}
 
     def _sanitize_formants(self, formants):  # pylint: disable=no-self-use
         fxs = list(formants.keys())
