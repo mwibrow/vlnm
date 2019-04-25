@@ -180,7 +180,7 @@ class Normalizer:
 
 @docstring
 @uninstantiable
-class FormantExtrinsicNormalizer(Normalizer):
+class FormantSpecificNormalizer(Normalizer):
     """Base class for normalizers which require specification of individual formants.
     """
 
@@ -206,7 +206,7 @@ class FormantExtrinsicNormalizer(Normalizer):
 
         self.formants = self._sanitize_formants(formants)
 
-    def _sanitize_formants(self, formants):
+    def _sanitize_formants(self, formants):  # pylint: disable=no-self-use
         fxs = list(formants.keys())
         for fx in fxs:
             if not isinstance(formants[fx], list):
@@ -224,10 +224,10 @@ class FormantExtrinsicNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class FormantIntrinsicNormalizer(Normalizer):
+class FormantGeneralNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants.
 
-    The :class:`FormantIntrinsicNormalizer` should be used as the base
+    The :class:`FormantGeneralNormalizer` should be used as the base
     class for normalizers whose implementation does not need
     to distinguish between specific formants.
     """
@@ -246,7 +246,7 @@ class FormantIntrinsicNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class TransformNormalizer(FormantIntrinsicNormalizer):
+class TransformNormalizer(FormantGeneralNormalizer):
     """Base class for normalizers which simply transform formants.
     """
 
@@ -275,7 +275,7 @@ class FormantsTransformNormalizer(TransformNormalizer):
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
-class DefaultNormalizer(FormantIntrinsicNormalizer):
+class DefaultNormalizer(FormantGeneralNormalizer):
     """'Default' normalizer which returns formant data unaltered.
 
     Parameters

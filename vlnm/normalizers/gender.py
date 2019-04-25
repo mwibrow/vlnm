@@ -22,15 +22,15 @@ from vlnm.docstrings import docstring
 from .base import (
     classify,
     register,
-    FormantIntrinsicNormalizer,
-    FormantExtrinsicNormalizer)
+    FormantGeneralNormalizer,
+    FormantSpecificNormalizer)
 from .speaker import SpeakerNormalizer
 
 
 @docstring
 @register('bladen')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class BladenNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
+class BladenNormalizer(SpeakerNormalizer, FormantGeneralNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
     .. math::
@@ -107,7 +107,7 @@ class BladenNormalizer(SpeakerNormalizer, FormantIntrinsicNormalizer):
 @docstring
 @register('nordstrom')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class NordstromNormalizer(SpeakerNormalizer, FormantExtrinsicNormalizer):
+class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     r"""
     Normalize formant data according to :citet:`nordstrom_1977`.
 
