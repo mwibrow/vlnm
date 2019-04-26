@@ -123,7 +123,7 @@ class CentroidNormalizer(SpeakerNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -139,7 +139,7 @@ class CentroidNormalizer(SpeakerNormalizer):
             vowel: str = 'vowel',
             points: List[str] = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
@@ -147,7 +147,7 @@ class CentroidNormalizer(SpeakerNormalizer):
             vowel=vowel,
             points=points,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @staticmethod
@@ -210,7 +210,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -221,14 +221,14 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
             speaker='speaker',
             vowel='vowel',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             speaker=speaker,
             vowel=vowel,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @staticmethod
@@ -312,7 +312,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantSpecificNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -331,7 +331,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantSpecificNormalizer):
             trap: str = 'trap',
             points: dict = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         points = points or dict(
             fleece=fleece,
@@ -343,7 +343,7 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantSpecificNormalizer):
             vowel=vowel,
             points=points,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @staticmethod
@@ -419,7 +419,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -438,7 +438,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
             trap: str = 'trap',
             points: dict = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         points = points or dict(fleece=fleece, trap=trap)
         super().__init__(
@@ -448,7 +448,7 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
             vowel=vowel,
             points=points,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @staticmethod
@@ -532,7 +532,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -548,7 +548,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
             trap: str = 'trap',
             points: dict = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         points = points or dict(fleece=fleece, trap=trap)
         super().__init__(
@@ -558,7 +558,7 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
             vowel=vowel,
             points=points,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @staticmethod
@@ -658,7 +658,7 @@ class BighamNormalizer(CentroidNormalizer, FormantSpecificNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -675,11 +675,11 @@ class BighamNormalizer(CentroidNormalizer, FormantSpecificNormalizer):
             vowel: str = 'vowel',
             points: Dict[str, str] = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             points=points, f1=f1, f2=f2,
-            speaker=speaker, vowel=vowel, rename=rename, group_by=group_by, **kwargs)
+            speaker=speaker, vowel=vowel, rename=rename, groupby=groupby, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -738,7 +738,7 @@ class SchwaNormalizer(CentroidNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     Example
@@ -756,7 +756,7 @@ class SchwaNormalizer(CentroidNormalizer):
             vowel: str = 'vowel',
             schwa: str = 'ə',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
@@ -764,7 +764,7 @@ class SchwaNormalizer(CentroidNormalizer):
             vowel=vowel,
             schwa=schwa,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     def _normalize(self, df):

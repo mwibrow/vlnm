@@ -53,7 +53,7 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -104,11 +104,11 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
             f3: Union[str, List[str]] = None,
             transform: Callable[[np.ndarray], np.ndarray] = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
-            rename=rename, group_by=group_by, transform=transform, **kwargs)
+            rename=rename, groupby=groupby, transform=transform, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:

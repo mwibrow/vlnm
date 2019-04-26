@@ -49,16 +49,13 @@ class TestLCENormalizer(Helper.SpeakerNormalizerTests):
         """
         Check normalized formant output.
         """
-        rename = '{}_N'
+        rename = '{}*'
         df = self.df.copy()
         formants = self.kwargs['formants']
         expected = df.groupby('speaker', as_index=False).apply(
             lambda x: lce_helper(x, formants, rename))
 
-        actual = LCENormalizer().normalize(
-            self.df,
-            rename='{}*',
-            speaker='speaker')
+        actual = LCENormalizer(rename='{}*', speaker='speaker').normalize(self.df)
         self.assertEqual(len(actual), len(expected))
 
         expected = expected.dropna().sort_values(
@@ -160,12 +157,9 @@ class TestNearyNormalizer(Helper.SpeakerNormalizerTests):
         self.formants = ['f0', 'f1', 'f2', 'f3']
         self.kwargs = dict(formants=self.formants)
 
-
     def test_output(self):
         """Check output."""
-        df = self.normalizer().normalize(
-            self.df.copy(),
-            **self.kwargs)
+        df = self.normalizer(**self.kwargs).normalize(self.df.copy())
 
         self.assertEqual(len(df), len(self.df))
 
@@ -182,10 +176,7 @@ class TestNearyNormalizer(Helper.SpeakerNormalizerTests):
 
     def test_output_transform(self):
         """Check output with exponential transform."""
-        df = self.normalizer().normalize(
-            self.df.copy(),
-            exp=True,
-            **self.kwargs)
+        df = self.normalizer(exp=True, **self.kwargs).normalize(self.df.copy())
 
         self.assertEqual(len(df), len(self.df))
 
@@ -214,9 +205,7 @@ class TestNearyGMNormalizer(Helper.SpeakerNormalizerTests):
 
     def test_output(self):
         """Check output for extrinsic normalizer."""
-        df = self.normalizer().normalize(
-            self.df.copy(),
-            **self.kwargs)
+        df = self.normalizer(**self.kwargs).normalize(self.df.copy())
 
         self.assertEqual(len(df), len(self.df))
 
@@ -234,10 +223,7 @@ class TestNearyGMNormalizer(Helper.SpeakerNormalizerTests):
 
     def test_output_transform(self):
         """Check output for extrinsic normalizer with exponential transform."""
-        df = self.normalizer().normalize(
-            self.df.copy(),
-            exp=True,
-            **self.kwargs)
+        df = self.normalizer(exp=True, **self.kwargs).normalize(self.df.copy())
 
         self.assertEqual(len(df), len(self.df))
 

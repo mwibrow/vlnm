@@ -55,7 +55,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -78,13 +78,13 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             speaker=speaker,
             formants=formants,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @docstring
@@ -123,7 +123,7 @@ class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -145,13 +145,13 @@ class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             speaker=speaker,
             formants=formants,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @docstring
@@ -192,7 +192,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -214,13 +214,13 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             speaker=speaker,
             formants=formants,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @docstring
@@ -264,7 +264,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -292,9 +292,9 @@ class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
             formants: List[str] = None,
             exp: bool = False,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=exp, rename=rename, group_by=group_by, **kwargs)
+        super().__init__(formants=formants, exp=exp, rename=rename, groupby=groupby, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -332,7 +332,7 @@ class NearyExpNormalizer(NearyNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -356,10 +356,10 @@ class NearyExpNormalizer(NearyNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(formants=formants, speaker=speaker, exp=True,
-                         rename=rename, group_by=group_by, **kwargs)
+                         rename=rename, groupby=groupby, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
@@ -401,7 +401,7 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -431,14 +431,14 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
             speaker: str = 'speaker',
             exp: bool = False,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             speaker=speaker,
             exp=exp,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @docstring
@@ -477,7 +477,7 @@ class NearyGMExpNormalizer(NearyNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
 
@@ -501,14 +501,14 @@ class NearyGMExpNormalizer(NearyNormalizer):
             formants: List[str] = None,
             speaker: str = 'speaker',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             speaker=speaker,
             exp=True,
             rename=rename,
-            group_by=group_by,
+            groupby=groupby,
             **kwargs)
 
     @docstring

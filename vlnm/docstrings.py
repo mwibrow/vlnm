@@ -77,7 +77,7 @@ REPLACEMENTS = {
             if it is key in the dictionary, with the corresponding
             value as the new name (or removed if that value is ``None``).
         """),
-        'group_by:': dict(
+        'groupby:': dict(
             description=r"""
             One or more columns over which to group
             the data before normalization.
@@ -95,7 +95,7 @@ REPLACEMENTS = {
             See :ref:`renaming columns <normalization_renaming>`
             for details.
         """),
-        'group_by:': dict(
+        'groupby:': dict(
             description=r"""
             One or more columns over which to group
             the data before normalization.

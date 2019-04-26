@@ -167,14 +167,14 @@ which relies on population level calculations
 with different populations (e.g., children and adults) in the
 same data set, it is necessary to consider these populations
 seperately as different groups.
-In thses cases the ``group_by`` parameter can be used to group
+In thses cases the ``groupby`` parameter can be used to group
 data over one or more columns and normalize each group separately:
 
 .. ipython::
     run: no
 
     rename = {'f1': 'norm1', 'f2': None}
-    normalize('vowels.csv', 'normalized.csv', method='lobanov', group_by='type')
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', groupby='type')
     pd.read_csv('normalized.csv').head()
 
 It is worth noting that this is almost identical to the following code:
@@ -187,11 +187,11 @@ It is worth noting that this is almost identical to the following code:
 
     normalizer = LobanovNormalizer()
     df = pd.read_csv('vowels.csv')
-    norm_df = df.group_by('type', as_index=False).apply(normalizer.normalize)
+    norm_df = df.groupby('type', as_index=False).apply(normalizer.normalize)
     norm_df = norm_df.reset_index(drop=True)
     norm_df.to_csv('normalized.csv', index=False)
 
-Although ``group_by`` can be used with most normalizers,
+Although ``groupby`` can be used with most normalizers,
 it only usually makes sense to used it with speaker extrinsic
 normalizers.
 

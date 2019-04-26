@@ -37,9 +37,9 @@ class DecompositionNormalizer(FormantGenericNormalizer):
             cls: Type,
             columns: List[str] = None,
             rename: Union[str, List[str]] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=columns, rename=rename, group_by=group_by)
+        super().__init__(formants=columns, rename=rename, groupby=groupby)
         self.estimator = cls(**kwargs)
 
     def _norm(self, df: pd.DataFrame, **kwargs):
@@ -74,7 +74,7 @@ class PCANormalizer(DecompositionNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     \*\*kwargs:
         All other paremeters are passed to the
         constructor of the :class:`sklearn.decomposition.PCA`
@@ -87,7 +87,7 @@ class PCANormalizer(DecompositionNormalizer):
             columns: List[str] = None,
             n_components: int = 2,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             PCA,
@@ -124,7 +124,7 @@ class NMFNormalizer(DecompositionNormalizer):
     Other parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     \*\*kwargs:
         All other paremeters are passed to the
         constructor of the :class:`sklearn.decomposition.NMF`
@@ -137,7 +137,7 @@ class NMFNormalizer(DecompositionNormalizer):
             columns: List[str] = None,
             n_components: int = 2,
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)

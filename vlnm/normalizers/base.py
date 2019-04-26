@@ -141,7 +141,7 @@ class Normalizer:
         self._prenormalize(df)
         groups = self.config.get('groups')
         if groups:
-            norm_df = df.group_by(groups, as_index=False).apply(
+            norm_df = df.groupby(groups, as_index=False).apply(
                 self._normalize).reset_index(drop=True)
         else:
             norm_df = self._normalize(df)

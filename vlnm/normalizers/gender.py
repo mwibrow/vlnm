@@ -58,7 +58,7 @@ class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -74,12 +74,12 @@ class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
             female: str = 'F',
             male: str = 'M',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             gender=gender, female=female, male=male, rename=rename,
-            group_by=group_by, **kwargs)
+            groupby=groupby, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -146,7 +146,7 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     Other Parameters
     ----------------
     rename:
-    group_by:
+    groupby:
     kwargs:
 
     """
@@ -166,12 +166,12 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
             female: str = 'F',
             male: str = 'M',
             rename: Union[str, dict] = None,
-            group_by: Union[str, List[str]] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
             gender=gender, female=female, male=male, rename=rename,
-            group_by=group_by, **kwargs)
+            groupby=groupby, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
