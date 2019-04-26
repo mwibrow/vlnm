@@ -105,7 +105,10 @@ class Helper:
     class TestNormalizerBase(unittest.TestCase):
         """Common tests for the speaker normalizers."""
 
-        normalizer = Normalizer
+        class TestNormalier(Normalizer):
+            pass
+
+        normalizer = TestNormalier
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
