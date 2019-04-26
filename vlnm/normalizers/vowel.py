@@ -133,3 +133,64 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         df['z3'] = z3 - z2
 
         return df
+
+
+@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
+class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
+    r"""
+    Normalize formant data according to :citet:`ananthapadmanabha_ramakrishnan_2016`.
+
+    Let the data consist of a set of :math:`I` formants
+    (where :math:`i\in I\implies 1\leq i\leq3`)
+    for  :math:`J` vowels from :math:`K` speakers.
+
+    Let :math:`G_{k}` be the geometric mean of the
+    first, second and third formants for a speaker :math:`k\in K`:
+
+    .. math::
+
+        G_{k} = \left(\prod_{i=1}^{3} F_{ik}\right)^{\frac{1}{3}}
+
+    Then let :math:`F_{ik}^*` be the normalized value of the
+    formant :math:`F_i` for speaker :math:`k`:
+
+    .. math::
+
+        F_{ik}^* = \frac{F_{ik}}{G_{ik}}
+
+
+    This normalized value is then 'denormalized'
+    with respect to vowel :math:`j\in J` so that
+    that :math:`F_{ijk}^\prime` repesents the denormalized
+    value of formant :math:`i` for spekaer :math:`k`
+    with respect to vowel :math:`j`:
+
+    .. math::
+
+        F_{ijk}^\prime = F_{ik}^* \mu_{ij}
+
+    where :math:`\mu_{ij}` is the mean value of formant
+    :math:`i` for vowel :math:`j`.
+    Normalization is completed by calcluating
+    the distance between the denormalized formant
+    values to those of prototypical vowels,
+    and by classifying each vowel
+    according to the closest prototype.
+    Vowel prototypes are bootstrapped from the sample.
+
+
+
+
+    .. math::
+
+        \mbox{argmin}_{j \in J} = \Delta\left(F_{ijk}^\prime)
+
+    Where :math:`\Delta` is a distance metric which
+    :citet:`ananthapadmanabha_ramakrishnan_2016`
+    define as:
+
+    .. math::
+
+        \Delta_{ijk}() = \sum_{i=1}^{2}\frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
+
+    """
