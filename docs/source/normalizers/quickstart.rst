@@ -313,9 +313,9 @@ Each parameter takes a list of formants:
 
 
 Again, a regular expression can be used instead of a list,
-but it is important to note that care should be taken
-to ensure the columns in the DataFrame
-are in the appropriate order.
+but it is important to note that the column names for each formant
+will be sorted as case-sensitive strings after collecting all
+columns matching the regular expression.
 
 .. ipython::
     run: no
