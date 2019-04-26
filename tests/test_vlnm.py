@@ -33,24 +33,6 @@ class TestNormalize(unittest.TestCase):
         actual = list(df.columns)
         self.assertListEqual(actual, expected)
 
-    def test_method_class(self):
-        """
-        Get dataframe from path using class method.
-        """
-        expected = ['speaker', 'f1', 'f2', 'vowel']
-        df = normalize(self.df, method=LobanovNormalizer)
-        actual = list(df.columns)
-        self.assertListEqual(actual, expected)
-
-    def test_method_instance(self):
-        """
-        Get dataframe from path using instance method.
-        """
-        expected = ['speaker', 'f1', 'f2', 'vowel']
-        df = normalize(self.df, method=LobanovNormalizer())
-        actual = list(df.columns)
-        self.assertListEqual(actual, expected)
-
     def test_save_to_file(self):
         """
         Save output to file(-like object).
