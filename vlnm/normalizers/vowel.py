@@ -183,7 +183,8 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
 
     .. math::
 
-        \mbox{argmin}_{j \in J} = \Delta\left(F_{ijk}^\prime)
+        j^* = \underset{j \in J}{\text{argmin}} \sum_{i=1}^{2}
+            \frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
 
     Where :math:`\Delta` is a distance metric which
     :citet:`ananthapadmanabha_ramakrishnan_2016`
