@@ -617,3 +617,27 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
             vowel=vowel,
             rename=rename,
             **kwargs)
+
+    def _norm(self, df):
+        f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
+        speaker = self.params['speaker']
+        vowel = self.params['vowel']
+        formants = [f1, f2, f3]
+
+        # Normalize
+        def _gm(_df):
+            _df[formants] = _df[formants].div(
+                np.cbrt(_df[formants].apply(np.prod, axis=1)), axis=0)
+        df = df.groupby(speaker, as_index=False).apply(_gm).reset_index(drop=True)
+
+        # Bootstrap prototypes
+        prototypes_df = df[[f1, f2, vowel]].groupby(vowel).aggregate([np.mean, np.std])
+        self.params['prototypes_df'] = prototypes_df
+        return df.groupby(speaker, as_index=False).apply(self._denorm).reset_index(drop=True)
+
+    def _denorm(self, df):
+        f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
+        speaker = self.params['speaker']
+        vowel = self.params['vowel']
+
+        prototypes_df = self.params['prototypes_df']
