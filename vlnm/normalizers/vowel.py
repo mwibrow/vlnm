@@ -140,58 +140,59 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
     r"""
     Normalize formant data according to :citet:`ananthapadmanabha_ramakrishnan_2016`.
 
-    Let the data consist of a set of :math:`I` formants
-    (where :math:`i\in I\implies 1\leq i\leq3`)
-    for  :math:`J` vowels from :math:`K` speakers.
-
-    Let :math:`G_{k}` be the geometric mean of the
-    first, second and third formants for a speaker :math:`k\in K`:
-
-    .. math::
-
-        G_{k} = \left(\prod_{i=1}^{3} F_{ik}\right)^{\frac{1}{3}}
-
-    Then let :math:`F_{ik}^*` be the normalized value of the
-    formant :math:`F_i` for speaker :math:`k`:
-
-    .. math::
-
-        F_{ik}^* = \frac{F_{ik}}{G_{ik}}
-
-
-    This normalized value is then 'denormalized'
-    with respect to vowel :math:`j\in J` so that
-    that :math:`F_{ijk}^\prime` repesents the denormalized
-    value of formant :math:`i` for spekaer :math:`k`
-    with respect to vowel :math:`j`:
-
-    .. math::
-
-        F_{ijk}^\prime = F_{ik}^* \mu_{ij}
-
-    where :math:`\mu_{ij}` is the mean value of formant
-    :math:`i` for vowel :math:`j`.
-    Normalization is completed by calcluating
+    Formants for a given token are
+    first normalized by dividing the values in Hz
+    the geometric mean of the first three formants.
+    Formants are then 'denormalized' by calcluating
     the distance between the denormalized formant
-    values to those of prototypical vowels,
+    values to those of a set prototypical vowels,
     and by classifying each vowel
     according to the closest prototype.
-    Vowel prototypes are bootstrapped from the sample.
+    Vowel prototypes are bootstrapped from the data
+    using the mean and standard deviation of the
+    normalized formant values.
 
-
+    More concretely, let :math:`F_{ijkt}` be the value (in Hz)
+    of formant :math:`i` for token :math:`t` of vowel :math:`j`
+    from speaker :math:`k`.
+    Then the normalized value for this formant is given by:
 
 
     .. math::
 
-        j^* = \underset{j \in J}{\text{argmin}} \sum_{i=1}^{2}
-            \frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
+        F^*_{ijkt} = \frac{F_{ijkt}}{\left(\prod_{i=1}^{3} F_{ijkt}\right)^{\frac{1}{3}}}
 
-    Where :math:`\Delta` is a distance metric which
-    :citet:`ananthapadmanabha_ramakrishnan_2016`
-    define as:
+    Let there be :math:`T` tokens of :math:`J` vowels
+    uttered by :math:`K` speakers.
+    Then let :math:`\mu_{ij}` and :math:`\sigma_{ij}` be the
+    mean and standard deviation, respectively, of
+    the normalized formant :math:`i` for vowel :math:`j` over all tokens
+    and speakers:
 
     .. math::
 
-        \Delta_{ijk}() = \sum_{i=1}^{2}\frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
+        \mu_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T F^*_{ijkt}
+
+    .. math::
+
+        \sigma_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T
+            \left(F^*_{ijkt} - \mu_{ij}\right)^2
+
+    Then the denormalized value is given by:
+
+    .. math::
+
+        F^\prime_{i\bar{j}kt} = F^*_{ijkt}\mu_{i\bar{j}}
+
+    where :math:`\mu_{ij}` is the mean value of formant
+    :math:`i` for vowel :math:`j`, and :math:`\bar{j}` is given by:
+
+    .. math::
+
+        \bar{j} = \underset{j \in J}{\text{argmin}} \left(\sum_{i=1}^{2}
+            \frac{\left(F_{ijkt}^\prime - \mu_{ij}\right)^2}{\sigma_{ij}^2}\right)^{\frac{1}{2}}
+
+    It is important to note, that this procedure
+    may reassign formants to different vowels.
 
     """
