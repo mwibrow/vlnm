@@ -636,8 +636,28 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
         return df.groupby(speaker, as_index=False).apply(self._denorm).reset_index(drop=True)
 
     def _denorm(self, df):
-        f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
+        f1, f2 = self.params['f1'], self.params['f2']
         speaker = self.params['speaker']
         vowel = self.params['vowel']
 
-        prototypes_df = self.params['prototypes_df']
+        model_df = self.params['prototypes_df']
+
+        vowels = []
+        min_models = []
+        for t in df.index:
+            token = df.loc[t]
+            min_dist, min_vowel, min_model = np.inf, None, (1, 1)
+            for j in model_df.index:
+                model = model_df.loc[j]
+                dist = np.sqrt(
+                    ((token[f1] - model[f1]['mean']) / model[f1]['std']) ** 2 +
+                    ((token[f2] - model[f2]['mean']) / model[f2]['std']) ** 2)
+                if dist < min_dist:
+                    dist = min_dist
+                    min_vowel = j
+                    min_model = model[f1]['mean'], model[f2]['mean']
+            vowels.append(min_vowel)
+            min_models.append(min_model)
+        df[vowel] = vowels
+        df[[f1, f2]] = df[[f1, f2]].mul(np.array(min_models))
+        return df
