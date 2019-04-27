@@ -2,144 +2,257 @@
 Module for inserting common documentation snippits into docstrings.
 """
 import re
-
-REPLACEMENTS = dict(
-    f0=r"""
-    f0 :
-        The |dataframe| column(s) which contains the :math:`F_0` data.
-        If not given defaults to ``'f0'``.
-    """,
-    f1=r"""
-    f1 :
-        The |dataframe| column(s) which contains the :math:`F_1` data.
-        If not given defaults to ``'f1'``.
-    """,
-    f2=r"""
-    f2 :
-        The |dataframe| column(s) which contains the :math:`F_2` data.
-        If not given defaults to ``'f2'``.
-    """,
-    f3=r"""
-    f3 :
-        The |dataframe| column(s) which contains the :math:`F_3` data.
-        If not given defaults to ``'f3'``.
-    """,
-    f0_f3=r"""
-    f0, f1, f2, f3 : :obj:`str`
-        The DataFrame columns which contains the formant data.
-    """,
-    formants=r"""
-    formants :
-        A list of DataFrame columns which contains the formant data.
-        If not given, the normalizer will use
-        any DataFrame columns found in the list
-        ``['f0', 'f1', 'f2', 'f3]``.
-    """,
-    speaker=r"""
-    speaker: :obj:`str`
-        The DataFrame column which contains the speaker labels.
-        If not given, defaults to ``'speaker'``.
-    """,
-    vowel=r"""
-    vowel: :obj:`str`
-        The DataFrame column which contains the vowel labels.
-        If not given, defaults to ``'vowel'``.
-    """,
-    rename=r"""
-    rename:
-        If specified as a :obj:`str`
-        rename output columns according to the
-        specified pattern. The characters ``{}`` will
-        be replaced with the default output column,
-        so using ``rename='{}_N'`` will suffix all
-        output columns with ``_N``.
-
-        If specified as a :obj:`dict`,
-        columns will be renamed if they have an entry
-        in the dictionary, otherwise they will not be
-        renamed. The new name will be the value
-        given in the dictionary. If that value is
-        :obj:`None` the column will be removed from
-        the data.
-    """,
-    kwargs=r"""
-    **kwargs
-        Other keyword arguments passed to the parent class.
-    """,
-    normalized_data=r"""
-    `pandas.DataFrame`
-        The normalized data.
-    """,
-    hz_to_bark=r"""
-    Parameters
-    ----------
-    frq:
-        A numpy array-compatible data structure
-        (e.g., ``numpy.ndarray``, ``pandas.DataFrame``, etc.).
-
-    Returns
-    -------
-    Array-like
-        The frequency data on the Bark scale.
-    """,
-    normalize=r"""
-    Normalize formant data in a :class:`DataFrame`.
-
-    Parameters
-    ----------
-    df :
-        The formant data to normalize.
-
-    Other parameters
-    ----------------
-    :
-        Other parameters are passed to the parent class.
-
-    Returns
-    -------
-    :
-        A :class:`DataFrame` containing the normalized data.
-    """)
+import textwrap
+from typing import Any, List
 
 
-WSP_RE = re.compile(r'^(\s*)')
+REPLACEMENTS = {
+    'type.parameters': {
+        'f0:': dict(
+            description=r"""
+            DataFrame columns containing :math:`F_0` data.
+            If omitted, defaults to ``'f0'``."""),
+        'f1:': dict(
+            description=r"""
+            DataFrame columns containing :math:`F_1` data.
+            If omitted, defaults to ``'f1'``."""),
+        'f2:': dict(
+            description=r"""
+            DataFrame columns containing :math:`F_2` data.
+            If omitted, defaults to ``'f2'``."""),
+        'f3:': dict(
+            description=r"""
+            DataFrame columns containing :math:`F_3` data.
+            If omitted, defaults to ``'f3'``."""),
+        'f1 - f2:': dict(
+            parameter=r"""f1, f2: :obj:`str` or :obj:`list` of :obj:`str`""",
+            description=r"""
+            :class:`DataFrame` columns containing formant data.
+            If omitted, any columns from the list
+            ``['f1', 'f2']`` that
+            are in the DataFrame will be used."""),
+        'f0 - f3:': dict(
+            parameter=r"""f0, f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`""",
+            description=r"""
+            :class:`DataFrame` columns containing formant data.
+            If omitted, any columns from the list
+            ``['f0', 'f1', 'f2', 'f3']`` that
+            are in the DataFrame will be used."""),
+        'f0 - f5:': dict(
+            parameter=r"""f0, f1, …. f5: :obj:`str` or :obj:`list` of :obj:`str`""",
+            description=r"""
+            :class:`DataFrame` columns containing formant data.
+            If omitted, any columns from the list
+            ``['f0', 'f1', 'f2', 'f3', 'f4', 'f5']`` that
+            are in the DataFrame will be used."""),
+        'kwargs:': dict(
+            parameter=r"""\*\*kwargs:""",
+            description=r"""
+            Optional keyword arguments passed to the parent constructor.
+        """),
+        'speaker:': dict(
+            description=r"""
+            The DataFrame column which contains the speaker labels.
+            If not given, defaults to ``'speaker'``.
+        """),
+        'vowel:': dict(
+            description=r"""
+            The DataFrame column which contains the vowel labels.
+            If not given, defaults to ``'vowel'``.
+        """),
+        'formants:': dict(
+            description=r"""
+            The :class:`DataFrame` columns containing the formant data.
+            If omitted, any columns matching
+            ``'f0'``, ``'f1'``, ``'f2'``, ``'f3'``, ``'f4'``, or ``'f5'``
+            will be used.
+        """),
+        'rename:': dict(
+            description=r"""
+            Rename output columns.
+            If a :obj:`str` value, each output column will be
+            renamed using that value with the characters ``{}``
+            replaced by the original output column.
+            If a :obj:`dict`, each output column will be renamed
+            if it is key in the dictionary, with the corresponding
+            value as the new name (or removed if that value is ``None``).
+        """),
+        'groupby:': dict(
+            description=r"""
+            One or more columns over which to group
+            the data before normalization.
+        """)
+    },
+    'type.other parameters': {
+        'kwargs:': dict(
+            parameter=r"""\*\*kwargs:""",
+            description=r"""
+            Optional keyword arguments passed to the parent constructor.
+        """),
+        'rename:': dict(
+            description=r"""
+            Rename output columns.
+            See :ref:`renaming columns <normalization_renaming>`
+            for details.
+        """),
+        'groupby:': dict(
+            description=r"""
+            One or more columns over which to group
+            the data before normalization.
+            See :ref:`grouping data <normalization_grouping>`
+            for details.
+        """)
+    },
+    'normalize': r"""
+        Normalize formant data.
+
+        Parameters
+        ----------
+
+        df:
+            DataFrame containing formant data.
+
+        **kwargs:
+            Passed to the parent method.
+
+        Returns
+        -------
+        :
+            A DataFrame containing the normalized formants.
+        """
+}
 
 
-def reindent(text, indent=0):
-    """Reindint a multi line string."""
-    lines = text.split('\n')
-    while not lines[0]:
-        lines = lines[1:]
-    while not lines[-1]:
-        lines = lines[-1:]
-    whitespace = [len(WSP_RE.match(line).group(1))
-                  for line in lines]
-    min_indent = min(
-        space for line, space in zip(lines, whitespace) if line.strip())
-    reindented = []
+def replace_parameter(parameter, replacement, indent):
+    parameter = textwrap.dedent(replacement.get('parameter') or parameter)
+    description = textwrap.dedent(replacement.get('description') or '').strip()
+    lines = []
+    if parameter:
+        lines.append(parameter)
+    if description:
+        lines.extend(textwrap.indent(description, indent).split('\n'))
+    return lines
+
+
+PARAM_RE = r'^\s*([A-z0-9_ ,-]+:)'
+INDENT_RE = r'(\s*)'
+UNDERLINE_RE = r'(\~+)|(-+)|(\=+)|(\^+)|(\.+)'
+
+PATTERNS = [
+    (PARAM_RE, replace_parameter)
+]
+
+
+def get_doc_indent(doc: str):
+    """
+    Return the initial whitespace
+    """
+    lines = doc.split('\n')
+    indent = ''
+    for line in lines:
+        if line.strip():
+            match = re.match(INDENT_RE, line)
+            if match:
+                indent = match.groups()[0]
+        if indent:
+            break
+    return indent
+
+
+def doc_sections(docs: str):
+    """
+    Iterate over the sections of a document.
+    """
+    lines = docs.split('\n')
+    blank = 0
+    section = []
+    name = ''
     for i, line in enumerate(lines):
-        if line.strip() and whitespace[i] > 0:
-            line = re.sub(
-                r'^\s+', ' ' * (whitespace[i] - min_indent + indent), line)
-        reindented.append(line)
-    return '\n'.join(reindented)
+        stripped = line.strip()
+        indent = len(re.match(INDENT_RE, line).groups()[0])
+        is_section = i < len(lines) - 1 and re.match(UNDERLINE_RE, lines[i + 1]) is not None
+        if is_section:
+            yield name, section
+            section = []
+            name = line.strip()
+            blank = 0
+        if stripped:
+            if name and blank >= 2 and indent == 0:
+                yield name, section
+                name = ''
+                section = []
+            blank = 0
+        else:
+            blank += 1
+        section.append(line)
+    if section:
+        yield name, section
 
 
-SUBS_RE = re.compile(r'^(\s*)\{%([^%]+)%\}')
+def dedent_docs(docs: str, indent: str = None):
+    """
+    Dedent docstring, optionally returning indent.
+    """
+    _indent = indent or get_doc_indent(docs)
+    if not docs.startswith(_indent):
+        docs = '\n' + _indent + docs
+    if indent is not None:
+        return textwrap.dedent(docs)
+    return _indent, textwrap.dedent(docs)
 
 
-def docstring(obj):
-    """Replace element in docstrings."""
-    lines = obj.__doc__.split('\n')
+def docstring(obj: Any):
+    """
+    Process the docstring for an object.
+    """
+    obj_doc = obj.__doc__
+    if obj_doc:
+        docs = []
+        indent, obj_doc = dedent_docs(obj_doc)
+        for section, lines in doc_sections(obj_doc):
+            section_lines = docstring_section(obj, section, lines, indent)
+            if section.lower() == 'parameters':
+                try:
+                    name = obj.name
+                    section_lines = [
+                        'To use this normalizer in the :func:`vlnm.normalize` function, ',
+                        "use ``method='{}'``.".format(name),
+                        '',
+                        ''
+                    ] + section_lines
+                except AttributeError:
+                    pass
+            docs.extend(section_lines)
+
+        obj.__doc__ = textwrap.indent('\n'.join(docs), indent)
+    else:
+        if obj.__name__ in REPLACEMENTS:
+            obj.__doc__ = REPLACEMENTS[obj.__name__]
+    return obj
+
+
+def docstring_section(obj: Any, section: str, lines: List[str], indent: str):
+    """
+    Process a docstring section.
+    """
     docs = []
     for line in lines:
-        match = SUBS_RE.match(line)
-        if match:
-            indent, key = match.groups()
-            key = key.strip()
-            replacement = REPLACEMENTS.get(key)
-            if replacement:
-                line = reindent(replacement, indent=len(indent))
-        docs.append(line)
-    obj.__doc__ = '\n'.join(docs)
-    return obj
+        replaced = False
+        for pattern, replacer in PATTERNS:
+            match = re.match(pattern, line.strip())
+            if match:
+                key = match.groups()[0]
+                context = type(obj).__name__.lower()
+                if section:
+                    context += '.{}'.format(section).lower()
+                replacements = REPLACEMENTS.get(
+                    context, REPLACEMENTS.get('default'))
+                if replacements:
+                    replacement = replacements.get(key)
+                    if replacement:
+                        docs.extend(replacer(key, replacement, indent))
+                        replaced = True
+                        break
+        if not replaced:
+            docs.append(line)
+    return docs

@@ -16,7 +16,10 @@ import vlnm
 from vlnm import get_normalizer, list_normalizers
 
 from .fonts import setup_fonts
-from .normalizers import NormalizersDirective, NormalizerSummariesDirective
+from .normalizers import (
+    NormalizersListDirective,
+    NormalizerSummariesDirective,
+    NormalizersTableDirective)
 
 
 def make_inline(tag, cls=None):
@@ -75,5 +78,6 @@ def setup(app):
     for role in ['col', 'arg', 'tt', 'csv']:
         app.add_role(role, make_inline(role))
 
-    app.add_directive('normalizers-table', NormalizersDirective)
+    app.add_directive('normalizers-list', NormalizersListDirective)
+    app.add_directive('normalizers-table', NormalizersTableDirective)
     app.add_directive('normalizers-summaries', NormalizerSummariesDirective)

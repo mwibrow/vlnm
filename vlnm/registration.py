@@ -4,7 +4,7 @@ helper functions for documenting normalizer classes
 and registering them for use with the :func:`normalize` function.
 """
 
-from typing import Dict
+from typing import Callable, Dict, Type
 
 from .utils import nameify
 
@@ -12,7 +12,7 @@ NORMALIZERS = {}
 
 
 def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
-    """Register a normalizer to be used with the normalize function.
+    """Register a normalizer to be used with the :func:`~vlnm.normalize` function.
 
     Parameters
     ----------
@@ -24,10 +24,6 @@ def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
     index:
         A dictionary in which the normalizer class will be registered.
         If omitted, the global index will be used.
-
-    Returns
-    -------
-        A decorator function.
 
     Example
     -------
@@ -45,7 +41,7 @@ def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
     index[name] = klass
 
 
-def register(name: str):
+def register(name: str) -> Callable:
     """Decorator for registering a normalizer class.
 
     Parameters
@@ -57,6 +53,7 @@ def register(name: str):
 
     Returns
     -------
+    :
          A decorator function.
 
     Example
@@ -76,10 +73,13 @@ def register(name: str):
     return _decorator
 
 
-def classify(vowel: str = None, formant: str = None, speaker: str = None):
+def classify(
+        vowel: str = None,
+        formant: str = None,
+        speaker: str = None) -> Callable:
     """Decorator for classifying a normalizer class.
 
-    This adds ``classify`` attribute to the class
+    This adds the ``classify`` attribute to the class
     consisting of a dictionary containing the keys and values
     passed to the decorator.
 
@@ -96,6 +96,7 @@ def classify(vowel: str = None, formant: str = None, speaker: str = None):
 
     Returns
     -------
+    :
         A decorator function.
 
     Example
@@ -117,7 +118,9 @@ def classify(vowel: str = None, formant: str = None, speaker: str = None):
     return _decorator
 
 
-def get_normalizer(name: str, index: Dict = None):
+def get_normalizer(
+        name: str,
+        index: Dict = None) -> Type['Normalizer']:
     """Return a normalizer class.
 
     Parameters
@@ -130,6 +133,7 @@ def get_normalizer(name: str, index: Dict = None):
 
     Returns
     -------
+    :
         The normalizer class.
 
     Example

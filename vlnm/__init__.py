@@ -16,6 +16,7 @@ from vlnm.registration import (
     register_normalizer)
 
 from vlnm.normalizers.base import (
+    ChainNormalizer,
     DefaultNormalizer,
     Normalizer)
 
@@ -82,14 +83,7 @@ def normalize(
     except (TypeError, ValueError):
         df = data
 
-    try:
-        df_norm = method.normalize(df, **kwargs)
-    except (AttributeError, TypeError):
-        try:
-            df_norm = method().normalize(df, **kwargs)
-        except TypeError:
-            df_norm = get_normalizer(method)().normalize(
-                df, **kwargs)
+    df_norm = get_normalizer(method)(**kwargs).normalize(df)
 
     if file_out:
         df_norm.to_csv(file_out, sep=sep, header=True, index=False)
@@ -97,13 +91,16 @@ def normalize(
     return df_norm
 
 
-def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
+def list_normalizers(sort: bool = True, module: str = None, index: Dict = None) -> List[str]:
     """Return a list of available normalizers.
 
     Parameters
     ----------
     sort:
         Whether to sort the list by alphabetical order
+    module:
+        List normalizers in the specified module.
+        If omitted, all available normalizers will be listed.
     index:
         The register in which the normalizer was registered.
         If omitted, the global register will be used.
@@ -123,6 +120,14 @@ def list_normalizers(sort: bool = True, index: Dict = None) -> List[str]:
 
     """
     index = index if index is not None else NORMALIZERS
+    names = list(index.keys())
     if sort:
-        return sorted(list(index.keys()))
-    return list(index.keys())
+        names = sorted(names)
+    if module:
+        filtered = []
+        for name in names:
+            normalizer = get_normalizer(name)
+            if normalizer.__module__.startswith(module):
+                filtered.append(name)
+        names = filtered
+    return names

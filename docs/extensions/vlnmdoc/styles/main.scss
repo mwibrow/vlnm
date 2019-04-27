@@ -50,7 +50,7 @@ code.py-obj {
   @include mono-font();
   font-size: 100%;
   background-color: $vlnm-code;
-  padding: 0.125rem 0.25rem 0.125rem;
+  padding: 0rem 0.25rem 0rem;
   border-radius: 1px;
   color: $md-blue-grey-800;
 }
@@ -67,7 +67,9 @@ code.py-obj {
   }
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   a.reference {
     text-decoration: none !important;
     border: none;
@@ -91,7 +93,7 @@ dl.class {
   dt {
     hyphens: none !important;
     background-color: $heading !important;
-    padding: 0.25em 5em 0.25em 0.5em;
+    padding: 0.25em 5em 0.1875em 0.5em;
     border-left: 0.25em solid $heading;
     border-bottom: none;
     border-radius: 0px;
@@ -125,4 +127,42 @@ p.rubric code {
   border-left: 0.25em solid $heading;
   border-bottom: none;
   border-radius: 0px;
+}
+
+dl.field-list > dd {
+  flex-basis: 100%;
+  padding-left: 1em;
+  margin-left: 0em;
+  margin-bottom: 0em;
+}
+
+dl.field-list {
+  dt.field-odd,
+  dt.field-even {
+    background-color: transparent !important;
+    border: none !important;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    margin-top: 8px;
+    &:first-of-type {
+      margin-top: 0px;
+    }
+    padding-left: 30px;
+  }
+  dd {
+    ul {
+      margin-bottom: 8px !important;
+      li {
+        margin-bottom: 8px !important;
+      }
+    }
+  }
+}
+
+dl.method {
+  margin-top: 2rem;
+}
+
+body h4 {
+  font-size: 115%;
 }

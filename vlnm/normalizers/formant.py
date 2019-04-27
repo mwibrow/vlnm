@@ -2,7 +2,13 @@
 Formant intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.formant
+
+
 """
+from typing import Callable, List, Union
 import numpy as np
 import pandas as pd
 
@@ -24,20 +30,28 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-        F_i^N =  26.81 \ln\left(
+        F_i^* =  26.81 \ln\left(
             1 + \frac{F_i}{F_i + 1960}
             \right) - 0.53
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Bark scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -47,7 +61,7 @@ class BarkNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import BarkNormalizer
 
-        normalizer = BarkNormalizer(rename='{}_N')
+        normalizer = BarkNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -55,9 +69,22 @@ class BarkNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_bark)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -70,18 +97,26 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-       F_i^N = 21.4 \ln\left(1 + 0.00437{F_i}\right)
+       F_i^* = 21.4 \ln\left(1 + 0.00437{F_i}\right)
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the ERB scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -91,7 +126,7 @@ class ErbNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import ErbNormalizer
 
-        normalizer = ErbNormalizer(rename='{}_N')
+        normalizer = ErbNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -99,9 +134,22 @@ class ErbNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_erb)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -114,12 +162,20 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
      .. math::
 
-       F_i^N = \log_{10}\left(F_i\right)
+       F_i^* = \log_{10}\left(F_i\right)
+
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+    formants:
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -129,7 +185,7 @@ class Log10Normalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import Log10Normalizer
 
-        normalizer = Log10Normalizer(rename='{}_N')
+        normalizer = Log10Normalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -137,9 +193,22 @@ class Log10Normalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=np.log10)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -152,12 +221,20 @@ class LogNormalizer(FormantsTransformNormalizer):
 
      .. math::
 
-       F_i^N = \log\left(F_i\right)
+       F_i^* = \log\left(F_i\right)
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -167,7 +244,7 @@ class LogNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import LogNormalizer
 
-        normalizer = LogNormalizer(rename='{}_N')
+        normalizer = LogNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -175,9 +252,22 @@ class LogNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=np.log)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
@@ -190,18 +280,26 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     .. math::
 
-       F_i^N = 1127 \ln\left(1 + \frac{F_i}{700}\right)
+       F_i^* = 1127 \ln\left(1 + \frac{F_i}{700}\right)
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+
+    formants:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Mel scale.
         The function should take numpy array-compatible data structure
         (e.g., :py:class:`numpy.ndarray`, :py:class:`pandas.DataFrame`, etc.)
         and return the transformed data.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -211,7 +309,7 @@ class MelNormalizer(FormantsTransformNormalizer):
         import pandas as pd
         from vlnm import MelNormalizer
 
-        normalizer = MelNormalizer(rename='{}_N')
+        normalizer = MelNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -219,7 +317,20 @@ class MelNormalizer(FormantsTransformNormalizer):
     """
     config = dict(transform=hz_to_mel)
 
+    def __init__(
+            self,
+            formants: List[str] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            formants=formants,
+            transform=transform,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
+
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)

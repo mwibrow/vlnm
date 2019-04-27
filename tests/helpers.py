@@ -3,7 +3,6 @@ Helpers for tests.
 """
 import itertools
 import unittest
-from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
@@ -106,7 +105,10 @@ class Helper:
     class TestNormalizerBase(unittest.TestCase):
         """Common tests for the speaker normalizers."""
 
-        normalizer = Normalizer
+        class TestNormalier(Normalizer):
+            pass
+
+        normalizer = TestNormalier
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -140,11 +142,11 @@ class Helper:
 
         def test_new_columns(self):
             """Check new columns returned."""
-            rename = '{}\''
+            rename = '{}*'
             expected = (list(self.df.columns) +
                         list(rename.format(f) for f in self.formants))
-            actual = self.normalizer().normalize(
-                self.df, rename=rename, **self.kwargs).columns
+            actual = self.normalizer(rename=rename, **self.kwargs).normalize(
+                self.df).columns
 
             expected = sorted(expected)
             actual = sorted(actual)
@@ -160,7 +162,7 @@ class Helper:
             actual = sorted(actual)
             self.assertListEqual(actual, expected)
 
-    class TestFxNormalizerBase(TestNormalizerBase):
+    class TestFormantSpecificNormalizerBase(TestNormalizerBase):
         """Common tests for normalizer classes with a FxNormalizderBase."""
 
         def test_fx_spec(self):
@@ -168,9 +170,8 @@ class Helper:
             Specify formants using individual keys.
             """
             df = self.df.copy()
-            normalizer = self.normalizer()
-            normalizer.normalize(
-                df, f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
+            normalizer = self.normalizer(f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
+            normalizer.normalize(df)
             self.assertListEqual(
                 normalizer.params['formants'],
                 ['f0', 'f1', 'f2', 'f3'])
@@ -180,9 +181,9 @@ class Helper:
             Missing column raises value error.
             """
             df = self.df.copy()
-            normalizer = self.normalizer()
-            normalizer.normalize(
-                df, f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
+            normalizer = self.normalizer(
+                f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
+            normalizer.normalize(df)
             self.assertListEqual(
                 normalizer.params['formants'],
                 ['f0', 'f1', 'f2', 'f3'])
@@ -190,16 +191,18 @@ class Helper:
     class TestFormantNormalizerBase(TestNormalizerBase):
         """Common tests for the formant normalizers."""
 
-        def transform(x): return x
+        @staticmethod
+        def transform(x):
+            return x
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.transform = self.__class__.transform
+            self.formant_transform = self.__class__.transform
 
         def test_normalize(self):
             """Test normalize output."""
             expected = self.df.copy()
-            expected[self.formants] = self.transform(expected[self.formants])
+            expected[self.formants] = self.formant_transform(expected[self.formants])
             actual = self.normalizer().normalize(self.df)
             assert_frame_equal(actual, expected)
 
@@ -217,5 +220,4 @@ class Helper:
             """
             df = self.df.copy()
             with self.assertRaises(ValueError):
-                self.normalizer().normalize(
-                    df, speaker='talker', **self.kwargs)
+                self.normalizer(speaker='talker', **self.kwargs).normalize(df)

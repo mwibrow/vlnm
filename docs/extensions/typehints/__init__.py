@@ -8,7 +8,7 @@
 import inspect
 import re
 import typing
-from typing import get_type_hints, TypeVar, Any, AnyStr, Generic, Union
+from typing import ForwardRef, get_type_hints, TypeVar, Any, AnyStr, Generic, Union
 
 from sphinx.util.inspect import Signature
 
@@ -104,6 +104,8 @@ class Formatter:
 
     def format_type(self, annotation):
         """Type type."""
+        if isinstance(annotation.__args__[0], ForwardRef):
+            return 'class :py:class:`{}`'.format(annotation.__args__[0].__forward_arg__)
         return 'class :py:class:`{}`'.format(annotation.__args__[0].__name__)
 
     def format_callable(self, annotation):
@@ -162,7 +164,6 @@ def foo(annotation):
               hasattr(annotation, '__union_params__')):
             prefix = ':py:data:'
             class_name = 'Union'
-            print(annotation.__args__)
             if hasattr(annotation, '__union_params__'):
                 params = annotation.__union_params__
             elif hasattr(annotation, '__args__'):
@@ -280,6 +281,11 @@ def process_docstring(app, what, name, obj, options, lines):
     if isinstance(obj, property):
         obj = obj.fget
 
+    try:
+        use_param = app.config.napoleon_use_param
+    except AttributeError:
+        use_param = False
+
     formatter = Formatter()
     if callable(obj):
         if what in ('class', 'exception'):
@@ -306,26 +312,53 @@ def process_docstring(app, what, name, obj, options, lines):
                     continue
 
                 insert_index = len(lines)
-                for i, line in enumerate(lines):
-                    if line.startswith(':rtype:'):
-                        insert_index = None
-                        break
-                    elif line.startswith(':return:') or line.startswith(':returns:'):
-                        insert_index = i
 
-                if insert_index is not None:
-                    if insert_index == len(lines):
-                        # Ensure that :rtype: doesn't get joined with a paragraph of text, which
-                        # prevents it being interpreted.
-                        lines.append('')
-                        insert_index += 1
-                    lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
+                if use_param:
+                    for i, line in enumerate(lines):
+                        if line.startswith(':rtype:'):
+                            insert_index = None
+                            break
+                        elif line.startswith(':return:') or line.startswith(':returns:'):
+                            insert_index = i
+
+                    if insert_index is not None:
+                        if insert_index == len(lines):
+                            # Ensure that :rtype: doesn't get joined with a paragraph of text, which
+                            # prevents it being interpreted.
+                            lines.append('')
+                            insert_index += 1
+                        lines.insert(insert_index, ':rtype: {}'.format(formatted_annotation))
+                else:
+                    index = None
+                    for i, line in enumerate(lines):
+                        if (line.lower().startswith(':return:') or
+                                line.lower().startswith(':returns:')):
+                            index = i
+                            break
+                    if index is not None:
+                        lines.insert(index, ':rtype: {}'.format(formatted_annotation))
             else:
-                searchfor = ':param {}:'.format(argname)
-                for i, line in enumerate(lines):
-                    if line.startswith(searchfor):
-                        lines.insert(i, ':type {}: {}'.format(argname, formatted_annotation))
-                        break
+                if use_param:
+                    searchfor = ':param {}:'.format(argname)
+                    for i, line in enumerate(lines):
+                        if line.startswith(searchfor):
+                            lines.insert(i, ':type {}: {}'.format(
+                                argname, formatted_annotation))
+                            break
+                else:
+                    searchfor = '* **{}**'.format(argname)
+                    searchfro = r'\s+\*?\s*\*\*{}\*\*'
+                    in_params = False
+                    for i, line in enumerate(lines):
+                        if line.startswith(':'):
+                            in_params = line.startswith(':Parameters:')
+                        if in_params and '**{}**'.format(argname) in line:
+                            lines[i] = line.replace(
+                                '**{}**'.format(argname),
+                                '**{}** ({})'.format(argname, formatted_annotation))
+                            break
+        # if obj.__name__ == 'list_normalizers':
+        #     print('\n'.join(lines))
 
 
 def config_ready(app, config):

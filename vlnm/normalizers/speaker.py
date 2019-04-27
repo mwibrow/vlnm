@@ -2,6 +2,10 @@
 Speaker-based normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.speaker
+
 """
 from typing import List, Union
 
@@ -10,7 +14,7 @@ import pandas as pd
 
 from ..docstrings import docstring
 from .base import register, classify
-from .base import uninstantiable, Normalizer, FormantsNormalizer, FxNormalizer
+from .base import uninstantiable, Normalizer, FormantGenericNormalizer, FormantSpecificNormalizer
 
 
 @uninstantiable
@@ -30,7 +34,7 @@ class SpeakerNormalizer(Normalizer):
 @docstring
 @register('gerstman')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formants according to :citet:`gerstman_1968`.
 
     Formants are normalized by subtracting the speaker's minimum value
@@ -39,13 +43,21 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     .. math::
 
-        F_i^\prime = 999 \frac{F_i - \min{F_i}}{\max{F_i}}
+        F_i^* = 999 \frac{F_i - \min{F_i}}{\max{F_i}}
 
     Parameters
     ----------
-    {% formants %}
-    {% speaker %}
-    {% rename %}
+
+    formants:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -55,7 +67,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
         import pandas as pd
         from vlnm import GerstmanNormalizer
 
-        normalizer = GerstmanNormalizer(rename='{}_N')
+        normalizer = GerstmanNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -65,12 +77,18 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
             self,
             formants: List[str] = None,
             speaker: str = 'speaker',
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -84,7 +102,7 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('lce')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
+class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize by dividing formants by their mamximum value for a speaker.
 
     Formants are normalized by "linear compression or expansion"
@@ -93,13 +111,21 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     .. math::
 
-        F_i^\prime = \frac{F_i}{\max{F_i}}
+        F_i^* = \frac{F_i}{\max{F_i}}
 
     Parameters
     ----------
-    {% speaker %}
-    {% formants %}
-    {% rename %}
+
+    formants:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -109,7 +135,7 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
         import pandas as pd
         from vlnm import LCENormalizer
 
-        normalizer = LCENormalizer(rename='{}_N')
+        normalizer = LCENormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -118,12 +144,18 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -135,14 +167,14 @@ class LCENormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('lobanov')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formants using their z-score for a given speaker.
 
     This uses the formula given in :citet:`{% lobanov_1971 %}`:
 
     .. math::
 
-        F_i^\prime = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
+        F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
 
     Where :math:`\mu_{F_i}` is the mean of the formant :math:`F_i`
     and :math:`\sigma_{F_i}` is the 'rms deviation' (:citealp:`lobanov_1971`, p.606)
@@ -152,9 +184,17 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% formants %}
-    {% speaker %}
-    {% rename %}
+
+    formants:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -164,7 +204,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
         import pandas as pd
         from vlnm import LobanovNormalizer
 
-        normalizer = LobanovNormalizer(rename='{}_N')
+        normalizer = LobanovNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -173,12 +213,18 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     def __init__(
             self, speaker: str = 'speaker', formants: List[str] = None,
-            rename: str = None, **kwargs):
-        super().__init__(speaker=speaker, formants=formants, rename=rename, **kwargs)
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            speaker=speaker,
+            formants=formants,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _norm(self, df):
@@ -192,12 +238,12 @@ class LobanovNormalizer(SpeakerNormalizer, FormantsNormalizer):
 @docstring
 @register('neary')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
-class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize by subtracting log-transformed formant means for each speaker.
 
     .. math::
 
-        F_i^\prime = T\left(
+        F_i^* = T\left(
             \log\left(F_i\right) - \frac{1}{n}
                 \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
         \right)
@@ -208,12 +254,19 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
     Parameters
     ----------
 
-    {% formants %}
-    {% speaker %}
+    formants:
+    speaker:
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
-    {% rename %}
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -223,7 +276,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
         import pandas as pd
         from vlnm import NearyNormalizer
 
-        normalizer = NearyNormalizer(rename='{}_N')
+        normalizer = NearyNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -238,13 +291,13 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
             self,
             formants: List[str] = None,
             exp: bool = False,
-            rename: str = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=exp, rename=rename, **kwargs)
+        super().__init__(formants=formants, exp=exp, rename=rename, groupby=groupby, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _keyword_default(self, keyword, df=None):
@@ -261,6 +314,7 @@ class NearyNormalizer(SpeakerNormalizer, FormantsNormalizer):
         return df
 
 
+@docstring
 @register('neary-exp')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class NearyExpNormalizer(NearyNormalizer):
@@ -268,15 +322,29 @@ class NearyExpNormalizer(NearyNormalizer):
 
     See :cite:`thomas_kendel_2007` for discussion.
 
-    Example
-    -------
+    Parameters
+    ----------
+
+    formants:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
+
+    Examples
+    --------
 
     .. ipython::
 
         import pandas as pd
         from vlnm import NearyExpNormalizer
 
-        normalizer = NearyExpNormalizer(rename='{}_N')
+        normalizer = NearyExpNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -286,30 +354,33 @@ class NearyExpNormalizer(NearyNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            speaker: str = 'speaker',
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=True, **kwargs)
+        super().__init__(formants=formants, speaker=speaker, exp=True,
+                         rename=rename, groupby=groupby, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
 
 @docstring
 @register('nearygm')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
-class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
+class NearyGMNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     r"""Normalize by subtracting the speaker's mean log-transformed formants.
 
     The Neary 'Grand Mean' normalizer log-transforms each formant
     and then substracts the mean log-transform of *all* formants
     under-considraton for a given speaker.
-    This may be |f1| and |f2| :citep:`flynn_foulkes_2011`
+    This is usually |f1| and |f2| :citep:`flynn_foulkes_2011`
     or |f1|, |f2|, and |f3| :citep:`clopper_2009`:
 
     .. math::
 
-        F_i^\prime = T\left(
+        F_i^* = T\left(
             \log\left(F_i\right) - \frac{1}{n}
                 \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
         \right)
@@ -319,23 +390,30 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
 
     Parameters
     ----------
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
-    {% formants %}
-    {% speaker %}
+
+    formants:
+    speaker:
     exp:
         If :obj:`True` transform the normalized formants
         using the exponential function with base :math:`e`.
-    {% rename %}
 
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
+
+    Examples
+    --------
 
     .. ipython::
 
         import pandas as pd
         from vlnm import NearyGMNormalizer
 
-        normalizer = NearyGMNormalizer(rename='{}_N')
+        normalizer = NearyGMNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -349,19 +427,22 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
-            speaker: str = None,
+            formants: List[str] = None,
+            speaker: str = 'speaker',
             exp: bool = False,
-            rename: str = None):
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
         super().__init__(
-            f1=f1, f2=f2, f3=f3,
-            speaker=speaker, exp=exp, rename=rename)
+            formants=formants,
+            speaker=speaker,
+            exp=exp,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)
 
     def _keyword_default(self, keyword, df=None):
@@ -378,12 +459,27 @@ class NearyGMNormalizer(SpeakerNormalizer, FxNormalizer):
         return df
 
 
+@docstring
 @register('nearygm-exp')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='intrinsic')
 class NearyGMExpNormalizer(NearyNormalizer):
     r""":class:`NearyGMNormalizer` with the ``exp`` parameter automatically set to ``True``.
 
     See :citet:`flynn_foulkes_2011` and :citet:`thomas_kendel_2007` for discussion.
+
+    Parameters
+    ----------
+
+    formants:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -393,7 +489,7 @@ class NearyGMExpNormalizer(NearyNormalizer):
         import pandas as pd
         from vlnm import NearyGMExpNormalizer
 
-        normalizer = NearyGMExpNormalizer(rename='{}_N')
+        normalizer = NearyGMExpNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
@@ -403,10 +499,18 @@ class NearyGMExpNormalizer(NearyNormalizer):
     def __init__(
             self,
             formants: List[str] = None,
+            speaker: str = 'speaker',
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
-        super().__init__(formants=formants, exp=True, **kwargs)
+        super().__init__(
+            formants=formants,
+            speaker=speaker,
+            exp=True,
+            rename=rename,
+            groupby=groupby,
+            **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         return super().normalize(df)

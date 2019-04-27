@@ -15,7 +15,7 @@ from shapely.geometry import Polygon
 def vowel_space(
         df: pd.DataFrame,
         vowel: str = 'vowel',
-        apices: dict = None,
+        points: dict = None,
         formants: tuple = ('f1', 'f2'),
         hull: bool = True) -> shapely.geometry.Polygon:
     """Calculate the vowel space for a speaker.
@@ -30,8 +30,8 @@ def vowel_space(
         Data-frame column which contains the vowel labels.
         Defaults to :code:`'vowel'`.
 
-    apices:
-        List of vowel labels to use as the apices of the vowel space.
+    points:
+        List of vowel labels to use as the points of the vowel space.
         If not provided, all vowels will be used.
 
     formants:
@@ -40,7 +40,7 @@ def vowel_space(
 
     hull:
         If :code:`True` (the default) a convex hull will be
-        fitted mean formant data for the apices, prior
+        fitted mean formant data for the points, prior
         to calculating the polygon exterior.
 
     Returns
@@ -49,8 +49,8 @@ def vowel_space(
         Vowel space represented as a Polygon.
 
     """
-    if apices:
-        df = df[df[vowel].isin(apices)]
+    if points:
+        df = df[df[vowel].isin(points)]
     subset = [vowel]
     subset.extend(formants)
     means = df[subset].groupby(vowel).mean().as_matrix()
@@ -66,7 +66,7 @@ def scv(
         df: pd.DataFrame,
         vowel: str = 'vowel',
         speaker: str = 'speaker',
-        apices: dict = None,
+        points: dict = None,
         formants: tuple = ('f1', 'f2')) -> shapely.geometry.Polygon:
     """Squared coefficient of variation for vowel spaces.
 
@@ -84,8 +84,8 @@ def scv(
         Data-frame column which contains the vowel labels.
         Defaults to :code:`'vowel'`.
 
-    apices:
-        List of vowel labels to use as the apices of the vowel space.
+    points:
+        List of vowel labels to use as the points of the vowel space.
         If not provided, all vowels will be used.
 
     formants:
@@ -102,7 +102,7 @@ def scv(
         return pd.DataFrame(dict(
             speaker=group_df[speaker].unique(),
             area=vowel_space(
-                group_df, vowel=vowel, apices=apices, formants=formants).area
+                group_df, vowel=vowel, points=points, formants=formants).area
         ))
     areas_df = df.groupby(speaker, as_index=False).apply(_area)
     return (areas_df.std() / areas_df.mean()) ** 2

@@ -4,9 +4,10 @@ IPA extension for phontic base stuff
 from docutils import io, nodes, statemachine, utils
 from docutils.parsers.rst.roles import math_role
 
+
 def ipa_role(
-        typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
-        options=None, content=None): # pylint: disable=unused-argument
+        typ, rawtext, text, lineno, inliner,  # pylint: disable=unused-argument
+        options=None, content=None):  # pylint: disable=unused-argument
     """
     Role for small caps.
     """
@@ -29,14 +30,16 @@ def ipa_role(
     text = r'\mathstrut\mbox{' + text + r'}'
     return [nodes.math(text, text, )], []
 
+
 def f_role(
-        typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
-        options=None, content=None): # pylint: disable=unused-argument
+        typ, rawtext, text, lineno, inliner,  # pylint: disable=unused-argument
+        options=None, content=None):  # pylint: disable=unused-argument
     """
-    Role for small caps.
+    Role for formants caps.
     """
     text = 'F_{}'.format(text)
     return [nodes.math(text, text)], []
+
 
 def setup(app):
     """

@@ -7,12 +7,18 @@ for vowel normalizers as well as the
 :class:`.DefaultNormalizer` which returns data unnormalized
 so can be used as a control when comparing normalization methods.
 
+
+.. normalizers-list::
+    :module: vlnm.normalizers.base
+
 """
-import inspect
+
+import re
 from typing import Callable, List, Union
 
 import pandas as pd
 
+from .. import get_normalizer
 from ..docstrings import docstring
 from ..registration import classify, register
 
@@ -38,11 +44,6 @@ class Normalizer:
     The :class:`Normalizer` class forms the base of all
     normalizers and custom normalizers should all interit
     from this class or one of its subclasses.
-
-    Parameters
-    ----------
-    **kwargs:
-        Keyword arguments used by child classes.
     """
 
     MAX_FX = 5
@@ -62,6 +63,11 @@ class Normalizer:
         # Constructor options.
         self.default_options = self.config.get('options', {}).copy()
         self.default_options.update(**kwargs)
+
+        # Did the user specify formants?
+        keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
+        self.user_formants = {
+            key: kwargs[key] for key in keys if kwargs.get(key)}
 
         # Options set up in normalize method.
         self.options = {}
@@ -84,14 +90,35 @@ class Normalizer:
     def __call__(self, df, **kwargs):
         return self.normalize(df, **kwargs)
 
+    @staticmethod
+    def _check_user_formants(df, user_formants):
+        if user_formants:
+            for key in user_formants:
+                if isinstance(key, list):
+                    for sub_key in key:
+                        if not sub_key in df.columns:
+                            return sub_key
+                elif not key in df.columns:
+                    return key
+        return None
+
     @docstring
     def normalize(self, df: pd.DataFrame, rename=None, groups=None, **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
         self.options = self.default_options.copy()
         self.options.update(
             rename=rename or self.options.get('rename'),
             **{key: value for key, value in kwargs.items()
                if value is not None})
+
+        # Did the user specify formants?
+        # keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
+        # self.user_formants.update(
+        #     **{key: kwargs[key] for key in keys if kwargs.get(key)})
+        # missing = self._check_user_formants(df, self.user_formants)
+        # if missing:
+        #     raise ValueError(
+        #         'Formant "{}" not a column in DataFrame'.format(missing))
+        self._get_formant_columns(df)
 
         # Check keywords.
         for keyword in self.config['keywords']:
@@ -110,15 +137,25 @@ class Normalizer:
                     if not col in df:
                         raise ValueError(
                             'Column {} not in dataframe'.format(col))
+
         self._prenormalize(df)
         groups = self.config.get('groups')
         if groups:
-            norm_df = df.group_by(groups, as_index=False).apply(
-                lambda group_df: self._normalize(group_df)).reset_index(drop=True)
+            norm_df = df.groupby(groups, as_index=False).apply(
+                self._normalize).reset_index(drop=True)
         else:
             norm_df = self._normalize(df)
         self._postnormalize(norm_df)
         return norm_df
+
+    def _get_formant_columns(self, df):
+        formants = self.options.get('formants', self.formants) or self.formants
+        try:
+            formants = [
+                column for column in df.columns if re.match(formants, column)]
+        except TypeError:
+            pass
+        self.formants = formants
 
     def _keyword_default(self, keyword, df=None):  # pylint: disable=unused-argument
         """Get default keyword arguments."""
@@ -181,43 +218,41 @@ class Normalizer:
 
 @docstring
 @uninstantiable
-class FxNormalizer(Normalizer):
+class FormantSpecificNormalizer(Normalizer):
     """Base class for normalizers which require specification of individual formants.
-
-    The :class:`FxNormalizer` class should be used as parent class
-    for any normalizer which needs to access specific formant
-    columns.
-
-    Parameters
-    ----------
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
     """
 
     MAX_FX = 5
 
     def __init__(
             self,
-            f0: Union[str, List[str]] = 'f0',
-            f1: Union[str, List[str]] = 'f1',
-            f2: Union[str, List[str]] = 'f2',
-            f3: Union[str, List[str]] = 'f3',
+            f0: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            f4: Union[str, List[str]] = None,
+            f5: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(**kwargs)
         formants = dict(
             f0=f0 or 'f0',
             f1=f1 or 'f1',
             f2=f2 or 'f2',
-            f3=f3 or 'f3')
-        for i in range(4, self.MAX_FX + 1):
-            fx = f'f{i}'
-            if fx in kwargs:
-                formants.update(**{fx: kwargs.pop(fx, fx)})
+            f3=f3 or 'f3',
+            f4=f4 or 'f4',
+            f5=f5 or 'f5')
+
         self.formants = self._sanitize_formants(formants)
 
-    def _sanitize_formants(self, formants):
+    def _get_formant_columns(self, df):
+        for key in self.formants.keys():
+            if len(self.formants[key]) == 1:
+                formant = self.formants[key][0]
+                self.formants[key] = [
+                    column for column in df.columns if re.match(formant, column)]
+        self.formants = {key: value for key, value in self.formants.items() if value}
+
+    def _sanitize_formants(self, formants):  # pylint: disable=no-self-use
         fxs = list(formants.keys())
         for fx in fxs:
             if not isinstance(formants[fx], list):
@@ -235,16 +270,12 @@ class FxNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class FormantsNormalizer(Normalizer):
+class FormantGenericNormalizer(Normalizer):
     """Base class for normalizers which require general list of formants.
 
-    The :class:`FormantsNormalizer` should be used as the base
+    The :class:`FormantGenericNormalizer` should be used as the base
     class for normalizers whose implementation does not need
     to distinguish between specific formants.
-
-    Parameters
-    ----------
-    {% formants %}
     """
 
     def __init__(
@@ -261,7 +292,7 @@ class FormantsNormalizer(Normalizer):
 
 @docstring
 @uninstantiable
-class TransformNormalizer(FormantsNormalizer):
+class TransformNormalizer(FormantGenericNormalizer):
     """Base class for normalizers which simply transform formants.
     """
 
@@ -277,33 +308,31 @@ class TransformNormalizer(FormantsNormalizer):
 @uninstantiable
 class FormantsTransformNormalizer(TransformNormalizer):
     """Base clase for normalizers transform each formant independently.
-
-    Parameters
-    ----------
-    {% formants %}
-    transform:
-        A function which takes |dataframe| containing
-        formant data, transforms the data
-        and returns (a possibly new) |dataframe|.
     """
 
     def __init__(
             self,
             formants: List[str] = None,
-            transform: Callable[[pd.DataFrame], pd.DataFrame] = None, **kwargs):
+            transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+            **kwargs):
         super().__init__(formants=formants, transform=transform, **kwargs)
 
 
 @docstring
 @register('default')
 @classify(vowel=None, formant=None, speaker=None)
-class DefaultNormalizer(FormantsNormalizer):
+class DefaultNormalizer(FormantGenericNormalizer):
     """'Default' normalizer which returns formant data unaltered.
 
     Parameters
     ----------
-    {% formants %}
-    {% rename %}
+    formants:
+
+    Other parameters
+    ----------------
+    rename:
+    **kwargs:
+        Optional keyword arguments passed to the parent constructor.
 
     Examples
     --------
@@ -313,19 +342,84 @@ class DefaultNormalizer(FormantsNormalizer):
         import pandas as pd
         from vlnm import DefaultNormalizer
 
-        normalizer = DefaultNormalizer(rename='{}_N')
+        normalizer = DefaultNormalizer(rename='{}*')
         df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
 
     """
 
-    def __init__(self, formants: List[str] = None, rename: Union[str, dict] = None):
+    def __init__(
+            self,
+            formants: List[str] = None,
+            rename: Union[str, dict] = None,
+            **kwargs):
         super().__init__(formants=formants, rename=rename)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        """
-        {% normalize %}
-        """
         return super().normalize(df, **kwargs)
+
+
+@docstring
+@register('chain')
+@classify(vowel=None, formant=None, speaker=None)
+class ChainNormalizer(Normalizer):
+    r"""
+    Run multiple normalizers in sequence.
+
+    Parameters
+    ----------
+    normalizers:
+        A list of normalizers.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        import pandas as pd
+        from vlnm import ChainNormalizer, BarkNormalizer, LobanovNormalizer
+
+        normalizers = [
+            BarkNormalizer(rename='{}*'),
+            LobanovNormalizer(formants=['f1*', 'f2*'])
+        ]
+        normalizer = ChainNormalizer(normalizers)
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
+
+
+    """
+
+    def __init__(
+            self,
+            normalizers: Union[List[str], List[Normalizer]] = None):
+
+        super().__init__()
+        self.normalizers = normalizers
+
+    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalize a DataFrame.
+
+        Parameters
+        ----------
+        df:
+            The DataFrame containing the formant data.
+
+        Returns
+        -------
+        :
+            The normalized data.
+        """
+        norm_df = df
+        for normalizer in self.normalizers:
+            try:
+                norm_df = normalizer.normalize(df)
+            except AttributeError:
+                normalizer = get_normalizer(normalizer)
+                norm_df = normalizer.normalize(df)
+        return norm_df

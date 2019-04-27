@@ -60,10 +60,12 @@ release = '0.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
+    # 'sphinx.ext.napoleon',
+    'wellington',
     'sphinx.ext.autodoc',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
     'ipa',
     'jupyter',
     'natbib',
@@ -239,3 +241,13 @@ napoleon_use_param = False
 with open(os.path.join(HERE, 'jupyter.config.yaml')) as file_in:
     config = file_in.read()
 jupyter_config = yaml.safe_load(config)
+
+primary_domain = 'py'
+
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'sklearn': ('https://scikit-learn.org/stable', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None)
+}

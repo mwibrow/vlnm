@@ -1,14 +1,18 @@
 """
 Vowel intrinsic normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. normalizers-list::
+    :module: vlnm.normalizers.vowel
+
 """
 from typing import Callable, List, Union
 
 import pandas as pd
-import numpy
+import numpy as np
 
 from .base import classify, register
-from .base import FxNormalizer
+from .base import FormantSpecificNormalizer
 from ..conversion import hz_to_bark
 from ..docstrings import docstring
 
@@ -16,7 +20,7 @@ from ..docstrings import docstring
 @docstring
 @register('barkdiff')
 @classify(vowel='intrinsic', formant='extrinsic', speaker='intrinsic')
-class BarkDifferenceNormalizer(FxNormalizer):
+class BarkDifferenceNormalizer(FormantSpecificNormalizer):
     r"""
     Normalize formant data according to :citet:`syrdal_gopal_1986`.
 
@@ -32,22 +36,11 @@ class BarkDifferenceNormalizer(FxNormalizer):
     formant measured in hertz to the Bark scale.
 
 
-    **Parameters**
-        * f0
-        * f2
-        * f3
-
-    :param f0…f3: :class:`DataFrame` columns that correspond to
-        the formant data. If not specified, |vlnm|
-        will look for formant data in
-        the columns :col:`f0`, :col:`f1`, … and so on.
-    :type f0…f3: :obj:`str` | :obj:`list` of :obj:`str`
 
     Parameters
     ----------
 
-
-    {% rename %}
+    f0 - f3:
     transform:
         Replace the function that transforms formants from
         the Hz scale to the Bark scale.
@@ -55,6 +48,14 @@ class BarkDifferenceNormalizer(FxNormalizer):
         (e.g., :py:class:`pandas.DataFrame`, or :py:class:`numpy.ndarray`)
         *containing only the formant data*,
         and return the transformed data.
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
 
     Example
     -------
@@ -101,34 +102,16 @@ class BarkDifferenceNormalizer(FxNormalizer):
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
-            formants: List[str] = None,
-            rename: str = None,
-            transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+            transform: Callable[[np.ndarray], np.ndarray] = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
-            rename=rename, transform=transform, **kwargs)
+            rename=rename, groupby=groupby, transform=transform, **kwargs)
 
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        r"""Normalize formant data.
-
-        Parameters
-        ----------
-        df :
-            DataFrame containing formant data.
-
-        Other parameters
-        ----------------
-        :
-            For the other parameters see the constructor.
-
-        Returns
-        -------
-        :
-
-            A dataframe containing the normalized formants.
-        """
         return super().normalize(df, **kwargs)
 
     def _norm(self, df):
@@ -150,3 +133,65 @@ class BarkDifferenceNormalizer(FxNormalizer):
         df['z3'] = z3 - z2
 
         return df
+
+
+@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
+class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
+    r"""
+    Normalize formant data according to :citet:`ananthapadmanabha_ramakrishnan_2016`.
+
+    Let the data consist of a set of :math:`I` formants
+    (where :math:`i\in I\implies 1\leq i\leq3`)
+    for  :math:`J` vowels from :math:`K` speakers.
+
+    Let :math:`G_{k}` be the geometric mean of the
+    first, second and third formants for a speaker :math:`k\in K`:
+
+    .. math::
+
+        G_{k} = \left(\prod_{i=1}^{3} F_{ik}\right)^{\frac{1}{3}}
+
+    Then let :math:`F_{ik}^*` be the normalized value of the
+    formant :math:`F_i` for speaker :math:`k`:
+
+    .. math::
+
+        F_{ik}^* = \frac{F_{ik}}{G_{ik}}
+
+
+    This normalized value is then 'denormalized'
+    with respect to vowel :math:`j\in J` so that
+    that :math:`F_{ijk}^\prime` repesents the denormalized
+    value of formant :math:`i` for spekaer :math:`k`
+    with respect to vowel :math:`j`:
+
+    .. math::
+
+        F_{ijk}^\prime = F_{ik}^* \mu_{ij}
+
+    where :math:`\mu_{ij}` is the mean value of formant
+    :math:`i` for vowel :math:`j`.
+    Normalization is completed by calcluating
+    the distance between the denormalized formant
+    values to those of prototypical vowels,
+    and by classifying each vowel
+    according to the closest prototype.
+    Vowel prototypes are bootstrapped from the sample.
+
+
+
+
+    .. math::
+
+        j^* = \underset{j \in J}{\text{argmin}} \sum_{i=1}^{2}
+            \frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
+
+    Where :math:`\Delta` is a distance metric which
+    :citet:`ananthapadmanabha_ramakrishnan_2016`
+    define as:
+
+    .. math::
+
+        \Delta_{ijk}() = \sum_{i=1}^{2}\frac{F_{ijk}^\prime - \mu_{ij}}{\sigma_{ij}}
+
+    """

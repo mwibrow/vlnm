@@ -4,11 +4,10 @@ Tests for the normalizer package.
 
 import unittest
 
-from vlnm.registration import (
+from vlnm import (
     get_normalizer,
-    list_normalizers,
-    register_normalizer
-)
+    list_normalizers)
+from vlnm.registration import register_normalizer
 
 
 class TestGetNormalizer(unittest.TestCase):
@@ -62,7 +61,7 @@ class TestListNormalizers(unittest.TestCase):
         List normalizers returns empty list.
         """
         expected = []
-        actual = list_normalizers({})
+        actual = list_normalizers(index={})
         self.assertListEqual(actual, expected)
 
 

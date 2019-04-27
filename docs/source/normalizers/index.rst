@@ -11,7 +11,7 @@ Vowel Normalization
    :hidden:
 
    quickstart
-   api
+   api/index
 
 |vlnm| Provides a comprehensive range of normalizers
 (see section :ref:`section_normalizers` below) that have been

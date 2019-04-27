@@ -4,6 +4,7 @@ Some VLNM-specific stuff.
 import re
 
 import docutils.nodes
+from docutils.parsers.rst import directives
 import docutils.utils
 import docutils.statemachine
 from sphinx.util.docutils import SphinxDirective
@@ -11,7 +12,7 @@ from sphinx.util.docutils import SphinxDirective
 from vlnm import get_normalizer, list_normalizers
 
 
-class NormalizersDirective(SphinxDirective):
+class NormalizersTableDirective(SphinxDirective):
     """List normalizers in a table."""
 
     required_arguments = 0
@@ -54,6 +55,45 @@ class NormalizersDirective(SphinxDirective):
         include_lines = docutils.statemachine.string2lines(
             raw_text, tab_width, convert_whitespace=True)
         self.state_machine.insert_input(include_lines, '')
+        return []
+
+
+class NormalizersListDirective(SphinxDirective):
+    """List normalizers in a module."""
+
+    require_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+    has_content = False
+
+    option_spec = {
+        'module': directives.unchanged
+    }
+
+    def run(self):
+        document = self.state.document
+        tab_width = document.settings.tab_width
+
+        module = self.options.get('module', 'vlnm')
+        names = list_normalizers(module=module)
+        input_lines = [
+            'The following normalizers are implemented in the ``{module}`` module:'.format(
+                module=module)
+        ]
+        for name in names:
+            klass = get_normalizer(name)
+            input_lines.append(
+                '{tab}* :class:`{klass} <{module}.{klass}>`'.format(
+                    tab=' ' * tab_width,
+                    klass=klass.__name__,
+                    module=klass.__module__
+                ))
+
+        raw_text = '\n'.join(input_lines)
+        include_lines = docutils.statemachine.string2lines(
+            raw_text, tab_width, convert_whitespace=True)
+        self.state_machine.insert_input(include_lines, '')
+
         return []
 
 
@@ -115,6 +155,10 @@ def doc_summary(lines):
     """Extract summary of docs."""
     summary = []
     for line in lines:
+        stripped = line.strip().lower()
+        if (stripped.startswith('to use this normalizer') or
+                stripped.startswith('use ``method')):
+            continue
         if line.startswith('Parameters') or line.startswith('Example'):
             break
         summary.append(line)

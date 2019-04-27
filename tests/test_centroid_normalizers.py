@@ -40,7 +40,7 @@ class TestGetApiceFormants(unittest.TestCase):
         self.assertIsNone(assert_frame_equal(actual, expected))
 
     def test_apice_spec(self):
-        """Non-defualt apices processed correctly."""
+        """Non-defualt points processed correctly."""
         df = DataFrame(dict(
             hvd=['heed', 'heed', 'had', 'had'],
             f1=[300., 350., 400., 450.],
@@ -68,7 +68,7 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
         self.normalizer = self.__class__.normalizer
         self.kwargs = dict(
             formants=self.formants,
-            apices=dict(fleece='i', trap='a'))
+            points=dict(fleece='i', trap='a'))
 
     def test_get_centroid(self):
         """Test get_centroid method."""

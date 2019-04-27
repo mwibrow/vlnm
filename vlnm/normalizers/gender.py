@@ -7,6 +7,10 @@ on the speaker's identified/identifying gender.
 Note, that as defined in the literature
 :citep:`e.g., {% bladon_etal_1984, nordstrom_1977 %}`
 the normalizers use a binary gender classification.
+
+.. normalizers-list::
+    :module: vlnm.normalizers.gender
+
 """
 from typing import List, Union
 
@@ -18,15 +22,15 @@ from vlnm.docstrings import docstring
 from .base import (
     classify,
     register,
-    FormantsNormalizer,
-    FxNormalizer)
+    FormantGenericNormalizer,
+    FormantSpecificNormalizer)
 from .speaker import SpeakerNormalizer
 
 
 @docstring
 @register('bladen')
 @classify(vowel='intrinsic', formant='intrinsic', speaker='intrinsic')
-class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
+class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
     .. math::
@@ -40,7 +44,7 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
 
     Parameters
     ----------
-    {% formants %}
+    formants:
     gender:
         The |dataframe| column containing the gender labels.
     female:
@@ -49,7 +53,14 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
-    {% rename %}
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
     """
     config = dict(
         columns=['gender'],
@@ -62,12 +73,13 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
             gender: str = 'gender',
             female: str = 'F',
             male: str = 'M',
-            rename: str = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             formants=formants,
             gender=gender, female=female, male=male, rename=rename,
-            **kwargs)
+            groupby=groupby, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -88,31 +100,20 @@ class BladenNormalizer(SpeakerNormalizer, FormantsNormalizer):
         return hz_to_bark(df[formants]) - indicator
 
     @docstring
-    def normalize(
-            self,
-            df: pd.DataFrame,
-            formants: List[str] = None,
-            gender: str = 'gender',
-            female: str = 'F',
-            male: str = 'M',
-            rename: str = None,
-            **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
-        return super().normalize(
-            df, formants=formants, gender=gender, female=female, male=male,
-            rename=rename, **kwargs)
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
 
 
 @docstring
 @register('nordstrom')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
+class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     r"""
     Normalize formant data according to :citet:`nordstrom_1977`.
 
     .. math::
 
-        F_i^\prime = F_i \left(
+        F_i^* = F_i \left(
                 1 + I(F_i)\left(
                     \frac{
                         \mu_{F_3}^{\small{male}}
@@ -128,12 +129,10 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     returns 1 if :math:`F_i` is from a speaker
     identified/identifying as female, and 0 otherwise.
 
+
     Parameters
     ----------
-    {% f0 %}
-    {% f1 %}
-    {% f2 %}
-    {% f3 %}
+    f0, f1, f2, f3:
     gender:
         The |dataframe| column containing the gender labels.
     female:
@@ -142,7 +141,13 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
-    {% rename %}
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
 
     """
     config = dict(
@@ -160,12 +165,13 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
             gender: str = 'gender',
             female: str = 'F',
             male: str = 'M',
-            rename: str = None,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
             f0=f0, f1=f1, f2=f2, f3=f3,
             gender=gender, female=female, male=male, rename=rename,
-            **kwargs)
+            groupby=groupby, **kwargs)
 
     def _keyword_default(self, keyword, df=None):
         if keyword == 'female':
@@ -212,8 +218,5 @@ class NordstromNormalizer(SpeakerNormalizer, FxNormalizer):
     def normalize(
             self,
             df: pd.DataFrame,
-            rename: str = None,
             **kwargs) -> pd.DataFrame:
-        """{% normalize %}"""
-        return super().normalize(
-            df, rename=rename, **kwargs)
+        return super().normalize(df, **kwargs)
