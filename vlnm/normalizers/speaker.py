@@ -177,7 +177,7 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
         F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}
 
     Where :math:`\mu_{F_i}` is the mean of the formant :math:`F_i`
-    and :math:`\sigma_{F_i}` is the 'rms deviation' (:citealp:`lobanov_1971`, p.606)
+    and :math:`\sigma_{F_i}` is the "rms deviation" (:citealp:`lobanov_1971`, p.606)
     of formant :math:`F_i` from its mean for the speaker's vowels.
     As noted by :citet:`thomas_kendel_2007` this is equivalent
     to the standard deviation when the mean is zero.
