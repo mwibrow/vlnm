@@ -38,6 +38,13 @@ REPLACEMENTS = {
             If omitted, any columns from the list
             ``['f0', 'f1', 'f2', 'f3']`` that
             are in the DataFrame will be used."""),
+        'f1 - f3:': dict(
+            parameter=r"""f1, f2, f3: :obj:`str` or :obj:`list` of :obj:`str`""",
+            description=r"""
+            :class:`DataFrame` columns containing formant data.
+            If omitted, any columns from the list
+            ``['f1', 'f2', 'f3']`` that
+            are in the DataFrame will be used."""),
         'f0 - f5:': dict(
             parameter=r"""f0, f1, …. f5: :obj:`str` or :obj:`list` of :obj:`str`""",
             description=r"""

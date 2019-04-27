@@ -514,3 +514,106 @@ class NearyGMExpNormalizer(NearyNormalizer):
     @docstring
     def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df)
+
+
+@docstring
+@register('ananrama')
+@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
+class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
+    r"""
+    Normalize formant data according to :citet:`ananthapadmanabha_ramakrishnan_2016`.
+
+    Formants for a given token are
+    first normalized by dividing the values in Hz
+    by the geometric mean of the first three formants.
+    Formants are then 'denormalized' by calculating
+    the distance between the denormalized formant
+    values to those of a set prototypical vowels,
+    and by classifying each vowel
+    according to the closest prototype.
+    Vowel prototypes are bootstrapped from the data
+    using the mean and standard deviation of the
+    normalized formant values for each vowel.
+
+    More concretely, let :math:`F_{ijkt}` be the value (in Hz)
+    of formant :math:`i` for token :math:`t` of vowel :math:`j`
+    from speaker :math:`k`.
+    Then the normalized value for this formant is given by:
+
+
+    .. math::
+
+        F^*_{ijkt} = \frac{F_{ijkt}}{\left(\prod_{i=1}^{3} F_{ijkt}\right)^{\frac{1}{3}}}
+
+    Let there be :math:`T` tokens of :math:`J` vowels
+    uttered by :math:`K` speakers.
+    Then let :math:`\mu_{ij}` and :math:`\sigma_{ij}` be the
+    mean and standard deviation, respectively, of
+    the normalized formant :math:`i` for vowel :math:`j` over all tokens
+    and speakers:
+
+    .. math::
+
+        \mu_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T F^*_{ijkt}
+
+    .. math::
+
+        \sigma_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T
+            \left(F^*_{ijkt} - \mu_{ij}\right)^2
+
+    Then the denormalized value is given by:
+
+    .. math::
+
+        F^\prime_{i\bar{j}kt} = F^*_{ijkt}\mu_{i\bar{j}}
+
+    where :math:`\bar{j}` is given by:
+
+    .. math::
+
+        \bar{j} = \underset{j \in J}{\text{argmin}} \left(\sum_{i=1}^{2}
+            \frac{\left(F_{ijkt}^\prime - \mu_{ij}\right)^2}{\sigma_{ij}^2}\right)^{\frac{1}{2}}
+
+
+
+
+
+    Parameters
+    ----------
+    f1 - f3:
+    speaker:
+    vowel:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
+
+    """
+
+    config = dict(
+        columns=['f1', 'f2', 'f3', 'speaker', 'vowel'],
+        keywords=['speaker', 'vowel']
+    )
+
+    def __init__(
+            self,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            speaker: str = 'speaker',
+            vowel: str = 'vowel',
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            f1=f1,
+            f2=f2,
+            f3=f3,
+            speaker=speaker,
+            vowel=vowel,
+            rename=rename,
+            **kwargs)
