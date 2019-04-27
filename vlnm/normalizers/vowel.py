@@ -143,14 +143,14 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
     Formants for a given token are
     first normalized by dividing the values in Hz
     the geometric mean of the first three formants.
-    Formants are then 'denormalized' by calcluating
+    Formants are then 'denormalized' by calculating
     the distance between the denormalized formant
     values to those of a set prototypical vowels,
     and by classifying each vowel
     according to the closest prototype.
     Vowel prototypes are bootstrapped from the data
     using the mean and standard deviation of the
-    normalized formant values.
+    normalized formant values for each vowel.
 
     More concretely, let :math:`F_{ijkt}` be the value (in Hz)
     of formant :math:`i` for token :math:`t` of vowel :math:`j`
@@ -184,8 +184,7 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
 
         F^\prime_{i\bar{j}kt} = F^*_{ijkt}\mu_{i\bar{j}}
 
-    where :math:`\mu_{ij}` is the mean value of formant
-    :math:`i` for vowel :math:`j`, and :math:`\bar{j}` is given by:
+    where :math:`\bar{j}` is given by:
 
     .. math::
 
