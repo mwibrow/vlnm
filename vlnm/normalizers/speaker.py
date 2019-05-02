@@ -519,69 +519,32 @@ class NearyGMExpNormalizer(NearyNormalizer):
 @docstring
 @register('ananrama')
 @classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
-class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
+class IEGMAGMNormalizer(FormantSpecificNormalizer):
     r"""
-    Normalize formant data according to :citet:`ananthapadmanabha_ramakrishnan_2016`.
+    A combined normalization and denormalization proceedure
+    described in :citet:`{{ ananthapadmanabha_ramakrishnan_2016 }}, appendix B`.
 
     Formants for a given token are
     first normalized by dividing the values in Hz
     by the geometric mean of the first three formants.
-    Formants are then 'denormalized' by calculating
-    the distance between the denormalized formant
-    values to those of a set prototypical vowels,
-    and by classifying each vowel
-    according to the closest prototype.
-    Vowel prototypes are bootstrapped from the data
-    using the mean and standard deviation of the
-    normalized formant values for each vowel.
-
-    More concretely, let :math:`F_{ijkt}` be the value (in Hz)
-    of formant :math:`i` for token :math:`t` of vowel :math:`j`
-    from speaker :math:`k`.
-    Then the normalized value for this formant is given by:
-
+    The normalized values are then 'denormalized' by
+    multiplying by the geometric mean of
+    the means for each vowel across all speakers.
+    Equivalently, for a given token of vowel :math:`j`:
 
     .. math::
 
-        F^*_{ijkt} = \frac{F_{ijkt}}{\left(\prod_{i=1}^{3} F_{ijkt}\right)^{\frac{1}{3}}}
+        F^*_{ij} = F_{ij}\left(
+            \prod_{i=1}^{3}
+                \frac{\mu_{ij}}{F_{ij}}
+            \right)^{\frac{1}{3}}
 
-    Let there be :math:`T` tokens of :math:`J` vowels
-    uttered by :math:`K` speakers.
-    Then let :math:`\mu_{ij}` and :math:`\sigma_{ij}` be the
-    mean and standard deviation, respectively, of
-    the normalized formant :math:`i` for vowel :math:`j` over all tokens
-    and speakers:
-
-    .. math::
-
-        \mu_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T F^*_{ijkt}
-
-    .. math::
-
-        \sigma_{ij} = \frac{1}{KT}\sum_{k=1}^K\sum_{t=1}^T
-            \left(F^*_{ijkt} - \mu_{ij}\right)^2
-
-    Then the denormalized value is given by:
-
-    .. math::
-
-        F^\prime_{i\bar{j}kt} = F^*_{ijkt}\mu_{i\bar{j}}
-
-    where :math:`\bar{j}` is given by:
-
-    .. math::
-
-        \bar{j} = \underset{j \in J}{\text{argmin}} \left(\sum_{i=1}^{2}
-            \frac{\left(F_{ijkt}^\prime - \mu_{ij}\right)^2}{\sigma_{ij}^2}\right)^{\frac{1}{2}}
-
-
-
-
+    Where :math:`\mu_{ij}` is the mean of :math:`F_i`
+    for vowel :math:`j` for all tokens and speakers.
 
     Parameters
     ----------
     f1 - f3:
-    speaker:
     vowel:
 
 
@@ -595,8 +558,8 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
     """
 
     config = dict(
-        columns=['f1', 'f2', 'f3', 'speaker', 'vowel'],
-        keywords=['speaker', 'vowel']
+        columns=['f1', 'f2', 'f3', 'vowel'],
+        keywords=['vowel']
     )
 
     def __init__(
@@ -604,7 +567,6 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
             f1: Union[str, List[str]] = None,
             f2: Union[str, List[str]] = None,
             f3: Union[str, List[str]] = None,
-            speaker: str = 'speaker',
             vowel: str = 'vowel',
             rename: Union[str, dict] = None,
             groupby: Union[str, List[str]] = None,
@@ -613,26 +575,39 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
             f1=f1,
             f2=f2,
             f3=f3,
-            speaker=speaker,
             vowel=vowel,
             rename=rename,
             **kwargs)
 
     def _norm(self, df):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
-        speaker = self.params['speaker']
         vowel = self.params['vowel']
         formants = [f1, f2, f3]
 
+        # Bootstrap prototype means
+        bootstrap_df = df[[f1, f2, vowel]].groupby(vowel).mean()
+
         # Normalize
+
         def _gm(_df):
             _df[formants] = _df[formants].div(
                 np.cbrt(_df[formants].apply(np.prod, axis=1)), axis=0)
+            return _df
         df = df.groupby(speaker, as_index=False).apply(_gm).reset_index(drop=True)
 
-        # Bootstrap prototypes
-        prototypes_df = df[[f1, f2, vowel]].groupby(vowel).aggregate([np.mean, np.std])
+        # Get real prototypes
+
+        def _denorm(x):
+            _df = bootstrap_df.loc[x, pd.IndexSlice[[f1, f2]]]
+            return _df
+
+        dnf = df.copy()
+        dnf[[f1, f2]] = dnf[[f1, f2]].mul(dnf[vowel].apply(_denorm).values, axis=0)
+
+        prototypes_df = dnf[[f1, f2, vowel]].groupby(vowel).aggregate([np.mean, np.std])
         self.params['prototypes_df'] = prototypes_df
+
+        # # return df
         return df.groupby(speaker, as_index=False).apply(self._denorm).reset_index(drop=True)
 
     def _denorm(self, df):
@@ -650,10 +625,10 @@ class AnanthapadmanabhaRamakrishnanNormalizer(FormantSpecificNormalizer):
             for j in model_df.index:
                 model = model_df.loc[j]
                 dist = np.sqrt(
-                    ((token[f1] - model[f1]['mean']) / model[f1]['std']) ** 2 +
-                    ((token[f2] - model[f2]['mean']) / model[f2]['std']) ** 2)
+                    ((token[f1] * model[f1]['mean'] - model[f1]['mean']) / model[f1]['std']) ** 2 +
+                    ((token[f2] * model[f2]['mean'] - model[f2]['mean']) / model[f2]['std']) ** 2)
                 if dist < min_dist:
-                    dist = min_dist
+                    min_dist = dist
                     min_vowel = j
                     min_model = model[f1]['mean'], model[f2]['mean']
             vowels.append(min_vowel)
