@@ -587,3 +587,76 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
             np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0).mul(
                 np.cbrt(df[formants].mean(axis=0)), axis=1)
         return df
+
+
+@docstring
+@register('ie-ht')
+@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
+class IEHTNormalizer(FormantSpecificNormalizer):
+    r"""
+    A combined normalization and denormalization proceedure
+    described in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}`.
+
+
+
+    Parameters
+    ----------
+    f1 - f3:
+    vowel:
+    speaker:
+
+
+    Other Parameters
+    ----------------
+    rename:
+    groupby:
+    kwargs:
+
+
+    """
+
+    config = dict(
+        columns=['f1', 'f2', 'f3', 'vowel'],
+        keywords=['vowel']
+    )
+
+    def __init__(
+            self,
+            f1: Union[str, List[str]] = None,
+            f2: Union[str, List[str]] = None,
+            f3: Union[str, List[str]] = None,
+            vowel: str = 'vowel',
+            speaker: str = 'speaker',
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            f1=f1,
+            f2=f2,
+            f3=f3,
+            speaker=speaker,
+            vowel=vowel,
+            rename=rename,
+            **kwargs)
+
+    def _norm(self, df):
+        f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
+        speaker = self.params['speaker']
+        vowel = self.params['vowel']
+        formants = [f1, f2, f3]
+
+        bootstrap_df = df[[f1, f2, vowel]].groupby(vowel).mean()
+
+        nm_df = df[formants].copy()
+        nm_df[formants] = nm_df[[formants]].div(
+            np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0)
+
+        def _denorm(_vowel):
+            _df = bootstrap_df.loc[_vowel, pd.IndexSlice[[f1, f2]]]
+            return _df
+
+        dnm_df = nm_df.copy()
+        dnm_df[[f1, f2]] = dnm_df[[f1, f2]].mul(dnm_df[vowel].apply(_denorm).values, axis=0)
+        prototypes_df = dnm_dff[[f1, f2, vowel]].groupby(vowel).aggregate([np.mean, np.std])
+        self.params['prototypes_df'] = prototypes_df
+        del dnm_df
