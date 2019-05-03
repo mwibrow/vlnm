@@ -517,12 +517,12 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
 
 @docstring
-@register('ananrama')
-@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
+@register('ie-gmagm')
+@classify(formant='extrinsic', vowel='intrinsic', speaker='intrinsic')
 class IEGMAGMNormalizer(FormantSpecificNormalizer):
     r"""
     A combined normalization and denormalization proceedure
-    described in :citet:`{{ ananthapadmanabha_ramakrishnan_2016 }}, appendix B`.
+    described in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}, appendix B`.
 
     Formants for a given token are
     first normalized by dividing the values in Hz
@@ -583,56 +583,7 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
         vowel = self.params['vowel']
         formants = [f1, f2, f3]
-
-        # Bootstrap prototype means
-        bootstrap_df = df[[f1, f2, vowel]].groupby(vowel).mean()
-
-        # Normalize
-
-        def _gm(_df):
-            _df[formants] = _df[formants].div(
-                np.cbrt(_df[formants].apply(np.prod, axis=1)), axis=0)
-            return _df
-        df = df.groupby(speaker, as_index=False).apply(_gm).reset_index(drop=True)
-
-        # Get real prototypes
-
-        def _denorm(x):
-            _df = bootstrap_df.loc[x, pd.IndexSlice[[f1, f2]]]
-            return _df
-
-        dnf = df.copy()
-        dnf[[f1, f2]] = dnf[[f1, f2]].mul(dnf[vowel].apply(_denorm).values, axis=0)
-
-        prototypes_df = dnf[[f1, f2, vowel]].groupby(vowel).aggregate([np.mean, np.std])
-        self.params['prototypes_df'] = prototypes_df
-
-        # # return df
-        return df.groupby(speaker, as_index=False).apply(self._denorm).reset_index(drop=True)
-
-    def _denorm(self, df):
-        f1, f2 = self.params['f1'], self.params['f2']
-        speaker = self.params['speaker']
-        vowel = self.params['vowel']
-
-        model_df = self.params['prototypes_df']
-
-        vowels = []
-        min_models = []
-        for t in df.index:
-            token = df.loc[t]
-            min_dist, min_vowel, min_model = np.inf, None, (1, 1)
-            for j in model_df.index:
-                model = model_df.loc[j]
-                dist = np.sqrt(
-                    ((token[f1] * model[f1]['mean'] - model[f1]['mean']) / model[f1]['std']) ** 2 +
-                    ((token[f2] * model[f2]['mean'] - model[f2]['mean']) / model[f2]['std']) ** 2)
-                if dist < min_dist:
-                    min_dist = dist
-                    min_vowel = j
-                    min_model = model[f1]['mean'], model[f2]['mean']
-            vowels.append(min_vowel)
-            min_models.append(min_model)
-        df[vowel] = vowels
-        df[[f1, f2]] = df[[f1, f2]].mul(np.array(min_models))
+        df[formants] = df[formants].div(
+            np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0).mul(
+                np.cbrt(df[formants].mean(axis=0)), axis=1)
         return df
