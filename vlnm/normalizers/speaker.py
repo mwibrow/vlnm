@@ -598,6 +598,49 @@ class IEHTNormalizer(FormantSpecificNormalizer):
     described in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}`.
 
 
+    Firstly, let :math:`F^{\prime}_{ij}` be the raw formant value in Hz
+    for a particular token of vowel :math:`j`
+    divided by the gemometric mean of the first three formants for
+    that token:
+
+    .. math::
+
+        F^{\prime}_{ij} = \frac{F_{ij}}
+            { \left( \prod_{i=1}^{3}F_{ij} \right)^{\frac{1}{3}} }
+
+    Let :math:`\mu_{ij}` be the mean of :math:`F_i`
+    for vowel :math:`j` for all tokens and speakers.
+    Define :math:`F^{\prime\prime}_{ij}` as follows:
+
+    .. math::
+
+        F^{\prime\prime}_{ij} = F^{\prime}_{ij}\mu_{ij}
+
+    Then let :math:`\mu^{\prime\prime}_{ij}` and :math:`\sigma^{\prime\prime}_{ij}`
+    be the mean and standard deviation, respectively,
+    of :math:`F^{\prime\prime}_i` for vowel :math:`j` for all tokens and
+    speakers.
+    Then the normalized value can be calulated as follows:
+
+    .. math::
+
+        F^*_{ij^*} = F^\prime_{ij} \mu_{ij^*}
+
+
+    Where :math:`j^*` is vowel from the set of vowels :math:`J`
+    such that:
+
+    .. math::
+
+        j^* = \underset{j \in J}{\text{argmin}}
+            \left(
+                \sum_{i=1}^{2}\left(
+                    \frac{F^\prime_{ij}\mu_{ij} - \mu^{\prime\prime}_{ij}}
+                        {\sigma^{\prime\prime}_{ij}}
+                \right)^2
+            \right)^{\frac{1}{2}}
+
+    Note that this procedure reclassifies the vowels.
 
     Parameters
     ----------
