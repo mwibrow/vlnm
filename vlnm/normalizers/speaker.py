@@ -645,35 +645,26 @@ class IEHTNormalizer(FormantSpecificNormalizer):
         formants = [f1, f2, f3]
 
         bootstrap_df = df[[f1, f2, vowel]].groupby(vowel).mean()
-        self.params['bootstrap'] = bootstrap_df
+        beta = bootstrap_df.values
+
+        # Normalize
         df[formants] = df[formants].div(
             np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0)
 
+        # Bootstrap denormalization
         def _denorm(_vowel):
             _df = bootstrap_df.loc[_vowel, pd.IndexSlice[[f1, f2]]]
             return _df
-
-        dnm_df = df.copy()
-        dnm_df[[f1, f2]] = dnm_df[[f1, f2]].mul(dnm_df[vowel].apply(_denorm).values, axis=0)
-
-        prototype_df = dnm_df[[f1, f2, vowel]].groupby(vowel).mean()
-        self.params['prototype'] = prototype_df
-
-        def _denorm(_vowel):
-            _df = prototype_df.loc[_vowel, pd.IndexSlice[[f1, f2]]]
-            return _df
-
         dnm_df = df.copy()
         dnm_df[[f1, f2]] = dnm_df[[f1, f2]].mul(dnm_df[vowel].apply(_denorm).values, axis=0)
         mu = dnm_df[[f1, f2, vowel]].groupby(vowel).mean().values
         sigma = dnm_df[[f1, f2, vowel]].groupby(vowel).std().values
-        self.params['mu'] = mu
-        self.params['sigma'] = sigma
         vowels = [group[0] for group in dnm_df.groupby(vowel)]
         del dnm_df
 
+        # Actual denormalization
         def _test(_df):
-            dnm = _df[[f1, f2]].values * mu
+            dnm = _df[[f1, f2]].values * beta
             distances = (((dnm - mu) / sigma) ** 2).sum(axis=1)
             index = np.argmin(distances)
             return pd.Series(dict(
@@ -681,5 +672,4 @@ class IEHTNormalizer(FormantSpecificNormalizer):
                 f2=dnm[index, 1],
                 vowel=vowels[index]))
 
-        df[[f1, f2, 'vowel*']] = df[[f1, f2, vowel]].apply(_test, axis=1)
-        return df
+        df[[f1, f2, vowel]] = df[[f1, f2, vowel]].apply(_test, axis=1)
