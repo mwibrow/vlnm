@@ -518,7 +518,7 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
 @docstring
 @register('ie-gmagm')
-@classify(formant='extrinsic', vowel='intrinsic', speaker='intrinsic')
+@classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
 class IEGMAGMNormalizer(FormantSpecificNormalizer):
     r"""
     Normalize formants according to
@@ -644,7 +644,7 @@ class IEHTNormalizer(FormantSpecificNormalizer):
 
         :citet:`ananthapadmanabha_ramakrishnan_2016` appear
         to suggest the use of :math:`F^\prime_{ij}\mu^{\prime\prime}_{ij}`
-        when calculating :math:`j^*`, however this produces
+        when calculating :math:`j^*`. However, this produces
         meaningless results (and certainly not the results that
         they report) so :math:`F^\prime_{ij}\mu_{ij}` is used
         in this implementation.
@@ -654,7 +654,6 @@ class IEHTNormalizer(FormantSpecificNormalizer):
     ----------
     f1 - f3:
     vowel:
-    speaker:
 
 
     Other Parameters

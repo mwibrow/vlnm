@@ -64,7 +64,7 @@ class YAMLDirective(Directive):
             block_text, state, state_machine)
 
         if 'configure' in config:
-            self.CONFIG.clear()
+            # self.CONFIG.clear()
             self.CONFIG.update(config['configure'])
             del config['configure']
         self.options = self._merge(config, copy.deepcopy(self.CONFIG))
@@ -173,11 +173,6 @@ class JupyterDirective(YAMLDirective):
 
         self.shell.update_user_ns(Sphinx=self.state.document.settings.env.app)
 
-        if 'shell' in options:
-            self.shell.run_cell(options['shell'], silent=True)
-        if 'before' in options:
-            self.shell.run_cell(options['before'], silent=True)
-
         if 'chdir' in options:
             chdir = self.normalize_path(options['chdir'])
             self.CONFIG.update(path=chdir)
@@ -185,6 +180,13 @@ class JupyterDirective(YAMLDirective):
         path = self.normalize_path(options.get('path'))
 
         with cd(path):
+            if 'shell' in options:
+                self.shell.run_cell(options['shell'], silent=True)
+            if 'before_each' in options:
+                self.shell.run_cell(options['before_each'], silent=True)
+            if 'before' in options:
+                self.shell.run_cell(options['before'], silent=True)
+
             exc_result, stdout, _ = self.shell.run_cell(code, silent='silent' in options)
 
         if 'hidden' in options:

@@ -9,20 +9,10 @@
             dtypes:
                 speaker: str
                 vowel: str
-        before: |
-            import matplotlib
-            matplotlib.use("agg")
-            import pandas as pd
-            from vlnm import normalize
         path: '{tmpdir}'
+    before: |
+        SetupCsv()
     hidden: yes
-
-    Shell.copy(
-        [Sphinx.confdir, '_data', 'pb1952.csv'],
-        'pb1952.csv')
-    df = pd.read_csv('pb1952.csv')
-    df[['speaker', 'vowel', 'f1', 'f2']].to_csv('vowels.csv', index=False)
-    df[['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3']].to_csv('vowels3.csv', index=False)
 
 
 :mod:`vlnm.normalizers.formant`

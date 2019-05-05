@@ -7,6 +7,7 @@ from io import StringIO
 import os
 import re
 import shutil
+import sys
 import tempfile
 
 from IPython import InteractiveShell
@@ -24,6 +25,10 @@ def pop_until_match(items, pattern):
     return items
 
 
+STDOUT = sys.stdout
+STDERR = sys.stderr
+
+
 class JupyterShell:
     """Helper class for managing shell interpreters."""
 
@@ -36,6 +41,8 @@ class JupyterShell:
         self.shell = None
         self.user_ns = user_ns or {}
         self._tmpdir = self.tmpdir = None
+        self.stdout = STDOUT
+        self.stderr = STDERR
 
     def update_user_ns(self, **kwargs):
         """Add a varaible to the user namespace."""
@@ -46,6 +53,7 @@ class JupyterShell:
         if JupyterShell._instance is None:
             obj = object.__new__(JupyterShell)
             obj.__init__()
+            obj.new()
             JupyterShell._instance = obj
         return JupyterShell._instance
 

@@ -5,9 +5,13 @@ dataframe:
   dtypes:
       speaker: str
       vowel: str
-before: |
+before_each: |
   import matplotlib
   matplotlib.use("agg")
   import pandas as pd
   from vlnm import normalize
+  def SetupCsv(columns=None, filename='vowels.csv'):
+      Shell.copy([Sphinx.confdir, '_data', 'pb1952.csv'], 'pb1952.csv')
+      df = pd.read_csv('pb1952.csv')
+      df[columns].to_csv(filename, index=False)
 path: '{tmpdir}'

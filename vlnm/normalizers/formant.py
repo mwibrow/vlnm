@@ -389,12 +389,14 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         dataframe:
             formatters:
                 float64: '{:.03f}'
+        before: |
+            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
 
         import pandas as pd
         from vlnm import BarkDifferenceNormalizer
 
         normalizer = BarkDifferenceNormalizer()
-        df = pd.read_csv('vowels3.csv')
+        df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
 
@@ -405,10 +407,12 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         dataframe:
             formatters:
                 float64: '{:.03f}'
+        before: |
+            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
 
         normalizer = BarkDifferenceNormalizer(
             rename=dict(z1='f1-f0', z2='f2-f1', z3='f3-f2'))
-        df = pd.read_csv('vowels3.csv')
+        df = pd.read_csv('vowels.csv')
         norm_df = normalizer.normalize(df)
         norm_df.head()
 
