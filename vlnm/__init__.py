@@ -41,8 +41,7 @@ from vlnm.normalizers.formant import (
     ErbNormalizer,
     Log10Normalizer,
     LogNormalizer,
-    MelNormalizer)
-from vlnm.normalizers.vowel import (
+    MelNormalizer,
     BarkDifferenceNormalizer)
 
 

@@ -56,4 +56,3 @@ indiciate any accepted classification of normalizers in the literature.
    formant
    gender
    speaker
-   vowel

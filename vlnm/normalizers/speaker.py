@@ -521,8 +521,8 @@ class NearyGMExpNormalizer(NearyNormalizer):
 @classify(formant='extrinsic', vowel='intrinsic', speaker='intrinsic')
 class IEGMAGMNormalizer(FormantSpecificNormalizer):
     r"""
-    A combined normalization and denormalization proceedure
-    described in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}, appendix B`.
+    Normalize formants according to
+    :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}, appendix B`.
 
     Formants for a given token are
     first normalized by dividing the values in Hz
@@ -594,11 +594,10 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
 @classify(formant='extrinsic', vowel='intrinsic', speaker='extrinsic')
 class IEHTNormalizer(FormantSpecificNormalizer):
     r"""
-    A combined normalization and denormalization proceedure
-    described in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}`.
+    Normalize (and potentially relabel) formants
+    according in :citet:`{% ananthapadmanabha_ramakrishnan_2016 %}`.
 
-
-    Firstly, let :math:`F^{\prime}_{ij}` be the raw formant value in Hz
+    Let :math:`F^{\prime}_{ij}` be the raw formant value in Hz
     for a particular token of vowel :math:`j`
     divided by the gemometric mean of the first three formants for
     that token:
@@ -609,8 +608,8 @@ class IEHTNormalizer(FormantSpecificNormalizer):
             { \left( \prod_{i=1}^{3}F_{ij} \right)^{\frac{1}{3}} }
 
     Let :math:`\mu_{ij}` be the mean of :math:`F_i`
-    for vowel :math:`j` for all tokens and speakers.
-    Define :math:`F^{\prime\prime}_{ij}` as follows:
+    for vowel :math:`j` for all tokens and speakers,
+    and define :math:`F^{\prime\prime}_{ij}` as follows:
 
     .. math::
 
@@ -640,7 +639,16 @@ class IEHTNormalizer(FormantSpecificNormalizer):
                 \right)^2
             \right)^{\frac{1}{2}}
 
-    Note that this procedure reclassifies the vowels.
+
+    .. note::
+
+        :citet:`ananthapadmanabha_ramakrishnan_2016` appear
+        to suggest the use of :math:`F^\prime_{ij}\mu^{\prime\prime}_{ij}`
+        when calculating :math:`j^*`, however this produces
+        meaningless results (and certainly not the results that
+        they report) so :math:`F^\prime_{ij}\mu_{ij}` is used
+        in this implementation.
+
 
     Parameters
     ----------

@@ -159,7 +159,8 @@ def doc_summary(lines):
         if (stripped.startswith('to use this normalizer') or
                 stripped.startswith('use ``method')):
             continue
-        if line.startswith('Parameters') or line.startswith('Example'):
+        if (line.startswith('Parameters') or line.startswith('Example')
+                or line.startswith('.. note::')):
             break
         summary.append(line)
     return summary

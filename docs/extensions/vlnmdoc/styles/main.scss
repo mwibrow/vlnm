@@ -101,7 +101,7 @@ dl.class {
     text-indent: -2rem;
     margin-bottom: 0.5rem;
     position: relative;
-    a {
+    a:not(.natbib) {
       position: absolute;
       top: 0.25rem;
       right: 0.25rem;
