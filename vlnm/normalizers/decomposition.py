@@ -38,9 +38,11 @@ class DecompositionNormalizer(FormantGenericNormalizer):
             columns: List[str] = None,
             rename: Union[str, List[str]] = None,
             groupby: Union[str, List[str]] = None,
+            n_components: int = None,
             **kwargs):
         super().__init__(formants=columns, rename=rename, groupby=groupby)
-        self.estimator = cls(**kwargs)
+        self.estimator = cls(n_components=n_components, **kwargs)
+        self.n_components = n_components
 
     def _norm(self, df: pd.DataFrame, **kwargs):
         columns = self.params['formants']  # NB not necessarily formants.
@@ -50,6 +52,9 @@ class DecompositionNormalizer(FormantGenericNormalizer):
         new_columns = [f'f{i+1}' for i in range(fit.shape[1])]
         df[new_columns] = fit
         return df
+
+    def _get_outputs(self):
+        return ['f{}'.format(i + 1) for i in range(self.n_components)]
 
 
 @docstring

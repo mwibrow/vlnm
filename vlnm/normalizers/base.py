@@ -121,14 +121,6 @@ class Normalizer:
             **{key: value for key, value in kwargs.items()
                if value is not None})
 
-        # Did the user specify formants?
-        # keys = ['f{}'.format(i) for i in range(self.MAX_FX)] + ['formants']
-        # self.user_formants.update(
-        #     **{key: kwargs[key] for key in keys if kwargs.get(key)})
-        # missing = self._check_user_formants(df, self.user_formants)
-        # if missing:
-        #     raise ValueError(
-        #         'Formant "{}" not a column in DataFrame'.format(missing))
         self._get_formant_columns(df)
 
         # Check keywords.
@@ -203,16 +195,16 @@ class Normalizer:
             norm_df = self._norm(df[subset].copy())
 
             # Find new/renameable columns and rename.
-            renameables = self.config.get('outputs')
-            if renameables:
-                renameables = [
-                    formant_spec.get(name, self.params.get(name, name)) for name in renameables]
+            outputs = self._get_outputs()
+            if outputs:
+                outputs = [
+                    formant_spec.get(name, self.params.get(name, name)) for name in outputs]
             else:
-                renameables = [column for column in norm_df
-                               if column not in subset]
-                renameables.extend(self.params['formants'])
+                outputs = [column for column in norm_df
+                           if column not in subset]
+                outputs.extend(self.params['formants'])
             rename = self.params.get('rename') or '{}'
-            for column in renameables:
+            for column in outputs:
                 if column in norm_df:
                     try:
                         new_column = rename.get(column, column)
@@ -223,6 +215,9 @@ class Normalizer:
 
                     df[new_column] = norm_df[column]
         return df
+
+    def _get_outputs(self):
+        return self.config.get('outputs')
 
     def _formant_iterator(self):
         yield dict(formants=self.formants)
