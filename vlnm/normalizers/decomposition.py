@@ -43,11 +43,11 @@ class DecompositionNormalizer(FormantGenericNormalizer):
         self.estimator = cls(**kwargs)
 
     def _norm(self, df: pd.DataFrame, **kwargs):
-        columns = kwargs['formants']  # NB not necessarily formants.
-        data = df[columns].to_numpy()
+        columns = self.params['formants']  # NB not necessarily formants.
+        data = df[columns].values
         fit = self.estimator.fit_transform(data)
         df.drop(columns, axis=1)
-        new_columns = [f'x{i+1}' for i in range(fit.shape[1])]
+        new_columns = [f'f{i+1}' for i in range(fit.shape[1])]
         df[new_columns] = fit
         return df
 
@@ -80,6 +80,21 @@ class PCANormalizer(DecompositionNormalizer):
         constructor of the :class:`sklearn.decomposition.PCA`
         class.
 
+
+    Examples
+    --------
+
+    .. ipython::
+        before: |
+            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3])
+
+        from vlnm import PCANormalizer
+
+        normalizer = PCANormalizer(['f0', 'f1', 'f2', 'f3'], n_components=2, rename='{}*')
+        norm_df = normalizer.normalize('vowels.csv')
+        norm_df.head()
+
+
     """
 
     def __init__(
@@ -97,7 +112,7 @@ class PCANormalizer(DecompositionNormalizer):
             **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
 
 
@@ -143,5 +158,5 @@ class NMFNormalizer(DecompositionNormalizer):
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
 
     @docstring
-    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
