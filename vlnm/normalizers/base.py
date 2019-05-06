@@ -198,7 +198,6 @@ class Normalizer:
             if renameables:
                 renameables = [
                     formant_spec.get(name, self.params.get(name, name)) for name in renameables]
-
             else:
                 renameables = [column for column in norm_df
                                if column not in subset]

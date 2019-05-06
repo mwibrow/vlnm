@@ -15,34 +15,7 @@ from vlnm.registration import (
     get_normalizer,
     register_normalizer)
 
-from vlnm.normalizers.base import (
-    ChainNormalizer,
-    DefaultNormalizer,
-    Normalizer)
-
-from vlnm.normalizers.centroid import (
-    WattFabricius1Normalizer,
-    WattFabricius2Normalizer,
-    WattFabricius3Normalizer,
-    WattFabriciusNormalizer)
-from vlnm.normalizers.gender import (
-    BladenNormalizer,
-    NordstromNormalizer)
-from vlnm.normalizers.speaker import (
-    GerstmanNormalizer,
-    LCENormalizer,
-    LobanovNormalizer,
-    NearyExpNormalizer,
-    NearyGMNormalizer,
-    NearyGMExpNormalizer,
-    NearyNormalizer)
-from vlnm.normalizers.formant import (
-    BarkNormalizer,
-    ErbNormalizer,
-    Log10Normalizer,
-    LogNormalizer,
-    MelNormalizer,
-    BarkDifferenceNormalizer)
+from vlnm.normalizers import *
 
 
 def normalize(
