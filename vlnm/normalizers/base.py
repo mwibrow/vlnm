@@ -51,6 +51,8 @@ class Normalizer:
     config = dict(
         # Required columns for the normalizer.
         columns=[],
+        # Specifically provide the output columns.
+        outputs=[],
         # Keywords used by the normalizer.
         keywords=[],
         # Default options
@@ -192,9 +194,15 @@ class Normalizer:
             norm_df = self._norm(df[subset].copy())
 
             # Find new/renameable columns and rename.
-            renameables = [column for column in norm_df
-                           if column not in subset]
-            renameables.extend(self.params['formants'])
+            renameables = self.config.get('outputs')
+            if renameables:
+                renameables = [
+                    formant_spec.get(name, self.params.get(name, name)) for name in renameables]
+
+            else:
+                renameables = [column for column in norm_df
+                               if column not in subset]
+                renameables.extend(self.params['formants'])
             rename = self.params.get('rename') or '{}'
             for column in renameables:
                 if column in norm_df:
@@ -234,13 +242,19 @@ class FormantSpecificNormalizer(Normalizer):
             f5: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(**kwargs)
-        formants = dict(
-            f0=f0 or 'f0',
-            f1=f1 or 'f1',
-            f2=f2 or 'f2',
-            f3=f3 or 'f3',
-            f4=f4 or 'f4',
-            f5=f5 or 'f5')
+
+        fxs = [f0, f1, f2, f3, f4, f5]
+        if any(fxs):
+            formants = {
+                'f{}'.format(i): fxs[i] for i in range(self.MAX_FX + 1) if fxs[i]}
+        else:
+            formants = dict(
+                f0=f0 or 'f0',
+                f1=f1 or 'f1',
+                f2=f2 or 'f2',
+                f3=f3 or 'f3',
+                f4=f4 or 'f4',
+                f5=f5 or 'f5')
 
         self.formants = self._sanitize_formants(formants)
 

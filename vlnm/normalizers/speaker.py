@@ -667,24 +667,23 @@ class IEHTNormalizer(FormantSpecificNormalizer):
 
     config = dict(
         columns=['f1', 'f2', 'f3', 'vowel'],
+        outputs=['f1', 'f2', 'vowel'],
         keywords=['vowel']
     )
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
+            f3: Union[str, List[str]] = 'f3',
             vowel: str = 'vowel',
-            speaker: str = 'speaker',
             rename: Union[str, dict] = None,
             groupby: Union[str, List[str]] = None,
             **kwargs):
         super().__init__(
-            f1=f1,
-            f2=f2,
-            f3=f3,
-            speaker=speaker,
+            f1=f1 or 'f1',
+            f2=f2 or 'f2',
+            f3=f3 or 'f3',
             vowel=vowel,
             rename=rename,
             **kwargs)
@@ -692,14 +691,13 @@ class IEHTNormalizer(FormantSpecificNormalizer):
     def _norm(self, df):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
         vowel = self.params['vowel']
-        formants = [f1, f2, f3]
 
         bootstrap_df = df[[f1, f2, vowel]].groupby(vowel).mean()
         beta = bootstrap_df.values
 
         # Normalize
-        df[formants] = df[formants].div(
-            np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0)
+        df[[f1, f2]] = df[[f1, f2]].div(
+            np.cbrt(df[[f1, f2, f3]].apply(np.prod, axis=1)), axis=0)
 
         # Bootstrap denormalization
         def _denorm(_vowel):
@@ -723,3 +721,4 @@ class IEHTNormalizer(FormantSpecificNormalizer):
                 vowel=vowels[index]))
 
         df[[f1, f2, vowel]] = df[[f1, f2, vowel]].apply(_test, axis=1)
+        return df
