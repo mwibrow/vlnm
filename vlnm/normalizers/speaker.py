@@ -64,12 +64,10 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import GerstmanNormalizer
 
         normalizer = GerstmanNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
     """
 
@@ -132,12 +130,10 @@ class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import LCENormalizer
 
         normalizer = LCENormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -201,12 +197,10 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import LobanovNormalizer
 
         normalizer = LobanovNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -273,12 +267,10 @@ class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import NearyNormalizer
 
         normalizer = NearyNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -341,12 +333,10 @@ class NearyExpNormalizer(NearyNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import NearyExpNormalizer
 
         normalizer = NearyExpNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -410,12 +400,10 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import NearyGMNormalizer
 
         normalizer = NearyGMNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -486,12 +474,10 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import NearyGMExpNormalizer
 
         normalizer = NearyGMExpNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """

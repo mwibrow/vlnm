@@ -82,9 +82,9 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
 
     def __init__(
             self,
-            f1: Union[str, List[str]] = None,
-            f2: Union[str, List[str]] = None,
-            f3: Union[str, List[str]] = None,
+            f1: Union[str, List[str]] = 'f1',
+            f2: Union[str, List[str]] = 'f2',
+            f3: Union[str, List[str]] = 'f3',
             vowel: str = 'vowel',
             rename: Union[str, dict] = None,
             groupby: Union[str, List[str]] = None,
@@ -195,12 +195,10 @@ class IEHTNormalizer(FormantSpecificNormalizer):
         before: |
             SetupCsv(['speaker', 'vowel', 'f1', 'f2', 'f3'])
 
-        import pandas as pd
         from vlnm import IEHTNormalizer
 
         normalizer = IEHTNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -277,7 +275,7 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
 
     .. math::
 
-        Z_{i}^\prime = B(F_i) - B(F_{i-1})\mbox{ for } 1 \leq i \leq 3
+        F_{i}^* = B(F_i) - B(F_{i-1})\mbox{ for } 1 \leq i \leq 3
 
     Where :math:`B` is a function converting the :math:`i\mbox{th}`
     formant measured in hertz to the Bark scale.
@@ -308,7 +306,7 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
     -------
 
     The :class:`BarkDifference` normalizer returns columns
-    :col:`z1` (if :math:`F_0` is present), :col:`z2`, :col:`z3`:
+    :col:`f1` (if :math:`F_0` is present), :col:`f2`, :col:`f3`:
 
     .. ipython::
         dataframe:
@@ -317,33 +315,16 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         before: |
             SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
 
-        import pandas as pd
         from vlnm import BarkDifferenceNormalizer
 
-        normalizer = BarkDifferenceNormalizer()
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
-        norm_df.head()
-
-    To rename these columns, use the ``rename`` argument
-    with a dictionary:
-
-    .. ipython::
-        dataframe:
-            formatters:
-                float64: '{:.03f}'
-        before: |
-            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
-
-        normalizer = BarkDifferenceNormalizer(
-            rename=dict(z1='f1-f0', z2='f2-f1', z3='f3-f2'))
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        normalizer = BarkDifferenceNormalizer(rename='{}*')
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
     config = dict(
         keywords=['f0', 'f1', 'f2', 'f3'],
+        outputs=['f1', 'f2', 'f3'],
         transform=hz_to_bark
     )
 
@@ -379,8 +360,8 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         z3 = transform(df[f3])
 
         if z0 is not None:
-            df['z1'] = z1 - z0
-        df['z2'] = z2 - z1
-        df['z3'] = z3 - z2
+            df['f1'] = z1 - z0
+        df['f2'] = z2 - z1
+        df['f3'] = z3 - z2
 
         return df

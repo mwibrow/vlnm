@@ -361,12 +361,10 @@ class DefaultNormalizer(FormantGenericNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import DefaultNormalizer
 
         normalizer = DefaultNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -401,7 +399,6 @@ class ChainNormalizer(Normalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import ChainNormalizer, BarkNormalizer, LobanovNormalizer
 
         normalizers = [
@@ -409,8 +406,7 @@ class ChainNormalizer(Normalizer):
             LobanovNormalizer(formants=['f1*', 'f2*'])
         ]
         normalizer = ChainNormalizer(normalizers)
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
 
@@ -440,8 +436,8 @@ class ChainNormalizer(Normalizer):
         norm_df = df
         for normalizer in self.normalizers:
             try:
-                norm_df = normalizer.normalize(df)
+                norm_df = normalizer.normalize(norm_df)
             except AttributeError:
                 normalizer = get_normalizer(normalizer)
-                norm_df = normalizer.normalize(df)
+                norm_df = normalizer.normalize(norm_df)
         return norm_df

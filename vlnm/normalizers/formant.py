@@ -61,12 +61,10 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import BarkNormalizer
 
         normalizer = BarkNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -126,12 +124,10 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import ErbNormalizer
 
         normalizer = ErbNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -185,12 +181,10 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import Log10Normalizer
 
         normalizer = Log10Normalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -244,12 +238,10 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import LogNormalizer
 
         normalizer = LogNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
@@ -309,12 +301,10 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        import pandas as pd
         from vlnm import MelNormalizer
 
         normalizer = MelNormalizer(rename='{}*')
-        df = pd.read_csv('vowels.csv')
-        norm_df = normalizer.normalize(df)
+        norm_df = normalizer.normalize('vowels.csv')
         norm_df.head()
 
     """
