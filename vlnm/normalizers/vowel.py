@@ -59,10 +59,24 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
     kwargs:
 
 
+    Examples
+    --------
+
+    .. ipython::
+        before: |
+            SetupCsv(['speaker', 'vowel', 'f1', 'f2', 'f3'])
+
+        from vlnm import IEGMAGMNormalizer
+
+        normalizer = IEGMAGMNormalizer(rename='{}*')
+        norm_df = normalizer.normalize('vowels.csv')
+        norm_df.head()
+
     """
 
     config = dict(
         columns=['f1', 'f2', 'f3', 'vowel'],
+        outputs=['f1', 'f2'],
         keywords=['vowel']
     )
 
@@ -86,10 +100,9 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
     def _norm(self, df):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
         vowel = self.params['vowel']
-        formants = [f1, f2, f3]
-        df[formants] = df[formants].div(
-            np.cbrt(df[formants].apply(np.prod, axis=1)), axis=0).mul(
-                np.cbrt(df[formants].mean(axis=0)), axis=1)
+        df[[f1, f2]] = df[[f1, f2]].div(
+            np.cbrt(df[[f1, f2, f3]].apply(np.prod, axis=1)), axis=0).mul(
+                np.cbrt(np.prod(df[[f1, f2, f3]].mean(axis=0))), axis=1)
         return df
 
 
@@ -166,6 +179,29 @@ class IEHTNormalizer(FormantSpecificNormalizer):
     groupby:
     kwargs:
 
+
+    Examples
+    --------
+
+    As the :class:`IEHTNormalizer` can relabel vowels
+    it also updates the :col:`vowel` column.
+    The ``rename`` argument can be used to keep the
+    old labels.
+
+    .. ipython::
+        dataframe:
+            formatters:
+                float64: '{:.03f}'
+        before: |
+            SetupCsv(['speaker', 'vowel', 'f1', 'f2', 'f3'])
+
+        import pandas as pd
+        from vlnm import IEHTNormalizer
+
+        normalizer = IEHTNormalizer(rename='{}*')
+        df = pd.read_csv('vowels.csv')
+        norm_df = normalizer.normalize(df)
+        norm_df.head()
 
     """
 

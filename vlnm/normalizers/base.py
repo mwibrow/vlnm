@@ -105,7 +105,16 @@ class Normalizer:
         return None
 
     @docstring
-    def normalize(self, df: pd.DataFrame, rename=None, groups=None, **kwargs) -> pd.DataFrame:
+    def normalize(
+            self, df:
+            Union[pd.DataFrame, str],
+            rename=None,
+            groups=None,
+            **kwargs) -> pd.DataFrame:
+
+        if isinstance(df, str):
+            df = pd.read_csv(df)
+
         self.options = self.default_options.copy()
         self.options.update(
             rename=rename or self.options.get('rename'),
