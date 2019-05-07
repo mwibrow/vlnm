@@ -62,20 +62,21 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
     Examples
     --------
 
-    .. ipython::
-        before: |
-            SetupCsv(['speaker', 'vowel', 'f1', 'f2', 'f3'])
 
+    .. ipython::
+
+        import pandas as pd
         from vlnm import IEGMAGMNormalizer
 
+        df = pd.read_csv('pb1952.csv', usecols=['speaker', 'vowel', 'f1', 'f2', 'f3'])
         normalizer = IEGMAGMNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        norm_df = normalizer.normalize(df)
         norm_df.head()
 
     """
 
     config = dict(
-        columns=['f1', 'f2', 'f3'],
+        columns=['f1', 'f2', 'f3', 'vowel'],
         outputs=['f1', 'f2'],
         keywords=['vowel']
     )
@@ -101,15 +102,14 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
     def _norm(self, df):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
         vowel = self.params['vowel']
-
-        gma_df = df[[f1, f2, f3]].groupby(vowel).mean()
+        gma_df = df[[f1, f2, f3, vowel]].groupby(vowel).mean()
 
         def _denorm(_vowel):
             _df = gma_df.loc[_vowel, pd.IndexSlice[[f1, f2, f3]]]
             return _df
         df[[f1, f2]] = df[[f1, f2]].div(
             np.cbrt(df[[f1, f2, f3]].apply(np.prod, axis=1)), axis=0).mul(
-                df[vowel].apply(_denorm).values, axis=0)
+                np.cbrt(np.prod(df[vowel].apply(_denorm).values, axis=1)), axis=0)
         return df
 
 
@@ -199,13 +199,13 @@ class IEHTNormalizer(FormantSpecificNormalizer):
         dataframe:
             formatters:
                 float64: '{:.03f}'
-        before: |
-            SetupCsv(['speaker', 'vowel', 'f1', 'f2', 'f3'])
 
+        import pandas as pd
         from vlnm import IEHTNormalizer
 
+        df = pd.read_csv('pb1952.csv', usecols=['speaker', 'vowel', 'f1', 'f2', 'f3'])
         normalizer = IEHTNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        norm_df = normalizer.normalize(df)
         norm_df.head()
 
     """
