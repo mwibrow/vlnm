@@ -17,7 +17,7 @@ import pandas as pd
 from ..conversion import hz_to_bark
 from ..docstrings import docstring
 from .base import register, classify
-from .base import uninstantiable, Normalizer, FormantSpecificNormalizer
+from .base import FormantSpecificNormalizer
 
 
 @docstring
@@ -75,7 +75,7 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
     """
 
     config = dict(
-        columns=['f1', 'f2', 'f3', 'vowel'],
+        columns=['f1', 'f2', 'f3'],
         outputs=['f1', 'f2'],
         keywords=['vowel']
     )
@@ -95,14 +95,21 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
             f3=f3,
             vowel=vowel,
             rename=rename,
+            groupby=groupby,
             **kwargs)
 
     def _norm(self, df):
         f1, f2, f3 = self.params['f1'], self.params['f2'], self.params['f3']
         vowel = self.params['vowel']
+
+        gma_df = df[[f1, f2, f3]].groupby(vowel).mean()
+
+        def _denorm(_vowel):
+            _df = gma_df.loc[_vowel, pd.IndexSlice[[f1, f2, f3]]]
+            return _df
         df[[f1, f2]] = df[[f1, f2]].div(
             np.cbrt(df[[f1, f2, f3]].apply(np.prod, axis=1)), axis=0).mul(
-                np.cbrt(np.prod(df[[f1, f2, f3]].mean(axis=0))), axis=1)
+                df[vowel].apply(_denorm).values, axis=0)
         return df
 
 
@@ -224,6 +231,7 @@ class IEHTNormalizer(FormantSpecificNormalizer):
             f3=f3 or 'f3',
             vowel=vowel,
             rename=rename,
+            groupby=groupby,
             **kwargs)
 
     def _norm(self, df):
