@@ -41,7 +41,7 @@ class Dataset:
         self.dtypes = dtypes or {}
         self.kwargs = kwargs
 
-    def load(self, columns: List[str] = None, raw: bool = False):
+    def load(self, columns: List[str] = None, dtypes: bool = True):
         if USE_CACHE:
             if self.source not in CACHE:
                 CACHE[self.source] = pd.read_csv(self.source, **self.kwargs)
@@ -50,11 +50,15 @@ class Dataset:
                 df = df[columns]
         else:
             df = pd.read_csv(self.source, usecols=columns, **self.kwargs)
-        dtypes = {} if raw else self.dtypes
+        dtypes = self.dtypes if dtypes else {}
         if dtypes:
             for column in df.columns:
                 if column in self.dtypes:
-                    df[column] = self.dtypes[column](df[column])
+                    try:
+                        dtype = self.dtypes[column]
+                        df[column] = dtype[0](df[column], dtype=dtype[1])
+                    except IndexError:
+                        df[column] = dtype(df[column])
         return df
 
     def __call__(self, **kwargs):
@@ -73,18 +77,14 @@ def cache(enable: bool = True):
     CACHE = {}
     USE_CACHE = enable
 
-# pylint: disable=invalid-name
+
+def categorical(series: pd.Series, dtype=str):
+    return pd.Categorical(series.astype(dtype))
 
 
-def pb1952(columns: List[str] = None, raw: bool = False) -> pd.DataFrame:
+def pb1952(columns: List[str] = None, dtypes: bool = False) -> pd.DataFrame:
     """
-    Return data derived from: citet: `peterson_barney_1952`.
-
-    : columns:
-
-        - speaker:
-        - type:
-        - f0:
+    Return data derived from :citet:`peterson_barney_1952`.
 
     Parameters
     ----------
@@ -92,17 +92,39 @@ def pb1952(columns: List[str] = None, raw: bool = False) -> pd.DataFrame:
     columns:
         Specify which columns to return.
         If omitted all columns are returned.
-    raw:
+    dtypes:
+        By default, the data types
+        for the columns
+        will be automatically set
+        (including wi)
 
     Returns
     -------
     :
         A Dataframe containing the data
 
+
+    Dataset
+    -------
+
+    type: :class:`pandas.Categorical` of :class:`str`
+        Type
+    sex: :class:`pandas.Categorical` of :class:`str`
+        Reported gender of speaker
+    speaker: :class:`pandas.Categorical` of :class:`int`
+        Speaker identifier
+    vowel: :class:`pandas.Categorical` of :class:`str`
+        Vowel label
+    IPA: :class:`pandas.Categorical` of :class:`str`
+        IPA symbol.
+    f0 - f3: :class:`numpy.int64`
+        Formant data in Hz.
+
+
     Examples
     --------
 
-    .. ipython: :
+    .. ipython::
 
         from vlnm.data import pb1952
 
@@ -112,13 +134,13 @@ def pb1952(columns: List[str] = None, raw: bool = False) -> pd.DataFrame:
     return Dataset(
         os.path.join(WHERE_AM_I, 'pb1952.csv'),
         {
-            'type': pd.Categorical,
-            'sex': pd.Categorical,
-            'speaker': pd.Categorical,
-            'vowel': pd.Categorical,
-            'id': pd.Categorical,
+            'type': (pd.Categorical, str),
+            'sex': categorical,
+            'speaker': categorical,
+            'vowel': categorical,
+            'IPA': categorical,
             'f0': np.int64,
             'f1': np.int64,
             'f2': np.int64,
             'f3': np.int64
-        })(columns=columns, raw=raw)
+        })(columns=columns, dtypes=dtypes)

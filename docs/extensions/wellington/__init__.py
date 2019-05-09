@@ -2,12 +2,63 @@
 Wellington Extension
 """
 # pylint: disable=protected-access
+from functools import partial
 
-from sphinx.ext.napoleon import _patch_python_domain, Config, _skip_member
+from sphinx.ext.napoleon import Config, _skip_member
 from sphinx.ext.napoleon.docstring import NumpyDocstring
 
 
+def _(message, *_):
+    """
+    NOOP implementation of sphinx.locale.get_translation shortcut.
+    """
+    return message
+
+
 class VlnmDocstring(NumpyDocstring):
+
+    def __init__(self, docstring, config=None, app=None, what='', name='',
+                 obj=None, options=None):
+        self._directive_sections = ['.. index::']
+        self._sections = {
+            'args': self._parse_parameters_section,
+            'arguments': self._parse_parameters_section,
+            'attention': partial(self._parse_admonition, 'attention'),
+            'attributes': self._parse_attributes_section,
+            'caution': partial(self._parse_admonition, 'caution'),
+            'danger': partial(self._parse_admonition, 'danger'),
+            'dataset': self._parse_dataset_section,
+            'error': partial(self._parse_admonition, 'error'),
+            'example': self._parse_examples_section,
+            'examples': self._parse_examples_section,
+            'hint': partial(self._parse_admonition, 'hint'),
+            'important': partial(self._parse_admonition, 'important'),
+            'keyword args': self._parse_keyword_arguments_section,
+            'keyword arguments': self._parse_keyword_arguments_section,
+            'methods': self._parse_methods_section,
+            'note': partial(self._parse_admonition, 'note'),
+            'notes': self._parse_notes_section,
+            'other parameters': self._parse_other_parameters_section,
+            'parameters': self._parse_parameters_section,
+            'return': self._parse_returns_section,
+            'returns': self._parse_returns_section,
+            'raises': self._parse_raises_section,
+            'references': self._parse_references_section,
+            'see also': self._parse_see_also_section,
+            'tip': partial(self._parse_admonition, 'tip'),
+            'todo': partial(self._parse_admonition, 'todo'),
+            'warning': partial(self._parse_admonition, 'warning'),
+            'warnings': partial(self._parse_admonition, 'warning'),
+            'warns': self._parse_warns_section,
+            'yield': self._parse_yields_section,
+            'yields': self._parse_yields_section,
+        }
+        super(VlnmDocstring, self).__init__(docstring, config, app, what,
+                                            name, obj, options)
+
+    def _parse_dataset_section(self, _section):
+        # type: (unicode) -> List[unicode]
+        return self._format_fields(_('Dataset columns'), self._consume_fields())
 
     def _format_fields(self, field_type, fields):
         # type: (unicode, List[Tuple[unicode, unicode, List[unicode]]]) -> List[unicode]
@@ -92,6 +143,26 @@ def _process_docstring(app, what, name, obj, options, lines):
                               obj, options)
     result_lines = docstring.lines()
     lines[:] = result_lines[:]
+
+
+def _patch_python_domain():
+    # type: () -> None
+    try:
+        from sphinx.domains.python import PyTypedField
+    except ImportError:
+        pass
+    else:
+        import sphinx.domains.python
+        from sphinx.locale import _
+        for doc_field in sphinx.domains.python.PyObject.doc_field_types:
+            if doc_field.name == 'parameter':
+                doc_field.names = ('param', 'parameter', 'arg', 'argument')
+                break
+        sphinx.domains.python.PyObject.doc_field_types.append(
+            PyTypedField('keyword', label=_('Keyword Arguments'),
+                         names=('keyword', 'kwarg', 'kwparam'),
+                         typerolename='obj', typenames=('paramtype', 'kwtype'),
+                         can_collapse=True))
 
 
 def setup(app):
