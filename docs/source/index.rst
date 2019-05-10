@@ -56,6 +56,6 @@ using Matplotlib alone.
    installation
    normalizers/index
    plots/index
-   data
+   Datasets <data>
    license
    bibliography

@@ -16,7 +16,7 @@ CACHE = {}
 
 
 class Dataset:
-    """
+    r"""
     Base class for datasets.
 
 
@@ -29,7 +29,16 @@ class Dataset:
 
     dtypes:
         Dictionary mapping column names on
-        data types (or functions that return data types).
+        data types.
+
+
+    Other parameters
+    ----------------
+
+    \*\*kwargs:
+        Passed on to the :func:`pd.read_csv` function
+        when data is loaded.
+
     """
 
     def __init__(
@@ -41,8 +50,41 @@ class Dataset:
         self.dtypes = dtypes or {}
         self.kwargs = kwargs
 
-    def load(self, columns: List[str] = None, dtypes: bool = True):
-        if USE_CACHE:
+    def load(
+            self,
+            columns: List[str] = None,
+            cast=True,
+            dtypes: Dict[str, Union[Callable, Type]] = None,
+            cache: bool = False):
+        """
+        Load a dataset from disk or the cache.
+
+        Parameters
+        ----------
+
+        columns:
+            List of columns to subset the data.
+            If omitted, all columns are returned.
+        cast:
+            If ``True`` (the default), data will be
+            cast according to the ``dtypes`` parameter (if specified)
+            or the ``dtypes`` instance attribute.
+        dtypes:
+            Dictionary mapping column names on
+            data types.
+        cache:
+            Load data from the cache (if avaialble).
+            Will be ignored if :func:`enable_cache`
+            has been used to enable the cache.
+
+
+        Returns
+        -------
+        :
+            :class:`pd.DataFrame` containing the data.
+
+        """
+        if USE_CACHE or cache:
             if self.source not in CACHE:
                 CACHE[self.source] = pd.read_csv(self.source, **self.kwargs)
             df = CACHE[self.source]
@@ -50,22 +92,24 @@ class Dataset:
                 df = df[columns]
         else:
             df = pd.read_csv(self.source, usecols=columns, **self.kwargs)
-        dtypes = self.dtypes if dtypes else {}
+
+        if dtypes:
+            cast = True
+        dtypes = (dtypes or self.dtypes) if cast else {}
         if dtypes:
             for column in df.columns:
-                if column in self.dtypes:
+                if column in dtypes:
                     try:
-                        dtype = self.dtypes[column]
-                        df[column] = dtype[0](df[column], dtype=dtype[1])
-                    except IndexError:
-                        df[column] = dtype(df[column])
+                        df[column] = df[column].astype(dtypes[column])
+                    except TypeError:
+                        df[column] = dtypes[column](df[column])
         return df
 
     def __call__(self, **kwargs):
         return self.load(**kwargs)
 
 
-def cache(enable: bool = True):
+def enable_cache(enable: bool = True):
     """Enable caching for datasets.
 
     Parameters
@@ -82,8 +126,10 @@ def categorical(series: pd.Series, dtype=str):
     return pd.Categorical(series.astype(dtype))
 
 
-def pb1952(columns: List[str] = None, dtypes: bool = False) -> pd.DataFrame:
-    """
+def pb1952(
+        columns: List[str] = None,
+        **kwargs) -> pd.DataFrame:
+    r"""
     Return data derived from :citet:`peterson_barney_1952`.
 
     Parameters
@@ -92,11 +138,10 @@ def pb1952(columns: List[str] = None, dtypes: bool = False) -> pd.DataFrame:
     columns:
         Specify which columns to return.
         If omitted all columns are returned.
-    dtypes:
-        By default, the data types
-        for the columns
-        will be automatically set
-        (including wi)
+
+    \*\*kwargs:
+        Passed on to :func:`vlnm.data.Dataset.load` method
+
 
     Returns
     -------
@@ -107,17 +152,17 @@ def pb1952(columns: List[str] = None, dtypes: bool = False) -> pd.DataFrame:
     Dataset
     -------
 
-    type: :class:`pandas.Categorical` of :class:`str`
-        Type
-    sex: :class:`pandas.Categorical` of :class:`str`
+    type: :class:`pandas.Categorical` of :class:`object`
+        Type of speaker (child, man or woman)
+    sex: :class:`pandas.Categorical` of :class:`object`
         Reported gender of speaker
-    speaker: :class:`pandas.Categorical` of :class:`int`
+    speaker: :class:`pandas.Categorical` of :class:`np.int64`
         Speaker identifier
-    vowel: :class:`pandas.Categorical` of :class:`str`
-        Vowel label
-    IPA: :class:`pandas.Categorical` of :class:`str`
-        IPA symbol.
-    f0 - f3: :class:`numpy.int64`
+    vowel: :class:`pandas.Categorical` of :class:`object`
+        Vowel labels
+    IPA: :class:`pandas.Categorical` of :class:`object`
+        IPA symbol
+    f0 - f3: :class:`np.int64`
         Formant data in Hz.
 
 
@@ -134,13 +179,13 @@ def pb1952(columns: List[str] = None, dtypes: bool = False) -> pd.DataFrame:
     return Dataset(
         os.path.join(WHERE_AM_I, 'pb1952.csv'),
         {
-            'type': (pd.Categorical, str),
-            'sex': categorical,
-            'speaker': categorical,
-            'vowel': categorical,
-            'IPA': categorical,
+            'type': 'category',
+            'sex': 'category',
+            'speaker': 'category',
+            'vowel': 'category',
+            'IPA': 'category',
             'f0': np.int64,
             'f1': np.int64,
             'f2': np.int64,
             'f3': np.int64
-        })(columns=columns, dtypes=dtypes)
+        }).load(columns=columns, **kwargs)
