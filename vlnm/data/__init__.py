@@ -149,8 +149,8 @@ def pb1952(
         A Dataframe containing the data
 
 
-    Dataset
-    -------
+    Dataset format
+    --------------
 
     type: :class:`pandas.Categorical` of :class:`object`
         Type of speaker (child, man or woman)

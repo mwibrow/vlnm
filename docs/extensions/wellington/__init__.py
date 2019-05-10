@@ -27,7 +27,7 @@ class VlnmDocstring(NumpyDocstring):
             'attributes': self._parse_attributes_section,
             'caution': partial(self._parse_admonition, 'caution'),
             'danger': partial(self._parse_admonition, 'danger'),
-            'dataset': self._parse_dataset_section,
+            'dataset format': self._parse_dataset_section,
             'error': partial(self._parse_admonition, 'error'),
             'example': self._parse_examples_section,
             'examples': self._parse_examples_section,
