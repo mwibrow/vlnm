@@ -58,7 +58,6 @@ class Dataset:
     def load(
             self,
             columns: List[str] = None,
-            cast=True,
             dtypes: Dict[str, Union[Callable, Type]] = None,
             cache: bool = False):
         """
@@ -70,10 +69,6 @@ class Dataset:
         columns:
             List of columns to subset the data.
             If omitted, all columns are returned.
-        cast:
-            If ``True`` (the default), data will be
-            cast according to the ``dtypes`` parameter (if specified)
-            or the ``dtypes`` instance attribute.
         dtypes:
             Dictionary mapping column names on
             data types.
@@ -100,9 +95,7 @@ class Dataset:
             if columns:
                 df = df[columns]
 
-        if dtypes:
-            cast = True
-        dtypes = (dtypes or self.dtypes) if cast else {}
+        dtypes = self.dtypes if dtypes is None else dtypes
         if dtypes:
             for column in df.columns:
                 if column in dtypes:
