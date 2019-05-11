@@ -61,10 +61,10 @@ class BarkNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        from vlnm import BarkNormalizer
+        from vlnm import pb1952, BarkNormalizer
 
-        normalizer = BarkNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = BarkNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -124,10 +124,10 @@ class ErbNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        from vlnm import ErbNormalizer
+        from vlnm import pb1952, ErbNormalizer
 
-        normalizer = ErbNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = ErbNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -181,10 +181,10 @@ class Log10Normalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        from vlnm import Log10Normalizer
+        from vlnm import pb1952, Log10Normalizer
 
-        normalizer = Log10Normalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df =  Log10Normalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -238,10 +238,10 @@ class LogNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        from vlnm import LogNormalizer
+        from vlnm import pb1952, LogNormalizer
 
-        normalizer = LogNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = LogNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -301,10 +301,10 @@ class MelNormalizer(FormantsTransformNormalizer):
 
     .. ipython::
 
-        from vlnm import MelNormalizer
+        from vlnm import pb1952, MelNormalizer
 
-        normalizer = MelNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = MelNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """

@@ -10,6 +10,10 @@ import sys
 
 import pandas as pd
 
+from vlnm.data import (
+    hm2005,
+    pb1952)
+
 from vlnm.registration import (
     NORMALIZERS,
     get_normalizer,

@@ -56,7 +56,8 @@ class Dataset:
         self.dtypes = dtypes or {}
         self.kwargs = kwargs
 
-    def enable_cache(self, enable: bool = True):
+    @staticmethod
+    def enable_cache(enable: bool = True):
         """Enable caching for datasets.
 
         By default data sets are loaded from disk.
@@ -227,7 +228,7 @@ def pb1952(
         Vowel labels
     IPA: :class:`pandas.Categorical` of :class:`object`
         IPA symbol
-    f0 :class:`np.int64`
+    f0: :class:`np.int64`
         Fundamental frequency in Hz.
     f1 - f3: :class:`np.int64`
         Formant data in Hz.
