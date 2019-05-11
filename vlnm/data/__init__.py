@@ -16,8 +16,6 @@ import numpy as np
 import pandas as pd
 
 WHERE_AM_I = os.path.realpath(os.path.dirname(__file__))
-USE_CACHE = False
-CACHE = {}
 
 
 class Dataset:
@@ -46,6 +44,9 @@ class Dataset:
 
     """
 
+    CACHE = {}
+    USE_CACHE = False
+
     def __init__(
             self,
             source: str,
@@ -55,11 +56,27 @@ class Dataset:
         self.dtypes = dtypes or {}
         self.kwargs = kwargs
 
+    def enable_cache(self, enable: bool = True):
+        """Enable caching for datasets.
+
+        By default data sets are loaded from disk.
+        When the cache is enabled, data sets will be
+        loaded in to memory, and subsequent calls
+        to the :func:`load` method will return
+        a copy of this data set.
+
+        Parameters
+        ----------
+        enable:
+            If ``True`` enable and reset the cache.
+        """
+
+        Dataset.USE_CACHE = enable
+
     def load(
             self,
             columns: List[str] = None,
-            dtypes: Dict[str, Union[Callable, Type]] = None,
-            cache: bool = False):
+            dtypes: Dict[str, Union[Callable, Type]] = None):
         """
         Load a dataset from disk or the cache.
 
@@ -72,10 +89,6 @@ class Dataset:
         dtypes:
             Dictionary mapping column names on
             data types.
-        cache:
-            Load data from the cache (if avaialble).
-            Will be ignored if :func:`enable_cache`
-            has been used to enable the cache.
 
 
         Returns
@@ -84,16 +97,15 @@ class Dataset:
             :class:`pd.DataFrame` containing the data.
 
         """
-        if USE_CACHE or cache:
-            if self.source not in CACHE:
-                CACHE[self.source] = pd.read_csv(self.source, **self.kwargs)
-            df = CACHE[self.source]
-            if columns:
-                df = df[columns]
+        if Dataset.USE_CACHE:
+            if self.source not in Dataset.CACHE:
+                Dataset.CACHE[self.source] = pd.read_csv(self.source, **self.kwargs)
+            df = Dataset.CACHE[self.source].copy()
         else:
             df = pd.read_csv(self.source, usecols=columns, **self.kwargs)
-            if columns:
-                df = df[columns]
+
+        if columns:
+            df = df[columns]
 
         dtypes = self.dtypes if dtypes is None else dtypes
         if dtypes:
@@ -107,19 +119,6 @@ class Dataset:
 
     def __call__(self, **kwargs):
         return self.load(**kwargs)
-
-
-def enable_cache(enable: bool = True):
-    """Enable caching for datasets.
-
-    Parameters
-    ----------
-    enable:
-        If ``True`` enable (or reset) the cache.
-    """
-    global CACHE, USE_CACHE  # pylint: disable=global-statement
-    CACHE = {}
-    USE_CACHE = enable
 
 
 def hm2005(
