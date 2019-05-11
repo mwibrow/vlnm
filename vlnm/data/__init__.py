@@ -1,6 +1,11 @@
 """
     Datasets
     ~~~~~~~~
+
+    |vlnm| distributes a small number of datasets
+    containing formant data, which can be used to
+    test or evaluate normalizers.
+
 """
 
 import enum
@@ -92,6 +97,8 @@ class Dataset:
                 df = df[columns]
         else:
             df = pd.read_csv(self.source, usecols=columns, **self.kwargs)
+            if columns:
+                df = df[columns]
 
         if dtypes:
             cast = True
@@ -122,8 +129,69 @@ def enable_cache(enable: bool = True):
     USE_CACHE = enable
 
 
-def categorical(series: pd.Series, dtype=str):
-    return pd.Categorical(series.astype(dtype))
+def hm2005(
+        columns: List[str] = None,
+        **kwargs) -> pd.DataFrame:
+    r"""
+    Data derived from :citet:`hawkins_midgley_2005`.
+
+    The data consists of formant measurements
+    taken from 11 RP monopthongs in `hVd`
+    contexts produced by twenty male speakers of RP divided
+    into four age groups.
+
+    Parameters
+    ----------
+
+    columns:
+        Specify which columns to return.
+        If omitted all columns are returned.
+
+    \*\*kwargs:
+        Passed on to :func:`vlnm.data.Dataset.load` method
+
+
+    Returns
+    -------
+    :
+        A Dataframe containing the data
+
+
+    Dataset format
+    --------------
+
+    group: :class:`pandas.Categorical` of :class:`object`
+        Group
+    age: :class:`pandas.Categorical` of :class:`object`
+        Age label of group
+    speaker: :class:`pandas.Categorical` of :class:`np.int64`
+        Speaker identifier
+    f1 - f2: :class:`np.int64`
+        Formant data in Hz
+    vowel: :class:`pandas.Categorical` of :class:`object`
+        Vowel labels as hVd words.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm.data import hm2005
+
+        hm2005(['speaker', 'age', 'vowel', 'f1', 'f2']).head()
+
+    """
+    return Dataset(
+        os.path.join(WHERE_AM_I, 'hm2005.csv'),
+        {
+            'group': 'category',
+            'age': 'category',
+            'speaker': 'category',
+            'vowel': 'category',
+            'f1': np.int64,
+            'f2': np.int64,
+        }).load(columns=columns, **kwargs)
 
 
 def pb1952(
@@ -131,6 +199,11 @@ def pb1952(
         **kwargs) -> pd.DataFrame:
     r"""
     Return data derived from :citet:`peterson_barney_1952`.
+
+    The dataset was extracted from the source files
+    for PRAAT :citep:`boersma_weenink_2018` and the
+    IPA symbols provided in those files
+    replaced with their unicode equivalents.
 
     Parameters
     ----------
@@ -162,7 +235,9 @@ def pb1952(
         Vowel labels
     IPA: :class:`pandas.Categorical` of :class:`object`
         IPA symbol
-    f0 - f3: :class:`np.int64`
+    f0 :class:`np.int64`
+        Fundamental frequency in Hz.
+    f1 - f3: :class:`np.int64`
         Formant data in Hz.
 
 
