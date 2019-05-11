@@ -126,6 +126,18 @@ class CentroidNormalizer(SpeakerNormalizer):
     groupby:
     kwargs:
 
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, CentroidNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = CentroidNormalizer(rename='{}*').normalize(df)
+        norm_df.head()
+
     """
 
     config = dict(
@@ -213,6 +225,17 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     groupby:
     kwargs:
 
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, ConvexHullNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = ConvexHullNormalizer(rename='{}*').normalize(df)
+        norm_df.head()
+
     """
 
     def __init__(
@@ -241,8 +264,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
 
         hull = ConvexHull(means)
         points = np.array([means[vertex] for vertex in hull.vertices])
-
-        centroid = points.mean(axis=1)
+        centroid = points.mean(axis=0)
         return centroid
 
     @docstring
