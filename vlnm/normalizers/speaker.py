@@ -64,10 +64,10 @@ class GerstmanNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        from vlnm import GerstmanNormalizer
+        from vlnm import pb1952, GerstmanNormalizer
 
-        normalizer = GerstmanNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = GerstmanNormalizer(rename='{}*').normalize(df)
         norm_df.head()
     """
 
@@ -130,10 +130,10 @@ class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        from vlnm import LCENormalizer
+        from vlnm import pb1952, LCENormalizer
 
-        normalizer = LCENormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = LCENormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -197,10 +197,10 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        from vlnm import LobanovNormalizer
+        from vlnm import pb1952, LobanovNormalizer
 
-        normalizer = LobanovNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = LobanovNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -267,10 +267,10 @@ class NearyNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 
     .. ipython::
 
-        from vlnm import NearyNormalizer
+        from vlnm import pb1952, NearyNormalizer
 
-        normalizer = NearyNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = NearyNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -333,10 +333,10 @@ class NearyExpNormalizer(NearyNormalizer):
 
     .. ipython::
 
-        from vlnm import NearyExpNormalizer
+        from vlnm import pb1952, NearyExpNormalizer
 
-        normalizer = NearyExpNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = NearyExpNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -400,10 +400,10 @@ class NearyGMNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
 
     .. ipython::
 
-        from vlnm import NearyGMNormalizer
+        from vlnm import pb1952, NearyGMNormalizer
 
-        normalizer = NearyGMNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = NearyGMNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -474,10 +474,10 @@ class NearyGMExpNormalizer(NearyNormalizer):
 
     .. ipython::
 
-        from vlnm import NearyGMExpNormalizer
+        from vlnm import pb1952, NearyGMExpNormalizer
 
-        normalizer = NearyGMExpNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = NearyGMExpNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
