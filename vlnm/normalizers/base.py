@@ -356,10 +356,10 @@ class DefaultNormalizer(FormantGenericNormalizer):
 
     .. ipython::
 
-        from vlnm import DefaultNormalizer
+        from vlnm import pb1952, DefaultNormalizer
 
-        normalizer = DefaultNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm_df = DefaultNormalizer(rename='{}*').normalize(df)
         norm_df.head()
 
     """
@@ -394,14 +394,16 @@ class ChainNormalizer(Normalizer):
 
     .. ipython::
 
-        from vlnm import ChainNormalizer, BarkNormalizer, LobanovNormalizer
+        from vlnm import (
+            pb1952,
+            ChainNormalizer, BarkNormalizer, LobanovNormalizer)
 
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
         normalizers = [
             BarkNormalizer(rename='{}*'),
             LobanovNormalizer(formants=['f1*', 'f2*'])
         ]
-        normalizer = ChainNormalizer(normalizers)
-        norm_df = normalizer.normalize('vowels.csv')
+        norm_df = ChainNormalizer(normalizers).normalize(df)
         norm_df.head()
 
 
