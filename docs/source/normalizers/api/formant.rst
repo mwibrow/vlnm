@@ -10,8 +10,6 @@
                 speaker: str
                 vowel: str
         path: '{tmpdir}'
-    before: |
-        SetupCsv()
     hidden: yes
 
 

@@ -90,13 +90,15 @@ class PCANormalizer(DecompositionNormalizer):
     --------
 
     .. ipython::
-        before: |
-            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3])
 
-        from vlnm import PCANormalizer
+        from vlnm import pb1952, PCANormalizer
 
-        normalizer = PCANormalizer(['f0', 'f1', 'f2', 'f3'], n_components=2, rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = PCANormalizer(
+            columns=['f0', 'f1', 'f2', 'f3'],
+            n_components=2,
+            rename='{}*')
+        norm_df = norm.normalize(df)
         norm_df.head()
 
 
@@ -149,6 +151,22 @@ class NMFNormalizer(DecompositionNormalizer):
         All other paremeters are passed to the
         constructor of the :class:`sklearn.decomposition.NMF`
         class.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, NMFNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = NMFNormalizer(
+            columns=['f0', 'f1', 'f2', 'f3'],
+            n_components=2,
+            rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
 
     """
 
