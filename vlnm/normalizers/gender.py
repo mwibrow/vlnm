@@ -50,9 +50,11 @@ class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     female:
         The label in the |dataframe| indicating a speaker
         identified/identifying as female.
+        If omitted, defaults to ``F``.
     male:
         The label in the |dataframe| indicating a speaker
         identified/identifying as male.
+        If omitted, defaults to ``M``.
 
 
     Other Parameters
@@ -60,6 +62,20 @@ class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     rename:
     groupby:
     kwargs:
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, BladenNormalizer
+
+        df = pb1952(['speaker', 'sex', 'vowel', 'f1', 'f2'])
+        norm = BladenNormalizer(
+            formants=['f1', 'f2'], gender='sex', female='f', rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
 
     """
     config = dict(
@@ -113,15 +129,16 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
 
     .. math::
 
-        F_i^* = F_i \left(
-                1 + I(F_i)\left(
-                    \frac{
-                        \mu_{F_3}^{\small{male}}
-                    }{
-                        \mu_{F_3}^{\small{female}}
-                    }
-                \right)
-            \right)
+        F_i^* = F_i \times
+            \begin{cases}
+                \frac{
+                    \mu_{F_3}^{\small{male}}
+                }{
+                    \mu_{F_3}^{\small{female}}
+                } & \mbox{if } I(F_i) = 1
+                \\
+                1 & \mbox{otherwise}
+            \end{cases}
 
     Where :math:`\mu_{F_3}` is the mean :math:`F_3` across
     all vowels where :math:`F_1` is greater than 600Hz,
@@ -149,11 +166,25 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
     groupby:
     kwargs:
 
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, NordstromNormalizer
+
+        df = pb1952(['speaker', 'sex', 'vowel', 'f1', 'f2', 'f3'])
+        norm = NordstromNormalizer(gender='sex', female='f', rename='{}*')
+        norm_df = norm.normalize(df)
+        # Show subset of data
+        norm_df[norm_df['sex'] == 'f'].head()
+
     """
     config = dict(
         columns=['f1', 'f3', 'gender'],
         keywords=['male', 'female', 'gender'],
-        groups=['gender']
+        # groups=['gender']
     )
 
     def __init__(
@@ -199,8 +230,9 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
         constants = self.params['constants']
         gender = self.params['gender']
         formants = self.params['formants']
-
         female = self.params['female']
+
+        mu_female, mu_male = constants['mu_female'], constants['mu_male']
 
         indicator = np.repeat(
             np.atleast_2d(
@@ -211,7 +243,7 @@ class NordstromNormalizer(SpeakerNormalizer, FormantSpecificNormalizer):
         mu_female, mu_male = constants['mu_female'], constants['mu_male']
         df[formants] = (
             df[formants] * (
-                1. + indicator * mu_male / mu_female))
+                1. + indicator * (mu_male / mu_female - 1.)))
         return df
 
     @docstring
