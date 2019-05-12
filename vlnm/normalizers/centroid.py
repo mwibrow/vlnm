@@ -108,7 +108,23 @@ def _get_apice_formants(
 @register('centroid')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class CentroidNormalizer(SpeakerNormalizer):
-    """Normalize using the geometric center of the speakers entire vowel space.
+    r"""Normalize using the geometric center of the speakers entire vowel space.
+
+    For a given speaker, the normalized formants are calculated as follows:
+
+    .. math::
+
+        F_i^* = \frac{F_i}{S_i}
+
+    where
+
+    .. math::
+
+        S_i = \frac{1}{|J|}\sum_{j\in J}\mu_{F_{ij}}
+
+    Where :math:`J` is the the set of vowels which form the convex
+    hull of the vowel space, and :math:`\mu_{F_{ij}}` is
+    the mean of formant :math:`i` for vowel :math:`j`.
 
     Parameters
     ----------
@@ -118,7 +134,7 @@ class CentroidNormalizer(SpeakerNormalizer):
     vowel:
     points:
         List of vowel labels corresponding to each 'corner' of the speakers vowel space.
-
+        If omitted all vowels will be used.
 
     Other parameters
     ----------------
@@ -193,9 +209,12 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
 
     The convex hull normalizer establishes the speaker's vowel
     space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`
-    from the mean formants for `each` of the speaker's vowels,
+    from the 'central' formants (i.e., mean or median)
+    for `each` of the speaker's vowels,
     and uses the barycenter of the points
     that make-up the hull to normalize the formant data.
+
+    For a given speaker, the normalized formants are calculated as follows:
 
     .. math::
 
@@ -205,11 +224,13 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
 
     .. math::
 
-        S_i = \frac{1}{|H|}\sum_{h\in H}F_i(h)
+        S_i = \frac{1}{|J|}\sum_{j\in J}||F_{ij}||
 
-    Where :math:`H` is the the set of vowels which form the convex
-    hull of the vowel space and :math:`F_i(h)` is the :math:`i^{th}`
-    formant of vowel :math:`h`.
+    Where :math:`J` is the the set of vowels which form the convex
+    hull of the vowel space, :math:`F_{ij}` is formant :math:`i`
+    of vowel :math:`j`, and :math:`||F_{ij}||` indicates
+    the central tendency of :math:`F_{ij}`.
+
 
     Parameters
     ----------
@@ -217,6 +238,10 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     formants:
     speaker:
     vowel:
+    where:
+        Central tendency measure to use when calculating the
+        points of the convex hull.
+        One of ``'mean'`` (the default) or ``'median'``.
 
 
     Other parameters
@@ -244,6 +269,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
             formants=None,
             speaker='speaker',
             vowel='vowel',
+            where='mean',
             rename: Union[str, dict] = None,
             groupby: Union[str, List[str]] = None,
             **kwargs):
@@ -251,6 +277,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
             formants=formants,
             speaker=speaker,
             vowel=vowel,
+            where=where,
             rename=rename,
             groupby=groupby,
             **kwargs)
@@ -259,9 +286,14 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     def get_centroid(df, points=None, **kwargs):  # pylint: disable=missing-docstring
         vowel = kwargs.get('vowel')
         formants = kwargs.get('formants')
+        where = kwargs.get('where')
+
         subset = [vowel]
         subset.extend(formants)
-        means = df[subset].groupby(vowel).mean().as_matrix()
+        if where == 'median':
+            means = df[subset].groupby(vowel).median().as_matrix()
+        else:
+            means = df[subset].groupby(vowel).mean().as_matrix()
 
         hull = ConvexHull(means)
         points = np.array([means[vertex] for vertex in hull.vertices])
@@ -649,7 +681,7 @@ class BighamNormalizer(CentroidNormalizer, FormantSpecificNormalizer):
     Centroid normalizer using the centroid calculated according to :citet:`bigham_2008`.
 
     :citet:`bigham_2008` adapts :citet:`watt_fabricius_2002`
-    to calculate a barycentric centroid from a trapzeoid
+    to calculate a barycentric centroid from a trapezoid
     constructed using the vowels
     :ipa:`[i^\prime]`, :ipa:`[u^\prime]`
     :ipa:`[ɑ^\prime]`, and :ipa:`[æ^\prime]`
