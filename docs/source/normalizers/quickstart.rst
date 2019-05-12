@@ -354,7 +354,7 @@ The file can be saved using the
     norm_df.to_csv('normalized.csv', index=False)
 
 (Note that ``index=False`` is added to avoid the row numbers
-saved to the file, along witht the normalized data.)
+saved to the file, along with the normalized data).
 
 
 

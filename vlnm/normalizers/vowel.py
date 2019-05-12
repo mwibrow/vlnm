@@ -150,7 +150,7 @@ class IEHTNormalizer(FormantSpecificNormalizer):
         F^*_{ij^*} = F^\prime_{ij} \mu_{ij^*}
 
 
-    Where :math:`j^*` is vowel from the set of vowels :math:`J`
+    Where :math:`j^*` is the vowel from the set of vowels :math:`J`
     such that:
 
     .. math::
