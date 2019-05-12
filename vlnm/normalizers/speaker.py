@@ -164,9 +164,9 @@ class LCENormalizer(SpeakerNormalizer, FormantGenericNormalizer):
 @register('lobanov')
 @classify(vowel='extrinsic', formant='intrinsic', speaker='intrinsic')
 class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
-    r"""Normalize formants using their z-score for a given speaker.
+    r"""Normalize formants according to :citet:`{% lobanov_1971 %}`:
 
-    This uses the formula given in :citet:`{% lobanov_1971 %}`:
+    This uses the following formula:
 
     .. math::
 
@@ -176,7 +176,8 @@ class LobanovNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     and :math:`\sigma_{F_i}` is the "rms deviation" (:citealp:`lobanov_1971`, p.606)
     of formant :math:`F_i` from its mean for the speaker's vowels.
     As noted by :citet:`thomas_kendel_2007` this is equivalent
-    to the standard deviation when the mean is zero.
+    to the standard deviation when the mean is zero,
+    and for efficiency this is how the normalizer is implemented.
 
     Parameters
     ----------

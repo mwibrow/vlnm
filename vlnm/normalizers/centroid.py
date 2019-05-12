@@ -225,6 +225,7 @@ class ConvexHullNormalizer(CentroidNormalizer, FormantGenericNormalizer):
     groupby:
     kwargs:
 
+
     Examples
     --------
 
@@ -337,6 +338,18 @@ class WattFabricius1Normalizer(CentroidNormalizer, FormantSpecificNormalizer):
     groupby:
     kwargs:
 
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, WattFabricius1Normalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm = WattFabricius1Normalizer(trap='ae', fleece='iy', rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
+
     """
     config = dict(
         columns=['speaker', 'vowel', 'f1', 'f2'],
@@ -443,6 +456,18 @@ class WattFabricius2Normalizer(WattFabricius1Normalizer):
     rename:
     groupby:
     kwargs:
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, WattFabricius2Normalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm = WattFabricius2Normalizer(trap='ae', fleece='iy', rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
 
     """
     config = dict(
@@ -557,6 +582,18 @@ class WattFabricius3Normalizer(WattFabricius1Normalizer):
     groupby:
     kwargs:
 
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, WattFabricius3Normalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        norm = WattFabricius3Normalizer(trap='ae', fleece='iy', rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
 
     """
 
@@ -683,6 +720,25 @@ class BighamNormalizer(CentroidNormalizer, FormantSpecificNormalizer):
     groupby:
     kwargs:
 
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, BighamNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2'])
+        points = dict(
+            kit='ih',
+            goose='uw',
+            fleece='iy',
+            start='aa',
+            thought='ao',
+            trap='ae')
+        norm = BighamNormalizer(points=points, rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
     """
     config = dict(
         keywords=['points', 'f1', 'f2'],
