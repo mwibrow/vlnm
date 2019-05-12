@@ -33,14 +33,17 @@ from .speaker import SpeakerNormalizer
 class BladenNormalizer(SpeakerNormalizer, FormantGenericNormalizer):
     r"""Normalize formant data according to :citet:`bladon_etal_1984`.
 
+    For a given speaker, formants are normalized as follows:
+
     .. math::
 
-        F_{ik}^\prime = 26.81 \left(
+        F_{i}^* = 26.81 \left(
             1 + \frac{F_i}{F_i + 1960}
-            \right) - 0.53 - I(s_k)
+            \right) - 0.53 - I(F_i)
 
-    Where :math:`I(s_k)` is an indicator function returning 1 if
-    speaker :math:`k` is identified/identifying as female and 0 otherwise.
+    Where :math:`I(F_i)` is an indicator function returning 1 if
+    :math:`F_i` was produced by a speaker
+    identified/identifying as female, and 0 otherwise.
 
     Parameters
     ----------

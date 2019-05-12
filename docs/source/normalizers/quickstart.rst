@@ -363,7 +363,7 @@ Using |vlnm| Python classes
 
 The :func:`normalize` function is a wrapper around
 the normalizer classes. For example,
-|vlnm| recognizes that the argument ``method='lobanoc'``
+|vlnm| recognizes that the argument ``method='lobanov'``
 corresponds to the :class:`LobanovNormalizer` class.
 
 It is perfectly possibly to use these classes directly
