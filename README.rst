@@ -7,7 +7,7 @@ Vowel normalization using Python.
 Introduction
 ============
 
-**VLNM** is a Pyhon package, primarily aimed at phoneticians
+**VLNM** is a Python package, primarily aimed at phoneticians
 who need to normalize vowel data
 (i.e., reduce variation in acoustic features due to speaker characteristics)
 for sociophonetic research.
