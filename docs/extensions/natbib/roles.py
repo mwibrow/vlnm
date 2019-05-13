@@ -11,6 +11,7 @@ from sphinx.errors import SphinxError
 
 from .nodes import CitationNode
 
+
 def extract_citation(rawtext):
     """
     Extract citation elements from a raw citations string
@@ -23,11 +24,13 @@ def extract_citation(rawtext):
     key_list = [key.strip() for key in keys.split(',')]
     return pre_text, key_list, post_text
 
+
 class CitationRole:
     """
         Class for processing the :rst:role:`citep` :rst:role:`citet`
         and  :rst:role:`citealp`  roles.
     """
+
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options=None, content=None):
 
@@ -77,8 +80,8 @@ class CitationRole:
 
 
 def small_caps_role(
-        typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
-        options=None, content=None): # pylint: disable=unused-argument
+        typ, rawtext, text, lineno, inliner,  # pylint: disable=unused-argument
+        options=None, content=None):  # pylint: disable=unused-argument
     """
     Role for small caps.
     """
