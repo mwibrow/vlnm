@@ -65,12 +65,11 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
 
     .. ipython::
 
-        import pandas as pd
-        from vlnm import IEGMAGMNormalizer
+        from vlnm import pb1952, IEGMAGMNormalizer
 
-        df = pd.read_csv('pb1952.csv', usecols=['speaker', 'vowel', 'f1', 'f2', 'f3'])
-        normalizer = IEGMAGMNormalizer(rename='{}*')
-        norm_df = normalizer.normalize(df)
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2', 'f3'])
+        norm = IEGMAGMNormalizer(rename='{}*')
+        norm_df = norm.normalize(df)
         norm_df.head()
 
     """
@@ -109,7 +108,7 @@ class IEGMAGMNormalizer(FormantSpecificNormalizer):
             return _df
         df[[f1, f2]] = df[[f1, f2]].div(
             np.cbrt(df[[f1, f2, f3]].apply(np.prod, axis=1)), axis=0).mul(
-                np.cbrt(np.prod(df[vowel].apply(_denorm).values, axis=1)), axis=0)
+                np.cbrt(np.prod(df[vowel].astype(object).apply(_denorm).values, axis=1)), axis=0)
         return df
 
 
@@ -200,12 +199,11 @@ class IEHTNormalizer(FormantSpecificNormalizer):
             formatters:
                 float64: '{:.03f}'
 
-        import pandas as pd
-        from vlnm import IEHTNormalizer
+        from vlnm import pb1952, IEHTNormalizer
 
-        df = pd.read_csv('pb1952.csv', usecols=['speaker', 'vowel', 'f1', 'f2', 'f3'])
-        normalizer = IEHTNormalizer(rename='{}*')
-        norm_df = normalizer.normalize(df)
+        df = pb1952(['speaker', 'vowel', 'f1', 'f2', 'f3'])
+        norm = IEHTNormalizer(rename='{}*')
+        norm_df = norm.normalize(df)
         norm_df.head()
 
     """
@@ -250,7 +248,8 @@ class IEHTNormalizer(FormantSpecificNormalizer):
             _df = bootstrap_df.loc[_vowel, pd.IndexSlice[[f1, f2]]]
             return _df
         dnm_df = df.copy()
-        dnm_df[[f1, f2]] = dnm_df[[f1, f2]].mul(dnm_df[vowel].apply(_denorm).values, axis=0)
+        dnm_df[[f1, f2]] = dnm_df[[f1, f2]].mul(
+            dnm_df[vowel].astype(object).apply(_denorm).values, axis=0)
         mu = dnm_df[[f1, f2, vowel]].groupby(vowel).mean().values
         sigma = dnm_df[[f1, f2, vowel]].groupby(vowel).std().values
         vowels = [group[0] for group in dnm_df.groupby(vowel)]
@@ -320,13 +319,13 @@ class BarkDifferenceNormalizer(FormantSpecificNormalizer):
         dataframe:
             formatters:
                 float64: '{:.03f}'
-        before: |
-            SetupCsv(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
 
-        from vlnm import BarkDifferenceNormalizer
 
-        normalizer = BarkDifferenceNormalizer(rename='{}*')
-        norm_df = normalizer.normalize('vowels.csv')
+        from vlnm import pb1952, BarkDifferenceNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = BarkDifferenceNormalizer(rename='{}*')
+        norm_df = norm.normalize(df)
         norm_df.head()
 
     """

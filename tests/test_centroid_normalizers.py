@@ -70,6 +70,18 @@ class TestWattFabriciusNormalizer(Helper.SpeakerNormalizerTests):
             formants=self.formants,
             points=dict(fleece='i', trap='a'))
 
+    def test_new_columns(self):
+        """Check new columns returned."""
+        rename = '{}*'
+        expected = (list(self.df.columns) +
+                    list(rename.format(f) for f in ['f1', 'f2']))
+        actual = self.normalizer(rename=rename, **self.kwargs).normalize(
+            self.df).columns
+
+        expected = sorted(expected)
+        actual = sorted(actual)
+        self.assertListEqual(actual, expected)
+
     def test_get_centroid(self):
         """Test get_centroid method."""
         df = DataFrame(dict(

@@ -120,7 +120,7 @@ html_theme_options = {
     'logo_name': True,
     'logo_text_align': 'center',
     #
-    'description': 'Vowel normalization and plotting using Python',
+    'description': 'Vowel normalization using Python',
     'fixed_sidebar': True,
     'travis_button': False,
     # Github

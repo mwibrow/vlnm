@@ -29,6 +29,10 @@ the Python package manager ``pip3``, by running the
 following command in a terminal:
 
 
+.. code-block:: console
+
+   conda install -c anaconda pip3
+
 However, the Anaconda distribution is large (to say the least) and
 includes a considerable number of tools which are not needed
 just to normalize vowel formant data and produce vowel plots.
@@ -49,6 +53,9 @@ If Python was installed using
 Anaconda then shapely should be installed first
 using:
 
+.. code-block:: console
+
+   conda install -c conda-forge shapely
 
 Other solutions and/or workarounds are described below
 for different operation systems.
@@ -58,7 +65,9 @@ Operating systems
 
 |vlnm| should work on any operation system which has a supported
 Python version installed. Installation for Linux, MacOS
-and Windows are given below:
+and Windows are given below.
+
+Currently, |vlnm| can only be installed from github.
 
 Linux
 ^^^^^
@@ -66,12 +75,23 @@ Linux
 To install |vlnm| use the following command in
 a terminal:
 
+.. code-block:: console
+
+   pip3 install git+https://github.com/mwibrow/vlnm.git
+
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
 the GEOS library required by shapely),
 the relevant Linux package manager should be
 used to install `libgeos`.
+For example, Debian-based distributions could use:
+
+.. code-block:: console
+
+   sudo apt-get install libgeos
+
+
 Then the installation command given above should
 be re-run.
 
@@ -83,6 +103,9 @@ MacOS
 To install |vlnm| use the following command in
 a terminal:
 
+.. code-block:: console
+
+   pip3 install git+https://github.com/mwibrow/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -90,7 +113,9 @@ the GEOS library required by shapely),
 then |homebrew| can be used to install the
 GEOS library:
 
+.. code-block:: console
 
+   brew install geos
 
 Then |vlnm| can be installed using the command above.
 
@@ -103,7 +128,20 @@ Everything is more complicated on Windows 🙄
 suggests that Python should be set up using
 |anaconda| and instead of the Windows command
 prompt use `Anaconda Prompt`.
+
+
 After using the ``conda`` command
 to install pip3 and shapely (as described above),
-|vlnm| can be installed by executing the following
+``git`` will need to be installed:
+
+.. code-block:: console
+
+   conda install -c anaconda git
+
+Then |vlnm| can be installed by executing the following
 command at the command prompt:
+
+
+.. code-block:: console
+
+   pip3 install git+https://github.com/mwibrow/vlnm.git

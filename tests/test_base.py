@@ -38,7 +38,7 @@ class TestBaseNormalizers(Helper.TestNormalizerBase):
 
     def test_config_default(self):
         """Check default config"""
-        expected = dict(columns=[], keywords=[], options=dict())
+        expected = dict(columns=[], keywords=[], options=dict(), outputs=[])
         actual = self.normalizer()
         self.assertDictEqual(actual.config, expected)
 
@@ -49,6 +49,6 @@ class TestBaseNormalizers(Helper.TestNormalizerBase):
             """Test sub-class"""
             config = dict(options=dict(transform=True))
 
-        expected = dict(columns=[], keywords=[], options=dict(transform=True))
+        expected = dict(columns=[], keywords=[], options=dict(transform=True), outputs=[])
         actual = Subclass()
         self.assertDictEqual(actual.config, expected)

@@ -25,6 +25,7 @@ def get_test_dataframe(speakers=8):
 
 DATA_FRAME = get_test_dataframe()
 
+
 class TestBarkDifferenceNormalizer(unittest.TestCase):
     """
     Test the BarkDifferenceNormalizer class
@@ -38,11 +39,11 @@ class TestBarkDifferenceNormalizer(unittest.TestCase):
     def test_formants(self):
         """Should normalize df."""
         expected = self.df.copy()
-        expected['z1-z0'] = (
+        expected['f1'] = (
             hz_to_bark(self.df['f1']) - hz_to_bark(self.df['f0']))
-        expected['z2-z1'] = (
-            hz_to_bark(self.df['f2']) - hz_to_bark(self.df['f2']))
-        expected['z3-z2'] = (
+        expected['f2'] = (
+            hz_to_bark(self.df['f2']) - hz_to_bark(self.df['f1']))
+        expected['f3'] = (
             hz_to_bark(self.df['f3']) - hz_to_bark(self.df['f2']))
         actual = BarkDifferenceNormalizer().normalize(
             self.df, **self.kwargs)

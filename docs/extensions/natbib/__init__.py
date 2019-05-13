@@ -4,6 +4,7 @@ natbib module.
 Adapted from https://bitbucket.org/wnielson/sphinx-natbib
 """
 
+import os
 import docutils.nodes
 
 import latexcodec
@@ -14,6 +15,7 @@ from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
 from .roles import CitationRole, small_caps_role
 # from .transforms import BibliographyTransform
+
 
 def init_app(app):
     """
@@ -43,7 +45,7 @@ def process_bibliographies(app, doctree, docname):
         keys = formatter.sort_keys(list(set(keys)), bibcache)
         year_suffixes = formatter.resolve_ties(keys, bibcache)
         for key in year_suffixes:
-            bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
+            bibcache[key].fields['year_suffix'] = ''  # year_suffixes[key]
 
         for key in keys:
             refid = '{}'.format(key)
@@ -54,6 +56,7 @@ def process_bibliographies(app, doctree, docname):
 
         for key in year_suffixes:
             bibcache[key].fields['year_suffix'] = ''
+
 
 def process_citations(app, doctree, docname):
     """
@@ -66,16 +69,18 @@ def process_citations(app, doctree, docname):
 
     bibdocs = list(bibcache.cache.keys())
     if len(bibdocs) == 1:
-        docname = '/{}.html'.format(bibdocs[0])
+        docname = '{}.html'.format(bibdocs[0])
 
     keys = bibkeys.get_keys()
     year_suffixes = formatter.resolve_ties(keys, bibcache)
     for key in year_suffixes:
-        bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
+        bibcache[key].fields['year_suffix'] = ''  # year_suffixes[key]
 
     for citenode in doctree.traverse(CitationNode):
+        srcdoc = os.path.dirname(citenode.data['docname'])
+
         node = formatter.make_citation(
-            citenode, bibcache, docname)
+            citenode, bibcache, os.path.relpath(docname, srcdoc))
         citenode.replace_self(node)
 
     for key in year_suffixes:

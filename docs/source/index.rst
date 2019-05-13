@@ -1,10 +1,7 @@
 .. include:: defs.rst
 
-VLNM: Vowel normalization and plotting using Python
-===================================================
-
-:Release: |release|
-:Date:    |today|
+VLNM: Vowel normalization using Python
+======================================
 
 |license| |build status| |coverage|
 
@@ -14,7 +11,6 @@ What is VLNM?
 |vlnm| is a |python| package, primarily aimed at phoneticians
 who need to normalize vowel data
 (i.e., reduce variation in acoustic features due to speaker characteristics)
-and produce graphical representations of vowel data
 for sociophonetic research.
 
 Using VLNM
@@ -38,15 +34,6 @@ for :ref:`section_normalization` and can be used
 to normalize vowel data
 
 
-Vowel plots
-^^^^^^^^^^^
-
-|vlnm| provides a relatively thin wrapper around
-|matplotlib| to make producing some of the vowel plots
-found in the literature easier to produce than
-using Matplotlib alone.
-
-
 .. toctree::
    :hidden:
    :maxdepth: 2
@@ -55,7 +42,6 @@ using Matplotlib alone.
 
    installation
    normalizers/index
-   plots/index
    Datasets <data>
    license
    bibliography

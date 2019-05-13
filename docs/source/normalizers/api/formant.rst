@@ -1,18 +1,5 @@
 .. include:: ./defs.rst
 
-.. ipython::
-    configure:
-        dataframe:
-            formatters:
-                float64: '{:.05f}'
-            index: yes
-            dtypes:
-                speaker: str
-                vowel: str
-        path: '{tmpdir}'
-    hidden: yes
-
-
 :mod:`vlnm.normalizers.formant`
 ===============================
 
