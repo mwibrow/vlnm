@@ -29,6 +29,10 @@ the Python package manager ``pip3``, by running the
 following command in a terminal:
 
 
+.. code-block:: console
+
+   $ conda install -c anaconda pip3
+
 However, the Anaconda distribution is large (to say the least) and
 includes a considerable number of tools which are not needed
 just to normalize vowel formant data and produce vowel plots.
@@ -49,6 +53,9 @@ If Python was installed using
 Anaconda then shapely should be installed first
 using:
 
+.. code-block:: console
+
+   $ conda install -c conda-forge shapely
 
 Other solutions and/or workarounds are described below
 for different operation systems.
@@ -68,7 +75,7 @@ Linux
 To install |vlnm| use the following command in
 a terminal:
 
-.. code:: bash
+.. code-block:: console
 
    $ pip3 install git+https://github.com/mwibrow/vlnm.git
 
@@ -80,7 +87,7 @@ the relevant Linux package manager should be
 used to install `libgeos`.
 For example, Debian-based distributions could use:
 
-.. code:: bash
+.. code-block:: console
 
    $ sudo apt-get install libgeos
 
@@ -96,7 +103,7 @@ MacOS
 To install |vlnm| use the following command in
 a terminal:
 
-.. code:: bash
+.. code-block:: console
 
    $ pip3 install git+https://github.com/mwibrow/vlnm.git
 
@@ -106,7 +113,7 @@ the GEOS library required by shapely),
 then |homebrew| can be used to install the
 GEOS library:
 
-.. code:: bash
+.. code-block:: console
 
    $ brew install geos
 
@@ -127,7 +134,7 @@ After using the ``conda`` command
 to install pip3 and shapely (as described above),
 ``git`` will need to be installed:
 
-.. code:: bash
+.. code-block:: console
 
    conda install -c anaconda git
 
@@ -135,6 +142,6 @@ Then |vlnm| can be installed by executing the following
 command at the command prompt:
 
 
-.. code:: bash
+.. code-block:: console
 
    $ pip3 install git+https://github.com/mwibrow/vlnm.git
