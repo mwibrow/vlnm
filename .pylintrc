@@ -55,6 +55,7 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 disable=apply-builtin,
+      arguments-differ,
       backtick,
       bad-inline-option,
       bad-python3-import,
@@ -252,14 +253,14 @@ argument-naming-style=snake_case
 
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style
-#argument-rgx=
+argument-rgx=[a-z_][a-z0-9_]*
 
 # Naming style matching correct attribute names
 attr-naming-style=snake_case
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style
-#attr-rgx=
+attr-rgx=[a-z_][a-z0-9_]*
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,
@@ -301,26 +302,7 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=df,
-           f,
-           f0,
-           f1,
-           f2,
-           f3,
-           f4,
-           z0,
-           z1,
-           z2,
-           z3,
-           hz,
-           i,
-           j,
-           k,
-           ex,
-           mu,
-           Run,
-           _,
-           __
+good-names=i,j,k,Run,_,__
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -328,7 +310,7 @@ include-naming-hint=no
 # Naming style matching correct inline iteration names
 inlinevar-naming-style=any
 
-# Regular expression matching correct inline iteration names. Overrides
+# Regular expression matching correct inline iteration names. Odverrides
 # inlinevar-naming-style
 #inlinevar-rgx=
 
@@ -337,7 +319,7 @@ method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style
-#method-rgx=
+method-rgx=[a-z_][a-z0-9_]*
 
 # Naming style matching correct module names
 module-naming-style=snake_case
@@ -352,7 +334,7 @@ name-group=
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=^_
+no-docstring-rgx=^.*$
 
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
@@ -363,7 +345,7 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style
-#variable-rgx=
+variable-rgx=[a-z_][a-z0-9_]*
 
 
 [TYPECHECK]
@@ -399,7 +381,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=
+ignored-modules=scipy,scipy.spatial,distutils
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.
@@ -462,34 +444,34 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=10
+max-args=32
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=16
 
 # Maximum number of boolean expressions in a if statement
-max-bool-expr=5
+max-bool-expr=4
 
 # Maximum number of branch for function / method body
-max-branches=12
+max-branches=16
 
 # Maximum number of locals for function / method body
-max-locals=20
+max-locals=32
 
 # Maximum number of parents for a class (see R0901).
-max-parents=7
+max-parents=8
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=24
 
 # Maximum number of return / yield for function / method body
 max-returns=6
 
 # Maximum number of statements in function / method body
-max-statements=50
+max-statements=64
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=1
+min-public-methods=0
 
 
 [CLASSES]

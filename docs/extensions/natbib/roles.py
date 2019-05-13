@@ -4,9 +4,9 @@
     .. autoclass:: CitationRole
     .. autofunction:: extract_citation
 """
-
 import re
 
+import docutils
 from sphinx.errors import SphinxError
 
 from .nodes import CitationNode
@@ -23,7 +23,7 @@ def extract_citation(rawtext):
     key_list = [key.strip() for key in keys.split(',')]
     return pre_text, key_list, post_text
 
-class CitationRole(object):
+class CitationRole:
     """
         Class for processing the :rst:role:`citep` :rst:role:`citet`
         and  :rst:role:`citealp`  roles.
@@ -74,3 +74,12 @@ class CitationRole(object):
             post_text=post_text
         ))
         return [node], []
+
+
+def small_caps_role(
+        typ, rawtext, text, lineno, inliner, # pylint: disable=unused-argument
+        options=None, content=None): # pylint: disable=unused-argument
+    """
+    Role for small caps.
+    """
+    return [docutils.nodes.inline(text, text, classes=['small-caps'])], []

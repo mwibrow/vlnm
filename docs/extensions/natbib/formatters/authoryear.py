@@ -8,12 +8,13 @@ from collections import OrderedDict
 import docutils.nodes
 
 from .nodes import (
-    boolean, ifelse, idem, join, emph, optional, ref, sentence
+    boolean, ifelse, idem, join, emph, optional, ref, sentence, text, url
 )
 
 from .formatters import (
     Formatter,
-    authors, editors, field, journal, pages, title, volume, year)
+    authors, doi, editors, field, journal, pages, title, volume, year)
+
 
 class AuthorYearFormatter(Formatter):
     """
@@ -26,7 +27,28 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             title,
-            join[journal, ', ', volume, ' ', pages, '.']
+            join[journal, ', ', volume, ' ', pages, '.'],
+            optional[field['doi'], doi]
+        ]
+
+    @staticmethod
+    def online_template():
+        """Template for an online reference."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            title,
+            'Online resource:',
+            url[join[field['url']]],
+            join['(accessed ', field['accessed'], ').']
+        ]
+
+    @staticmethod
+    def software_template():
+        """Template for software reference."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            join[emph[field['title']], ', ', join['version ', field['version']]],
+            join['(', url[join[field['url']]], ' accessed ', field['accessed'], ').']
         ]
 
     @staticmethod
@@ -35,6 +57,7 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
+            text['PhD Dissertation, '],
             sentence[field['school']]
         ]
 
@@ -44,7 +67,8 @@ class AuthorYearFormatter(Formatter):
         return join(sep=' ')[
             sentence[join[authors, ', ', join['(', year, ')']]],
             emph[title],
-            sentence[field['booktitle']]
+            sentence[field['booktitle']],
+            optional[pages, sentence[pages]]
         ]
 
     @staticmethod
@@ -60,9 +84,23 @@ class AuthorYearFormatter(Formatter):
                     field['booktitle'],
                     ','
                 ],
-                volume,
+                optional[volume],
+                optional[field['publisher']],
                 pages
             ]
+        ]
+
+    @staticmethod
+    def book_template():
+        """Template for book entry."""
+        return join(sep=' ')[
+            sentence[join[authors, ', ', join['(', year, ')']]],
+            join(sep='')[
+                emph[field['title']],
+                optional[field['volume'], ', volume ', volume],
+                '.'
+            ],
+            sentence[field['publisher']]
         ]
 
     @staticmethod
@@ -87,8 +125,9 @@ class AuthorYearFormatter(Formatter):
         if len(keys) < 2:
             return {}
 
-        sort_key = lambda k: join[authors, year].format(
-            entry=bibcache[keys[k]]).astext()
+        def sort_key(k):
+            return join[authors, year].format(
+                entry=bibcache[keys[k]]).astext()
 
         sort_key_j = sort_key(0)
         suffixes = {}
@@ -116,7 +155,6 @@ class AuthorYearFormatter(Formatter):
         """
         ref_node = docutils.nodes.paragraph(
             '', '', classes=[ref.type, 'reference'])
-
         method = '{}_template'.format(ref.type)
         if hasattr(self, method):
             template = getattr(self, method)
@@ -153,21 +191,24 @@ class AuthorYearFormatter(Formatter):
         groups = get_key_groups(keys, bibcache)
         return join(sep='; ')[[
             join[
-                ref[
-                    authors(
-                        last_names_only=True,
-                        last_sep=' and ' if starred else ' & ',
-                        et_al=not starred)
-                ].format(entry=bibcache[group[0]], docname=docname),
+                ifelse[
+                    boolean[True],  # Why
+                    ref(classes=['natbib'])[
+                        authors(
+                            last_names_only=True,
+                            last_sep=' and ' if starred else ' & ',
+                            et_al=not starred)
+                    ].format(entry=bibcache[group[0]], docname=docname),
+                ],
                 ' ',
                 optional[boolean[parenthesis], '('],
                 optional[pre_text],
                 join(sep=', ')[[
                     ifelse[
                         boolean[i > 0],
-                        ref[field['year_suffix']].format(
+                        ref(classes=['natbib'])[field['year_suffix']].format(
                             entry=bibcache[key], docname=docname),
-                        ref[year].format(
+                        ref(classes=['natbib'])[year].format(
                             entry=bibcache[key], docname=docname)
                     ]
                     for i, key in enumerate(group)
@@ -189,11 +230,11 @@ class AuthorYearFormatter(Formatter):
             pre_text = post_text = ''
 
         cite_template = join(sep=', ')[
-            ref[authors(
+            ref(classes=['natbib'])[authors(
                 last_names_only=True,
                 last_sep=' and ' if starred else ' & ',
                 et_al=not starred)],
-            ref[year]
+            ref(classes=['natbib'])[year]
         ]
 
         groups = get_key_groups(keys, bibcache)
@@ -256,6 +297,7 @@ def citation_group(keys, bibcache, cite_template, docname):
         ]] for group in groups
     ]
     return template
+
 
 def get_key_groups(keys, bibcache):
     """Identify citation contractions if necessary.

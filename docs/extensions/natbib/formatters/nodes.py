@@ -5,6 +5,7 @@
 import inspect
 import docutils.nodes
 
+
 class Node:
     """Based node class."""
 
@@ -60,8 +61,9 @@ class Node:
             return True
         return False
 
-    def __call__(self, **kwargs):
+    def __call__(self, classes=None, **kwargs):
         node = self.clone()
+        node.classes = classes or []
         node.kwargs.update(kwargs)
         node.called = True  # pylint: disable=protected-access
         return node
@@ -87,6 +89,7 @@ class Node:
     def __iter__(self):
         yield self
 
+
 def formatted_node(klass, content, rawsource=None, classes=None, **kwargs):
     """Create a formatted node."""
     klass = kwargs.get('klass', klass)
@@ -94,11 +97,13 @@ def formatted_node(klass, content, rawsource=None, classes=None, **kwargs):
         return klass(content, rawsource or content, classes=classes)
     return klass(content, rawsource or content)
 
+
 def to_repr(obj):
     """Convert to representation."""
     if inspect.isfunction(obj):
         return '{}()'.format(obj.__name__)
     return obj.__repr__()
+
 
 def format_node(node, **kwargs):
     """Helper for formatting nodes."""
@@ -127,8 +132,10 @@ def child_iterator(children):
         else:
             yield child
 
+
 class Text(Node):
     """Text node."""
+
     def template(self, items):
         """Transform this node instance."""
         self.content = items[0]
@@ -140,8 +147,10 @@ class Text(Node):
             docutils.nodes.Text,
             self.content)
 
+
 class InLine(Node):
     """Inline node."""
+
     def format(self, **kwargs):
         node = formatted_node(
             docutils.nodes.inline,
@@ -153,8 +162,10 @@ class InLine(Node):
                 node += child
         return node
 
+
 class Emph(Node):
     """Node class for adding emphases"""
+
     def format(self, **kwargs):
         node = formatted_node(
             docutils.nodes.emphasis,
@@ -166,8 +177,10 @@ class Emph(Node):
                 node += child
         return node
 
+
 class Field(Node):
     """Node class for obtaining fields."""
+
     def template(self, items):
         """Transform this node instance."""
         self.content = items[0]
@@ -179,6 +192,7 @@ class Field(Node):
             return value
         except (AttributeError, KeyError):
             return None
+
 
 class Join(Node):
     """Node class for joining nodes."""
@@ -197,7 +211,11 @@ class Join(Node):
 
     def format(self, **kwargs):
         """Format this node."""
-        parent = kwargs.get('parent') or docutils.nodes.inline('', '')
+        parent = kwargs.get('parent')
+        if parent is None:
+            parent = (
+                docutils.nodes.inline('', '', classes=self.classes)
+                if self.classes else docutils.nodes.inline('', ''))
         sep = self.kwargs.get('sep')
         last_sep = self.kwargs.get('last_sep')
         children = []
@@ -222,6 +240,7 @@ class Join(Node):
 
 class Optional(Node):
     """Node class for optional nodes."""
+
     def template(self, items):
         """Transform this node instance."""
         for item in items:
@@ -246,6 +265,7 @@ class Optional(Node):
             return parent
         return None
 
+
 class Call(Node):
     """Node class for wrapping functions."""
 
@@ -261,8 +281,10 @@ class Call(Node):
         output = func(*args)
         return docutils.nodes.inline(output, output)
 
+
 class Boolean(Node):
     """Boolean node."""
+
     def template(self, items):
         """Transform this node instance."""
         self.content = items
@@ -272,6 +294,7 @@ class Boolean(Node):
         if self.content[0]:
             return True
         return False
+
 
 class IfElse(Node):
     """If-else node."""
@@ -288,6 +311,7 @@ class IfElse(Node):
             return format_node(self.children[2], **kwargs)
         return None
 
+
 class Apply(Node):
     """Apply node."""
 
@@ -295,8 +319,10 @@ class Apply(Node):
         template = self.children[0]
         return [template[child].format(**kwargs) for child in self.children[1:]]
 
+
 class Sentence(Node):
     """Sentence node."""
+
     def template(self, items):
         """Transform this node instance."""
         for item in items:
@@ -329,8 +355,10 @@ class Sentence(Node):
         parent += children[-1]
         return parent
 
+
 class Words(Node):
     """Word node class."""
+
     def template(self, items):
         """Transfor this node instance."""
         self.children = items
@@ -339,6 +367,7 @@ class Words(Node):
     def format(self, **kwargs):
         """Format this node instance."""
         return join(sep=' ')[self.children].format(**kwargs)
+
 
 class Reference(Node):
     """Reference node class."""
@@ -351,16 +380,18 @@ class Reference(Node):
             refuri = '{}#{}'.format(
                 '' if docname == 'index' else docname, entry.key)
             ref_node = docutils.nodes.reference(
-                '', '', classes=['xref cite'], internal=True, refuri=refuri)
+                '', '', classes=['xref cite'] + self.classes, internal=True, refuri=refuri)
         else:
             ref_node = docutils.nodes.reference(
-                '', '', classes=['xref cite'], **self.kwargs)
+                '', '', classes=['xref cite'] + self.classes, **self.kwargs)
 
         ref_node += join[self.children].format(**kwargs)
         return ref_node
 
+
 class Idempotent(Node):
     """Idempotent Node for a single childe."""
+
     def template(self, items):
         """Transform this node instance."""
         self.children = items
@@ -369,6 +400,22 @@ class Idempotent(Node):
     def format(self, **_kwargs):
         """Format this node instance."""
         return self.children[0]
+
+
+class Link(Node):
+    """LinkNode."""
+
+    def format(self, **kwargs):
+        """Format this node instance."""
+        uri = self.children[0].format(**kwargs).astext()
+        if len(self.children) > 1:
+            link_text = self.children[1].format(**kwargs).astext()
+        else:
+            link_text = uri
+        ref_node = docutils.nodes.reference(
+            link_text, link_text, classes=['xref'] + self.classes, internal=False, refuri=uri)
+        return ref_node
+
 
 # pylint: disable=C0103
 boolean = Boolean()
@@ -380,6 +427,8 @@ idem = Idempotent()
 ifelse = IfElse()
 inline = InLine()
 join = Join()
+link = Link()
+url = Link()
 optional = Optional()
 ref = Reference()
 sentence = Sentence()

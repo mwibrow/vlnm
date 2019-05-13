@@ -1,46 +1,54 @@
 """
-Tests for normalizer base classes
+Tests for the base module
 """
 
-import unittest
-
 from vlnm.normalizers.base import (
-    FormantIntrinsicNormalizer,
-    VowelNormalizer)
+    FormantGenericNormalizer,
+    FormantSpecificNormalizer,
+    FormantsTransformNormalizer,
+    Normalizer)
 
-from tests.test_normalizers import (
-    get_test_dataframe
-)
+from tests.helpers import Helper
 
-class TestVowelNormalizer(unittest.TestCase):
+
+class TestBaseNormalizers(Helper.TestNormalizerBase):
     """
-    Tests for the VowelNormalizer class
-    """
-
-    def setUp(self):
-        self.df = get_test_dataframe()
-
-    def test_default(self):
-        """Sunny day test."""
-        VowelNormalizer().normalize(self.df)
-
-    def test_rename(self):
-        """Sunny day rename test."""
-        VowelNormalizer().normalize(self.df, rename='{}_N')
-
-
-class TestFormantIntrinsicNormalizer(unittest.TestCase):
-    """
-    Tests for the FormantIntrinsicNormalizer class
+    Tests for the base Normalizer class.
     """
 
-    def setUp(self):
-        self.df = get_test_dataframe()
+    def test_normalizer_instantiation(self):
+        """Base Normalizer class cannot be instantiated"""
+        with self.assertRaises(TypeError):
+            Normalizer()
 
-    def test_default(self):
-        """Sunny day test."""
-        FormantIntrinsicNormalizer().normalize(self.df)
+    def test_formant_generic_normalizer_instantiation(self):
+        """Base FormantGenericNormalizer class cannot be instantiated"""
+        with self.assertRaises(TypeError):
+            FormantGenericNormalizer()
 
-    def test_reanme(self):
-        """Sunny day rename test."""
-        FormantIntrinsicNormalizer().normalize(self.df, rename='{}_N')
+    def test_formant_specific_normalizer_instantiation(self):
+        """Base FormantsSpecificNormalizer class cannot be instantiated"""
+        with self.assertRaises(TypeError):
+            FormantSpecificNormalizer()
+
+    def test_formant_transform_normalizer_instantiation(self):
+        """Base FormantsTransformNormalizer class cannot be instantiated"""
+        with self.assertRaises(TypeError):
+            FormantsTransformNormalizer()
+
+    def test_config_default(self):
+        """Check default config"""
+        expected = dict(columns=[], keywords=[], options=dict(), outputs=[])
+        actual = self.normalizer()
+        self.assertDictEqual(actual.config, expected)
+
+    def test_config_merged(self):
+        """Check config merged in subclass"""
+
+        class Subclass(Normalizer):
+            """Test sub-class"""
+            config = dict(options=dict(transform=True))
+
+        expected = dict(columns=[], keywords=[], options=dict(transform=True), outputs=[])
+        actual = Subclass()
+        self.assertDictEqual(actual.config, expected)

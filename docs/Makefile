@@ -1,14 +1,18 @@
-
 SRCDIR=source
 BLDDIR=build
-WATCH=-z ../vlnm -z ./$(SRCDIR) -z ./extensions/plots -z ./extensions/natbib
-CMDOPT=-E -a -d $(BLDDIR)/.doctrees
+EXTENSIONS=-z ./extensions
+WATCH=-z ../vlnm -z ./$(SRCDIR) $(EXTENSIONS)
+CMDOPT=-d $(BLDDIR)/.doctrees
+IGNORE=-i *.csv -i *.tsv
 
 clean:
 	rm -r $(BLDDIR)
 
 html:
-	sphinx-build $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+	sphinx-build -E -a $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
 
-watch:
-	sphinx-autobuild $(WATCH) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+watch: html
+	sphinx-autobuild -E -a $(WATCH) $(IGNORE) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)
+
+api-doc:
+	sphinx-apidoc -f -o $(SRCDIR)/api ../vlnm

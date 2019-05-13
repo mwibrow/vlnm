@@ -8,23 +8,30 @@ import numpy as np
 import pandas as pd
 import pandas.testing
 
-from vlnm.normalizers import VowelNormalizer
-from vlnm.normalizers.validation import (
-    RequiredColumnMissingError,
-    RequiredColumnAliasMissingError,
-    RequiredKeywordMissingError)
+from vlnm.normalizers.base import Normalizer
+
+# There are issues wth pandas and pylint
+# See https://github.com/PyCQA/pylint/issues/2198 for some discussion.
+#
+#
+DataFrame = pd.DataFrame
+Series = pd.Series
+
 
 def assert_frame_equal(*args, **kwargs):
     """Wrapper around pandas testing helper"""
     return pandas.testing.assert_frame_equal(*args, **kwargs)
 
+
 def assert_series_equal(*args, **kwargs):
     """Wrapper around pandas testing helper"""
     return pandas.testing.assert_series_equal(*args, **kwargs)
 
+
 def concat_df(*args, **kwargs):
     """Wrapper around pandas data-frame conact"""
     return pd.concat(*args, **kwargs)
+
 
 def make_set_up(set_up=None):
     """Make the set up function for a repeating test."""
@@ -34,11 +41,13 @@ def make_set_up(set_up=None):
         return obj.setUp()
     return _do_set_up
 
+
 def repeat_test(iterations=1, seed=None, set_up=None):
     """
     Decorator for repeating tests with random numbers.
     """
     set_up = make_set_up(set_up=set_up)
+
     def _decorator(method):
         def _wrapper(self, *args, **kwargs):
             np.random.seed(seed)
@@ -74,8 +83,6 @@ def generate_data_frame(
     return base_df
 
 
-
-
 def get_test_dataframe(speakers=8):
     """Generate a test dataframe."""
     df = generate_data_frame(
@@ -88,83 +95,46 @@ def get_test_dataframe(speakers=8):
     return df
 
 
+# Fixed dataframe for each test run, if required.
 DATA_FRAME = get_test_dataframe()
 
 
-class BaseTestCases:  # pylint: disable=too-few-public-methods
-    """
-    Wrapper around command test cases.
-    """
+class Helper:
+    """Wraper class for base test class."""
 
-    class BaseTestNormalizer(unittest.TestCase):
-        """
-        Base class for normalizer tests with common tests
-        """
+    class TestNormalizerBase(unittest.TestCase):
+        """Common tests for the speaker normalizers."""
 
-        normalizer = VowelNormalizer
-        required_kwargs = {}
+        class TestNormalier(Normalizer):
+            pass
+
+        normalizer = TestNormalier
 
         def __init__(self, *args, **kwargs):
-            super(BaseTestCases.BaseTestNormalizer, self).__init__(
-                *args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.normalizer = self.__class__.normalizer
 
         def setUp(self):
-            self.df = get_test_dataframe()
+            self.df = DATA_FRAME.copy()
             self.formants = ['f0', 'f1', 'f2', 'f3']
             self.kwargs = dict(formants=self.formants)
 
-        def test_missing_required_columns(self):
-            """Missing required columns raises error."""
-            normalizer = self.normalizer()
-            for column in normalizer.get_columns().required:
-                df = self.df.copy().drop(column, axis=1)
-                with self.assertRaises(RequiredColumnMissingError):
-                    normalizer.normalize(df, **self.kwargs)
-
-        def test_missing_aliased_columns(self):
-            """Missing aliased speaker column raises error."""
-            normalizer = self.normalizer()
-            for column in normalizer.get_columns().required:
+        def test_column_missing(self):
+            """
+            Missing columns raises ValueError.
+            """
+            columns = self.normalizer().config['columns']
+            for column in columns:
                 df = self.df.copy()
-                alias = '{}_alias'.format(column)
                 df = df.drop(column, axis=1)
-
-                kwargs = {}
-                kwargs.update(**self.kwargs)
-                kwargs[column] = alias
-
-                with self.assertRaises(RequiredColumnAliasMissingError):
-                    normalizer.normalize(
-                        df,
-                        **kwargs)
-
-        def test_missing_keywords(self):
-            """Missing keywords raises error."""
-            normalizer = self.normalizer()
-            keywords = normalizer.get_keywords().required
-            for keyword in keywords:
-                df = self.df.copy()
-                kwargs = {}
-                kwargs.update(**self.kwargs)
-                for word in keywords:
-                    if word != keyword:
-                        kwargs[keyword] = keyword
-
-                with self.assertRaises(RequiredKeywordMissingError):
-                    normalizer.normalize(
-                        df,
-                        **kwargs)
+                with self.assertRaises(ValueError):
+                    self.normalizer().normalize(df, **self.kwargs)
 
         def test_default_columns(self):
             """Check default columns returned."""
             expected = self.df.columns
-            kwargs = {}
-            kwargs.update(self.kwargs)
-            kwargs.update(self.required_kwargs or {})
             actual = self.normalizer().normalize(
-                self.df,
-                **kwargs).columns
+                self.df, **self.kwargs).columns
 
             expected = sorted(expected)
             actual = sorted(actual)
@@ -172,17 +142,82 @@ class BaseTestCases:  # pylint: disable=too-few-public-methods
 
         def test_new_columns(self):
             """Check new columns returned."""
-            rename = '{}\''
+            rename = '{}*'
             expected = (list(self.df.columns) +
                         list(rename.format(f) for f in self.formants))
-            kwargs = {}
-            kwargs.update(self.kwargs)
-            kwargs.update(self.required_kwargs or {})
-            actual = self.normalizer().normalize(
-                self.df,
-                rename=rename,
-                **kwargs).columns
+            actual = self.normalizer(rename=rename, **self.kwargs).normalize(
+                self.df).columns
 
             expected = sorted(expected)
             actual = sorted(actual)
             self.assertListEqual(actual, expected)
+
+        def test_call(self):
+            """Test calling the normalizer class."""
+            expected = self.df.columns
+            actual = self.normalizer()(
+                self.df, **self.kwargs).columns
+
+            expected = sorted(expected)
+            actual = sorted(actual)
+            self.assertListEqual(actual, expected)
+
+    class TestFormantSpecificNormalizerBase(TestNormalizerBase):
+        """Common tests for normalizer classes with a FxNormalizderBase."""
+
+        def test_fx_spec(self):
+            """
+            Specify formants using individual keys.
+            """
+            df = self.df.copy()
+            normalizer = self.normalizer(f0='f0', f1='f1', f2='f2', f3='f3', **self.kwargs)
+            normalizer.normalize(df)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
+
+        def test_fx_list_spec(self):
+            """
+            Missing column raises value error.
+            """
+            df = self.df.copy()
+            normalizer = self.normalizer(
+                f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], **self.kwargs)
+            normalizer.normalize(df)
+            self.assertListEqual(
+                normalizer.params['formants'],
+                ['f0', 'f1', 'f2', 'f3'])
+
+    class TestFormantNormalizerBase(TestNormalizerBase):
+        """Common tests for the formant normalizers."""
+
+        @staticmethod
+        def transform(x):
+            return x
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.formant_transform = self.__class__.transform
+
+        def test_normalize(self):
+            """Test normalize output."""
+            expected = self.df.copy()
+            expected[self.formants] = self.formant_transform(expected[self.formants])
+            actual = self.normalizer().normalize(self.df)
+            assert_frame_equal(actual, expected)
+
+    class SpeakerNormalizerTests(TestNormalizerBase):
+        """Common tests for the speaker normalizers."""
+
+        def setUp(self):
+            self.df = DATA_FRAME.copy()
+            self.formants = ['f0', 'f1', 'f2', 'f3']
+            self.kwargs = dict(f0='f0', f1='f1', f2='f2', f3='f3')
+
+        def test_incorrect_alias(self):
+            """
+            Missing aliased column raises ValueError.
+            """
+            df = self.df.copy()
+            with self.assertRaises(ValueError):
+                self.normalizer(speaker='talker', **self.kwargs).normalize(df)

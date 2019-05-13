@@ -12,7 +12,7 @@ from .formatters.authoryear import AuthorYearFormatter
 from .cache import CitationCache, BibliographyCache
 from .directives import BibliographyDirective
 from .nodes import CitationNode, BibliographyNode
-from .roles import CitationRole
+from .roles import CitationRole, small_caps_role
 # from .transforms import BibliographyTransform
 
 def init_app(app):
@@ -35,15 +35,15 @@ def process_bibliographies(app, doctree, docname):
     for bibnode in doctree.traverse(BibliographyNode):
         cite_all = bibnode.data['all']
         docname = bibnode.data['docname']
+
         keys = bibkeys.get_keys(None if cite_all else docname)
         formatter = AuthorYearFormatter(env)
 
         node = docutils.nodes.paragraph()
-        keys = formatter.sort_keys(keys, bibcache)
-
+        keys = formatter.sort_keys(list(set(keys)), bibcache)
         year_suffixes = formatter.resolve_ties(keys, bibcache)
         for key in year_suffixes:
-            bibcache[key].fields['year_suffix'] = year_suffixes[key]
+            bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
 
         for key in keys:
             refid = '{}'.format(key)
@@ -66,12 +66,12 @@ def process_citations(app, doctree, docname):
 
     bibdocs = list(bibcache.cache.keys())
     if len(bibdocs) == 1:
-        docname = '{}.html'.format(bibdocs[0])
+        docname = '/{}.html'.format(bibdocs[0])
 
     keys = bibkeys.get_keys()
     year_suffixes = formatter.resolve_ties(keys, bibcache)
     for key in year_suffixes:
-        bibcache[key].fields['year_suffix'] = year_suffixes[key]
+        bibcache[key].fields['year_suffix'] = '' #year_suffixes[key]
 
     for citenode in doctree.traverse(CitationNode):
         node = formatter.make_citation(
@@ -96,6 +96,7 @@ def setup(app):
     app.add_role('citets', CitationRole())
     app.add_role('citealt', CitationRole())
     app.add_role('cite', CitationRole())
+    app.add_role('smallcaps', small_caps_role)
     app.add_stylesheet('css/style.css')
     app.add_directive('bibliography', BibliographyDirective)
     # app.add_transform(BibliographyTransform)

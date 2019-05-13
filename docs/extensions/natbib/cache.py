@@ -2,7 +2,7 @@
     Bibliography Cache
     ~~~~~~~~~~~~~~~~~~
 """
-from orderedset import OrderedSet
+from .orderedset import OrderedSet
 
 class CitationCache:
     """

@@ -1,0 +1,40 @@
+.jupyter-cell .highlight pre {
+  background-color: $vlnm-code !important;
+  border: 1px solid darken($vlnm-code, 16);
+  margin-right: 0rem;
+}
+
+.jupyter-terminal .highlight pre {
+  background-color: $md-grey-900 !important;
+  color: $md-grey-100 !important;
+  span {
+    color: $md-grey-100 !important;
+  }
+}
+
+.jupyter {
+  table.dataframe {
+    @include sans-font();
+  }
+  table.dataframe .row-even {
+    background-color: $md-grey-100;
+  }
+
+  table.dataframe .column-float64 {
+    text-align: right;
+  }
+
+  .highlight-ansi-color .-Color-Red {
+    color: $md-red-800;
+  }
+  .highlight-ansi-color .-Color-Green,
+  .highlight-ansi-color .-Color-BoldGreen {
+    color: $md-light-green-800;
+  }
+  .highlight-ansi-color .-Color-Blue {
+    color: $md-light-blue-800;
+  }
+  .highlight-ansi-color .-Color-Cyan {
+    color: $md-teal-800;
+  }
+}

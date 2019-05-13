@@ -4,6 +4,7 @@ Nox config file.
 
 import nox
 
+
 @nox.session
 def lint(session):
     """

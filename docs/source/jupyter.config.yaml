@@ -1,0 +1,16 @@
+dataframe:
+  formatters:
+      float64: '{:.03f}'
+  index: yes
+  dtypes:
+      speaker: str
+      vowel: str
+before_each: |
+  import matplotlib
+  matplotlib.use("agg")
+  import pandas as pd
+  from vlnm import pb1952
+  def SetupCsv(columns=None, filename='vowels.csv'):
+      df = pb1952(columns=columns)
+      df[columns].to_csv(filename, index=False)
+path: '{tmpdir}'

@@ -1,10 +1,13 @@
-astroid==1.6.1
 autopep8==1.4
+IPython==7.3.0
 latexcodec==1.0.5
+libsass==0.18.0
 nox==2018.9.14
-pylint==1.9.2
+pygments==2.3.1
+pygments-ansi-color==0.0.2
+pylint==2.0.1
 pytest-cov==2.6.0
 pytest==3.8.0
 sphinx-autobuild==0.7.1
-Sphinx==1.8.0
+Sphinx==2.0.1
 sphinxcontrib-bibtex==0.4.0

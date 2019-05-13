@@ -1,0 +1,133 @@
+.jupyter {
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  div {
+    &.line-block {
+      margin-left: 0 !important;
+    }
+
+    &.jupyter-block.line-block,
+    &.jupyter-container.line-block {
+      width: 100%;
+      max-width: calc(100vw - 60px);
+      overflow-x: auto;
+      margin-left: 0 !important;
+      display: flex;
+      flex-direction: row;
+      padding: 0;
+    }
+  }
+}
+
+div.jupyter-history.line-block {
+  font-family: monospace;
+  font-size: 90%;
+  width: 5ex;
+  margin-left: 0;
+  margin-top: calc(0.25rem + 1px);
+  flex-shrink: 0;
+
+  &.jupyter-cell-counts code .pre {
+    color: #303f9f !important;
+  }
+
+  code {
+    background-color: transparent !important;
+  }
+}
+
+.highlight-ansi-color .highlight pre {
+  background-color: transparent !important;
+}
+
+div.jupyter-history.jupyter-error.line-block {
+  code {
+    .pre {
+      color: #d32f2f !important;
+    }
+  }
+}
+
+div.jupyter-output {
+  margin-top: calc(1rem + 1px);
+}
+
+div.jupyter-cell {
+  width: 100%;
+  overflow-x: auto;
+  .highlight pre {
+    margin-right: 0;
+  }
+}
+
+.jupyter {
+  table {
+    border: none !important;
+    box-shadow: none !important;
+    font-family: "Table", sans-serif !important;
+    font-size: 90%;
+    margin-top: 0.5rem;
+
+    border-collapse: collapse;
+
+    thead {
+      tr {
+        border: none !important;
+      }
+      font-weight: bold;
+      border-bottom: 1px solid #cdcdcd;
+    }
+
+    td,
+    th {
+      border: none !important;
+      padding: 0.25rem 1rem;
+
+      &.column-index {
+        font-weight: bold;
+        padding: 0.25rem 0.5rem !important;
+      }
+
+      &.column-dtype-str {
+        text-align: center;
+      }
+
+      &.column-dtype-int64 {
+        text-align: right;
+      }
+    }
+  }
+
+  .highlight-ansi-color .-Color-Red {
+    color: #d32f2f;
+  }
+  .highlight-ansi-color .-Color-Green,
+  .highlight-ansi-color .-Color-BoldGreen {
+    color: #689f38;
+  }
+  .highlight-ansi-color .-Color-Blue {
+    color: #0288d1;
+  }
+  .highlight-ansi-color .-Color-Cyan {
+    color: #0097a7;
+  }
+}
+
+.jupyter-cell .highlight pre {
+  background-color: #f7f7f7 !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  margin-right: 1rem;
+}
+
+.jupyter-output .highlight pre {
+  background-color: transparent !important;
+  padding: 0.25rem 0.5rem !important;
+  margin-right: 1rem;
+}
+
+.jupyter-output.jupyter-error .highlight pre span {
+  color: #d32f2f !important;
+  font-style: italic;
+}
