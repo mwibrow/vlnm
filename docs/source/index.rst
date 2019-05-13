@@ -3,9 +3,6 @@
 VLNM: Vowel normalization using Python
 ======================================
 
-:Release: |release|
-:Date:    |today|
-
 |license| |build status| |coverage|
 
 What is VLNM?
