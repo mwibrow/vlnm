@@ -1,0 +1,211 @@
+@font-face {
+  font-family: Roboto;
+  src: url(../fonts/Roboto-Regular.ttf);
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(../fonts/DejaVu/DejaVuSansMono.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(../fonts/DejaVu/DejaVuSansMono-Oblique.ttf);
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(../fonts/DejaVu/DejaVuSansMono-Bold.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(../fonts/DejaVu/DejaVuSansMono-BoldOblique.ttf);
+  font-style: italic;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "MerriweatherLight";
+  src: url(../fonts/Merriweather/Merriweather-Light.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+/*
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Regular.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Italic.ttf);
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-Bold.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Merriweather";
+  src: url(../fonts/Merriweather/Merriweather-BoldItalic.ttf);
+  font-style: italic;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "MerriweatherBlack";
+  src: url(../fonts/Merriweather/Merriweather-Black.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "MerriweatherSans";
+  src: url(../fonts/Merriweather_Sans/MerriweatherSans-Light.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+body {
+  font-family: "MerriweatherLight" !important;
+  font-weight: normal;
+}
+.section h1,
+.section h2,
+.section h3 {
+  font-family: "Merriweather" !important;
+  font-weight: bold;
+} */
+
+@media screen and (min-width: 1080px) {
+  div.document {
+    width: 1040px;
+  }
+}
+
+code,
+.code,
+pre,
+.pre {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 90%;
+}
+
+div.code.highlight-py3ext .highlight pre {
+  border-radius: 4px !important;
+}
+
+p.reference {
+  padding-left: 2rem;
+  text-indent: -2rem;
+  margin: 0.125rem !important;
+}
+
+.ipa {
+  font-family: "Times New Roman", "Georgia", serif;
+}
+
+.console {
+  font-family: "Consolas", "Menlo", "Deja Vu Sans Mono",
+    "Bitstream Vera Sans Mono", monospace;
+  line-height: 1.3;
+}
+
+.monospace {
+  font-family: Monospace;
+  font-style: normal;
+}
+
+div.console .highlight pre {
+  padding: 0 0.5rem;
+  margin: 0;
+}
+
+div.console .console-subblock:first-of-type pre {
+  padding-top: 0.5rem;
+}
+
+div.console .console-subblock:last-of-type pre {
+  padding-bottom: 0.625rem;
+}
+
+div.code .highlight pre {
+  padding: 0.5rem 0.5em;
+  margin: 0;
+}
+
+div.console.line-block,
+div.output.line-block {
+  margin-left: 0 !important;
+}
+
+.highlight pre {
+  padding: 0.5rem 1em;
+  margin: 0;
+}
+.highlight-pandas {
+  padding-top: 0.5em;
+}
+
+.highlight-pandas * {
+  font-style: italic !important;
+}
+
+div.highlight-pandas + div.highlight-python {
+  padding-top: 0.5em;
+}
+
+.small-caps {
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
+.centered td,
+.centered th {
+  text-align: center !important;
+}
+
+.normalizers tr th,
+.normalizers tr td:nth-last-of-type(1),
+.normalizers tr td:nth-last-of-type(2),
+.normalizers tr td:nth-last-of-type(3) {
+  text-align: center !important;
+}
+
+.blurb {
+  text-align: center !important;
+}
+
+table.normalizers caption {
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+}
+
+table.normalizers a {
+  font-family: monospace !important;
+}
+
+.rubric.name code.xref {
+  background-color: #fff;
+  font-size: 125%;
+}
+
+.rubric.module {
+  font-size: 150%;
+  font-weight: normal;
+}

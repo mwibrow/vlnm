@@ -9,7 +9,8 @@ from vlnm.utils import (
     flatten,
     nameify,
     quote_item,
-    str_or_list)
+    str_or_list,
+    get_formants_spec)
 
 class TestMergeColumns(unittest.TestCase):
     """
@@ -41,6 +42,7 @@ class TestNameify(unittest.TestCase):
         No args returns empty string.
         """
         self.assertEqual('', nameify([]))
+
     def test_default(self):
         """
         Default args.
@@ -83,6 +85,15 @@ class TestNameify(unittest.TestCase):
         """
         items = [1, 2, 3, 4]
         expected = "'1', '2', '3', '4'"
+        actual = nameify(items, quote="'")
+        self.assertEqual(actual, expected)
+
+    def test_single_argument(self):
+        """
+        Single argument quoted with no junctions
+        """
+        items = [1]
+        expected = "'1'"
         actual = nameify(items, quote="'")
         self.assertEqual(actual, expected)
 
@@ -150,3 +161,48 @@ class TestStrOrList(unittest.TestCase):
         value = ['value']
         actual = str_or_list(value)
         self.assertListEqual(actual, value)
+
+
+class TestGetFormantsSpec(unittest.TestCase):
+    """
+    Tests for the get_formant_spec function.
+    """
+
+    def test_default(self):
+        """
+        Nothing specified returns dictionary with default keys.
+        """
+        columns = ['f0', 'f1', 'f2', 'f3']
+        expected = dict(
+            f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], formants=columns)
+        actual = get_formants_spec()
+        self.assertDictEqual(actual, expected)
+
+    def test_fx_string(self):
+        """
+        Coerce fx as string to list.
+        """
+        columns = ['f0', 'f1']
+        expected = dict(
+            f0=['f0'], f1=['f1'], f2=[None], f3=[None], formants=columns)
+        actual = get_formants_spec(f0='f0', f1='f1')
+        self.assertDictEqual(actual, expected)
+
+    def test_formants_list(self):
+        """
+        Formants keyword should return only keyword.
+        """
+        formants = ['f0', 'f1']
+        expected = dict(formants=formants)
+        actual = get_formants_spec(formants=formants)
+        self.assertDictEqual(actual, expected)
+
+    def test_formants_special(self):
+        """
+        Formants ['f0', 'f1', 'f2', 'f3'] returns full spec.
+        """
+        formants = ['f0', 'f1', 'f2', 'f3']
+        expected = dict(
+            f0=['f0'], f1=['f1'], f2=['f2'], f3=['f3'], formants=formants)
+        actual = get_formants_spec(formants=formants)
+        self.assertDictEqual(actual, expected)

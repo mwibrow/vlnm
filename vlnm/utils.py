@@ -2,6 +2,8 @@
 Misc. utilities.
 """
 
+FORMANTS = ['f0', 'f1', 'f2', 'f3']
+
 def quote_item(item, pre='', post=''):
     """Format an string item with quotes.
     """
@@ -71,3 +73,30 @@ def str_or_list(value):
     if isinstance(value, list):
         return value
     return [value]
+
+
+def get_formants_spec(**kwargs):
+    """Sanitize the user formant specification for normalizers."""
+    if any(kwargs.get(f) for f in FORMANTS):
+        fmap = {f:kwargs.get(f)
+                  if isinstance(kwargs.get(f), list) else [kwargs.get(f)]
+                for f in FORMANTS}
+        formants = []
+        for f in fmap:
+            if fmap[f][0]:
+                formants.extend(fmap[f])
+        flen = max(len(f) for f in fmap.values())
+        for f in fmap:
+            fmap[f].extend(fmap[f][-1:] * (flen - len(fmap[f])))
+        spec = dict(**fmap)
+        spec['formants'] = formants
+        return spec
+    if kwargs.get('formants'):
+        if kwargs['formants'] != FORMANTS:
+            return dict(formants=kwargs['formants'])
+    return dict(
+        f0=['f0'],
+        f1=['f1'],
+        f2=['f2'],
+        f3=['f3'],
+        formants=FORMANTS)

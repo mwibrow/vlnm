@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans:300,700|Merriweather:300,700|Roboto+Mono:400,400i,700,700i");
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/#{$font-dir}/DejaVu/DejaVuSansMono.ttf);
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/#{$font-dir}/DejaVu/DejaVuSansMono-Oblique.ttf);
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/#{$font-dir}/DejaVu/DejaVuSansMono-Bold.ttf);
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/#{$font-dir}/DejaVu/DejaVuSansMono-BoldOblique.ttf);
+  font-style: italic;
+  font-weight: bold;
+}
+
+@mixin serif-font() {
+  font-family: "Merriweather", "Georgia", "Libre Baskerville", "Times New Roman",
+    "Times", serif !important;
+}
+
+@mixin sans-font() {
+  font-family: "Merriweather Sans", "DejaVu Sans", "Helvetica", serif !important;
+}
+
+@mixin mono-font() {
+  font-family: "DejaVu Sans Mono", "Roboto Mono", "Monaco", "Courier New",
+    monospace !important;
+}
