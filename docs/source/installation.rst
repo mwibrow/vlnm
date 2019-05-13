@@ -31,7 +31,7 @@ following command in a terminal:
 
 .. code-block:: console
 
-   $ conda install -c anaconda pip3
+   conda install -c anaconda pip3
 
 However, the Anaconda distribution is large (to say the least) and
 includes a considerable number of tools which are not needed
@@ -55,7 +55,7 @@ using:
 
 .. code-block:: console
 
-   $ conda install -c conda-forge shapely
+   conda install -c conda-forge shapely
 
 Other solutions and/or workarounds are described below
 for different operation systems.
@@ -77,7 +77,7 @@ a terminal:
 
 .. code-block:: console
 
-   $ pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip3 install git+https://github.com/mwibrow/vlnm.git
 
 
 If the installation fails while installing shapely
@@ -89,7 +89,7 @@ For example, Debian-based distributions could use:
 
 .. code-block:: console
 
-   $ sudo apt-get install libgeos
+   sudo apt-get install libgeos
 
 
 Then the installation command given above should
@@ -105,7 +105,7 @@ a terminal:
 
 .. code-block:: console
 
-   $ pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip3 install git+https://github.com/mwibrow/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -115,7 +115,7 @@ GEOS library:
 
 .. code-block:: console
 
-   $ brew install geos
+   brew install geos
 
 Then |vlnm| can be installed using the command above.
 
@@ -144,4 +144,4 @@ command at the command prompt:
 
 .. code-block:: console
 
-   $ pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip3 install git+https://github.com/mwibrow/vlnm.git
