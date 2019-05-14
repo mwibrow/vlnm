@@ -79,4 +79,4 @@ def setup_vlnm():
 
 
 if __name__ == '__main__':
-    vlnm()
+    setup_vlnm()
