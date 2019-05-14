@@ -1,0 +1,18 @@
+include LICENSE
+include README.rst
+include requirements.txt
+include requirements-dev.txt
+exclude .coverage
+exclude .gitignore
+exclude .pylintrc
+exclude .travis.yml
+exclude noxfile.py
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
+prune docs
+prune tests
+prune venv
+prune .vscode
+prune .pytest_cache
