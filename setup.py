@@ -68,6 +68,8 @@ def setup_vlnm():
         packages=find_packages(
             exclude=['tests', 'docs']
         ),
+        package_data={'vlnm': ['data/*.csv']},
+        include_package_data=True,
         install_requires=REQUIREMENTS,
         classifiers=CLASSIFIERS,
         extras_require={
