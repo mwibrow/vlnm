@@ -3,6 +3,8 @@ VLNM module
 ~~~~~~~~~~~
 """
 
+__version__ = '0.0.0'
+
 import io
 import os
 from typing import Dict, List, Optional, Union
