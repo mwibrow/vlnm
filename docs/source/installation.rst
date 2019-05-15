@@ -24,14 +24,6 @@ If Python is not already installed on your computer
 (or it is an unsupported version), the quickest way to get Python set up
 is using the |anaconda| distribution, which will also install a number
 of useful tools (including |jupyter|).
-Having installed Anaconda it may be necesary to install
-the Python package manager ``pip3``, by running the
-following command in a terminal:
-
-
-.. code-block:: console
-
-   conda install -c anaconda pip3
 
 However, the Anaconda distribution is large (to say the least) and
 includes a considerable number of tools which are not needed
@@ -77,7 +69,7 @@ a terminal:
 
 .. code-block:: console
 
-   pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip install git+https://github.com/mwibrow/vlnm.git
 
 
 If the installation fails while installing shapely
@@ -105,7 +97,7 @@ a terminal:
 
 .. code-block:: console
 
-   pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip install git+https://github.com/mwibrow/vlnm.git
 
 If the installation fails while installing shapely
 (typically there will be an error relating to
@@ -131,7 +123,7 @@ prompt use `Anaconda Prompt`.
 
 
 After using the ``conda`` command
-to install pip3 and shapely (as described above),
+to install shapely (as described above),
 ``git`` will need to be installed:
 
 .. code-block:: console
@@ -144,4 +136,4 @@ command at the command prompt:
 
 .. code-block:: console
 
-   pip3 install git+https://github.com/mwibrow/vlnm.git
+   pip install git+https://github.com/mwibrow/vlnm.git
