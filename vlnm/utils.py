@@ -84,9 +84,9 @@ def str_or_list(value):
 def get_formants_spec(**kwargs):
     """Sanitize the user formant specification for normalizers."""
     if any(kwargs.get(f) for f in FORMANTS):
-        fmap = {f: kwargs.get(f)
-                if isinstance(kwargs.get(f), list) else [kwargs.get(f)]
-                for f in FORMANTS}
+        fmap = {
+            f: (kwargs.get(f) if isinstance(kwargs.get(f), list) else [kwargs.get(f)])
+            for f in FORMANTS}
         formants = []
         for f in fmap:
             if fmap[f][0]:
