@@ -2,13 +2,17 @@
 Misc. utilities.
 """
 
+from typing import Dict
+
 FORMANTS = ['f0', 'f1', 'f2', 'f3']
+
 
 def quote_item(item, pre='', post=''):
     """Format an string item with quotes.
     """
     post = post or pre
     return f'{pre}{item}{post}'
+
 
 def nameify(items, sep=',', junction=None, oxford=False, quote=None):
     """
@@ -36,6 +40,7 @@ def nameify(items, sep=',', junction=None, oxford=False, quote=None):
             junction=junction,
             oxford=oxford,
             quote=quote))
+
 
 def merge_columns(column_specs, kwargs):
     """
@@ -66,6 +71,7 @@ def flatten(items):
         return flattend
     return [items]
 
+
 def str_or_list(value):
     """
     String to list of string.
@@ -78,8 +84,8 @@ def str_or_list(value):
 def get_formants_spec(**kwargs):
     """Sanitize the user formant specification for normalizers."""
     if any(kwargs.get(f) for f in FORMANTS):
-        fmap = {f:kwargs.get(f)
-                  if isinstance(kwargs.get(f), list) else [kwargs.get(f)]
+        fmap = {f: kwargs.get(f)
+                if isinstance(kwargs.get(f), list) else [kwargs.get(f)]
                 for f in FORMANTS}
         formants = []
         for f in fmap:
@@ -100,3 +106,23 @@ def get_formants_spec(**kwargs):
         f2=['f2'],
         f3=['f3'],
         formants=FORMANTS)
+
+
+def merge(this: Dict, that: Dict, deep: bool = True):
+    """Merge two dictionaries."""
+    merged = this.copy()
+    for key, value in that.items():
+        if value is not None:
+            if key in this:
+                _this, _that = this[value], value
+                if deep and isinstance(_this, dict) and isinstance(_that, dict):
+                    merged[key] = merge(_this, _that, deep=deep)
+                else:
+                    merged[key] = _that
+    return merged
+
+
+def strip(this, deep: bool = True):
+    return {
+        key: strip(value) if isinstance(value, dict) and deep else value
+        for key, value in this.items() if value is not None}

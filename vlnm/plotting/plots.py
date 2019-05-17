@@ -6,6 +6,8 @@
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
+import vlnm.utils
+
 
 def create_figure(*args, **kwargs) -> Figure:
     return plt.figure(*args, **kwargs)
@@ -48,7 +50,7 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = dict(data=data, x=x, y=y)
+        self.plot_context = utils.strip(dict(data=data, x=x, y=y))
         self.axis = None
         self.legends = {}
 
@@ -69,7 +71,7 @@ class VowelPlot:
         return self.context(**kwargs)
 
     def context(self, **kwargs):
-        self.plot_context.update(**kwargs)
+        self.plot_context = utils.merge(self.plot_context, kwargs)
         return self
 
     def subplot(self, row=None, column=None, label=None):
@@ -85,8 +87,7 @@ class VowelPlot:
     def df_generator(self, df, context):
 
         groups = []
-        params = self.context.copy()
-        params.update(**context)
+        params = utils.merge(self.plot_context, context)
         prop_mappers = {}
         plot_mapper = {}
         bys = [key for key in context if key.endswith('_by')]
