@@ -3,94 +3,91 @@
     ~~~~~~~~~~~~~~~~~~
 
 """
-from typing import Dict
+from typing import Callable, Dict, Iterable, Tuple, Union
+
+import matplotlib.pyplot as plt
+
+from vlnm.utils import merge, strip
 
 
-def _strip_none(dct):
-    return {key: value for key, value in dct.items() if value is not None}
+def create_figure(*args, **kwargs) -> Figure:
+    """Wrapper around matplotlib.pyplot.figure"""
+    return plt.figure(*args, **kwargs)
 
 
-class Context(dict):
-    r"""Wrapper around dictionary class which ignores ``None`` values.
-
-    Parameters
-    ----------
-    \*args: :obj:`Context`
-        One or more :class:`.Context` instances.
-
-    \**kwargs:
-        Keyword arguments.
-
-
+def translate_props(props: Dict, translator: Dict[str, Union[str, Iterable, Callable]]) -> Dict:
     """
-
-    def __init__(self, *args, **kwargs):
-        context = {}
-        for arg in args:
-            context.update(**_strip_none(arg))
-        context.update(**_strip_none(kwargs))
-        super().__init__(**context)
-
-    def __setitem__(self, key, value):
-        if value is not None:
-            super().__setitem__(key, value)
-
-    def update(self, *args, **kwargs):
-        r"""Update the Context instance.
-
-        Parameters
-        ----------
-        \*args: :obj:`Context`
-            One or more :class:`.Context` instances.
-
-        \**kwargs:
-            Keyword arguments.
-        """
-        for arg in args:
-            super().update(_strip_none(arg))
-        kwargs = _strip_none(kwargs)
-        super().update(**kwargs)
-
-    def merge(self, other):
-        return Context(merge(self, other))
-
-    def filter_bys(self):
-        rest = self.copy()
-        context = {}
-        for key, value in self:
-            if key.endswith('_by'):
-                prop = key[:-3]
-                context[key] = value
-                context[prop] = self.get(prop)
-                del rest[key]
-                del rest[prop]
-
-        return context, rest
-
-
-def merge(this: Dict, that: Dict) -> Dict:
-    """Merge dictionaries recursively.
+    Translate from user-supplied properties to internal properties.
 
     Parameters
     ----------
-    this:
-        Dictionary containing old keys.
-    that:
-        Dictionary containing new keys.
+    props:
+        Dictionary of properties.
+    translator:
+        Dictionary mapping property names to one or more property names,
+        or a function to return multiple properties as a dictionary.
 
     Returns
     -------
     :
+        Dictionary of translated properties.
+    """
+    translated = {}
+    for prop, value in props.items():
+        if prop in translator:
+            translation = translator[prop]
+            try:
+                translated.update(**translation(value))
+            except TypeError:
+                if isinstance(translation, list):
+                    translated.update(**{key: value for key in translation})
+                else:
+                    translated[translation] = value
+        else:
+            translated[prop] = value
+    return translated
+
+
+def context_from_kwargs(
+        kwargs: Dict,
+        include: List[str] = None,
+        exclude: List[str] = None) -> Tuple(Dict, Dict):
+    r"""
+    Separate context and non-context keyword arguments.
+
+    Parameters
+    ----------
+    \*\*kwargs:
+        Keyword arguments.
+    include:
+        Keywords that are always in the context.
+    exclude:
+        Keywords that are never in the context.
+
+    Returns
+    -------
+    :
+        The context keywords and the rest.
 
     """
-    merged = this.copy()
-    for key, value in that.items():
-        if key in merged:
-            _this, _that = merged[key], value
-            if isinstance(_this, dict) and isinstance(_that, dict):
-                merged[key] = merge(_this, _that)
-            else:
-                merged[key] = _that
-        else:
-            merged[key] = value
-    return merged
+    include = include or []
+    exclude = exclude or []
+
+    context = {}
+    rest = kwargs.copy()
+    for key, value in kwargs.items():
+        if key in include:
+            context[key] = value
+            del rest[key]
+        elif key in exclude:
+            continue
+        elif key.endswith('_by'):
+            context[key] = value
+            del rest[key]
+            prop = key[:-3]
+            if prop in kwargs:
+                context[prop] = kwargs[prop]
+                del rest[prop]
+
+    context = strip(context)
+    return context

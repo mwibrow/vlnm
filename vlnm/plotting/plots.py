@@ -6,11 +6,8 @@
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
-import vlnm.utils
-
-
-def create_figure(*args, **kwargs) -> Figure:
-    return plt.figure(*args, **kwargs)
+from vlnm.utils import merge, strip
+from vlnm.plotting.utils import create_figure, translate_props
 
 
 class VowelPlot:
@@ -27,7 +24,8 @@ class VowelPlot:
 
         df = pb1952()
 
-        with VowelPlot(data=df, x='f2', y='f1', width=5, height=5) as plot:
+        plot = VowelPlot(width=5, height=5)
+        with plot(data=df, x='f2', y='f1', width=5, height=5):
 
             plot.markers(color_by='vowel', colors='tab20')
             plot.labels(where='mean')
@@ -50,7 +48,7 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = utils.strip(dict(data=data, x=x, y=y))
+        self.plot_context = strip(dict(data=data, x=x, y=y))
         self.axis = None
         self.legends = {}
 
@@ -71,30 +69,42 @@ class VowelPlot:
         return self.context(**kwargs)
 
     def context(self, **kwargs):
-        self.plot_context = utils.merge(self.plot_context, kwargs)
+        self.plot_context = merge(self.plot_context, kwargs)
         return self
 
-    def subplot(self, row=None, column=None, label=None):
+    def start_plot(self):
+        pass
+
+    def end_plot(self):
+        if 'invert_axes' in self.plot_context:
+            axes = self.figure.get_axes()
+            for axis in axes:
+                if not axis.xaxis_inverted():
+                    axis.invert_xaxis()
+                if not axis.yaxis_inverted():
+                    axis.invert_yaxis()
+
+    def subplot(self, row=None, column=None, label=None, **kwargs):
         if not column:
             index = row - 1
             row = (index // self.rows) + 1
             column = (index % self.columns) + 1
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
-        self.axis = self.figure.subplot(self.rows, self.columns, index, label=label)
+        self.axis = self.figure.subplot(self.rows, self.columns, index, label=label, **kwargs)
         return self.axis
 
-    def df_generator(self, df, context):
+    def _df_iterator(self, df, context):
 
         groups = []
-        params = utils.merge(self.plot_context, context)
+        params = utils.merge({}, context)
         prop_mappers = {}
         plot_mapper = {}
-        bys = [key for key in context if key.endswith('_by')]
+        bys = [key for key in params if key.endswith('_by')]
         for by in bys:
             prop = by[:-3]
             group = params.pop(by)
-            mapping = params.pop('{}s'.format(prop))
+            mapping = params.pop(prop)
             if not group in groups:
                 group.append(groups)
             if prop == 'plot':
@@ -102,8 +112,6 @@ class VowelPlot:
             else:
                 prop_mappers[group] = get_prop_mapper(prop, df[group])
 
-        x = params.pop('x')
-        y = params.pop('y')
         grouped = df.groupby(groups, as_index=False)
         for values, group_df in grouped:
             values = values if isinstance(values, tuple) else (values,)
@@ -122,4 +130,21 @@ class VowelPlot:
             else:
                 axis = self.axis
 
-            yield axis, group_df[x], group_df[y], group_values, group_props
+            props = merge(group_props.copy(), params)
+            yield axis, group_df, props, group_props
+
+    def markers(self, data=None, x=None, y=None, where='mean', **kwargs):
+        context = utils.merge(
+            self.plot_context, utils.strip(data=data, x=x, y=y, **kwargs))
+
+        df = context.pop('data')
+        x = context.pop('x')
+        y = context.pop('y')
+
+        translator = {
+            'color': ['edgecolor', 'facecolor'],
+            'colors': ['edgecolor', 'facecolor'],
+            'size': 's'}
+
+        for axis, group_df, group_values, group_props in self._df_iterator(df, context):
+            group_props = translate_props(group_props, translator)
