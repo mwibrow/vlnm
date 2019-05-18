@@ -6,8 +6,12 @@
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
-from vlnm.utils import merge, strip
-from vlnm.plotting.utils import create_figure, translate_props
+from vlnm.plotting.utils import (
+    context_from_kwargs,
+    create_figure,
+    merge,
+    strip,
+    translate_props)
 
 
 class VowelPlot:
@@ -94,24 +98,40 @@ class VowelPlot:
         self.axis = self.figure.subplot(self.rows, self.columns, index, label=label, **kwargs)
         return self.axis
 
-    def _df_iterator(self, df, context):
+    def _df_iterator(self, context):
 
+        df = context['data']
+        x = context['x']
+        y = context['y']
+        where = context.get('where')
         groups = []
-        params = utils.merge({}, context)
         prop_mappers = {}
         plot_mapper = {}
-        bys = [key for key in params if key.endswith('_by')]
-        for by in bys:
-            prop = by[:-3]
-            group = params.pop(by)
-            mapping = params.pop(prop)
-            if not group in groups:
-                group.append(groups)
-            if prop == 'plot':
-                plot_mapper[group] = get_prop_mapper(prop, df[group])
-            else:
-                prop_mappers[group] = get_prop_mapper(prop, df[group])
 
+        # Aggregate df if required.
+        groups = list(set(value for key, value in context.items() if key.endswith('_by')))
+        if where:
+            columns = [x, y]
+            if where == 'mean':
+                df = df.groupby(groups, as_index=True).apply(
+                    lambda group_df: group_df[columns].mean(axis=0))
+            elif where == 'median':
+                df = df.groupby(groups, as_index=True).apply(
+                    lambda group_df: group_df[columns].median(axis=0))
+            df = df.reset_index()
+
+        # Get property mappers.
+        for key, value in context.items():
+            if key.endswith('_by'):
+                prop = key[:-3]
+                group = value
+                mapping = context[prop]
+                if prop == 'plot':
+                    plot_mapper[group] = get_prop_mapper(prop, df[group])
+                else:
+                    prop_mappers[group] = get_prop_mapper(prop, df[group])
+
+        # Iterate over groups.
         grouped = df.groupby(groups, as_index=False)
         for values, group_df in grouped:
             values = values if isinstance(values, tuple) else (values,)
@@ -130,12 +150,13 @@ class VowelPlot:
             else:
                 axis = self.axis
 
-            props = merge(group_props.copy(), params)
-            yield axis, group_df, props, group_props
+            yield axis, group_df, group_props
 
     def markers(self, data=None, x=None, y=None, where='mean', **kwargs):
-        context = utils.merge(
-            self.plot_context, utils.strip(data=data, x=x, y=y, **kwargs))
+        context, params = context_from_kwargs(kwargs)
+
+        context = merge(
+            self.plot_context, context, utils.strip(data=data, x=x, y=y, where=where))
 
         df = context.pop('data')
         x = context.pop('x')
@@ -144,7 +165,10 @@ class VowelPlot:
         translator = {
             'color': ['edgecolor', 'facecolor'],
             'colors': ['edgecolor', 'facecolor'],
-            'size': 's'}
+            'size': lambda s: {'s': s * s}}
 
         for axis, group_df, group_values, group_props in self._df_iterator(df, context):
-            group_props = translate_props(group_props, translator)
+            props = merge(translate_props(group_props, translator), params)
+            group_x = group_df[context['x']]
+            group_y = group_df[context['y']]
+            axis.scatter(group_x, group_y, **props)
