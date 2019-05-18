@@ -54,7 +54,7 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = strip(dict(data=data, x=x, y=y))
+        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
 
@@ -100,12 +100,12 @@ class VowelPlot:
             column = (index % self.columns) + 1
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
-        self.axis = self.figure.subplot(self.rows, self.columns, index, label=label, **kwargs)
+        self.axis = self.figure.add_subplot(
+            self.rows, self.columns, index, label=label, **kwargs)
         return self.axis
 
     def _df_iterator(self, context):
 
-        print('HERE')
         df = context['data']
         x = context['x']
         y = context['y']
@@ -116,16 +116,16 @@ class VowelPlot:
 
         # Aggregate df if required.
         groups = list(set(value for key, value in context.items() if key.endswith('_by')))
-        print(groups)
         if where:
             columns = [x, y]
             if where == 'mean':
                 df = df.groupby(groups, as_index=True).apply(
                     lambda group_df: group_df[columns].mean(axis=0))
+                df = df.reset_index()
             elif where == 'median':
                 df = df.groupby(groups, as_index=True).apply(
                     lambda group_df: group_df[columns].median(axis=0))
-            df = df.reset_index()
+                df = df.reset_index()
 
         # Get property mappers.
         for key, value in context.items():
@@ -134,33 +134,32 @@ class VowelPlot:
                 group = value
                 mapping = context[prop]
                 if prop == 'plot':
-                    plot_mapper[group] = get_prop_mapper(prop, df[group])
+                    plot_mapper[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
                 else:
-                    prop_mappers[group] = get_prop_mapper(prop, df[group])
+                    prop_mappers[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
 
-        print(groups, prop_mappers)
-        # # Iterate over groups.
-        # grouped = df.groupby(groups, as_index=False)
-        # for values, group_df in grouped:
-        #     values = values if isinstance(values, tuple) else (values,)
-        #     group_props = params.copy()
-        #     plot_props = {}
-        #     group_values = {}
-        #     for group, value in zip(groups, values):
-        #         group_values[group] = value
-        #         if group in prop_mappers:
-        #             group_props.update(**prop_mappers[group].get_props(value))
-        #         if group in plot_mapper:
-        #             plot_props = plot_mapper[group].get_props(value)
+        # Iterate over groups.
+        grouped = df.groupby(groups, as_index=False)
+        for values, group_df in grouped:
+            values = values if isinstance(values, tuple) else (values,)
+            group_props = {}
+            plot_props = {}
+            group_values = {}
+            for group, value in zip(groups, values):
+                group_values[group] = value
+                if group in prop_mappers:
+                    group_props.update(**prop_mappers[group].get_props(value))
+                if group in plot_mapper:
+                    plot_props = plot_mapper[group].get_props(value)
 
-        #     if plot_props:
-        #         axis = self.subplot(**plot_props)
-        #     else:
-        #         axis = self.axis
+            if plot_props:
+                axis = self.subplot(**plot_props)
+            else:
+                axis = self.axis or self.subplot(row=1, column=1)
 
-        #     yield axis, group_df, group_props
+            yield axis, group_df, group_values, group_props
 
-    def markers(self, data=None, x=None, y=None, where='mean', **kwargs):
+    def markers(self, data=None, x=None, y=None, where='all', **kwargs):
         context, params = context_from_kwargs(kwargs)
 
         context = merge_contexts(
@@ -173,12 +172,8 @@ class VowelPlot:
             'colors': ['edgecolor', 'facecolor'],
             'size': lambda s: {'s': s * s}}
 
-        print('BEFORE')
-        iterator = self._df_iterator(context)
-        # for axis, group_df, group_values, group_props in self._df_iterator(df, context):
-        #     print('HErE')
-        #     props = merge(translate_props(group_props, mpl_props), params)
-        #     group_x = group_df[context['x']]
-        #     group_y = group_df[context['y']]
-        #     axis.scatter(group_x, group_y, **props)
-        print('AFTER')
+        for axis, group_df, group_values, group_props in self._df_iterator(context):
+            props = translate_props(merge(group_props, params), mpl_props)
+            group_x = group_df[context['x']]
+            group_y = group_df[context['y']]
+            axis.scatter(group_x, group_y, **props)

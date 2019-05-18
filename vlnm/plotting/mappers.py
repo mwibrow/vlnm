@@ -3,12 +3,11 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
+from typing import Any, Dict, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
-
 import matplotlib.colors
-
-from typing import Any, Dict, Iterable, List, Union
+from pandas.api.types import is_categorical_dtype
 
 
 class PropMapper:
@@ -49,7 +48,7 @@ class PropMapper:
                 mapping = {levels[i]: mapping[i % len(mapping)] for i in range(len(levels))}
         self.mapping = mapping
 
-    def get_value(self, domain: Any) -> Any:
+    def get_props(self, domain: Any) -> Any:
         value = self.mapping.get(domain, self.default) if self.default else self.mapping[domain]
         if isinstance(value, dict):
             return value
