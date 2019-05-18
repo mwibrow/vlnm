@@ -119,6 +119,8 @@ def merge(this: Dict, that: Dict, deep: bool = True):
                     merged[key] = merge(_this, _that, deep=deep)
                 else:
                     merged[key] = _that
+            else:
+                merged[key] = value
     return merged
 
 

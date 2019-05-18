@@ -95,3 +95,11 @@ class IndexPropMapper(PropMapper):
             default: Any = None):
         mapping = mapping or [start + i for i in range(len(data.unique()))]
         super().__init__(prop, mapping=mapping, data=data, default=default)
+
+
+def get_prop_mapper(prop, mapping=None, data=None):
+    if prop == 'plot':
+        return IndexPropMapper(prop, mapping=mapping, data=data)
+    elif 'color' in prop:
+        return ColorPropMapper(prop, mapping=mapping, data=data)
+    return PropMapper(prop, mapping-mapping, data=data)

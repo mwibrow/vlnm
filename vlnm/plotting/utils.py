@@ -3,8 +3,10 @@
     ~~~~~~~~~~~~~~~~~~
 
 """
-from typing import Callable, Dict, Iterable, Tuple, Union
+from functools import reduce
+from typing import Callable, Dict, Iterable, List, Tuple, Union
 
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 from vlnm.utils import merge, strip
@@ -51,7 +53,7 @@ def translate_props(props: Dict, translator: Dict[str, Union[str, Iterable, Call
 def context_from_kwargs(
         kwargs: Dict,
         include: List[str] = None,
-        exclude: List[str] = None) -> Tuple(Dict, Dict):
+        exclude: List[str] = None) -> Tuple[Dict, Dict]:
     r"""
     Separate context and non-context keyword arguments.
 
@@ -90,4 +92,8 @@ def context_from_kwargs(
                 del rest[prop]
 
     context = strip(context)
-    return context
+    return context, rest
+
+
+def merge_contexts(*contexts):
+    return reduce(merge, contexts)
