@@ -78,7 +78,7 @@ class MarkerArtist(Artist):
     }
 
     legend_prop_translator = {
-        'color': ['markeredgecolor', 'markeredgewidth'],
+        'color': ['markeredgecolor', 'markerfacecolor'],
         'size': 'markersize',
         's': 'markersize',
         'edgecolor': 'markeredgecolor',
@@ -91,7 +91,7 @@ class MarkerArtist(Artist):
         """Return the legend artist for Markers."""
         props = self.translate_props(props, self.legend_prop_translator)
         defaults = self.translate_props(self.legend_defaults, self.legend_prop_translator)
-        props.update(dict_diff(defaults, props))
+        props.update(**dict_diff(defaults, props))
         return Line2D(
             [0], [0], linestyle='', drawstyle=None, **props)
 
@@ -99,5 +99,5 @@ class MarkerArtist(Artist):
         """Draw markers."""
         props = self.translate_props(props)
         defaults = self.translate_props(self.legend_defaults)
-        props.update(dict_diff(defaults, props))
+        props.update(**dict_diff(defaults, props))
         axis.scatter(x, y, **props)
