@@ -2,9 +2,13 @@
     Plotting module
     ~~~~~~~~~~~~~~~
 """
+from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
+from matplotlib.legend_handler import HandlerPatch
 
 from vlnm.plotting.utils import (
     context_from_kwargs,
@@ -140,15 +144,21 @@ class VowelPlot:
 
         # Iterate over groups.
         grouped = df.groupby(groups, as_index=False)
+        params = context.get('defaults', {}).copy()
         for values, group_df in grouped:
             values = values if isinstance(values, tuple) else (values,)
+            props = params.copy()
             group_props = {}
             plot_props = {}
             group_values = {}
             for group, value in zip(groups, values):
                 group_values[group] = value
                 if group in prop_mappers:
-                    group_props.update(**prop_mappers[group].get_props(value))
+                    mapped_props = prop_mappers[group].get_props(value)
+                    mapped_props.update(**context.get('_params', {}))
+                    group_props[group] = group_props.get(group, OrderedDict())
+                    group_props[group][value] = merge(params, mapped_props)
+                    props.update(**mapped_props)
                 if group in plot_mapper:
                     plot_props = plot_mapper[group].get_props(value)
 
@@ -157,23 +167,87 @@ class VowelPlot:
             else:
                 axis = self.axis or self.subplot(row=1, column=1)
 
-            yield axis, group_df, group_values, group_props
+            yield axis, group_df, props, group_values, group_props
 
-    def markers(self, data=None, x=None, y=None, where='all', **kwargs):
+    def _update_legend(self, legend_id, group_props, artist):
+        legend = self.legends.get(legend_id, {})
+        for group in group_props:
+            legend[group] = legend.get(group, OrderedDict())
+            for label in group_props[group]:
+                legend[group][label] = artist(**group_props[group][label])
+        self.legends[legend_id] = legend
+
+    def legend(self, legend_id=None, **kwargs):
+        """Add a legend to the current axis.
+        """
+        legend_ids = list(self.legends.keys())
+        if not legend_ids:
+            return
+        legend_id = legend_id or legend_ids[0]
+        legend = self.legends[legend_id]
+
+        if 'handler_map' not in kwargs:
+            kwargs['handler_map'] = {
+                mpatches.Ellipse: _HandlerEllipse()
+            }
+        title = kwargs.pop('title', [])
+        if isinstance(title, str):
+            title = [title]
+        for i, group in enumerate(legend):
+            handles = list(legend[group].values())
+            labels = list(legend[group].keys())
+            legend_artist = plt.legend(
+                handles=handles,
+                labels=labels,
+                title=title[i] if title else group,
+                **kwargs)
+            self.axis.add_artist(legend_artist)
+
+    def markers(self, data=None, x=None, y=None, where='all', legend=None, **kwargs):
         context, params = context_from_kwargs(kwargs)
 
         context = merge_contexts(
             self.plot_context,
             context,
-            dict(data=data, x=x, y=y, where=where))
+            dict(data=data, x=x, y=y, where=where, _params=params))
 
         mpl_props = {
             'color': ['edgecolor', 'facecolor'],
             'colors': ['edgecolor', 'facecolor'],
             'size': lambda s: {'s': s * s}}
 
-        for axis, group_df, group_values, group_props in self._df_iterator(context):
-            props = translate_props(merge(group_props, params), mpl_props)
+        for axis, group_df, props, group_values, group_props in self._df_iterator(context):
+            props = translate_props(props, mpl_props)
             group_x = group_df[context['x']]
             group_y = group_df[context['y']]
             axis.scatter(group_x, group_y, **props)
+
+            if legend:
+                def _artist(**props):
+                    props = translate_props(props, mpl_props)
+                    props = translate_props(props, {
+                        's': 'markersize',
+                        'edgecolor': 'markeredgecolor',
+                        'facecolor': 'markerfacecolor',
+                        'linewidth': 'markeredgewidth'})
+                    if 'markersize' in props:
+                        del props['markersize']
+                    return Line2D(
+                        [0], [0], linestyle='', drawstyle=None, **props)
+
+                self._update_legend(legend, group_props, _artist)
+
+        return self
+
+
+class _HandlerEllipse(HandlerPatch):
+    def create_artists(
+            self, legend, orig_handle,
+            xdescent, ydescent, width, height, fontsize, transform):
+        center = (width - xdescent) / 2, (height - ydescent) / 2
+        patch = mpatches.Ellipse(
+            xy=center, width=(width + xdescent),
+            height=height + ydescent)
+        self.update_prop(patch, orig_handle, legend)
+        patch.set_transform(transform)
+        return [patch]
