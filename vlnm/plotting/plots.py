@@ -211,33 +211,77 @@ class VowelPlot:
             context,
             dict(data=data, x=x, y=y, where=where, _params=params))
 
-        mpl_props = {
-            'color': ['edgecolor', 'facecolor'],
-            'colors': ['edgecolor', 'facecolor'],
-            'size': lambda s: {'s': s * s}}
+        plotter = MarkerPlotter()
 
         for axis, group_df, props, group_values, group_props in self._df_iterator(context):
-            props = translate_props(props, mpl_props)
-            group_x = group_df[context['x']]
-            group_y = group_df[context['y']]
-            axis.scatter(group_x, group_y, **props)
+            x = group_df[context['x']]
+            y = group_df[context['y']]
+            plotter.plot(axis, x, y, **props)
 
             if legend:
-                def _artist(**props):
-                    props = translate_props(props, mpl_props)
-                    props = translate_props(props, {
-                        's': 'markersize',
-                        'edgecolor': 'markeredgecolor',
-                        'facecolor': 'markerfacecolor',
-                        'linewidth': 'markeredgewidth'})
-                    if 'markersize' in props:
-                        del props['markersize']
-                    return Line2D(
-                        [0], [0], linestyle='', drawstyle=None, **props)
-
-                self._update_legend(legend, group_props, _artist)
+                self._update_legend(legend, group_props, plotter.legend_artist)
 
         return self
+
+
+class Plotter:
+
+    defaults = {}
+    prop_translator = {}
+
+    def __init__(self, defaults=None):
+        self.defaults = defaults or self.__class__.defaults or {}
+
+    def translate_props(self, props, translator=None):
+        translator = translator or self.prop_translator
+        translated = {}
+        for prop, value in props.items():
+            if prop in translator:
+                translation = translator[prop]
+                try:
+                    translated.update(**translation(value))
+                except TypeError:
+                    if isinstance(translation, list):
+                        translated.update(**{key: value for key in translation})
+                    else:
+                        translated[translation] = value
+            else:
+                translated[prop] = value
+        return translated
+
+
+class MarkerPlotter(Plotter):
+
+    defaults = {
+        'marker': '.',
+        'color': 'black',
+        'size': 1
+    }
+
+    prop_translator = {
+        'color': ['edgecolor', 'facecolor'],
+        'size': 's'
+    }
+
+    def legend_artist(self, **kwargs):
+        props = self.defaults.copy()
+        props.update(**kwargs)
+        props = self.translate_props(props)
+        props = self.translate_props(props, {
+            's': 'markersize',
+            'edgecolor': 'markeredgecolor',
+            'facecolor': 'markerfacecolor',
+            'linewidth': 'markeredgewidth'})
+        if 'markersize' in props:
+            del props['markersize']
+        return Line2D(
+            [0], [0], linestyle='', drawstyle=None, **props)
+
+    def plot(self, axis, x, y, **kwargs):
+        props = self.defaults.copy()
+        props.update(**kwargs)
+        props = self.translate_props(props)
+        axis.scatter(x, y, **props)
 
 
 class _HandlerEllipse(HandlerPatch):
