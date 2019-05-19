@@ -7,6 +7,11 @@ from typing import Dict
 from matplotlib.lines import Line2D
 
 
+def dict_diff(this, that):
+    """Return the keys in one dictionary that are not in another."""
+    return {key: value for key, value in this.items() if not key in that}
+
+
 class Artist:
     """Base class for plotting artists."""
 
@@ -26,10 +31,13 @@ class Artist:
             if prop in translator:
                 translation = translator[prop]
                 try:
-                    translated.update(**translation(value))
+                    _translated = self.translate_props(translation(value), translator)
+                    translated.update(**_translated)
                 except TypeError:
                     if isinstance(translation, list):
-                        translated.update(**{key: value for key in translation})
+                        _translated = self.translate_props(
+                            {key: value for key in translation if value}, translator)
+                        translated.update(**_translated)
                     else:
                         while prop in translator:
                             prop = translator[prop]
@@ -70,6 +78,8 @@ class MarkerArtist(Artist):
     }
 
     legend_prop_translator = {
+        'color': ['markeredgecolor', 'markeredgewidth'],
+        'size': 'markersize',
         's': 'markersize',
         'edgecolor': 'markeredgecolor',
         'facecolor': 'markerfacecolor',
@@ -77,18 +87,17 @@ class MarkerArtist(Artist):
         'markersize': None,
     }
 
-    def legend_artist(self, **kwargs):
+    def legend_artist(self, **props):
         """Return the legend artist for Markers."""
-        props = self.legend_defaults.copy()
-        props.update(**kwargs)
-        props = self.translate_props(props)
         props = self.translate_props(props, self.legend_prop_translator)
+        defaults = self.translate_props(self.legend_defaults, self.legend_prop_translator)
+        props.update(dict_diff(defaults, props))
         return Line2D(
             [0], [0], linestyle='', drawstyle=None, **props)
 
-    def draw(self, axis, x, y, **kwargs):
+    def draw(self, axis, x, y, **props):
         """Draw markers."""
-        props = self.defaults.copy()
-        props.update(**kwargs)
         props = self.translate_props(props)
+        defaults = self.translate_props(self.legend_defaults)
+        props.update(dict_diff(defaults, props))
         axis.scatter(x, y, **props)
