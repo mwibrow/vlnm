@@ -3,6 +3,7 @@
     ~~~~~~~~~~~~~~~
 """
 from collections import OrderedDict
+from typing import Dict
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -227,12 +228,15 @@ class VowelPlot:
 class Plotter:
 
     defaults = {}
+    legend_defaults = {}
+
     prop_translator = {}
+    legend_prop_translator = {}
 
     def __init__(self, defaults=None):
         self.defaults = defaults or self.__class__.defaults or {}
 
-    def translate_props(self, props, translator=None):
+    def translate_props(self, props: Dict, translator: Dict = None) -> Dict:
         translator = translator or self.prop_translator
         translated = {}
         for prop, value in props.items():
@@ -244,10 +248,22 @@ class Plotter:
                     if isinstance(translation, list):
                         translated.update(**{key: value for key in translation})
                     else:
-                        translated[translation] = value
+                        while prop in translator:
+                            prop = translator[prop]
+                        if prop:
+                            translated[prop] = value
             else:
                 translated[prop] = value
         return translated
+
+    def legend_artist(self, **_kwargs):
+        """
+        Return the artist to be used in legends.
+        """
+        return None
+
+    def plot(self, *_args, **__kwargs):
+        return None
 
 
 class MarkerPlotter(Plotter):
@@ -258,22 +274,30 @@ class MarkerPlotter(Plotter):
         'size': 1
     }
 
+    legend_defaults = {
+        'marker': '.',
+        'color': 'black',
+        'size': 1
+    }
+
     prop_translator = {
         'color': ['edgecolor', 'facecolor'],
         'size': 's'
     }
 
+    legend_prop_translator = {
+        's': 'markersize',
+        'edgecolor': 'markeredgecolor',
+        'facecolor': 'markerfacecolor',
+        'linewidth': 'markeredgewidth',
+        'markersize': None,
+    }
+
     def legend_artist(self, **kwargs):
-        props = self.defaults.copy()
+        props = self.legend_defaults.copy()
         props.update(**kwargs)
         props = self.translate_props(props)
-        props = self.translate_props(props, {
-            's': 'markersize',
-            'edgecolor': 'markeredgecolor',
-            'facecolor': 'markerfacecolor',
-            'linewidth': 'markeredgewidth'})
-        if 'markersize' in props:
-            del props['markersize']
+        props = self.translate_props(props, self.legend_prop_translator)
         return Line2D(
             [0], [0], linestyle='', drawstyle=None, **props)
 
