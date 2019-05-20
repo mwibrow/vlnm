@@ -122,6 +122,8 @@ class PolygonArtist(Artist):
     )
 
     def legend(self, **props):
+        """Return the artist to be used in the legend.
+        """
         translator = self._get_translator('legend')
         defaults = self.translate_props(self._get_defaults('legend'), translator)
         props = self.translate_props(props, translator)
@@ -130,54 +132,14 @@ class PolygonArtist(Artist):
             xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
             **props)
 
-    def draw(self, axis, x, y, hull=False, closed=False, **props):
-
-        translator = self._get_translator('legend')
-        defaults = self.translate_props(self._get_defaults('legend'), translator)
+    def plot(self, axis, xy, **props):
+        """Plot a ploygon."""
+        translator = self._get_translator('draw')
+        defaults = self.translate_props(self._get_defaults('draw'), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
 
-        props['closed'] = closed
-
-        # xy = []
-        # iterator = self._group_iterator(context)
-
-        # mpl_props = {
-        #     'color': ['edgecolor', 'facecolor'],
-        #     'line': 'linestyle'
-        # }
-        # for axis, group_df, props, group_props in iterator:
-
-        #     props = translate_props(props, mpl_props)
-
-        #     xy = []
-        #     if hull:
-        #         group_x = group_df[context['x']].groupby(vertex).apply(np.mean)
-        #         group_y = group_df[context['y']].groupby(vertex).apply(np.mean)
-        #         convex_hull = MultiPoint(
-        #             map(tuple, zip(group_x, group_y))).convex_hull
-        #         xy.extend([(x, y) for x, y in convex_hull.coords])
-        #     else:
-        #         for vert in enumerate(vertices):
-        #             i = group_df[vertex] == vert
-        #             group_x = group_df[i, context['x']].mean()
-        #             group_y = group_df[i, context['y']].mean()
-        #             xy.append((group_x, group_y))
-
-        #     polygon = mpatches.Polygon(
-        #         xy=xy,
-        #         **props)
-        #     axis.add_patch(polygon)
-
-        #     axis.relim()
-        #     axis.autoscale_view()
-
-        #     if legend:
-        #         def _artist(**props):
-        #             props = translate_props(props, mpl_props)
-        #             return mpatches.Polygon(
-        #                 xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
-        #                 **props)
-
-        #         self._update_legend(legend, group_props, _artist)
-        #     return self
+        polygon = mpatches.Polygon(
+            xy=xy,
+            **props)
+        axis.add_patch(polygon)

@@ -11,9 +11,9 @@ from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
 
-from .artists import MarkerArtist
-from .mappers import get_prop_mapper
-from .utils import (
+from vlnm.plotting.artists import MarkerArtist
+from vlnm.plotting.mappers import get_prop_mapper
+from vlnm.plotting.utils import (
     context_from_kwargs,
     create_figure,
     merge,
@@ -79,7 +79,7 @@ class VowelPlot:
             return False
         return self.end_plot()
 
-    def __call__(**kwargs):
+    def __call__(self, **kwargs):
         return self.context(**kwargs)
 
     def context(self, **kwargs):
@@ -218,10 +218,10 @@ class VowelPlot:
         for axis, group_df, props, group_values, group_props in self._df_iterator(context):
             x = group_df[context['x']]
             y = group_df[context['y']]
-            artist.draw(axis, x, y, **props)
+            artist.plot(axis, x, y, **props)
 
             if legend:
-                self._update_legend(legend, group_props, artist.legend_artist)
+                self._update_legend(legend, group_props, artist.legend)
 
         return self
 
