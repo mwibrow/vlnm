@@ -7,7 +7,11 @@ from functools import reduce
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
 from matplotlib.figure import Figure
+import matplotlib.patches as mpatches
+from matplotlib.legend_handler import HandlerPatch
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as st
 
 from vlnm.utils import merge, strip
 
@@ -97,3 +101,51 @@ def context_from_kwargs(
 
 def merge_contexts(*contexts):
     return reduce(merge, contexts)
+
+
+class HandlerEllipse(HandlerPatch):
+    def create_artists(
+            self, legend, orig_handle,
+            xdescent, ydescent, width, height, fontsize, transform):
+        center = (width - xdescent) / 2, (height - ydescent) / 2
+        patch = mpatches.Ellipse(
+            xy=center, width=(width + xdescent),
+            height=height + ydescent)
+        self.update_prop(patch, orig_handle, legend)
+        patch.set_transform(transform)
+        return [patch]
+
+
+def get_confidence_ellipse(
+        x: List[float],
+        y: List[float],
+        confidence: float = 0.95) -> Tuple[float, float, float]:
+    """Calculate parameters for a 2D 'confidence ellipse'
+
+    Parameters
+    ----------
+    x:
+        Data for the x-coordinates.
+    y:
+        Data for the y-coordinates.
+    confidence:
+        Confidence level in the range :math:`0` to :math:`1`.
+
+    Returns
+    -------
+    :
+        A tuple the width, height, and angle (in degrees)
+        of the required ellipse.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    if x.size != y.size:
+        raise ValueError('Ellipse data must be the same shape.')
+    elif x.size < 3 or y.size < 3:
+        raise ValueError('Too little data to calculate ellipse')
+    cov = np.cov(x, y)
+    eigenvalues, eignvectors = np.linalg.eig(cov)
+    angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180
+    alpha = st.chi2(df=2).ppf(confidence)
+    width, height = 2 * np.sqrt(alpha * eigenvalues)
+    return np.mean(x), np.mean(y), width, height, angle

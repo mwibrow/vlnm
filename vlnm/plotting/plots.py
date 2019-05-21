@@ -3,23 +3,27 @@
     ~~~~~~~~~~~~~~~
 """
 from collections import OrderedDict
-from typing import Dict
+import types
+from typing import Dict, Generator, List, Tuple, Union
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.lines import Line2D
+from matplotlib.axis import Axis
 import matplotlib.patches as mpatches
-from matplotlib.legend_handler import HandlerPatch
+import numpy as np
+import pandas as pd
+from shapely.geometry import MultiPoint
 
-from vlnm.plotting.artists import MarkerArtist
+from vlnm.plotting.artists import Artist, EllipseArtist, MarkerArtist, PolygonArtist
 from vlnm.plotting.mappers import get_prop_mapper
 from vlnm.plotting.utils import (
     context_from_kwargs,
     create_figure,
+    get_confidence_ellipse,
+    HandlerEllipse,
     merge,
     merge_contexts,
-    strip,
-    translate_props)
+    strip)
 
 
 class VowelPlot:
@@ -38,7 +42,6 @@ class VowelPlot:
 
         plot = VowelPlot(width=5, height=5)
         with plot(data=df, x='f2', y='f1', width=5, height=5):
-
             plot.markers(color_by='vowel', colors='tab20')
             plot.labels(where='mean')
 
@@ -46,9 +49,9 @@ class VowelPlot:
 
     def __init__(
             self,
-            data=None,
-            x=None,
-            y=None,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
             rows: int = 1,
             columns: int = 1,
             width: float = 4,
@@ -99,7 +102,7 @@ class VowelPlot:
                     axis.invert_yaxis()
         return self.figure
 
-    def subplot(self, row=None, column=None, label=None, **kwargs):
+    def subplot(self, row: int = None, column: int = None, label: str = None, **kwargs) -> Axis:
         if not column:
             index = row - 1
             row = (index // self.rows) + 1
@@ -110,7 +113,8 @@ class VowelPlot:
             self.rows, self.columns, index, label=label, **kwargs)
         return self.axis
 
-    def _df_iterator(self, context):
+    def _df_iterator(
+            self, context: Dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
 
         df = context['data']
         x = context['x']
@@ -169,9 +173,9 @@ class VowelPlot:
             else:
                 axis = self.axis or self.subplot(row=1, column=1)
 
-            yield axis, group_df, props, group_values, group_props
+            yield axis, group_df, props, group_props
 
-    def _update_legend(self, legend_id, group_props, artist):
+    def _update_legend(self, legend_id: str, group_props: Dict, artist: Artist):
         legend = self.legends.get(legend_id, {})
         for group in group_props:
             legend[group] = legend.get(group, OrderedDict())
@@ -190,7 +194,7 @@ class VowelPlot:
 
         if 'handler_map' not in kwargs:
             kwargs['handler_map'] = {
-                mpatches.Ellipse: _HandlerEllipse()
+                mpatches.Ellipse: HandlerEllipse()
             }
         title = kwargs.pop('title', [])
         if isinstance(title, str):
@@ -205,7 +209,13 @@ class VowelPlot:
                 **kwargs)
             self.axis.add_artist(legend_artist)
 
-    def markers(self, data=None, x=None, y=None, where='all', legend=None, **kwargs):
+    def markers(
+            self,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            where: str = 'all',
+            legend: str = None, **kwargs) -> 'VowelPlot':
         context, params = context_from_kwargs(kwargs)
 
         context = merge_contexts(
@@ -215,7 +225,7 @@ class VowelPlot:
 
         artist = MarkerArtist()
 
-        for axis, group_df, props, group_values, group_props in self._df_iterator(context):
+        for axis, group_df, props, group_props in self._df_iterator(context):
             x = group_df[context['x']]
             y = group_df[context['y']]
             artist.plot(axis, x, y, **props)
@@ -225,15 +235,115 @@ class VowelPlot:
 
         return self
 
+    def polygon(
+            self,
+            vertex: Union[str, int],
+            vertices: List[str],
+            where: Union[str, types.FunctionType],
+            closed: bool = True,
+            hull=True,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            legend: Union[str, bool] = False,
+            legend_only: Union[str, bool] = False,
+            **kwargs) -> 'VowelPlot':
+        """
+        Add a polygon to the
+        """
+        context, params = context_from_kwargs(kwargs)
 
-class _HandlerEllipse(HandlerPatch):
-    def create_artists(
-            self, legend, orig_handle,
-            xdescent, ydescent, width, height, fontsize, transform):
-        center = (width - xdescent) / 2, (height - ydescent) / 2
-        patch = mpatches.Ellipse(
-            xy=center, width=(width + xdescent),
-            height=height + ydescent)
-        self.update_prop(patch, orig_handle, legend)
-        patch.set_transform(transform)
-        return [patch]
+        context = merge_contexts(
+            self.plot_context,
+            context,
+            dict(data=data, x=x, y=y, where=where, _params=params))
+
+        if legend_only:
+            legend = legend_only
+
+        artist = PolygonArtist()
+
+        x = context['x']
+        y = context['y']
+        for axis, group_df, props, group_props in self._df_iterator(context):
+            xy = []
+            if hull:
+                group_x = group_df[x].groupby(vertex).apply(np.mean)
+                group_y = group_df[y].groupby(vertex).apply(np.mean)
+                convex_hull = MultiPoint(
+                    map(tuple, zip(group_x, group_y))).convex_hull
+                xy.extend([(x, y) for x, y in convex_hull.coords])
+            else:
+                for vert in enumerate(vertices):
+                    i = group_df[vertex] == vert
+                    group_x = group_df[i, x].mean()
+                    group_y = group_df[i, y].mean()
+                    xy.append((group_x, group_y))
+
+            artist.plot(axis, xy, closed=closed, **props)
+
+            axis.relim()
+            axis.autoscale_view()
+
+            if legend:
+                self._update_legend(legend, group_props, artist.legend)
+            return self
+
+    def polyline(
+            self,
+            vertex: Union[str, int],
+            vertices: List[str],
+            where: Union[str, types.FunctionType],
+            hull=True,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            legend: Union[str, bool] = False,
+            legend_only: Union[str, bool] = False,
+            **kwargs):
+        """Add lines to the plot.
+
+        This is just a wrapper around :method:`VowelPlot.polygon`
+        with ``closed=False``.
+
+        """
+        return self.polygon(
+            vertex=vertex, vertices=vertices, where=where, hull=hull, data=data,
+            x=x, y=y, legend=legend, lenged_only=legend_only, closed=False, **kwargs)
+
+    def ellipses(
+            self,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            confidence: float = 0.95,
+            legend: str = '',
+            ** kwargs):
+        """Add confidence-interval-based ellipsed around formant data.
+
+        """
+        context, params = context_from_kwargs(kwargs)
+
+        context = merge_contexts(
+            self.plot_context,
+            context,
+            dict(data=data, x=x, y=y, _params=params))
+
+        artist = EllipseArtist()
+
+        x = context['x']
+        y = context['y']
+        for axis, group_df, props, group_props in self._df_iterator(context):
+
+            group_x = group_df[x]
+            group_y = group_df[y]
+            center_x, center_y, width, height, angle = get_confidence_ellipse(
+                group_x, group_y, confidence)
+
+            artist.plot(axis, (center_x, center_y), width, height, angle, **props)
+            axis.relim()
+            axis.autoscale_view()
+
+            if legend:
+                self._update_legend(legend, group_props, artist.legend)
+        return self

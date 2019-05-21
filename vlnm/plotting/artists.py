@@ -2,7 +2,7 @@
     Vowel plot artists.
     ~~~~~~~~~~~~~~~~~~~
 """
-from typing import Dict
+from typing import Any, Dict, Tuple
 
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
@@ -50,7 +50,21 @@ class Artist:
                 translated[prop] = value
         return translated
 
-    def legend(self, **_kwargs):  # pylint: disable=no-self-use
+    def _get_legend_props(self, props):
+        translator = self._get_translator('legend')
+        defaults = self.translate_props(self._get_defaults('legend'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+        return props
+
+    def _get_plot_props(self, props):
+        translator = self._get_translator('plot')
+        defaults = self.translate_props(self._get_defaults('plot'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+        return props
+
+    def legend(self, **_kwargs) -> Any:  # pylint: disable=no-self-use
         """
         Return the artist to be used in legends.
         """
@@ -87,7 +101,7 @@ class MarkerArtist(Artist):
         }
     )
 
-    def legend(self, **props):
+    def legend(self, **props) -> Line2D:
         """Return the legend artist for Markers."""
         translator = self._get_translator('legend')
         defaults = self.translate_props(self._get_defaults('legend'), translator)
@@ -121,7 +135,7 @@ class PolygonArtist(Artist):
         }
     )
 
-    def legend(self, **props):
+    def legend(self, **props) -> mpatches.Patch:
         """Return the artist to be used in the legend.
         """
         translator = self._get_translator('legend')
@@ -134,8 +148,8 @@ class PolygonArtist(Artist):
 
     def plot(self, axis, xy, **props):
         """Plot a ploygon."""
-        translator = self._get_translator('draw')
-        defaults = self.translate_props(self._get_defaults('draw'), translator)
+        translator = self._get_translator('plot')
+        defaults = self.translate_props(self._get_defaults('plot'), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
 
@@ -143,3 +157,40 @@ class PolygonArtist(Artist):
             xy=xy,
             **props)
         axis.add_patch(polygon)
+
+
+class EllipseArtist(Artist):
+    """Class for plotting ellipses.
+    """
+
+    defaults = dict(
+        plot=dict(
+            facecolor='none',
+            edgecolor='black',
+            linestyle='-',
+        ))
+
+    translators = dict(
+        plot={
+            'color': ['edgecolor', 'facecolor'],
+            'line': 'linestyle'
+        })
+
+    def legend(self, **props) -> mpatches.Patch:
+        props = self._get_legend_props(props)
+        return mpatches.Ellipse(
+            xy=(0.5, 0.5),
+            width=1,
+            height=0.625,
+            angle=0,
+            **props)
+
+    def plot(self, axis, xy: Tuple[int, int], width: float, height: float, angle: float, **props):
+        props = self._get_plot_props(props)
+        ellipse = mpatches.Ellipse(
+            xy=xy,
+            width=width,
+            height=height,
+            angle=angle,
+            **props)
+        axis.add_patch(ellipse)
