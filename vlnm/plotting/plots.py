@@ -113,6 +113,19 @@ class VowelPlot:
             self.rows, self.columns, index, label=label, **kwargs)
         return self.axis
 
+    @staticmethod
+    def _aggregate_df(df, columns, groups=None, where=None):
+        if where:
+            if where == 'mean':
+                df = df.groupby(groups, as_index=True).apply(
+                    lambda group_df: group_df[columns].mean(axis=0))
+                df = df.reset_index()
+            elif where == 'median':
+                df = df.groupby(groups, as_index=True).apply(
+                    lambda group_df: group_df[columns].median(axis=0))
+                df = df.reset_index()
+        return df
+
     def _df_iterator(
             self, context: Dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
 
@@ -127,15 +140,7 @@ class VowelPlot:
         # Aggregate df if required.
         groups = list(set(value for key, value in context.items() if key.endswith('_by')))
         if where:
-            columns = [x, y]
-            if where == 'mean':
-                df = df.groupby(groups, as_index=True).apply(
-                    lambda group_df: group_df[columns].mean(axis=0))
-                df = df.reset_index()
-            elif where == 'median':
-                df = df.groupby(groups, as_index=True).apply(
-                    lambda group_df: group_df[columns].median(axis=0))
-                df = df.reset_index()
+            df = self._aggregate_df(df, [x, y], groups, where)
 
         # Get property mappers.
         for key, value in context.items():
