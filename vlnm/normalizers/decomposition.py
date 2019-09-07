@@ -18,6 +18,7 @@ onto two dimensions.
 
 from typing import List, Union, Type
 import pandas as pd
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.decomposition import PCA, NMF
 
 from ..docstrings import docstring
@@ -179,6 +180,72 @@ class NMFNormalizer(DecompositionNormalizer):
             **kwargs):
         super().__init__(
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
+
+    @docstring
+    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
+
+@docstring
+@register('lda')
+@classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
+class LDANormalizer(DecompositionNormalizer):
+    r"""Normalize data using Linear Discriminant Analysis (LDA).
+
+    Parameters
+    ----------
+    columns:
+        The columns of the |dataframe| which contain the
+        features to use in LDA.
+        This does not have to be formant data, but *must*
+        be numeric.
+    n_components:
+        The required number of components.
+        Should be equal to or less than the number of columns
+        specified.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    \*\*kwargs:
+        All other paremeters are passed to the
+        constructor of the :class:`sklearn.discriminant_analysis.LinearDiscriminantAnalysis`
+        class.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, LDANormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = LDANormalizer(
+            columns=['f0', 'f1', 'f2', 'f3'],
+            n_components=2,
+            rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
+
+
+    """
+
+    def __init__(
+            self,
+            columns: List[str] = None,
+            n_components: int = 2,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            LinearDiscriminantAnalysis,
+            columns=columns,
+            rename=rename,
+            n_components=n_components,
+            **kwargs)
 
     @docstring
     def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
