@@ -18,7 +18,7 @@ onto two dimensions.
 
 from typing import List, Union, Type
 import pandas as pd
-from sklearn.decomposition import PCA, NMF
+from sklearn.decomposition import FactorAnalysis, FastICA, PCA, NMF
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 from ..docstrings import docstring
@@ -102,8 +102,6 @@ class LDANormalizer(SupervisedDimensionReductionNormalizer):
     Parameters
     ----------
     vowel:
-        The column of the |dataframe| which contains
-        the vowel labels.
     columns:
         The columns of the |dataframe| which contain the
         features to use in LDA.
@@ -155,6 +153,138 @@ class LDANormalizer(SupervisedDimensionReductionNormalizer):
         super().__init__(
             LinearDiscriminantAnalysis,
             vowel=vowel,
+            columns=columns,
+            rename=rename,
+            n_components=n_components,
+            **kwargs)
+
+    @docstring
+    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
+
+@docstring
+@register('factor-analysis')
+@classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
+class FactorAnalysisNormalizer(UnsupervisedDimensionReductionNormalizer):
+    r"""Normalize data using Factor Analayis (FA).
+
+    Parameters
+    ----------
+    columns:
+        The columns of the |dataframe| which contain the
+        features to use in FA.
+        This does not have to be formant data, but *must*
+        be numeric.
+    n_components:
+        The required number of components.
+        Should be equal to or less than the number of columns
+        specified.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    \*\*kwargs:
+        All other paremeters are passed to the
+        constructor of the :class:`sklearn.decomposition.FactorAnalysis`
+        class.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, FactorAnalysisNormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = FactorAnalysisNormalizer(
+            columns=['f0', 'f1', 'f2', 'f3'],
+            n_components=2,
+            rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
+
+
+    """
+
+    def __init__(
+            self,
+            columns: List[str] = None,
+            n_components: int = 2,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            FactorAnalysis,
+            columns=columns,
+            rename=rename,
+            n_components=n_components,
+            **kwargs)
+
+    @docstring
+    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+        return super().normalize(df, **kwargs)
+
+
+@docstring
+@register('fast-ica')
+@classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
+class FastICANormalizer(UnsupervisedDimensionReductionNormalizer):
+    r"""Normalize data using (fast) Independent Components Analysis (ICA).
+
+    Parameters
+    ----------
+    columns:
+        The columns of the |dataframe| which contain the
+        features to use in ICA.
+        This does not have to be formant data, but *must*
+        be numeric.
+    n_components:
+        The required number of components.
+        Should be equal to or less than the number of columns
+        specified.
+
+
+    Other parameters
+    ----------------
+    rename:
+    groupby:
+    \*\*kwargs:
+        All other paremeters are passed to the
+        constructor of the :class:`sklearn.decomposition.FastICA`
+        class.
+
+
+    Examples
+    --------
+
+    .. ipython::
+
+        from vlnm import pb1952, FastICANormalizer
+
+        df = pb1952(['speaker', 'vowel', 'f0', 'f1', 'f2', 'f3'])
+        norm = FastICANormalizer(
+            columns=['f0', 'f1', 'f2', 'f3'],
+            n_components=2,
+            rename='{}*')
+        norm_df = norm.normalize(df)
+        norm_df.head()
+
+
+    """
+
+    def __init__(
+            self,
+            columns: List[str] = None,
+            n_components: int = 2,
+            rename: Union[str, dict] = None,
+            groupby: Union[str, List[str]] = None,
+            **kwargs):
+        super().__init__(
+            FastICA,
             columns=columns,
             rename=rename,
             n_components=n_components,
