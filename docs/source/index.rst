@@ -28,10 +28,10 @@ Vowel normalization
 ^^^^^^^^^^^^^^^^^^^
 
 |vlnm| provides all of the normalization methods described
-in :citet:`flynn_foulkes_2011`.
+in :citet:`flynn_foulkes_2011`, plus a few other
+methods that can be found in the literature.
 Each normalizer is described in the documentation
-for :ref:`section_normalization` and can be used
-to normalize vowel data
+for :ref:`section_normalization`.
 
 
 .. toctree::
