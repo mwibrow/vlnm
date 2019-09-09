@@ -1,18 +1,18 @@
 """
-Dimension reduction normalizers
+Projection normalizers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module contains normalizers which can be
-used to perform supervised dimensionality reduction
+used to perform supervised or unsupervised dimensionality reduction
 on vowel formant data,
-for example, to project
+for example, projecting
 :math:`F_0`, :math:`F_1`, :math:`F_2`, :math:`F_3`
 data (i.e., four-dimensional data)
 onto two dimensions.
 
 
 .. normalizers-list::
-    :module: vlnm.normalizers.dimension_reduction
+    :module: vlnm.normalizers.projection
 
 """
 
@@ -30,7 +30,7 @@ from .base import (
 
 
 @uninstantiable
-class SupervisedDimensionReductionNormalizer(FormantGenericNormalizer):
+class SupervisedProjectionNormalizer(FormantGenericNormalizer):
     """Base class for supervised dimension reduction Normalizers."""
 
     def __init__(
@@ -62,7 +62,7 @@ class SupervisedDimensionReductionNormalizer(FormantGenericNormalizer):
 
 
 @uninstantiable
-class UnsupervisedDimensionReductionNormalizer(FormantGenericNormalizer):
+class UnsupervisedProjectionNormalizer(FormantGenericNormalizer):
     """Base class for unsupervised dimension reduction Normalizers."""
 
     def __init__(
@@ -93,7 +93,7 @@ class UnsupervisedDimensionReductionNormalizer(FormantGenericNormalizer):
 @docstring
 @register('lda')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class LDANormalizer(SupervisedDimensionReductionNormalizer):
+class LDANormalizer(SupervisedProjectionNormalizer):
     r"""Normalize data using Linear Discriminant Analysis (LDA).
 
     See :citet:`wang_van-heuven_2006` for an example of applying
@@ -166,7 +166,7 @@ class LDANormalizer(SupervisedDimensionReductionNormalizer):
 @docstring
 @register('factor-analysis')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class FactorAnalysisNormalizer(UnsupervisedDimensionReductionNormalizer):
+class FactorAnalysisNormalizer(UnsupervisedProjectionNormalizer):
     r"""Normalize data using Factor Analayis (FA).
 
     Parameters
@@ -232,7 +232,7 @@ class FactorAnalysisNormalizer(UnsupervisedDimensionReductionNormalizer):
 @docstring
 @register('fast-ica')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class FastICANormalizer(UnsupervisedDimensionReductionNormalizer):
+class FastICANormalizer(UnsupervisedProjectionNormalizer):
     r"""Normalize data using (fast) Independent Components Analysis (ICA).
 
     Parameters
@@ -298,7 +298,7 @@ class FastICANormalizer(UnsupervisedDimensionReductionNormalizer):
 @docstring
 @register('pca')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class PCANormalizer(UnsupervisedDimensionReductionNormalizer):
+class PCANormalizer(UnsupervisedProjectionNormalizer):
     r"""Normalize data using Principle Components Analysis (PCA).
 
     See :citet:`jacobi_etal_2006` for an example of applying
@@ -367,7 +367,7 @@ class PCANormalizer(UnsupervisedDimensionReductionNormalizer):
 @docstring
 @register('nmf')
 @classify(vowel='extrinsic', formant='extrinsic', speaker='extrinsic')
-class NMFNormalizer(UnsupervisedDimensionReductionNormalizer):
+class NMFNormalizer(UnsupervisedProjectionNormalizer):
     r"""
     Normalize data using Non-negative Matrix Factorization (NMF).
 
