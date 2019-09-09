@@ -45,7 +45,7 @@ from :citet:`flynn_foulkes_2011`.
 .. normalizers-table::
 
 
-The following sections provide breif summaries for
+The following sections provide brief summaries for
 each normalizer.
 Clicking on the Python class name for each normalizer
 will show the API documentation

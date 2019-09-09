@@ -52,7 +52,7 @@ indiciate any accepted classification of normalizers in the literature.
 
    base
    centroid
-   decomposition
+   projection
    formant
    gender
    speaker

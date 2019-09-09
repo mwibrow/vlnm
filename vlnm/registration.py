@@ -4,14 +4,18 @@ helper functions for documenting normalizer classes
 and registering them for use with the :func:`normalize` function.
 """
 
-from typing import Callable, Dict, Type
+from typing import Callable, Dict, List, Type, Union
 
 from .utils import nameify
 
 NORMALIZERS = {}
 
 
-def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
+def register_normalizer(
+        klass: 'Normalizer',
+        name: str,
+        alias: Union[str, List[str]] = None,
+        index: Dict = None):
     """Register a normalizer to be used with the :func:`~vlnm.normalize` function.
 
     Parameters
@@ -39,6 +43,10 @@ def register_normalizer(klass: 'Normalizer', name: str, index: Dict = None):
     """
     index = NORMALIZERS if index is None else index
     index[name] = klass
+    alias = alias or []
+    alias = alias if isinstance(alias, list) else [alias]
+    for alias_name in alias:
+        register_normalizer(klass, alias_name, alias=None, index=index)
 
 
 def register(name: str) -> Callable:
