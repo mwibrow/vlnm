@@ -35,13 +35,14 @@ may provide a useful start.
 Shapely
 ^^^^^^^
 
-|vlnm| depends on the 3rd party |shapely| python library for some
-calculations using in creating vowel plots
-(i.e., generating convex hulls).
-The installation of this package (which is carried out
-automatically when installing |vlnm|) can be tempermental
-depending the operation system used.
-If Python was installed using
+|vlnm| depends on the 3rd party |shapely| python library for
+calculations used in some normalizers (i.e., for generating convex hulls).
+The installation of this package is carried out
+automatically when installing |vlnm|, and *should*
+pose no problems.
+
+Occasionally the installation can be tempermental
+depending the way Python was installed. If Python was installed using
 Anaconda then shapely should be installed first
 using:
 

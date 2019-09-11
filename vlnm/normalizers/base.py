@@ -204,6 +204,7 @@ class Normalizer:
                            if column not in subset]
                 outputs.extend(self.params['formants'])
             rename = self.params.get('rename') or '{}'
+            index = 1
             for column in outputs:
                 if column in norm_df:
                     try:
@@ -211,9 +212,13 @@ class Normalizer:
                         if new_column is None:
                             continue
                     except AttributeError:
-                        new_column = rename.format(column)
-
+                        if '{}' in rename:
+                            new_column = rename.format(column)
+                        else:
+                            new_column = '{}{}'.format(rename, index)
+                            index += 1
                     df[new_column] = norm_df[column]
+
         return df
 
     def _get_outputs(self):

@@ -159,7 +159,7 @@ class LDANormalizer(SupervisedProjectionNormalizer):
             **kwargs)
 
     @docstring
-    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
 
 
@@ -225,7 +225,7 @@ class FactorAnalysisNormalizer(UnsupervisedProjectionNormalizer):
             **kwargs)
 
     @docstring
-    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
 
 
@@ -291,7 +291,7 @@ class FastICANormalizer(UnsupervisedProjectionNormalizer):
             **kwargs)
 
     @docstring
-    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
 
 
@@ -338,7 +338,7 @@ class PCANormalizer(UnsupervisedProjectionNormalizer):
         norm = PCANormalizer(
             columns=['f0', 'f1', 'f2', 'f3'],
             n_components=2,
-            rename='{}*')
+            rename='pc')
         norm_df = norm.normalize(df)
         norm_df.head()
 
@@ -360,7 +360,7 @@ class PCANormalizer(UnsupervisedProjectionNormalizer):
             **kwargs)
 
     @docstring
-    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
 
 
@@ -422,5 +422,5 @@ class NMFNormalizer(UnsupervisedProjectionNormalizer):
             NMF, columns=columns, rename=rename, n_components=n_components, **kwargs)
 
     @docstring
-    def normalize(self, df: Union[pd.DataFrame, str], **kwargs) -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         return super().normalize(df, **kwargs)
