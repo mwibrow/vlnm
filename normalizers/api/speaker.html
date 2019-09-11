@@ -1,0 +1,1566 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.speaker &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.normalizers.vowel" href="vowel.html" />
+    <link rel="prev" title="vlnm.normalizers.gender" href="gender.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.normalizers.speaker">
+<span id="vlnm-normalizers-speaker"></span><h1><a class="reference internal" href="#module-vlnm.normalizers.speaker" title="vlnm.normalizers.speaker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.speaker</span></code></a><a class="headerlink" href="#module-vlnm.normalizers.speaker" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="speaker-based-normalizers">
+<h2>Speaker-based normalizers<a class="headerlink" href="#speaker-based-normalizers" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>The following normalizers are implemented in the <code class="docutils literal notranslate"><span class="pre">vlnm.normalizers.speaker</span></code> module:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.GerstmanNormalizer" title="vlnm.normalizers.speaker.GerstmanNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">GerstmanNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.LCENormalizer" title="vlnm.normalizers.speaker.LCENormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LCENormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.LobanovNormalizer" title="vlnm.normalizers.speaker.LobanovNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LobanovNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyNormalizer" title="vlnm.normalizers.speaker.NearyNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyExpNormalizer" title="vlnm.normalizers.speaker.NearyExpNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyExpNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyGMNormalizer" title="vlnm.normalizers.speaker.NearyGMNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyGMExpNormalizer" title="vlnm.normalizers.speaker.NearyGMExpNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMExpNormalizer</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.GerstmanNormalizer">
+<em class="property">class </em><code class="descname">GerstmanNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#GerstmanNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.GerstmanNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formants according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#gerstman_1968"><span><span class="authors"><span><span><span>Gerstman</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#gerstman_1968"><span><span>1968</span></span></a></span><span>)</span></span></span>.</p>
+<p>Formants are normalized by subtracting the speaker’s minimum value
+for the formant and then divided by the speaker’s range for
+the formant. These value are then multipled by <span class="math notranslate nohighlight">\(999\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = 999 \frac{F_i - \min{F_i}}{\max{F_i}}\]</div>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='gerstman'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">GerstmanNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">GerstmanNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.00000</td>
+<td style="text-align: right; padding-right: 0;">
+917</td>
+<td style="text-align: left; padding-left: 0;">
+.44898</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+71</td>
+<td style="text-align: left; padding-left: 0;">
+.35714</td>
+<td style="text-align: right; padding-right: 0;">
+999</td>
+<td style="text-align: left; padding-left: 0;">
+.00000</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+267</td>
+<td style="text-align: left; padding-left: 0;">
+.58929</td>
+<td style="text-align: right; padding-right: 0;">
+747</td>
+<td style="text-align: left; padding-left: 0;">
+.55102</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+124</td>
+<td style="text-align: left; padding-left: 0;">
+.87500</td>
+<td style="text-align: right; padding-right: 0;">
+713</td>
+<td style="text-align: left; padding-left: 0;">
+.57143</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+445</td>
+<td style="text-align: left; padding-left: 0;">
+.98214</td>
+<td style="text-align: right; padding-right: 0;">
+638</td>
+<td style="text-align: left; padding-left: 0;">
+.81633</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.GerstmanNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#GerstmanNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.GerstmanNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.LCENormalizer">
+<em class="property">class </em><code class="descname">LCENormalizer</code><span class="sig-paren">(</span><em>speaker='speaker'</em>, <em>formants=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#LCENormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.LCENormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize by dividing formants by their mamximum value for a speaker.</p>
+<p>Formants are normalized by “linear compression or expansion”
+<span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span></span></span><span> p.607</span><span>)</span></span>, that is by dividing
+each formant for a given speaker by it’s maximum value for that speaker:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{\max{F_i}}\]</div>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='lce'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">LCENormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">LCENormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.30000</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.95000</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.35000</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.00000</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.48750</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.84583</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.38750</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.82500</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.61250</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.77917</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.LCENormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#LCENormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.LCENormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.LobanovNormalizer">
+<em class="property">class </em><code class="descname">LobanovNormalizer</code><span class="sig-paren">(</span><em>speaker='speaker'</em>, <em>formants=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#LobanovNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.LobanovNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formants according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span><span>)</span></span></span>:</p>
+<p>This uses the following formula:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mu_{F_i}\)</span> is the mean of the formant <span class="math notranslate nohighlight">\(F_i\)</span>
+and <span class="math notranslate nohighlight">\(\sigma_{F_i}\)</span> is the “rms deviation” (<span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span></span></span></span>, p.606)
+of formant <span class="math notranslate nohighlight">\(F_i\)</span> from its mean for the speaker’s vowels.
+As noted by <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span><span>)</span></span></span> this is equivalent
+to the standard deviation when the mean is zero,
+and for efficiency this is how the normalizer is implemented.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='lobanov'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">LobanovNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">LobanovNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.72902</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.98549</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.19471</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08785</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85276</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.LobanovNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#LobanovNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.LobanovNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.NearyExpNormalizer">
+<em class="property">class </em><code class="descname">NearyExpNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyExpNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyExpNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyNormalizer" title="vlnm.normalizers.speaker.NearyNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyNormalizer</span></code></a> with the <code class="docutils literal notranslate"><span class="pre">exp</span></code> parameter automatically set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>See <span><span><span><a class="xref cite reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a><span>, </span><a class="xref cite reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span></span></span> for discussion.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='neary-exp'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">NearyExpNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">NearyExpNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.52963</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.62372</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.61791</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.70918</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.86066</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.44568</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.68411</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.41007</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08134</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.33174</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.NearyExpNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyExpNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyExpNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.NearyGMExpNormalizer">
+<em class="property">class </em><code class="descname">NearyGMExpNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyGMExpNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyGMExpNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#vlnm.normalizers.speaker.NearyGMNormalizer" title="vlnm.normalizers.speaker.NearyGMNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMNormalizer</span></code></a> with the <code class="docutils literal notranslate"><span class="pre">exp</span></code> parameter automatically set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>See <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span><span>)</span></span></span> and <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span><span>)</span></span></span> for discussion.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='nearygm-exp'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">NearyGMExpNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">NearyGMExpNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.52963</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.62372</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.61791</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.70918</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.86066</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.44568</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.68411</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.41007</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08134</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.33174</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.NearyGMExpNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyGMExpNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyGMExpNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.NearyGMNormalizer">
+<em class="property">class </em><code class="descname">NearyGMNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>exp=False</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyGMNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyGMNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize by subtracting the speaker’s mean log-transformed formants.</p>
+<p>The Neary ‘Grand Mean’ normalizer log-transforms each formant
+and then substracts the mean log-transform of <em>all</em> formants
+under-considraton for a given speaker.
+This is usually <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span></span></span><span>)</span></span>
+or <span class="math notranslate nohighlight">\(F_1\)</span>, <span class="math notranslate nohighlight">\(F_2\)</span>, and <span class="math notranslate nohighlight">\(F_3\)</span> <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#clopper_2009"><span><span class="authors"><span><span><span>Clopper</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#clopper_2009"><span><span>2009</span></span></a></span></span></span><span>)</span></span>:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = T\left(
+    \log\left(F_i\right) - \frac{1}{n}
+        \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
+\right)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(T(x)=x\)</span> or <span class="math notranslate nohighlight">\(T(x)=\exp(x)\)</span>,
+and <cite>n</cite> is the highest formant index.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='nearygm'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>exp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>)</p>
+<p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> transform the normalized formants
+using the exponential function with base <span class="math notranslate nohighlight">\(e\)</span>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">NearyGMNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">NearyGMNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20107</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.05022</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.04692</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.10151</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.71556</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.93408</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.94514</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.90914</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.48730</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85198</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.NearyGMNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyGMNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyGMNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.NearyNormalizer">
+<em class="property">class </em><code class="descname">NearyNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>exp=False</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize by subtracting log-transformed formant means for each speaker.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = T\left(
+    \log\left(F_i\right) - \frac{1}{n}
+        \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
+\right)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(T(x)=x\)</span> or <span class="math notranslate nohighlight">\(T(x)=\exp(x)\)</span>,
+and <cite>n</cite> is the highest formant index.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='neary'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong></p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>exp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>)</p>
+<p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> transform the normalized formants
+using the exponential function with base <span class="math notranslate nohighlight">\(e\)</span>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">NearyNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">NearyNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.63557</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.48472</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.48142</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.53601</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.15006</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.36858</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.37964</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.34364</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.07820</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.28648</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.speaker.NearyNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#NearyNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.NearyNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.speaker.SpeakerNormalizer">
+<em class="property">class </em><code class="descname">SpeakerNormalizer</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/speaker.html#SpeakerNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.speaker.SpeakerNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for speaker intrinsic normalizers.</p>
+<p><cite>This class can only be instantiated by child classes</cite>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/speaker.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

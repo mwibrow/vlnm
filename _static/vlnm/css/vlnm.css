@@ -1,0 +1,266 @@
+/* Material design palette */
+/* Red */
+/* Pink */
+/* Purple */
+/* Deep Purple */
+/* Indigo */
+/* Blue */
+/* Light Blue */
+/* Cyan */
+/* Teal */
+/* Green */
+/* Light Green */
+/* Lime */
+/* Yellow */
+/* Amber */
+/* Orange */
+/* Deep Orange */
+/* Brown */
+/* Grey */
+/* Blue Grey */
+/* Alpha values for grey text, icons, and dividers */
+/* White */
+/* Dividers */
+/* Disabled / Hint Text */
+/*  Secondary Text */
+/* Text / Icons */
+/* Black */
+/* Dividers */
+/* Disabled / Hint Text */
+/* Secondary text / Icons */
+/* Text */
+@import url("https://fonts.googleapis.com/css?family=Merriweather+Sans:300,700|Merriweather:300,700|Roboto+Mono:400,400i,700,700i");
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/_static/vlnm/fonts/DejaVu/DejaVuSansMono.ttf);
+  font-style: normal;
+  font-weight: normal; }
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/_static/vlnm/fonts/DejaVu/DejaVuSansMono-Oblique.ttf);
+  font-style: italic;
+  font-weight: normal; }
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/_static/vlnm/fonts/DejaVu/DejaVuSansMono-Bold.ttf);
+  font-style: normal;
+  font-weight: bold; }
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: url(/_static/vlnm/fonts/DejaVu/DejaVuSansMono-BoldOblique.ttf);
+  font-style: italic;
+  font-weight: bold; }
+
+body {
+  background-color: #ffffff;
+  color: #000000; }
+
+/* Fix bullets in sidebar navigation */
+li.toctree-l1 ul {
+  list-style: none !important; }
+
+li.toctree-l2 ::before {
+  content: "\2022";
+  color: #212121;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em; }
+  @media screen and (max-width: 875px) {
+    li.toctree-l2 ::before {
+      color: #ffffff; } }
+
+/* customize link color to match citation color */
+a {
+  color: #01579b; }
+  a:hover {
+    color: #013b68; }
+
+@media screen and (max-width: 875px) {
+  div.sphinxsidebar {
+    color: #ffffff;
+    background-color: #263238; }
+    div.sphinxsidebar a {
+      color: #eceff1; }
+    div.sphinxsidebar h1 a {
+      color: #ffffff; } }
+
+div.body {
+  min-width: initial !important; }
+
+.jupyter-cell .highlight pre {
+  background-color: #f5f5f5 !important;
+  border: 1px solid #cccccc;
+  margin-right: 0rem; }
+
+.jupyter-terminal .highlight pre {
+  background-color: #212121 !important;
+  color: #f5f5f5 !important; }
+  .jupyter-terminal .highlight pre span {
+    color: #f5f5f5 !important; }
+
+.jupyter table.dataframe {
+  font-family: "Merriweather Sans", "DejaVu Sans", "Helvetica", serif !important; }
+
+.jupyter table.dataframe .row-even {
+  background-color: #f5f5f5; }
+
+.jupyter table.dataframe .column-float64 {
+  text-align: right; }
+
+.jupyter .highlight-ansi-color .-Color-Red {
+  color: #c62828; }
+
+.jupyter .highlight-ansi-color .-Color-Green,
+.jupyter .highlight-ansi-color .-Color-BoldGreen {
+  color: #558b2f; }
+
+.jupyter .highlight-ansi-color .-Color-Blue {
+  color: #0277bd; }
+
+.jupyter .highlight-ansi-color .-Color-Cyan {
+  color: #00695c; }
+
+body,
+.body {
+  font-family: "Merriweather", "Georgia", "Libre Baskerville", "Times New Roman", "Times", serif !important; }
+  body p,
+  .body p {
+    line-height: 1.5 !important;
+    hyphens: none !important; }
+
+.section h1,
+.section h2,
+.section h3,
+.section h4,
+.section h5,
+.section h6 {
+  font-family: "Merriweather", "Georgia", "Libre Baskerville", "Times New Roman", "Times", serif !important;
+  font-weight: bold !important; }
+
+.natbib {
+  color: #01579b; }
+
+div.math {
+  margin: 1rem 0 1.5rem; }
+
+.vlnm-col {
+  font-weight: 600;
+  font-family: "Merriweather Sans", "DejaVu Sans", "Helvetica", serif !important; }
+
+.vlnm-tt {
+  font-family: monospace; }
+
+.vlnm-arg,
+code,
+code.py-class,
+code.py-obj {
+  font-family: "DejaVu Sans Mono", "Roboto Mono", "Monaco", "Courier New", monospace !important;
+  font-size: 100%;
+  background-color: #f5f5f5;
+  padding: 0rem 0.25rem 0rem;
+  border-radius: 1px;
+  color: #37474f; }
+
+.vlnm-csv {
+  font-family: "DejaVu Sans Mono", "Roboto Mono", "Monaco", "Courier New", monospace !important;
+  font-size: 90%;
+  color: #000000; }
+  .vlnm-csv::before {
+    content: "'"; }
+  .vlnm-csv::after {
+    content: "'"; }
+
+h1 a.reference,
+h2 a.reference,
+h3 a.reference {
+  text-decoration: none !important;
+  border: none; }
+
+h1 code,
+h1 code.xref,
+h2 code,
+h2 code.xref,
+h3 code,
+h3 code.xref {
+  background-color: rgba(0, 0, 0, 0.0625) !important;
+  padding: 0.125em 0.75em 0.125em 0.5em;
+  border-left: 0.25em solid rgba(0, 0, 0, 0.0625);
+  border-bottom: none;
+  border-radius: 0px; }
+
+dl.function,
+dl.class {
+  hyphens: none !important;
+  margin-top: 2rem; }
+  dl.function:first-child,
+  dl.class:first-child {
+    margin-top: 0; }
+  dl.function dt,
+  dl.class dt {
+    hyphens: none !important;
+    background-color: rgba(0, 0, 0, 0.0625) !important;
+    padding: 0.25em 5em 0.1875em 0.5em;
+    border-left: 0.25em solid rgba(0, 0, 0, 0.0625);
+    border-bottom: none;
+    border-radius: 0px;
+    padding-left: 2.5rem;
+    text-indent: -2rem;
+    margin-bottom: 0.5rem;
+    position: relative; }
+    dl.function dt a:not(.natbib),
+    dl.class dt a:not(.natbib) {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      text-decoration: none;
+      border-bottom: none; }
+
+dl.field-list.simple dt {
+  background-color: transparent !important;
+  border: none;
+  padding: 0;
+  text-indent: 0;
+  margin-bottom: 0; }
+
+p.rubric code {
+  background-color: rgba(0, 0, 0, 0.0625) !important;
+  padding: 0.25em 0.75em 0.25em 0.5em;
+  border-left: 0.25em solid rgba(0, 0, 0, 0.0625);
+  border-bottom: none;
+  border-radius: 0px; }
+
+dl.field-list > dd {
+  flex-basis: 100%;
+  padding-left: 1em;
+  margin-left: 0em;
+  margin-bottom: 0em; }
+
+dl.field-list dt.field-odd,
+dl.field-list dt.field-even {
+  background-color: transparent !important;
+  border: none !important;
+  margin-left: 0px;
+  margin-bottom: 0px;
+  margin-top: 8px;
+  padding-left: 30px; }
+  dl.field-list dt.field-odd:first-of-type,
+  dl.field-list dt.field-even:first-of-type {
+    margin-top: 0px; }
+
+dl.field-list dd ul {
+  margin-bottom: 8px !important; }
+  dl.field-list dd ul li {
+    margin-bottom: 8px !important; }
+
+dl.method {
+  margin-top: 2rem; }
+
+body h4 {
+  font-size: 115%; }
+
+.highlight .gp {
+  color: #c65d09; }

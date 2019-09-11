@@ -1,0 +1,525 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.projection &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.normalizers.projection</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Projection normalizers</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">This module contains normalizers which can be</span>
+<span class="sd">used to perform supervised or unsupervised dimensionality reduction</span>
+<span class="sd">on vowel formant data,</span>
+<span class="sd">for example, projecting</span>
+<span class="sd">:math:`F_0`, :math:`F_1`, :math:`F_2`, :math:`F_3`</span>
+<span class="sd">data (i.e., four-dimensional data)</span>
+<span class="sd">onto two dimensions.</span>
+
+
+<span class="sd">.. normalizers-list::</span>
+<span class="sd">    :module: vlnm.normalizers.projection</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="k">import</span> <span class="n">FactorAnalysis</span><span class="p">,</span> <span class="n">FastICA</span><span class="p">,</span> <span class="n">PCA</span><span class="p">,</span> <span class="n">NMF</span>
+<span class="kn">from</span> <span class="nn">sklearn.discriminant_analysis</span> <span class="k">import</span> <span class="n">LinearDiscriminantAnalysis</span>
+
+<span class="kn">from</span> <span class="nn">..docstrings</span> <span class="k">import</span> <span class="n">docstring</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">register</span><span class="p">,</span>
+    <span class="n">classify</span><span class="p">,</span>
+    <span class="n">FormantGenericNormalizer</span><span class="p">,</span>
+    <span class="n">uninstantiable</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SupervisedProjectionNormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.SupervisedProjectionNormalizer">[docs]</a><span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">SupervisedProjectionNormalizer</span><span class="p">(</span><span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for supervised dimension reduction Normalizers.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="p">[</span><span class="n">vowel</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">columns</span> <span class="ow">or</span> <span class="p">[]),</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vowel</span> <span class="o">=</span> <span class="n">vowel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># NB not necessarily formants.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vowel</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">codes</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">new_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_outputs</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">new_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="UnsupervisedProjectionNormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.UnsupervisedProjectionNormalizer">[docs]</a><span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">UnsupervisedProjectionNormalizer</span><span class="p">(</span><span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for unsupervised dimension reduction Normalizers.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>  <span class="c1"># NB not necessarily formants.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">new_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_outputs</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">new_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="LDANormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.LDANormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;lda&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LDANormalizer</span><span class="p">(</span><span class="n">SupervisedProjectionNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize data using Linear Discriminant Analysis (LDA).</span>
+
+<span class="sd">    See :citet:`wang_van-heuven_2006` for an example of applying</span>
+<span class="sd">    LDA to phonetic data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    columns:</span>
+<span class="sd">        The columns of the |dataframe| which contain the</span>
+<span class="sd">        features to use in LDA.</span>
+<span class="sd">        This does not have to be formant data, but *must*</span>
+<span class="sd">        be numeric.</span>
+<span class="sd">    n_components:</span>
+<span class="sd">        The required number of components.</span>
+<span class="sd">        Should be equal to or less than the number of columns</span>
+<span class="sd">        specified.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    \*\*kwargs:</span>
+<span class="sd">        All other paremeters are passed to the</span>
+<span class="sd">        constructor of the :class:`sklearn.discriminant_analysis.LinearDiscriminantAnalysis`</span>
+<span class="sd">        class.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, LDANormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;])</span>
+<span class="sd">        norm = LDANormalizer(</span>
+<span class="sd">            vowel=&#39;vowel&#39;,</span>
+<span class="sd">            columns=[&#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;],</span>
+<span class="sd">            n_components=2,</span>
+<span class="sd">            rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">LinearDiscriminantAnalysis</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LDANormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.LDANormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FactorAnalysisNormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.FactorAnalysisNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;factor-analysis&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">FactorAnalysisNormalizer</span><span class="p">(</span><span class="n">UnsupervisedProjectionNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize data using Factor Analayis (FA).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    columns:</span>
+<span class="sd">        The columns of the |dataframe| which contain the</span>
+<span class="sd">        features to use in FA.</span>
+<span class="sd">        This does not have to be formant data, but *must*</span>
+<span class="sd">        be numeric.</span>
+<span class="sd">    n_components:</span>
+<span class="sd">        The required number of components.</span>
+<span class="sd">        Should be equal to or less than the number of columns</span>
+<span class="sd">        specified.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    \*\*kwargs:</span>
+<span class="sd">        All other paremeters are passed to the</span>
+<span class="sd">        constructor of the :class:`sklearn.decomposition.FactorAnalysis`</span>
+<span class="sd">        class.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, FactorAnalysisNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;])</span>
+<span class="sd">        norm = FactorAnalysisNormalizer(</span>
+<span class="sd">            columns=[&#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;],</span>
+<span class="sd">            n_components=2,</span>
+<span class="sd">            rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">FactorAnalysis</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FactorAnalysisNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.FactorAnalysisNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FastICANormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.FastICANormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;fast-ica&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">FastICANormalizer</span><span class="p">(</span><span class="n">UnsupervisedProjectionNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize data using (fast) Independent Components Analysis (ICA).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    columns:</span>
+<span class="sd">        The columns of the |dataframe| which contain the</span>
+<span class="sd">        features to use in ICA.</span>
+<span class="sd">        This does not have to be formant data, but *must*</span>
+<span class="sd">        be numeric.</span>
+<span class="sd">    n_components:</span>
+<span class="sd">        The required number of components.</span>
+<span class="sd">        Should be equal to or less than the number of columns</span>
+<span class="sd">        specified.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    \*\*kwargs:</span>
+<span class="sd">        All other paremeters are passed to the</span>
+<span class="sd">        constructor of the :class:`sklearn.decomposition.FastICA`</span>
+<span class="sd">        class.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, FastICANormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;])</span>
+<span class="sd">        norm = FastICANormalizer(</span>
+<span class="sd">            columns=[&#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;],</span>
+<span class="sd">            n_components=2,</span>
+<span class="sd">            rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">FastICA</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FastICANormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.FastICANormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PCANormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.PCANormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;pca&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">PCANormalizer</span><span class="p">(</span><span class="n">UnsupervisedProjectionNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize data using Principle Components Analysis (PCA).</span>
+
+<span class="sd">    See :citet:`jacobi_etal_2006` for an example of applying</span>
+<span class="sd">    PCA to phonetic data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    columns:</span>
+<span class="sd">        The columns of the |dataframe| which contain the</span>
+<span class="sd">        features to use in PCA.</span>
+<span class="sd">        This does not have to be formant data, but *must*</span>
+<span class="sd">        be numeric.</span>
+<span class="sd">    n_components:</span>
+<span class="sd">        The required number of components.</span>
+<span class="sd">        Should be equal to or less than the number of columns</span>
+<span class="sd">        specified.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    \*\*kwargs:</span>
+<span class="sd">        All other paremeters are passed to the</span>
+<span class="sd">        constructor of the :class:`sklearn.decomposition.PCA`</span>
+<span class="sd">        class.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, PCANormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;])</span>
+<span class="sd">        norm = PCANormalizer(</span>
+<span class="sd">            columns=[&#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;],</span>
+<span class="sd">            n_components=2,</span>
+<span class="sd">            rename=&#39;pc&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">PCA</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PCANormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.PCANormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NMFNormalizer"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.NMFNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;nmf&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NMFNormalizer</span><span class="p">(</span><span class="n">UnsupervisedProjectionNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize data using Non-negative Matrix Factorization (NMF).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    columns:</span>
+<span class="sd">        The columns of the |dataframe| which contain the</span>
+<span class="sd">        features to use in NMF.</span>
+<span class="sd">        This does not have to be formant data, but *must*</span>
+<span class="sd">        be numeric.</span>
+<span class="sd">    n_components:</span>
+<span class="sd">        The required number of components.</span>
+<span class="sd">        Should be equal to or less than the number of columns</span>
+<span class="sd">        specified.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    \*\*kwargs:</span>
+<span class="sd">        All other paremeters are passed to the</span>
+<span class="sd">        constructor of the :class:`sklearn.decomposition.NMF`</span>
+<span class="sd">        class.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, NMFNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;])</span>
+<span class="sd">        norm = NMFNormalizer(</span>
+<span class="sd">            columns=[&#39;f0&#39;, &#39;f1&#39;, &#39;f2&#39;, &#39;f3&#39;],</span>
+<span class="sd">            n_components=2,</span>
+<span class="sd">            rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">NMF</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NMFNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/projection.html#vlnm.normalizers.projection.NMFNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

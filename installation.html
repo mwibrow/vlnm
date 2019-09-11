@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Installation &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Vowel Normalization" href="normalizers/index.html" />
+    <link rel="prev" title="VLNM: Vowel normalization using Python" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<span id="section-installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>This part of the documentation covers the installation of <strong>VLNM</strong>.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Python<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p><strong>VLNM</strong> was written using Python version 3.6,
+Python versions 3.5 and lower are not supported.
+Many operating systems (e.g., Ubuntu Linux and MacOS)
+come with Python preinstalled, but it may be
+an unsupported version.</p>
+<p>If Python is not already installed on your computer
+(or it is an unsupported version), the quickest way to get Python set up
+is using the <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda</a> distribution, which will also install a number
+of useful tools (including <a class="reference external" href="https://jupyter.org/">Jupyter</a>).</p>
+<p>However, the Anaconda distribution is large (to say the least) and
+includes a considerable number of tools which are not needed
+just to normalize vowel formant data and produce vowel plots.
+To create a minimal working Python installation,
+<a class="reference external" href="https://docs.python-guide.org/starting/installation/">The Hitchhiker’s Guide to Python</a>
+may provide a useful start.</p>
+</div>
+<div class="section" id="id2">
+<h3>Shapely<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><strong>VLNM</strong> depends on the 3rd party <a class="reference external" href="https://shapely.readthedocs.io/en/stable/manual.html">Shapely</a> python library for
+calculations used in some normalizers (i.e., for generating convex hulls).
+The installation of this package is carried out
+automatically when installing <strong>VLNM</strong>, and <em>should</em>
+pose no problems.</p>
+<p>Occasionally the installation can be tempermental
+depending the way Python was installed. If Python was installed using
+Anaconda then shapely should be installed first
+using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install -c conda-forge shapely</span>
+</pre></div>
+</div>
+<p>Other solutions and/or workarounds are described below
+for different operation systems.</p>
+</div>
+</div>
+<div class="section" id="operating-systems">
+<h2>Operating systems<a class="headerlink" href="#operating-systems" title="Permalink to this headline">¶</a></h2>
+<p><strong>VLNM</strong> should work on any operation system which has a supported
+Python version installed. Installation for Linux, MacOS
+and Windows are given below.</p>
+<p>Currently, <strong>VLNM</strong> can only be installed from github.</p>
+<div class="section" id="linux">
+<h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<p>To install <strong>VLNM</strong> use the following command in
+a terminal:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install git+https://github.com/mwibrow/vlnm.git</span>
+</pre></div>
+</div>
+<p>If the installation fails while installing shapely
+(typically there will be an error relating to
+the GEOS library required by shapely),
+the relevant Linux package manager should be
+used to install <cite>libgeos</cite>.
+For example, Debian-based distributions could use:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get install libgeos</span>
+</pre></div>
+</div>
+<p>Then the installation command given above should
+be re-run.</p>
+</div>
+<div class="section" id="macos">
+<h3>MacOS<a class="headerlink" href="#macos" title="Permalink to this headline">¶</a></h3>
+<p>To install <strong>VLNM</strong> use the following command in
+a terminal:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install git+https://github.com/mwibrow/vlnm.git</span>
+</pre></div>
+</div>
+<p>If the installation fails while installing shapely
+(typically there will be an error relating to
+the GEOS library required by shapely),
+then <a class="reference external" href="https://brew.sh/">Homebrew</a> can be used to install the
+GEOS library:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">brew install geos</span>
+</pre></div>
+</div>
+<p>Then <strong>VLNM</strong> can be installed using the command above.</p>
+</div>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>Everything is more complicated on Windows 🙄</p>
+<p><strong>VLNM</strong> is untested on windows, but experience
+suggests that Python should be set up using
+<a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda</a> and instead of the Windows command
+prompt use <cite>Anaconda Prompt</cite>.</p>
+<p>After using the <code class="docutils literal notranslate"><span class="pre">conda</span></code> command
+to install shapely (as described above),
+<code class="docutils literal notranslate"><span class="pre">git</span></code> will need to be installed:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install -c anaconda git</span>
+</pre></div>
+</div>
+<p>Then <strong>VLNM</strong> can be installed by executing the following
+command at the command prompt:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install git+https://github.com/mwibrow/vlnm.git</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/installation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

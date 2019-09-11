@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.registration &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.registration</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`vlnm.registration` module implements</span>
+<span class="sd">helper functions for documenting normalizer classes</span>
+<span class="sd">and registering them for use with the :func:`normalize` function.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">nameify</span>
+
+<span class="n">NORMALIZERS</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_normalizer"><a class="viewcode-back" href="../../normalizers/api/registration.html#vlnm.registration.register_normalizer">[docs]</a><span class="k">def</span> <span class="nf">register_normalizer</span><span class="p">(</span>
+        <span class="n">klass</span><span class="p">:</span> <span class="s1">&#39;Normalizer&#39;</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">alias</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Register a normalizer to be used with the :func:`~vlnm.normalize` function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    klass: :class:`Normalizer`</span>
+<span class="sd">        A normalizer class.</span>
+<span class="sd">    name:</span>
+<span class="sd">        Name that can be used to refer to access the class in the</span>
+<span class="sd">        :func:`.get_normalizer` function.</span>
+<span class="sd">    index:</span>
+<span class="sd">        A dictionary in which the normalizer class will be registered.</span>
+<span class="sd">        If omitted, the global index will be used.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+<span class="sd">        run: no</span>
+
+<span class="sd">        class CustomNormalizer(Normalizer):</span>
+<span class="sd">            # Custom normalizer definition.</span>
+
+<span class="sd">        register_normalizer(CustomNormalizer, &#39;custom-normalizer&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">NORMALIZERS</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">index</span>
+    <span class="n">index</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">klass</span>
+    <span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">alias_name</span> <span class="ow">in</span> <span class="n">alias</span><span class="p">:</span>
+        <span class="n">register_normalizer</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">alias_name</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../normalizers/api/registration.html#vlnm.registration.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Decorator for registering a normalizer class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        name:</span>
+<span class="sd">            The name to use for the class.</span>
+<span class="sd">            Internally, the :func:`.register_normalizer`</span>
+<span class="sd">            function is called.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">         A decorator function.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+<span class="sd">        run: no</span>
+
+<span class="sd">        @register(&#39;custom-normalizer&#39;)</span>
+<span class="sd">        class CustomNormalizer(Normalizer):</span>
+<span class="sd">            # Custom normalizer definition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">register_normalizer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+    <span class="k">return</span> <span class="n">_decorator</span></div>
+
+
+<div class="viewcode-block" id="classify"><a class="viewcode-back" href="../../normalizers/api/registration.html#vlnm.registration.classify">[docs]</a><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span>
+        <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">formant</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Decorator for classifying a normalizer class.</span>
+
+<span class="sd">    This adds the ``classify`` attribute to the class</span>
+<span class="sd">    consisting of a dictionary containing the keys and values</span>
+<span class="sd">    passed to the decorator.</span>
+
+<span class="sd">    This is used solely for documenting normalizers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        vowel:</span>
+<span class="sd">            One of ``intrinsic`` or ``extrinsic``.</span>
+<span class="sd">        formant:</span>
+<span class="sd">            One of ``intrinsic`` or ``extrinsic``</span>
+<span class="sd">        speaker:</span>
+<span class="sd">            One of ``intrinsic`` or ``extrinsic``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        A decorator function.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+<span class="sd">        run: no</span>
+<span class="sd">        before: from vlnm.registration import classify</span>
+
+<span class="sd">        @classify(vowel=&#39;extrinsic&#39;, formant=&#39;intrinsic&#39;, speaker=&#39;intrinsic&#39;)</span>
+<span class="sd">        class WattFabriciusNormalizer(CentroidNormalizer):</span>
+<span class="sd">            # Rest of definition.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;classify&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="n">formant</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+    <span class="k">return</span> <span class="n">_decorator</span></div>
+
+
+<div class="viewcode-block" id="get_normalizer"><a class="viewcode-back" href="../../normalizers/api/registration.html#vlnm.registration.get_normalizer">[docs]</a><span class="k">def</span> <span class="nf">get_normalizer</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;Normalizer&#39;</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Return a normalizer class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name:</span>
+<span class="sd">        The name which was used to register the normalizer</span>
+<span class="sd">        class using :func:`.register_normalizer()`.</span>
+<span class="sd">    index:</span>
+<span class="sd">        The register in which the normalizer was registered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        The normalizer class.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm.registration import get_normalizer</span>
+<span class="sd">        nrm = get_normalizer(&#39;lobanov&#39;)</span>
+<span class="sd">        print(nrm)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="ow">or</span> <span class="n">NORMALIZERS</span>
+    <span class="n">index_lower</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">index</span><span class="p">}</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">normalizers</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">index_lower</span>
+                       <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">normalizers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">normalizers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">[</span><span class="n">index_lower</span><span class="p">[</span><span class="n">normalizers</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">normalizers</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span><span class="p">[</span><span class="n">index_lower</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span>
+                <span class="s1">&#39;Found </span><span class="si">{count}</span><span class="s1"> normalizers matching </span><span class="si">{name}</span><span class="s1">:&#39;</span>
+                <span class="s1">&#39;</span><span class="si">{matching}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">normalizers</span><span class="p">),</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
+                    <span class="n">matching</span><span class="o">=</span><span class="n">nameify</span><span class="p">(</span><span class="n">normalizers</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span>
+            <span class="s1">&#39;Unknown normalizer </span><span class="si">{name}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">nameify</span><span class="p">([</span><span class="n">name</span><span class="p">],</span> <span class="n">quote</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No normalizer specified&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.registration &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.conversion" href="conversion.html" />
+    <link rel="prev" title="vlnm" href="vlnm.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.registration">
+<span id="vlnm-registration"></span><h1><a class="reference internal" href="#module-vlnm.registration" title="vlnm.registration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.registration</span></code></a><a class="headerlink" href="#module-vlnm.registration" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-vlnm.registration" title="vlnm.registration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.registration</span></code></a> module implements
+helper functions for documenting normalizer classes
+and registering them for use with the <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code> function.</p>
+<dl class="function">
+<dt id="vlnm.registration.classify">
+<code class="descname">classify</code><span class="sig-paren">(</span><em>vowel=None</em>, <em>formant=None</em>, <em>speaker=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/registration.html#classify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.registration.classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for classifying a normalizer class.</p>
+<p>This adds the <code class="docutils literal notranslate"><span class="pre">classify</span></code> attribute to the class
+consisting of a dictionary containing the keys and values
+passed to the decorator.</p>
+<p>This is used solely for documenting normalizers.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>One of <code class="docutils literal notranslate"><span class="pre">intrinsic</span></code> or <code class="docutils literal notranslate"><span class="pre">extrinsic</span></code>.</p>
+</li>
+<li><p><strong>formant</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>One of <code class="docutils literal notranslate"><span class="pre">intrinsic</span></code> or <code class="docutils literal notranslate"><span class="pre">extrinsic</span></code></p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>One of <code class="docutils literal notranslate"><span class="pre">intrinsic</span></code> or <code class="docutils literal notranslate"><span class="pre">extrinsic</span></code></p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">callable()</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A decorator function.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WattFabriciusNormalizer</span><span class="p">(</span><span class="n">CentroidNormalizer</span><span class="p">):</span>
+    <span class="c1"># Rest of definition.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.registration.get_normalizer">
+<code class="descname">get_normalizer</code><span class="sig-paren">(</span><em>name</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/registration.html#get_normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.registration.get_normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a normalizer class.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The name which was used to register the normalizer
+class using <a class="reference internal" href="#vlnm.registration.register_normalizer" title="vlnm.registration.register_normalizer"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_normalizer()</span></code></a>.</p>
+</li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>The register in which the normalizer was registered.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>class <code class="xref py py-class docutils literal notranslate"><span class="pre">Normalizer</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The normalizer class.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm.registration</span> <span class="kn">import</span> <span class="n">get_normalizer</span>
+<span class="n">nrm</span> <span class="o">=</span> <span class="n">get_normalizer</span><span class="p">(</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">nrm</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-stdout highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;vlnm.normalizers.speaker.LobanovNormalizer&#39;&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.registration.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/registration.html#register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.registration.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for registering a normalizer class.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p></li>
+</ul>
+<p>The name to use for the class.
+Internally, the <a class="reference internal" href="#vlnm.registration.register_normalizer" title="vlnm.registration.register_normalizer"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_normalizer()</span></code></a>
+function is called.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">callable()</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A decorator function.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;custom-normalizer&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CustomNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="c1"># Custom normalizer definition.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.registration.register_normalizer">
+<code class="descname">register_normalizer</code><span class="sig-paren">(</span><em>klass</em>, <em>name</em>, <em>alias=None</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/registration.html#register_normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.registration.register_normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a normalizer to be used with the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code></a> function.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>klass</strong> (Normalizer) (<code class="xref py py-class docutils literal notranslate"><span class="pre">Normalizer</span></code>)</p>
+<p>A normalizer class.</p>
+</li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Name that can be used to refer to access the class in the
+<a class="reference internal" href="#vlnm.registration.get_normalizer" title="vlnm.registration.get_normalizer"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_normalizer()</span></code></a> function.</p>
+</li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>A dictionary in which the normalizer class will be registered.
+If omitted, the global index will be used.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="c1"># Custom normalizer definition.</span>
+
+<span class="n">register_normalizer</span><span class="p">(</span><span class="n">CustomNormalizer</span><span class="p">,</span> <span class="s1">&#39;custom-normalizer&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/registration.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

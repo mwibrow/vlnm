@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.speaker &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.normalizers.speaker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Speaker-based normalizers</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+
+<span class="sd">.. normalizers-list::</span>
+<span class="sd">    :module: vlnm.normalizers.speaker</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..docstrings</span> <span class="k">import</span> <span class="n">docstring</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">classify</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">uninstantiable</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">,</span> <span class="n">FormantSpecificNormalizer</span>
+
+
+<div class="viewcode-block" id="SpeakerNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.SpeakerNormalizer">[docs]</a><span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">SpeakerNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for speaker intrinsic normalizers.&quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">speaker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;speaker&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;speaker&#39;</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_normalize</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GerstmanNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.GerstmanNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;gerstman&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GerstmanNormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize formants according to :citet:`gerstman_1968`.</span>
+
+<span class="sd">    Formants are normalized by subtracting the speaker&#39;s minimum value</span>
+<span class="sd">    for the formant and then divided by the speaker&#39;s range for</span>
+<span class="sd">    the formant. These value are then multipled by :math:`999`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = 999 \frac{F_i - \min{F_i}}{\max{F_i}}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, GerstmanNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = GerstmanNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GerstmanNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.GerstmanNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">fmin</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">fmax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="mi">999</span> <span class="o">*</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">-</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">fmax</span> <span class="o">-</span> <span class="n">fmin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="LCENormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.LCENormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;lce&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LCENormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize by dividing formants by their mamximum value for a speaker.</span>
+
+<span class="sd">    Formants are normalized by &quot;linear compression or expansion&quot;</span>
+<span class="sd">    :citep:`{% lobanov_1971 %} p.607`, that is by dividing</span>
+<span class="sd">    each formant for a given speaker by it&#39;s maximum value for that speaker:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{\max{F_i}}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, LCENormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = LCENormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LCENormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.LCENormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="LobanovNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.LobanovNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LobanovNormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize formants according to :citet:`{% lobanov_1971 %}`:</span>
+
+<span class="sd">    This uses the following formula:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}</span>
+
+<span class="sd">    Where :math:`\mu_{F_i}` is the mean of the formant :math:`F_i`</span>
+<span class="sd">    and :math:`\sigma_{F_i}` is the &quot;rms deviation&quot; (:citealp:`lobanov_1971`, p.606)</span>
+<span class="sd">    of formant :math:`F_i` from its mean for the speaker&#39;s vowels.</span>
+<span class="sd">    As noted by :citet:`thomas_kendel_2007` this is equivalent</span>
+<span class="sd">    to the standard deviation when the mean is zero,</span>
+<span class="sd">    and for efficiency this is how the normalizer is implemented.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, LobanovNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = LobanovNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LobanovNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.LobanovNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="NearyNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;neary&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NearyNormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize by subtracting log-transformed formant means for each speaker.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = T\left(</span>
+<span class="sd">            \log\left(F_i\right) - \frac{1}{n}</span>
+<span class="sd">                \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}</span>
+<span class="sd">        \right)</span>
+
+<span class="sd">    Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,</span>
+<span class="sd">    and `n` is the highest formant index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    exp:</span>
+<span class="sd">        If :obj:`True` transform the normalized formants</span>
+<span class="sd">        using the exponential function with base :math:`e`.</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, NearyNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = NearyNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">exp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="n">exp</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NearyNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_keyword_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">keyword</span> <span class="o">==</span> <span class="s1">&#39;exp&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_keyword_default</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">logs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span> <span class="o">-</span> <span class="n">logs</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="NearyExpNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyExpNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;neary-exp&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NearyExpNormalizer</span><span class="p">(</span><span class="n">NearyNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;:class:`NearyNormalizer` with the ``exp`` parameter automatically set to ``True``.</span>
+
+<span class="sd">    See :cite:`thomas_kendel_2007` for discussion.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, NearyExpNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = NearyExpNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NearyExpNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyExpNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NearyGMNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyGMNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;nearygm&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NearyGMNormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">,</span> <span class="n">FormantSpecificNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize by subtracting the speaker&#39;s mean log-transformed formants.</span>
+
+<span class="sd">    The Neary &#39;Grand Mean&#39; normalizer log-transforms each formant</span>
+<span class="sd">    and then substracts the mean log-transform of *all* formants</span>
+<span class="sd">    under-considraton for a given speaker.</span>
+<span class="sd">    This is usually |f1| and |f2| :citep:`flynn_foulkes_2011`</span>
+<span class="sd">    or |f1|, |f2|, and |f3| :citep:`clopper_2009`:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = T\left(</span>
+<span class="sd">            \log\left(F_i\right) - \frac{1}{n}</span>
+<span class="sd">                \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}</span>
+<span class="sd">        \right)</span>
+
+<span class="sd">    Where :math:`T(x)=x` or :math:`T(x)=\exp(x)`,</span>
+<span class="sd">    and `n` is the highest formant index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    exp:</span>
+<span class="sd">        If :obj:`True` transform the normalized formants</span>
+<span class="sd">        using the exponential function with base :math:`e`.</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, NearyGMNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = NearyGMNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">exp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">exp</span><span class="o">=</span><span class="n">exp</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NearyGMNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyGMNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_keyword_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">keyword</span> <span class="o">==</span> <span class="s1">&#39;exp&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_keyword_default</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">logs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">logs</span> <span class="o">-</span> <span class="n">logs</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="NearyGMExpNormalizer"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyGMExpNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;nearygm-exp&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NearyGMExpNormalizer</span><span class="p">(</span><span class="n">NearyNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;:class:`NearyGMNormalizer` with the ``exp`` parameter automatically set to ``True``.</span>
+
+<span class="sd">    See :citet:`flynn_foulkes_2011` and :citet:`thomas_kendel_2007` for discussion.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, NearyGMExpNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = NearyGMExpNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">exp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NearyGMExpNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/speaker.html#vlnm.normalizers.speaker.NearyGMExpNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

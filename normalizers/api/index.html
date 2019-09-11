@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>API &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm" href="vlnm.html" />
+    <link rel="prev" title="Getting started" href="../quickstart.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<span id="section-normalization-api"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<p>Below, links are provided to documentation for the lower level
+programming interface provided by <strong>VLNM</strong>.</p>
+<p>Normalizers are often classified according to whether
+the calculations they perform are <cite>intrinsic</cite>
+or <cite>extrinsic</cite> to certain properties (i.e.,
+vowel, formant and speaker — see e.g., <span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span></span></span></span>).</p>
+<p>The normalizers have been implemented in modules whose names
+might suggest some correspondence to the most prominent <cite>intrinsic</cite> property
+as described by the literature, but this is mostly
+coincidental: normalizers have been logically
+grouped according to ‘programmatical convenience’,
+so the names of the modules should not be taken to
+indiciate any accepted classification of normalizers in the literature.</p>
+<div class="section" id="vlnm">
+<h3><a class="reference internal" href="vlnm.html#module-vlnm" title="vlnm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm</span></code></a><a class="headerlink" href="#vlnm" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vlnm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm</span></code></a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="vlnm-registration">
+<h3><a class="reference internal" href="registration.html#module-vlnm.registration" title="vlnm.registration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.registration</span></code></a><a class="headerlink" href="#vlnm-registration" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="registration.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.registration</span></code></a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="vlnm-conversion">
+<h3><a class="reference internal" href="conversion.html#module-vlnm.conversion" title="vlnm.conversion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.conversion</span></code></a><a class="headerlink" href="#vlnm-conversion" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.conversion</span></code></a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="vlnm-normalizers">
+<h3><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers</span></code><a class="headerlink" href="#vlnm-normalizers" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.base</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="centroid.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.centroid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="projection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.projection</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="formant.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.formant</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="gender.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.gender</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="speaker.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.speaker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="vowel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.vowel</span></code></a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

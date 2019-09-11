@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.conversion &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.normalizers.base" href="base.html" />
+    <link rel="prev" title="vlnm.registration" href="registration.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.conversion">
+<span id="vlnm-conversion"></span><h1><a class="reference internal" href="#module-vlnm.conversion" title="vlnm.conversion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.conversion</span></code></a><a class="headerlink" href="#module-vlnm.conversion" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="conversion">
+<h2>Conversion<a class="headerlink" href="#conversion" title="Permalink to this headline">¶</a></h2>
+<p>This module contains miscellaeneous functions for converting
+from Hz to other scales.</p>
+<dl class="function">
+<dt id="vlnm.conversion.hz_to_bark">
+<code class="descname">hz_to_bark</code><span class="sig-paren">(</span><em>frq</em>, <em>method='traunmuller'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/conversion.html#hz_to_bark"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.conversion.hz_to_bark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from Hz to Bark scale.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>frq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>)</p>
+<p>The frequency data to convert.</p>
+</li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The conversion method used, from the list below.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'traumuller'</span></code>.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'syrdal'</span></code> conversion from <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#syrdal_gopal_1986"><span><span class="authors"><span><span><span>Syrdal</span></span><span> &amp; </span><span><span>Gopal</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#syrdal_gopal_1986"><span><span>1986</span></span></a></span><span>)</span></span></span>:</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[F^\prime = 13 \arctan\left( 0.76\frac{F_c}{1000} \right) +
+    3.5 \arctan \left( \frac{F_c}{7500} \right)^2\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}F_c = \begin{cases}
+    150 &amp; \mbox{when } F &lt; 150
+    \\
+    F - 0.2(F - 150) &amp; \mbox{when } 150 \leq F &lt; 200
+    \\
+    F - 0.2(250 - F) &amp; \mbox{when } 200\leq F &lt; 250
+    \\
+    F &amp; \mbox{otherwise}
+    \end{cases}\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'traumuller'</span></code> conversion from <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#traunmuller_1990"><span><span class="authors"><span><span><span>Traunmüller</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#traunmuller_1990"><span><span>1990</span></span></a></span><span>)</span></span></span>:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[F^\prime = 26.81 \left(\frac{F}{F + 1960}\right)\]</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'volk'</span></code> conversion from <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#volk_2015"><span><span class="authors"><span><span><span>Völk</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#volk_2015"><span><span>2015</span></span></a></span><span>)</span></span></span>:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[F^\prime  = 32.12 \left(
+    1 - \left(1 +
+        \left(\frac{F}{873.47}\right)^{1.18}
+    \right)^{-0.4}
+\right)\]</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'zwicker'</span></code> conversion from <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#zwicker_terhardt_1980"><span><span class="authors"><span><span><span>Zwicker</span></span><span> &amp; </span><span><span>Terhardt</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#zwicker_terhardt_1980"><span><span>1980</span></span></a></span><span>)</span></span></span>:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[F^\prime = 13 \arctan\left( 0.76\frac{F}{1000} \right) +
+3.5 \arctan \left( \frac{F}{7500} \right)^2\]</div>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The converted data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.conversion.hz_to_erb">
+<code class="descname">hz_to_erb</code><span class="sig-paren">(</span><em>frq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/conversion.html#hz_to_erb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.conversion.hz_to_erb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Hz to approximate ERB scale.</p>
+<p>Formula taken from <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#moore_glasberg_1996"><span><span class="authors"><span><span><span>Moore</span></span><span> &amp; </span><span><span>Glasberg</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#moore_glasberg_1996"><span><span>1996</span></span></a></span><span>, p.336</span><span>)</span></span></span>:</p>
+<div class="math notranslate nohighlight">
+\[F^\prime = 21.4\log\left(1 + 0.00437F\right)\]</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>)</p></li>
+</ul>
+<p>The frequency data to convert.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The converted data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.conversion.hz_to_log">
+<code class="descname">hz_to_log</code><span class="sig-paren">(</span><em>frq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/conversion.html#hz_to_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.conversion.hz_to_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Hz to the natural logarithmic scale.</p>
+<div class="math notranslate nohighlight">
+\[F^\prime = \log\left(F\right)\]</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>)</p></li>
+</ul>
+<p>The frequency data to convert.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The converted data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.conversion.hz_to_log10">
+<code class="descname">hz_to_log10</code><span class="sig-paren">(</span><em>frq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/conversion.html#hz_to_log10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.conversion.hz_to_log10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Hz to the base-10 logarithmic scale.</p>
+<div class="math notranslate nohighlight">
+\[F^\prime = \log_{10}\left(F\right)\]</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>)</p></li>
+</ul>
+<p>The frequency data to convert.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The converted data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.conversion.hz_to_mel">
+<code class="descname">hz_to_mel</code><span class="sig-paren">(</span><em>frq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/conversion.html#hz_to_mel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.conversion.hz_to_mel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from Hz to mel scale.</p>
+<p>The formula used here is the ‘natural-log’ equivalent
+of the formula given in <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#oshaughnessy_1987"><span><span class="authors"><span><span><span>O'Shaughnessy</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#oshaughnessy_1987"><span><span>1987</span></span></a></span><span>, p.150</span><span>)</span></span></span>:</p>
+<div class="math notranslate nohighlight">
+\[F^\prime = 1127\log\left(1 + \frac{F}{700}\right)\]</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>)</p></li>
+</ul>
+<p>The frequency data to convert.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The converted data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/conversion.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

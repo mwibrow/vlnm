@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.registration" href="registration.html" />
+    <link rel="prev" title="API" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm">
+<span id="vlnm"></span><h1><a class="reference internal" href="#module-vlnm" title="vlnm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm</span></code></a><a class="headerlink" href="#module-vlnm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="vlnm-module">
+<h2>VLNM module<a class="headerlink" href="#vlnm-module" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="vlnm.list_normalizers">
+<code class="descname">list_normalizers</code><span class="sig-paren">(</span><em>sort=True</em>, <em>module=None</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm.html#list_normalizers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.list_normalizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of available normalizers.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>sort</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>)</p>
+<p>Whether to sort the list by alphabetical order</p>
+</li>
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>List normalizers in the specified module.
+If omitted, all available normalizers will be listed.</p>
+</li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>The register in which the normalizer was registered.
+If omitted, the global register will be used.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list containing the names of the available normalizers.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">list_normalizers</span>
+<span class="n">list_normalizers</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;bark&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;barkdiff&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;bigham&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;bladen&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;centroid&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;chain&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;convex-hull&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;erb&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;factor-analysis&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;fast-ica&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;gerstman&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;ie-gmagm&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;ie-ht&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;lce&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;lda&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;lobanov&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;log&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;log10&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;mel&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;neary&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;neary-exp&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;nearygm&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;nearygm-exp&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;nmf&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;nordstrom&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;pca&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;schwa&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;wattfab1&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;wattfab2&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;wattfab3&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>data</em>, <em>file_out=None</em>, <em>method='default'</em>, <em>sep='</em>, <em>'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize vowel data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>A path to a CSV file containing the data,
+a file handle to an open file containing the data,
+or a Pandas <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> containing the data.</p>
+</li>
+<li><p><strong>file_out</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code>)</p>
+<p>An optional a file path or a file handle
+to which the output data will be saved (using <code class="docutils literal notranslate"><span class="pre">DataFrame.to_csv</span></code>).</p>
+</li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The name of a normalization method.
+Method names can be found using the <a class="reference internal" href="#vlnm.list_normalizers" title="vlnm.list_normalizers"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_normalizers()</span></code></a> function.</p>
+</li>
+<li><p><strong>sep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The column separator in a file.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Other keyword arguments passed on to the normalizer class.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If <code class="docutils literal notranslate"><span class="pre">file_out</span></code> is not specified, a Pandas <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>
+containing the normalized data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/vlnm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

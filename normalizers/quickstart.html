@@ -1,0 +1,1155 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting started &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API" href="api/index.html" />
+    <link rel="prev" title="Vowel Normalization" href="index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<span id="section-normalization-quickstart"></span><h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>There are a few ways in which <strong>VLNM</strong> can be used:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>interactively in terminal (called the <cite>command prompt</cite> or <cite>PowerShell</cite> on Windows) running Python</p></li>
+<li><p>non-interactively by running a Python script containing <strong>VLNM</strong> commands</p></li>
+<li><p>interactively using a <a class="reference external" href="https://jupyter.org/">Jupyter</a> notebook</p></li>
+</ul>
+</div></blockquote>
+<p>By far the easiest way to use <strong>VLNM</strong> is the third option,
+and for simplicity this is the method that is assumed below.
+Having <a class="reference external" href="https://jupyter.readthedocs.io/en/latest/install.html">installed Jupyter</a>
+Python can be automatically run by
+<a class="reference external" href="https://jupyter.readthedocs.io/en/latest/running.html">starting a new notebook</a>
+and <strong>VLNM</strong> can be imported by
+<a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Running%20Code.html">running code</a>
+in the first cell:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vlnm</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Unless otherwise stated the data used in these examples
+is based on <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#peterson_barney_1952"><span><span class="authors"><span><span><span>Peterson</span></span><span> &amp; </span><span><span>Barney</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#peterson_barney_1952"><span><span>1952</span></span></a></span><span>)</span></span></span> which
+was extraced from PRAAT <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#boersma_weenink_2018"><span><span class="authors"><span><span><span>Boersma</span></span><span> &amp; </span><span><span>Weenink</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#boersma_weenink_2018"><span><span>2018</span></span></a></span></span></span><span>)</span></span>.</p>
+<div class="section" id="normalizing-a-csv-file">
+<h2>Normalizing a CSV file<a class="headerlink" href="#normalizing-a-csv-file" title="Permalink to this headline">¶</a></h2>
+<p>In perhaps the simplest case, <strong>VLNM</strong> can be used to
+normlize a CSV file containing the vowel data.
+This CSV file could contain many columns, but for simplicity,
+it is assumed the file has the columns
+<span class="vlnm-col">speaker</span>, <span class="vlnm-col">vowel</span>, <span class="vlnm-col">f1</span> and <span class="vlnm-col">f2</span>.
+The first few lines of the file can be previewed as
+follows:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">csv_file</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-stdout highlight-none notranslate"><div class="highlight"><pre><span></span>speaker,vowel,f1,f2
+1,iy,240,2280
+1,iy,280,2400
+1,ih,390,2030
+1,ih,310,1980
+1,eh,490,1870
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>However, it is worth noting that in Jupyter,
+CSV files can can be previewed a bit more prettily
+using a <a class="reference external" href="https://pandas.pydata.org/">Pandas</a> DataFrame:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>To normalize the formant data in this CSV file
+the <code class="docutils literal notranslate"><span class="pre">normalize</span></code> function can be used, which
+is imported using the following code:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">normalize</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>To normalize the file <span class="vlnm-csv">vowels.csv</span>
+according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span><span>)</span></span></span>
+and automatically save to a new file <span class="vlnm-csv">normalized.csv</span>,
+the <code class="docutils literal notranslate"><span class="pre">normalize</span></code> function can be used.
+This can be imported using the following code:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Which will produce a file <code class="docutils literal notranslate"><span class="pre">normalized.csv</span></code> including
+the following data:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1 column-dtype-float64" colspan=2 style="text-align: center;">
+f1</th>
+<th class="column-f2 column-dtype-float64" colspan=2 style="text-align: center;">
+f2</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.72902</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.98549</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.19471</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08785</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85276</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>Instead of passing file names to the <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code> function,
+one (or both) of the arguments can be a
+<a class="reference external" href="https://docs.python.org/3/glossary.html#term-file-object">file object</a>
+created using the
+<a class="reference external" href="https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files">open() function</a>:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_in</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+    <span class="n">normalize</span><span class="p">(</span><span class="n">csv_in</span><span class="p">,</span> <span class="n">csv_out</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="renaming-columns">
+<span id="normalization-renaming"></span><h3>Renaming columns<a class="headerlink" href="#renaming-columns" title="Permalink to this headline">¶</a></h3>
+<p>By default, most normalizers will happily overwrite
+existing formant columns. If the original columns
+should be retained,
+the normalized data can be written to new columns using the
+<span class="vlnm-arg">rename</span> argument.
+The value passed to this argument can take two forms.
+In the first, a simple string can be passed,
+and if it contains the characters <code class="docutils literal notranslate"><span class="pre">{}</span></code>, they will be replaced by the
+original output columns:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.72902</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.98549</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.19471</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08785</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85276</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>This will create new columns <span class="vlnm-col">f1*</span> and <span class="vlnm-col">f2*</span> containing
+the normalized data for the <span class="vlnm-col">f1</span> and <span class="vlnm-col">f2</span> columns,
+respectively.</p>
+<p>If the string does not contain the characters <code class="docutils literal notranslate"><span class="pre">{}</span></code>,
+the normalized columns will be numbered using the string
+as a prefix, so using <code class="docutils literal notranslate"><span class="pre">rename='n'</span></code> will produce
+normalized columns <span class="vlnm-col">n1</span>, <span class="vlnm-col">n2</span>… and so on:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-n1 column-dtype-float64" colspan=2 style="text-align: center;">
+n1</th>
+<th class="column-n2 column-dtype-float64" colspan=2 style="text-align: center;">
+n2</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.72902</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.98549</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.19471</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08785</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85276</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<p>Alternatively, the <span class="vlnm-arg">rename</span> argument can be a dictionary.
+Columns will be renamed only if they have a key in the
+dictionary, and will take the name of the corresponding value,
+unless that value is <code class="docutils literal notranslate"><span class="pre">None</span></code> in which case the column
+will be removed:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;f1&#39;</span><span class="p">:</span> <span class="s1">&#39;norm1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+<span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-norm1 column-dtype-float64" colspan=2 style="text-align: center;">
+norm1</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="grouping-data">
+<span id="normalization-grouping"></span><h3>Grouping data<a class="headerlink" href="#grouping-data" title="Permalink to this headline">¶</a></h3>
+<p>In rare cases, perhaps when using a speaker extrinsic normalizer
+which relies on population level calculations
+(e.g., <span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#nordstrom_1977"><span><span class="authors"><span><span><span>Nordström</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#nordstrom_1977"><span><span>1977</span></span></a></span></span></span></span>)
+with different populations (e.g., children and adults) in the
+same data set, it is necessary to consider these populations
+seperately as different groups.
+In thses cases the <code class="docutils literal notranslate"><span class="pre">groupby</span></code> parameter can be used to group
+data over one or more columns and normalize each group separately:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;f1&#39;</span><span class="p">:</span> <span class="s1">&#39;norm1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+<span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>It is worth noting that this is almost identical to the following code:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">LobanovNormalizer</span>
+
+<span class="n">normalizer</span> <span class="o">=</span> <span class="n">LobanovNormalizer</span><span class="p">()</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Although <code class="docutils literal notranslate"><span class="pre">groupby</span></code> can be used with most normalizers,
+it only usually makes sense to used it with speaker extrinsic
+normalizers.</p>
+</div>
+<div class="section" id="tab-and-whitespace-delimited-files">
+<h3>Tab and whitespace delimited files<a class="headerlink" href="#tab-and-whitespace-delimited-files" title="Permalink to this headline">¶</a></h3>
+<p>Tab-delmited and whitespace delimited files can be normalzied by
+using the <code class="docutils literal notranslate"><span class="pre">sep</span></code> keyword:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tab-delimited columns</span>
+<span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\t&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+
+<span class="c1"># Whitespace delimited columns</span>
+<span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Note that files will always be saved as comma separated files.
+If greater flexibility is required saving (or loading)
+vowel data, then the data should be loaded into
+a <a class="reference external" href="https://pandas.pydata.org/">Pandas</a> Dataframe as shown below
+(this is actually what <strong>VLNM</strong> does internally).</p>
+</div>
+<div class="section" id="passing-arguments-to-a-normalizer">
+<h3>Passing arguments to a normalizer<a class="headerlink" href="#passing-arguments-to-a-normalizer" title="Permalink to this headline">¶</a></h3>
+<p>Arguments can be passed to a normalizer using addition keyword
+arguments in the <code class="xref py py-func docutils literal notranslate"><span class="pre">normalizer()</span></code> function.
+For example, the <code class="xref py py-class docutils literal notranslate"><span class="pre">LobanovNormalizer</span></code> class
+assumes the speaker labels are
+in a column named <span class="vlnm-col">speaker</span>.
+If the speaker labels are in a different column,
+for example, <span class="vlnm-col">Talker</span> then this can be passed
+to the normalizer as follows:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;Talker&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Keyword arguments for each normalizer are described
+in the <a class="reference internal" href="api/index.html#section-normalization-api"><span class="std std-ref">API</span></a>.</p>
+</div>
+<div class="section" id="alternative-column-names">
+<h3>Alternative column names<a class="headerlink" href="#alternative-column-names" title="Permalink to this headline">¶</a></h3>
+<p>All normalizers assume the formant data is in
+columns <span class="vlnm-col">f0</span>, <span class="vlnm-col">f1</span>, <span class="vlnm-col">f2</span>, … and so on,
+that is a lower case <cite>f</cite> followed by a number.
+For basic use cases, if the formant columns are not named
+in this fashion it is trivial to rename the columns
+prior to normalization using the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.rename.html#pandas.DataFrame.rename" title="(in pandas v0.25.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.rename()</span></code></a>
+method.</p>
+<p>In some cases, however, particularly when there are
+multiple measurements for a particular formant across
+a single vowel, it will be necessary to explictly
+state which columns contain the formant data.</p>
+<p><strong>VLNM</strong> has two different ways of specifying formant
+columns, depending on whether the normalizer
+is <cite>formant generic</cite> or <cite>formant specific</cite>.
+For example, the <code class="xref py py-class docutils literal notranslate"><span class="pre">BarkNormalizer</span></code> class
+(<code class="docutils literal notranslate"><span class="pre">method='bark'</span></code>) is a formant generic
+normalizer: it only needs to know which columns contain
+any formant data, and normalizes them <cite>en masse</cite>.
+By contrast the <code class="xref py py-class docutils literal notranslate"><span class="pre">BighamNormalizer</span></code> class
+(<code class="docutils literal notranslate"><span class="pre">method='bigham'</span></code>), constructs ‘derived’ vowels
+from <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> formants, so needs
+to know which columns correspond specifically
+to the <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> formants; this
+class is a <cite>formant specific</cite> normalizer.
+It is important to note that this distinction bears no relation to
+the classification of normalizers as being ‘formant intrinsic’
+or ‘formant extrinsic’ (see e.g., <span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span></span></span></span>):
+this merely represents a more logical
+grouping based on programming convenience.</p>
+<div class="section" id="formant-generic-normalizers">
+<h4>Formant generic normalizers<a class="headerlink" href="#formant-generic-normalizers" title="Permalink to this headline">¶</a></h4>
+<p>As formant generic normalizers don’t need to know
+what the individual formants are, a list of all formants
+is sufficient. These normalizers take a <code class="docutils literal notranslate"><span class="pre">formants</span></code>
+parameter and to explictly indicate which columns contain formant data
+the <code class="docutils literal notranslate"><span class="pre">formants</span></code> parameter can take a list of columns:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">formants</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;f1@20&#39;</span><span class="p">,</span> <span class="s1">&#39;f1@50&#39;</span><span class="p">,</span> <span class="s1">&#39;f1@80&#39;</span><span class="p">,</span> <span class="s1">&#39;f2@20&#39;</span><span class="p">,</span> <span class="s1">&#39;f2@50&#39;</span><span class="p">,</span> <span class="s1">&#39;f2@80&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Alternatively, it is possible to use a
+<a class="reference external" href="https://docs.python.org/3/howto/regex.html">regular expression</a>
+to compactly specify multiple formants.
+For example, the following matches exactly the columns specified
+above:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">formants</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;f[12]@[258]0&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="formant-specific-normalizers">
+<h4>Formant specific normalizers<a class="headerlink" href="#formant-specific-normalizers" title="Permalink to this headline">¶</a></h4>
+<p>As formant specific normalizers need to know which
+columns contain specific formants, these normalizers
+require parameters <code class="docutils literal notranslate"><span class="pre">f0</span></code>, <code class="docutils literal notranslate"><span class="pre">f1</span></code>, <code class="docutils literal notranslate"><span class="pre">f2</span></code>, and so on
+(the exact parameters may differ depending on the normalizer).
+Each parameter takes a list of formants:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f1</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;f1@20&#39;</span><span class="p">,</span> <span class="s1">&#39;f1@50&#39;</span><span class="p">,</span> <span class="s1">&#39;f1@80&#39;</span><span class="p">],</span> <span class="n">f2</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;f2@20&#39;</span><span class="p">,</span> <span class="s1">&#39;f2@50&#39;</span><span class="p">,</span> <span class="s1">&#39;f2@80&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Again, a regular expression can be used instead of a list,
+but it is important to note that the column names for each formant
+will be sorted as case-sensitive strings after collecting all
+columns matching the regular expression.</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f1</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;f1@[258]0&#39;</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;f2@[258]0&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="normalizing-a-dataframe">
+<h2>Normalizing a DataFrame<a class="headerlink" href="#normalizing-a-dataframe" title="Permalink to this headline">¶</a></h2>
+<p>In many cases, some pre-processing of the CSV file could
+be required, in which case it is easier to load the CSV
+file into a Dataframe using the <code class="docutils literal notranslate"><span class="pre">read_csv</span></code> function from the
+<a class="reference external" href="https://pandas.pydata.org/">Pandas</a> package. This provides considerably more
+flexibility regarding the file format, along
+with selection of columns, handling of null values and so on
+(for details see the Pandas <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">documentation</a>).</p>
+<p>To normalize the formant data in the Dataframe,
+simply pass the variable containing the data
+to the first argument of the <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code> function:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span> <span class="c1"># If this hasn&#39;t been imported before.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lobanov&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>The file can be saved using the
+<code class="docutils literal notranslate"><span class="pre">to_csv</span></code> method:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">norm_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;normalized.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>(Note that <code class="docutils literal notranslate"><span class="pre">index=False</span></code> is added to avoid the row numbers
+saved to the file, along with the normalized data).</p>
+</div>
+<div class="section" id="using-vlnm-python-classes">
+<h2>Using <strong>VLNM</strong> Python classes<a class="headerlink" href="#using-vlnm-python-classes" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code> function is a wrapper around
+the normalizer classes. For example,
+<strong>VLNM</strong> recognizes that the argument <code class="docutils literal notranslate"><span class="pre">method='lobanov'</span></code>
+corresponds to the <code class="xref py py-class docutils literal notranslate"><span class="pre">LobanovNormalizer</span></code> class.</p>
+<p>It is perfectly possibly to use these classes directly
+and it may be easier to do so, if comparing several
+normalizers. To use the class it must be imported
+first and instantiated. All normalizer classes
+have a <code class="docutils literal notranslate"><span class="pre">normalize</span></code> method whose first argument
+is a Dataframe:</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">LobanovNormalizer</span>
+
+<span class="n">norm</span> <span class="o">=</span> <span class="n">LobanovNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;vowels.csv&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.43845</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.72902</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.20167</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.98549</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.55052</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.19471</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-1</td>
+<td style="text-align: left; padding-left: 0;">
+.02408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.08785</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.04144</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.85276</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/normalizers/quickstart.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

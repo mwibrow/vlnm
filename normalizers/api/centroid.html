@@ -1,0 +1,1766 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.centroid &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.normalizers.projection" href="projection.html" />
+    <link rel="prev" title="vlnm.normalizers.base" href="base.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.normalizers.centroid">
+<span id="vlnm-normalizers-centroid"></span><h1><a class="reference internal" href="#module-vlnm.normalizers.centroid" title="vlnm.normalizers.centroid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.centroid</span></code></a><a class="headerlink" href="#module-vlnm.normalizers.centroid" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="centroid-normalizers">
+<h2>Centroid normalizers<a class="headerlink" href="#centroid-normalizers" title="Permalink to this headline">¶</a></h2>
+<p>Centroid normalizers are speaker intrinsic normalizers
+which calculate the centroid (i.e., geometric center)
+of a speaker’s vowel space
+and use this to normalize the formant data by
+divided the formants for each vowel by the
+correspoinding formant of the centroid.</p>
+<dl class="simple">
+<dt>The following normalizers are implemented in the <code class="docutils literal notranslate"><span class="pre">vlnm.normalizers.centroid</span></code> module:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.BighamNormalizer" title="vlnm.normalizers.centroid.BighamNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BighamNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.CentroidNormalizer" title="vlnm.normalizers.centroid.CentroidNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentroidNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.ConvexHullNormalizer" title="vlnm.normalizers.centroid.ConvexHullNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvexHullNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.SchwaNormalizer" title="vlnm.normalizers.centroid.SchwaNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SchwaNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.WattFabricius1Normalizer" title="vlnm.normalizers.centroid.WattFabricius1Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius1Normalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.WattFabricius2Normalizer" title="vlnm.normalizers.centroid.WattFabricius2Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius2Normalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.centroid.WattFabricius3Normalizer" title="vlnm.normalizers.centroid.WattFabricius3Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius3Normalizer</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.BighamNormalizer">
+<em class="property">class </em><code class="descname">BighamNormalizer</code><span class="sig-paren">(</span><em>f1='f1'</em>, <em>f2='f2'</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>points=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#BighamNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.BighamNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centroid normalizer using the centroid calculated according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bigham_2008"><span><span class="authors"><span><span><span>Bigham</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bigham_2008"><span><span>2008</span></span></a></span><span>)</span></span></span>.</p>
+<p><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bigham_2008"><span><span class="authors"><span><span><span>Bigham</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bigham_2008"><span><span>2008</span></span></a></span><span>)</span></span></span> adapts <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>
+to calculate a barycentric centroid from a trapezoid
+constructed using the vowels
+<span class="ipa">[i<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>, <span class="ipa">[u<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>
+<span class="ipa">[ɑ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>, and <span class="ipa">[æ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>
+derived as shown below:</p>
+<table class="centered docutils align-center" id="id1">
+<caption><span class="caption-text">Construction of derived vowels</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>vowel</p></th>
+<th class="head"><p>F1</p></th>
+<th class="head"><p>F2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="ipa">[i<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[ɪ]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[i]}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="ipa">[u<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[i]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[u]}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="ipa">[ɑ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{1}{2}(F_1^{[ɑ]} + F_1^{[ɔ]})\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{1}{2}(F_2^{[ɑ]} + F_2^{[ɔ]})\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="ipa">[æ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[æ]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[æ]}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Then the formants are normalized as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[S(F_i) = \frac{1}{4}
+    \left(
+        F_i^{[i^\prime]} +
+        F_i^{[u^\prime]} +
+        F_i^{[ɑ^\prime]} +
+        F_i^{[æ^\prime]}
+    \right)\]</div>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='bigham'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>f1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_1\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>.</p>
+</li>
+<li><p><strong>f2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_2\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>A dictionary specifying labels for the required vowels
+to construct the centroid (shown in the table above).
+The keys for the dictionary should be from the
+lexical set keywords <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#wells_1982"><span><span class="authors"><span><span><span>Wells</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#wells_1982"><span><span>1982</span></span></a></span><span>)</span></span></span>:
+<code class="docutils literal notranslate"><span class="pre">'kit'</span></code>, <code class="docutils literal notranslate"><span class="pre">'goose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code>, <code class="docutils literal notranslate"><span class="pre">'start'</span></code>, <code class="docutils literal notranslate"><span class="pre">'thought'</span></code>, <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>,
+and <em>all</em> keys need to be specified.
+If omitted, the normalizer will assume that the vowels
+are already labeled according to the lexical set keywords.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">BighamNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">points</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">kit</span><span class="o">=</span><span class="s1">&#39;ih&#39;</span><span class="p">,</span>
+    <span class="n">goose</span><span class="o">=</span><span class="s1">&#39;uw&#39;</span><span class="p">,</span>
+    <span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;iy&#39;</span><span class="p">,</span>
+    <span class="n">start</span><span class="o">=</span><span class="s1">&#39;aa&#39;</span><span class="p">,</span>
+    <span class="n">thought</span><span class="o">=</span><span class="s1">&#39;ao&#39;</span><span class="p">,</span>
+    <span class="n">trap</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">)</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">BighamNormalizer</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.50394</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.49386</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.58793</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.57248</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.81890</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.33006</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.65092</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.29730</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.02887</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.22523</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.BighamNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#BighamNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.BighamNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.CentroidNormalizer">
+<em class="property">class </em><code class="descname">CentroidNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>points=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#CentroidNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.CentroidNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize using the geometric center of the speakers entire vowel space.</p>
+<p>For a given speaker, the normalized formants are calculated as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S_i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[S_i = \frac{1}{|J|}\sum_{j\in J}\mu_{F_{ij}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(J\)</span> is the the set of vowels which form the convex
+hull of the vowel space, and <span class="math notranslate nohighlight">\(\mu_{F_{ij}}\)</span> is
+the mean of formant <span class="math notranslate nohighlight">\(i\)</span> for vowel <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='centroid'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>List of vowel labels corresponding to each ‘corner’ of the speakers vowel space.
+If omitted all vowels will be used.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">CentroidNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">CentroidNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.49689</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.54997</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.57971</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.63154</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.80745</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.38001</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.64182</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.34602</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.01449</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.27124</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.CentroidNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#CentroidNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.CentroidNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.ConvexHullNormalizer">
+<em class="property">class </em><code class="descname">ConvexHullNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>where='mean'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#ConvexHullNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.ConvexHullNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize using the geometric center of the convex hull enclosing the speakers vowel space.</p>
+<p>The convex hull normalizer establishes the speaker’s vowel
+space by calulating the <cite>convex hull</cite> <span><span>(</span><span>e.g., </span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#graham_yao_1983"><span><span class="authors"><span><span><span>Graham</span></span><span> &amp; </span><span><span>Yao</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#graham_yao_1983"><span><span>1983</span></span></a></span></span></span><span>)</span></span>
+from the ‘central’ formants (i.e., mean or median)
+for <cite>each</cite> of the speaker’s vowels,
+and uses the barycenter of the points
+that make-up the hull to normalize the formant data.</p>
+<p>For a given speaker, the normalized formants are calculated as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S_i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[S_i = \frac{1}{|J|}\sum_{j\in J}||F_{ij}||\]</div>
+<p>Where <span class="math notranslate nohighlight">\(J\)</span> is the the set of vowels which form the convex
+hull of the vowel space, <span class="math notranslate nohighlight">\(F_{ij}\)</span> is formant <span class="math notranslate nohighlight">\(i\)</span>
+of vowel <span class="math notranslate nohighlight">\(j\)</span>, and <span class="math notranslate nohighlight">\(||F_{ij}||\)</span> indicates
+the central tendency of <span class="math notranslate nohighlight">\(F_{ij}\)</span>.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='convex-hull'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong></p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong></p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong></p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>where</strong></p>
+<p>Central tendency measure to use when calculating the
+points of the convex hull.
+One of <code class="docutils literal notranslate"><span class="pre">'mean'</span></code> (the default) or <code class="docutils literal notranslate"><span class="pre">'median'</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">ConvexHullNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">ConvexHullNormalizer</span><span class="p">(</span><span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.47809</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.60000</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.55777</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.68421</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.77689</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.42456</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.61753</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.38947</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.97610</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.31228</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.ConvexHullNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#ConvexHullNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.ConvexHullNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.SchwaNormalizer">
+<em class="property">class </em><code class="descname">SchwaNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>schwa='ə'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#SchwaNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.SchwaNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centroid normalizer using formant data for [ə] as the centroid.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{F_{i}^{[ə]}} - 1\]</div>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='schwa'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>schwa</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The vowel label for the schwa vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'ə'</span></code></p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">SchwaNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">SchwaNormalizer</span><span class="p">(</span><span class="n">schwa</span><span class="o">=</span><span class="s1">&#39;er&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.42169</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.60000</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.32530</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.68421</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.06024</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.42456</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+-0</td>
+<td style="text-align: left; padding-left: 0;">
+.25301</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.38947</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.18072</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.31228</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.SchwaNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#SchwaNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.SchwaNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.WattFabricius1Normalizer">
+<em class="property">class </em><code class="descname">WattFabricius1Normalizer</code><span class="sig-paren">(</span><em>f1='f1'</em>, <em>f2='f2'</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>fleece='fleece'</em>, <em>trap='trap'</em>, <em>points=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius1Normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius1Normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize vowels according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<p>Formant data is normalized by
+by dividing the component formants for a vowel by a
+the components of a centroid calculated
+from the <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> data for the
+<span class="small-caps">fleece</span>, <span class="small-caps">trap</span> and <span class="small-caps">goose</span> vowels, with
+the formants for the <span class="small-caps">goose</span> vowel derived
+from the other vowels by setting
+<span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> to the <span class="math notranslate nohighlight">\(F_1\)</span>
+of the <span class="small-caps">fleece</span> vowel.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[S(F_j) = \frac{1}{3}\left
+    (F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}
+\right)\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}\]</div>
+<p>with <span class="math notranslate nohighlight">\([i]\)</span>, <span class="math notranslate nohighlight">\([a]\)</span>, and <span class="math notranslate nohighlight">\([u^\prime]\)</span> indicating
+the <span class="small-caps">fleece</span>, <span class="small-caps">trap</span>
+and (derived) <span class="small-caps">goose</span> vowels, respectively.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='wattfab1'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>f1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_1\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>.</p>
+</li>
+<li><p><strong>f2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_2\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>fleece</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">fleece</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code>.</p>
+</li>
+<li><p><strong>trap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">trap</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>.</p>
+</li>
+<li><p><strong>points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>Alternative method for specifying the
+<span class="small-caps">fleece</span> and <span class="small-caps">trap</span>
+labels, consisting of a dictionary with the
+keys <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code> and <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>,
+whose values correspond to their respective labels.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">WattFabricius1Normalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">WattFabricius1Normalizer</span><span class="p">(</span><span class="n">trap</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;iy&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.64574</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.56881</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.75336</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.65138</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.04933</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.39679</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.83408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.36239</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.31839</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.28670</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.WattFabricius1Normalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius1Normalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius1Normalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.WattFabricius2Normalizer">
+<em class="property">class </em><code class="descname">WattFabricius2Normalizer</code><span class="sig-paren">(</span><em>f1='f1'</em>, <em>f2='f2'</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>fleece='fleece'</em>, <em>trap='trap'</em>, <em>points=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius2Normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius2Normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second centroid normalizer described in <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}S(F_j) = \begin{cases}
+    \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
+    &amp; \text{when } j = 2
+    \\
+    \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
+    &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}\]</div>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='wattfab2'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>f1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_1\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>.</p>
+</li>
+<li><p><strong>f2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_2\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>fleece</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">fleece</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code>.</p>
+</li>
+<li><p><strong>trap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">trap</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>.</p>
+</li>
+<li><p><strong>points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>Alternative method for specifying the
+<span class="small-caps">fleece</span> and <span class="small-caps">trap</span>
+labels, consisting of a dictionary with the
+keys <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code> and <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>,
+whose values correspond to their respective labels.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">WattFabricius2Normalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">WattFabricius2Normalizer</span><span class="p">(</span><span class="n">trap</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;iy&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.64574</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.75385</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.75336</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.84615</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.04933</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.56154</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.83408</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.52308</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.31839</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.43846</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.WattFabricius2Normalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius2Normalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius2Normalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.centroid.WattFabricius3Normalizer">
+<em class="property">class </em><code class="descname">WattFabricius3Normalizer</code><span class="sig-paren">(</span><em>f1='f1'</em>, <em>f2='f2'</em>, <em>speaker='speaker'</em>, <em>vowel='vowel'</em>, <em>fleece='fleece'</em>, <em>trap='trap'</em>, <em>points=None</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius3Normalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius3Normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Third centroid normalizer described in <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}S(F_j) = \begin{cases}
+    \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
+    &amp; \text{when } j = 2
+    \\
+    \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
+    &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_j^{[u^\prime]} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(P\)</span> is the set of point vowels.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='wattfab3'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>f1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_1\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>.</p>
+</li>
+<li><p><strong>f2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>DataFrame columns containing <span class="math notranslate nohighlight">\(F_2\)</span> data.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>.</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the speaker labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'speaker'</span></code>.</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The DataFrame column which contains the vowel labels.
+If not given, defaults to <code class="docutils literal notranslate"><span class="pre">'vowel'</span></code>.</p>
+</li>
+<li><p><strong>fleece</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">fleece</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code>.</p>
+</li>
+<li><p><strong>trap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Vowel label corresponding to the <span class="small-caps">trap</span> vowel.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>.</p>
+</li>
+<li><p><strong>points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>Alternative method for specifying the
+<span class="small-caps">fleece</span> and <span class="small-caps">trap</span>
+labels, consisting of a dictionary with the
+keys <code class="docutils literal notranslate"><span class="pre">'fleece'</span></code> and <code class="docutils literal notranslate"><span class="pre">'trap'</span></code>,
+whose values correspond to their respective labels.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">WattFabricius3Normalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">WattFabricius3Normalizer</span><span class="p">(</span><span class="n">trap</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;iy&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.64865</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.34778</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.75676</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.41872</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.05405</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.20000</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+0</td>
+<td style="text-align: left; padding-left: 0;">
+.83784</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.17044</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.32432</td>
+<td style="text-align: right; padding-right: 0;">
+1</td>
+<td style="text-align: left; padding-left: 0;">
+.10542</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.centroid.WattFabricius3Normalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/centroid.html#WattFabricius3Normalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabricius3Normalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vlnm.normalizers.centroid.WattFabriciusNormalizer">
+<code class="descname">WattFabriciusNormalizer</code><a class="headerlink" href="#vlnm.normalizers.centroid.WattFabriciusNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#vlnm.normalizers.centroid.WattFabricius1Normalizer" title="vlnm.normalizers.centroid.WattFabricius1Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">vlnm.normalizers.centroid.WattFabricius1Normalizer</span></code></a></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/centroid.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

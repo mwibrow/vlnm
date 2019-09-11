@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.centroid &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.normalizers.centroid</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Centroid normalizers</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">Centroid normalizers are speaker intrinsic normalizers</span>
+<span class="sd">which calculate the centroid (i.e., geometric center)</span>
+<span class="sd">of a speaker&#39;s vowel space</span>
+<span class="sd">and use this to normalize the formant data by</span>
+<span class="sd">divided the formants for each vowel by the</span>
+<span class="sd">correspoinding formant of the centroid.</span>
+
+<span class="sd">.. normalizers-list::</span>
+<span class="sd">    :module: vlnm.normalizers.centroid</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
+
+<span class="kn">from</span> <span class="nn">..docstrings</span> <span class="k">import</span> <span class="n">docstring</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">classify</span><span class="p">,</span> <span class="n">register</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">,</span> <span class="n">FormantSpecificNormalizer</span>
+<span class="kn">from</span> <span class="nn">.speaker</span> <span class="k">import</span> <span class="n">SpeakerNormalizer</span>
+
+<span class="n">LEXICAL_SET</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;kit&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dress&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;trap&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;lot&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;strut&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;foot&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;bath&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cloth&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;nurse&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fleece&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;face&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;palm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;thought&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;goat&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;goose&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;price&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;choice&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mouth&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;near&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;square&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;start&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;north&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;force&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cure&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;happy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;letter&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;comma&#39;</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_get_apice_formants</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Helper function for extracting formant means for vowel space points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df :</span>
+<span class="sd">        The formant data for single speaker.</span>
+<span class="sd">    points :</span>
+<span class="sd">        A dictionary whose keys are the lexical set keywords for points</span>
+<span class="sd">        of the vowel space, and whose values are the vowel labels in</span>
+<span class="sd">        the DataFrame.</span>
+<span class="sd">    vowel :</span>
+<span class="sd">        The column in the data-frame containing vowel labels</span>
+<span class="sd">    formants :</span>
+<span class="sd">        A list of columns in the data-frame containing the formant data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :obj:`DataFrame`</span>
+<span class="sd">        A data-frame containing the mean formant values for each apice</span>
+<span class="sd">        in the speakers vowel space.</span>
+<span class="sd">        The columns of the data-frame will contain the formant means</span>
+<span class="sd">        and the index will contain the apice labels.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">vowel</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()}</span>
+    <span class="n">vowels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">vowels_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">vowel</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">vowels</span><span class="p">)]</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">vowels_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">vowel</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_agg</span><span class="p">(</span><span class="n">agg_df</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">agg_df</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">formants</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">formants</span><span class="p">)</span>
+
+    <span class="n">apice_df</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">_agg</span><span class="p">)[</span><span class="n">formants</span><span class="p">]</span>
+
+    <span class="c1"># Rename the index using the apice map keys.</span>
+    <span class="n">secipa</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">apice_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">secipa</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">apice_df</span>
+
+
+<div class="viewcode-block" id="CentroidNormalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.CentroidNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;centroid&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CentroidNormalizer</span><span class="p">(</span><span class="n">SpeakerNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize using the geometric center of the speakers entire vowel space.</span>
+
+<span class="sd">    For a given speaker, the normalized formants are calculated as follows:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S_i}</span>
+
+<span class="sd">    where</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S_i = \frac{1}{|J|}\sum_{j\in J}\mu_{F_{ij}}</span>
+
+<span class="sd">    Where :math:`J` is the the set of vowels which form the convex</span>
+<span class="sd">    hull of the vowel space, and :math:`\mu_{F_{ij}}` is</span>
+<span class="sd">    the mean of formant :math:`i` for vowel :math:`j`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    points:</span>
+<span class="sd">        List of vowel labels corresponding to each &#39;corner&#39; of the speakers vowel space.</span>
+<span class="sd">        If omitted all vowels will be used.</span>
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, CentroidNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = CentroidNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;formants&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">apice_df</span> <span class="o">=</span> <span class="n">_get_apice_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vowel</span><span class="p">,</span> <span class="n">formants</span><span class="p">)</span>
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">centroid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_centroid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">/=</span> <span class="n">centroid</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="CentroidNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.CentroidNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ConvexHullNormalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.ConvexHullNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;convex-hull&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ConvexHullNormalizer</span><span class="p">(</span><span class="n">CentroidNormalizer</span><span class="p">,</span> <span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize using the geometric center of the convex hull enclosing the speakers vowel space.</span>
+
+<span class="sd">    The convex hull normalizer establishes the speaker&#39;s vowel</span>
+<span class="sd">    space by calulating the `convex hull` :citep:`e.g., {% graham_yao_1983 %}`</span>
+<span class="sd">    from the &#39;central&#39; formants (i.e., mean or median)</span>
+<span class="sd">    for `each` of the speaker&#39;s vowels,</span>
+<span class="sd">    and uses the barycenter of the points</span>
+<span class="sd">    that make-up the hull to normalize the formant data.</span>
+
+<span class="sd">    For a given speaker, the normalized formants are calculated as follows:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S_i}</span>
+
+<span class="sd">    where</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S_i = \frac{1}{|J|}\sum_{j\in J}||F_{ij}||</span>
+
+<span class="sd">    Where :math:`J` is the the set of vowels which form the convex</span>
+<span class="sd">    hull of the vowel space, :math:`F_{ij}` is formant :math:`i`</span>
+<span class="sd">    of vowel :math:`j`, and :math:`||F_{ij}||` indicates</span>
+<span class="sd">    the central tendency of :math:`F_{ij}`.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    where:</span>
+<span class="sd">        Central tendency measure to use when calculating the</span>
+<span class="sd">        points of the convex hull.</span>
+<span class="sd">        One of ``&#39;mean&#39;`` (the default) or ``&#39;median&#39;``.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, ConvexHullNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = ConvexHullNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">where</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">where</span><span class="o">=</span><span class="n">where</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=missing-docstring</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;formants&#39;</span><span class="p">)</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;where&#39;</span><span class="p">)</span>
+
+        <span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="n">vowel</span><span class="p">]</span>
+        <span class="n">subset</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formants</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">where</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+            <span class="n">means</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">subset</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">vowel</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">means</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">subset</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">vowel</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+
+        <span class="n">hull</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">means</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">means</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">])</span>
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+<div class="viewcode-block" id="ConvexHullNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.ConvexHullNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WattFabricius1Normalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius1Normalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;wattfab1&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WattFabricius1Normalizer</span><span class="p">(</span><span class="n">CentroidNormalizer</span><span class="p">,</span> <span class="n">FormantSpecificNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize vowels according to :citet:`watt_fabricius_2002`.</span>
+
+<span class="sd">    Formant data is normalized by</span>
+<span class="sd">    by dividing the component formants for a vowel by a</span>
+<span class="sd">    the components of a centroid calculated</span>
+<span class="sd">    from the :math:`F_1` and :math:`F_2` data for the</span>
+<span class="sd">    :smallcaps:`fleece`, :smallcaps:`trap` and :smallcaps:`goose` vowels, with</span>
+<span class="sd">    the formants for the :smallcaps:`goose` vowel derived</span>
+<span class="sd">    from the other vowels by setting</span>
+<span class="sd">    :math:`F_1` and :math:`F_2` to the :math:`F_1`</span>
+<span class="sd">    of the :smallcaps:`fleece` vowel.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S(F_i)}</span>
+
+<span class="sd">    Where:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S(F_j) = \frac{1}{3}\left</span>
+<span class="sd">            (F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}</span>
+<span class="sd">        \right)</span>
+
+<span class="sd">    and</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}</span>
+
+<span class="sd">    with :math:`[i]`, :math:`[a]`, and :math:`[u^\prime]` indicating</span>
+<span class="sd">    the :smallcaps:`fleece`, :smallcaps:`trap`</span>
+<span class="sd">    and (derived) :smallcaps:`goose` vowels, respectively.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    f1:</span>
+<span class="sd">    f2:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    fleece:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`fleece` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;fleece&#39;``.</span>
+<span class="sd">    trap:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`trap` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;trap&#39;``.</span>
+<span class="sd">    points:</span>
+<span class="sd">        Alternative method for specifying the</span>
+<span class="sd">        :smallcaps:`fleece` and :smallcaps:`trap`</span>
+<span class="sd">        labels, consisting of a dictionary with the</span>
+<span class="sd">        keys ``&#39;fleece&#39;`` and ``&#39;trap&#39;``,</span>
+<span class="sd">        whose values correspond to their respective labels.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, WattFabricius1Normalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm = WattFabricius1Normalizer(trap=&#39;ae&#39;, fleece=&#39;iy&#39;, rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="s1">&#39;trap&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">f1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span>
+            <span class="n">f2</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">fleece</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span>
+            <span class="n">trap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;trap&#39;</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">fleece</span><span class="o">=</span><span class="n">fleece</span><span class="p">,</span>
+            <span class="n">trap</span><span class="o">=</span><span class="n">trap</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">f1</span><span class="o">=</span><span class="n">f1</span><span class="p">,</span>
+            <span class="n">f2</span><span class="o">=</span><span class="n">f2</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">trap</span><span class="o">=</span><span class="s1">&#39;trap&#39;</span><span class="p">)</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">)</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">)</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="p">[</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span>
+        <span class="n">apice_df</span> <span class="o">=</span> <span class="n">_get_apice_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vowel</span><span class="p">,</span> <span class="n">formants</span><span class="p">)</span>
+        <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">]</span>
+        <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span>
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+<div class="viewcode-block" id="WattFabricius1Normalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius1Normalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<span class="n">WattFabriciusNormalizer</span> <span class="o">=</span> <span class="n">WattFabricius1Normalizer</span>
+
+
+<div class="viewcode-block" id="WattFabricius2Normalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius2Normalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;wattfab2&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WattFabricius2Normalizer</span><span class="p">(</span><span class="n">WattFabricius1Normalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Second centroid normalizer described in :citet:`watt_fabricius_2002`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S(F_i)}</span>
+
+<span class="sd">    Where:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S(F_j) = \begin{cases}</span>
+<span class="sd">            \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)</span>
+<span class="sd">            &amp; \text{when } j = 2</span>
+<span class="sd">            \\</span>
+<span class="sd">            \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)</span>
+<span class="sd">            &amp; \text{otherwise}</span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    and</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f1:</span>
+<span class="sd">    f2:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    fleece:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`fleece` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;fleece&#39;``.</span>
+<span class="sd">    trap:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`trap` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;trap&#39;``.</span>
+<span class="sd">    points:</span>
+<span class="sd">        Alternative method for specifying the</span>
+<span class="sd">        :smallcaps:`fleece` and :smallcaps:`trap`</span>
+<span class="sd">        labels, consisting of a dictionary with the</span>
+<span class="sd">        keys ``&#39;fleece&#39;`` and ``&#39;trap&#39;``,</span>
+<span class="sd">        whose values correspond to their respective labels.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, WattFabricius2Normalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm = WattFabricius2Normalizer(trap=&#39;ae&#39;, fleece=&#39;iy&#39;, rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="s1">&#39;trap&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">f1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span>
+            <span class="n">f2</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">fleece</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span>
+            <span class="n">trap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;trap&#39;</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fleece</span><span class="o">=</span><span class="n">fleece</span><span class="p">,</span> <span class="n">trap</span><span class="o">=</span><span class="n">trap</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">f1</span><span class="o">=</span><span class="n">f1</span><span class="p">,</span>
+            <span class="n">f2</span><span class="o">=</span><span class="n">f2</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fleece</span><span class="o">=</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">trap</span><span class="o">=</span><span class="s1">&#39;trap&#39;</span><span class="p">)</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">)</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">)</span>
+
+        <span class="n">formants</span> <span class="o">=</span> <span class="p">[</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span>
+
+        <span class="n">apice_df</span> <span class="o">=</span> <span class="n">_get_apice_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vowel</span><span class="p">,</span> <span class="n">formants</span><span class="p">)</span>
+        <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">]</span>
+        <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">_means</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">series</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">f2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">series</span><span class="p">[[</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="s1">&#39;goose&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_means</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+<div class="viewcode-block" id="WattFabricius2Normalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius2Normalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WattFabricius3Normalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius3Normalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;wattfab3&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">WattFabricius3Normalizer</span><span class="p">(</span><span class="n">WattFabricius1Normalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Third centroid normalizer described in :citet:`watt_fabricius_2002`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S(F_i)}</span>
+
+<span class="sd">    Where:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S(F_j) = \begin{cases}</span>
+<span class="sd">            \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)</span>
+<span class="sd">            &amp; \text{when } j = 2</span>
+<span class="sd">            \\</span>
+<span class="sd">            \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)</span>
+<span class="sd">            &amp; \text{otherwise}</span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    and</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_j^{[u^\prime]} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}</span>
+
+<span class="sd">    where :math:`P` is the set of point vowels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    f1:</span>
+<span class="sd">    f2:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    fleece:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`fleece` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;fleece&#39;``.</span>
+<span class="sd">    trap:</span>
+<span class="sd">        Vowel label corresponding to the :smallcaps:`trap` vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;trap&#39;``.</span>
+<span class="sd">    points:</span>
+<span class="sd">        Alternative method for specifying the</span>
+<span class="sd">        :smallcaps:`fleece` and :smallcaps:`trap`</span>
+<span class="sd">        labels, consisting of a dictionary with the</span>
+<span class="sd">        keys ``&#39;fleece&#39;`` and ``&#39;trap&#39;``,</span>
+<span class="sd">        whose values correspond to their respective labels.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, WattFabricius3Normalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm = WattFabricius3Normalizer(trap=&#39;ae&#39;, fleece=&#39;iy&#39;, rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">f1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span>
+            <span class="n">f2</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">fleece</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span>
+            <span class="n">trap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;trap&#39;</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fleece</span><span class="o">=</span><span class="n">fleece</span><span class="p">,</span> <span class="n">trap</span><span class="o">=</span><span class="n">trap</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">f1</span><span class="o">=</span><span class="n">f1</span><span class="p">,</span>
+            <span class="n">f2</span><span class="o">=</span><span class="n">f2</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;formants&#39;</span><span class="p">)</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">apice_df</span> <span class="o">=</span> <span class="n">_get_apice_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">vowel</span><span class="p">,</span> <span class="n">formants</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_agg</span><span class="p">(</span><span class="n">agg_df</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">agg_df</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">formants</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">formants</span><span class="p">)</span>
+
+        <span class="c1"># Minimum mean of all vowels (same as minimum mean of point vowels)</span>
+        <span class="n">apice_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">vowel</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_agg</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+<div class="viewcode-block" id="WattFabricius3Normalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.WattFabricius3Normalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BighamNormalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.BighamNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;bigham&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">BighamNormalizer</span><span class="p">(</span><span class="n">CentroidNormalizer</span><span class="p">,</span> <span class="n">FormantSpecificNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Centroid normalizer using the centroid calculated according to :citet:`bigham_2008`.</span>
+
+<span class="sd">    :citet:`bigham_2008` adapts :citet:`watt_fabricius_2002`</span>
+<span class="sd">    to calculate a barycentric centroid from a trapezoid</span>
+<span class="sd">    constructed using the vowels</span>
+<span class="sd">    :ipa:`[i^\prime]`, :ipa:`[u^\prime]`</span>
+<span class="sd">    :ipa:`[ɑ^\prime]`, and :ipa:`[æ^\prime]`</span>
+<span class="sd">    derived as shown below:</span>
+
+<span class="sd">    .. list-table:: Construction of derived vowels</span>
+<span class="sd">        :header-rows: 1</span>
+<span class="sd">        :align: center</span>
+<span class="sd">        :class: centered</span>
+
+<span class="sd">        * - vowel</span>
+<span class="sd">          - F1</span>
+<span class="sd">          - F2</span>
+<span class="sd">        * - :ipa:`[i^\prime]`</span>
+<span class="sd">          - :math:`F_1^{[ɪ]}`</span>
+<span class="sd">          - :math:`F_2^{[i]}`</span>
+<span class="sd">        * - :ipa:`[u^\prime]`</span>
+<span class="sd">          - :math:`F_1^{[i]}`</span>
+<span class="sd">          - :math:`F_2^{[u]}`</span>
+<span class="sd">        * - :ipa:`[ɑ^\prime]`</span>
+<span class="sd">          - :math:`\frac{1}{2}(F_1^{[ɑ]} + F_1^{[ɔ]})`</span>
+<span class="sd">          - :math:`\frac{1}{2}(F_2^{[ɑ]} + F_2^{[ɔ]})`</span>
+<span class="sd">        * - :ipa:`[æ^\prime]`</span>
+<span class="sd">          - :math:`F_1^{[æ]}`</span>
+<span class="sd">          - :math:`F_2^{[æ]}`</span>
+
+<span class="sd">    Then the formants are normalized as follows:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{S(F_i)}</span>
+
+<span class="sd">    Where:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S(F_i) = \frac{1}{4}</span>
+<span class="sd">            \left(</span>
+<span class="sd">                F_i^{[i^\prime]} +</span>
+<span class="sd">                F_i^{[u^\prime]} +</span>
+<span class="sd">                F_i^{[ɑ^\prime]} +</span>
+<span class="sd">                F_i^{[æ^\prime]}</span>
+<span class="sd">            \right)</span>
+
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    f1:</span>
+<span class="sd">    f2:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    points:</span>
+<span class="sd">        A dictionary specifying labels for the required vowels</span>
+<span class="sd">        to construct the centroid (shown in the table above).</span>
+<span class="sd">        The keys for the dictionary should be from the</span>
+<span class="sd">        lexical set keywords :citet:`wells_1982`:</span>
+<span class="sd">        ``&#39;kit&#39;``, ``&#39;goose&#39;``, ``&#39;fleece&#39;``, ``&#39;start&#39;``, ``&#39;thought&#39;``, ``&#39;trap&#39;``,</span>
+<span class="sd">        and *all* keys need to be specified.</span>
+<span class="sd">        If omitted, the normalizer will assume that the vowels</span>
+<span class="sd">        are already labeled according to the lexical set keywords.</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, BighamNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        points = dict(</span>
+<span class="sd">            kit=&#39;ih&#39;,</span>
+<span class="sd">            goose=&#39;uw&#39;,</span>
+<span class="sd">            fleece=&#39;iy&#39;,</span>
+<span class="sd">            start=&#39;aa&#39;,</span>
+<span class="sd">            thought=&#39;ao&#39;,</span>
+<span class="sd">            trap=&#39;ae&#39;)</span>
+<span class="sd">        norm = BighamNormalizer(points=points, rename=&#39;{}*&#39;)</span>
+<span class="sd">        norm_df = norm.normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">],</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">],</span>
+        <span class="n">options</span><span class="o">=</span><span class="p">{})</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">f1</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span>
+            <span class="n">f2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">f1</span><span class="o">=</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f2</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span> <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BighamNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.BighamNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_centroid</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">points</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f1&#39;</span><span class="p">)</span>
+        <span class="n">f2</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;f2&#39;</span><span class="p">)</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="p">[</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span>
+        <span class="n">vowel</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vowel&#39;</span><span class="p">)</span>
+        <span class="n">apice_df</span> <span class="o">=</span> <span class="n">_get_apice_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vowel</span><span class="p">,</span> <span class="n">formants</span><span class="p">)</span>
+
+        <span class="n">centroid_df</span> <span class="o">=</span> <span class="n">apice_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;goose&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span>
+        <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;kit&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="p">]</span>
+        <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;thought&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">centroid_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kit&#39;</span><span class="p">,</span> <span class="s1">&#39;thought&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">centroid_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroid</span>
+
+    <span class="k">def</span> <span class="nf">_keyword_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keyword</span> <span class="o">==</span> <span class="s1">&#39;points&#39;</span><span class="p">:</span>
+            <span class="n">lexical_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;kit&#39;</span><span class="p">,</span> <span class="s1">&#39;goose&#39;</span><span class="p">,</span> <span class="s1">&#39;fleece&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;thought&#39;</span><span class="p">,</span> <span class="s1">&#39;trap&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">lexical_set</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_keyword_default</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SchwaNormalizer"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.SchwaNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;schwa&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="s1">&#39;extrinsic&#39;</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="s1">&#39;intrinsic&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SchwaNormalizer</span><span class="p">(</span><span class="n">CentroidNormalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Centroid normalizer using formant data for [ə] as the centroid.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        F_i^* = \frac{F_i}{F_{i}^{[ə]}} - 1</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    formants:</span>
+<span class="sd">    speaker:</span>
+<span class="sd">    vowel:</span>
+<span class="sd">    schwa:</span>
+<span class="sd">        The vowel label for the schwa vowel.</span>
+<span class="sd">        If omitted, defaults to ``&#39;ə&#39;``</span>
+
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    groupby:</span>
+<span class="sd">    kwargs:</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, SchwaNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = SchwaNormalizer(schwa=&#39;er&#39;, rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">],</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;schwa&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;speaker&#39;</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span>
+            <span class="n">schwa</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ə&#39;</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span>
+            <span class="n">speaker</span><span class="o">=</span><span class="n">speaker</span><span class="p">,</span>
+            <span class="n">vowel</span><span class="o">=</span><span class="n">vowel</span><span class="p">,</span>
+            <span class="n">schwa</span><span class="o">=</span><span class="n">schwa</span><span class="p">,</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">,</span>
+            <span class="n">groupby</span><span class="o">=</span><span class="n">groupby</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">schwa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;schwa&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;ə&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;letter&#39;</span><span class="p">:</span> <span class="n">schwa</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_norm</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">1.</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="SchwaNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/centroid.html#vlnm.normalizers.centroid.SchwaNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

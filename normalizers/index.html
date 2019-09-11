@@ -1,0 +1,672 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vowel Normalization &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting started" href="quickstart.html" />
+    <link rel="prev" title="Installation" href="../installation.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Vowel Normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="vowel-normalization">
+<span id="section-normalization"></span><h1>Vowel Normalization<a class="headerlink" href="#vowel-normalization" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p><strong>VLNM</strong> Provides a comprehensive range of normalizers
+(see section <a class="reference internal" href="#section-normalizers"><span class="std std-ref">Normalizers</span></a> below) that have been
+described in the literature (although remains agnostic
+regarding which may be considered the most suitable
+for a given collection of formant data).</p>
+<p>To just get started using normalizers, jump to
+<a class="reference internal" href="quickstart.html#section-normalization-quickstart"><span class="std std-ref">Getting started</span></a>.
+More detailed descriptions of the implementation
+(including links to the source code)
+can be found in the <a class="reference internal" href="api/index.html#section-normalization-api"><span class="std std-ref">API</span></a>.</p>
+<div class="section" id="normalizers">
+<span id="section-normalizers"></span><h2>Normalizers<a class="headerlink" href="#normalizers" title="Permalink to this headline">¶</a></h2>
+<p><strong>VLNM</strong> implements the normalizers shown below.
+Summmaries for each normalizer can be viewed
+by clicking on the name in the <strong>Normalizer</strong> column.
+The classification of normalizers according
+to whether the calculations they perform are <cite>intrinsic</cite>
+or <cite>extrinsic</cite> to certain properties
+(i.e., vowel, formant, and speaker)
+are taken for most normalizers
+from <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span><span>)</span></span></span>.</p>
+<blockquote>
+<div><table class="normalizers docutils align-center" id="id1">
+<caption><span class="caption-text">Vowel normalizers implmented in <strong>VLNM</strong></span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Normalizer</p></th>
+<th class="head"><p>Vowel</p></th>
+<th class="head"><p>Formant</p></th>
+<th class="head"><p>Speaker</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#bark"><span class="std std-ref">bark</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#barkdiff"><span class="std std-ref">barkdiff</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bigham"><span class="std std-ref">bigham</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bladen"><span class="std std-ref">bladen</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#centroid"><span class="std std-ref">centroid</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#chain"><span class="std std-ref">chain</span></a></p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#convex-hull"><span class="std std-ref">convex-hull</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#default"><span class="std std-ref">default</span></a></p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#erb"><span class="std std-ref">erb</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#factor-analysis"><span class="std std-ref">factor-analysis</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fast-ica"><span class="std std-ref">fast-ica</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gerstman"><span class="std std-ref">gerstman</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ie-gmagm"><span class="std std-ref">ie-gmagm</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ie-ht"><span class="std std-ref">ie-ht</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#lce"><span class="std std-ref">lce</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#lda"><span class="std std-ref">lda</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#lobanov"><span class="std std-ref">lobanov</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#log"><span class="std std-ref">log</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#log10"><span class="std std-ref">log10</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mel"><span class="std std-ref">mel</span></a></p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#neary"><span class="std std-ref">neary</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#neary-exp"><span class="std std-ref">neary-exp</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#nearygm"><span class="std std-ref">nearygm</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#nearygm-exp"><span class="std std-ref">nearygm-exp</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#nmf"><span class="std std-ref">nmf</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#nordstrom"><span class="std std-ref">nordstrom</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pca"><span class="std std-ref">pca</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Extrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#schwa"><span class="std std-ref">schwa</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#wattfab1"><span class="std std-ref">wattfab1</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#wattfab2"><span class="std std-ref">wattfab2</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#wattfab3"><span class="std std-ref">wattfab3</span></a></p></td>
+<td><p>Extrinsic</p></td>
+<td><p>Intrinsic</p></td>
+<td><p>Intrinsic</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The following sections provide brief summaries for
+each normalizer.
+Clicking on the Python class name for each normalizer
+will show the API documentation
+which includes details on how to specify
+parameters when using the normalizer.</p>
+<p class="name rubric" id="bark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bark</span></code></p>
+<p>Normalise formants using the Bark scale <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#traunmuller_1990"><span><span class="authors"><span><span><span>Traunmüller</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#traunmuller_1990"><span><span>1990</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* =  26.81 \ln\left(
+    1 + \frac{F_i}{F_i + 1960}
+    \right) - 0.53\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">bark</span></code> normalizer is implemented in the <a class="reference internal" href="api/formant.html#vlnm.normalizers.formant.BarkNormalizer" title="vlnm.normalizers.formant.BarkNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarkNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="barkdiff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">barkdiff</span></code></p>
+<p>Normalize formant data according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#syrdal_gopal_1986"><span><span class="authors"><span><span><span>Syrdal</span></span><span> &amp; </span><span><span>Gopal</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#syrdal_gopal_1986"><span><span>1986</span></span></a></span><span>)</span></span></span>.</p>
+<p>Vowels are normalized by converting formants to the
+Bark scale, calculating the difference <span class="math notranslate nohighlight">\(Z\)</span> between
+consecutive formants:</p>
+<div class="math notranslate nohighlight">
+\[F_{i}^* = B(F_i) - B(F_{i-1})\mbox{ for } 1 \leq i \leq 3\]</div>
+<p>Where <span class="math notranslate nohighlight">\(B\)</span> is a function converting the <span class="math notranslate nohighlight">\(i\mbox{th}\)</span>
+formant measured in hertz to the Bark scale.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">barkdiff</span></code> normalizer is implemented in the <a class="reference internal" href="api/vowel.html#vlnm.normalizers.vowel.BarkDifferenceNormalizer" title="vlnm.normalizers.vowel.BarkDifferenceNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BarkDifferenceNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="bigham"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bigham</span></code></p>
+<p>Centroid normalizer using the centroid calculated according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bigham_2008"><span><span class="authors"><span><span><span>Bigham</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bigham_2008"><span><span>2008</span></span></a></span><span>)</span></span></span>.</p>
+<p><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bigham_2008"><span><span class="authors"><span><span><span>Bigham</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bigham_2008"><span><span>2008</span></span></a></span><span>)</span></span></span> adapts <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>
+to calculate a barycentric centroid from a trapezoid
+constructed using the vowels
+<span class="ipa">[i<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>, <span class="ipa">[u<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>
+<span class="ipa">[ɑ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>, and <span class="ipa">[æ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span>
+derived as shown below:</p>
+<table class="centered docutils align-center" id="id2">
+<caption><span class="caption-text">Construction of derived vowels</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>vowel</p></th>
+<th class="head"><p>F1</p></th>
+<th class="head"><p>F2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="ipa">[i<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[ɪ]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[i]}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="ipa">[u<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[i]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[u]}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="ipa">[ɑ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{1}{2}(F_1^{[ɑ]} + F_1^{[ɔ]})\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{1}{2}(F_2^{[ɑ]} + F_2^{[ɔ]})\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="ipa">[æ<span class="math notranslate nohighlight">\(^\prime\)</span><span class="ipa">]</span></span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_1^{[æ]}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(F_2^{[æ]}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Then the formants are normalized as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[S(F_i) = \frac{1}{4}
+    \left(
+        F_i^{[i^\prime]} +
+        F_i^{[u^\prime]} +
+        F_i^{[ɑ^\prime]} +
+        F_i^{[æ^\prime]}
+    \right)\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">bigham</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.BighamNormalizer" title="vlnm.normalizers.centroid.BighamNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BighamNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="bladen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bladen</span></code></p>
+<p>Normalize formant data according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bladon_etal_1984"><span><span class="authors"><span><span><span>Bladon</span></span> <em>et al.</em></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#bladon_etal_1984"><span><span>1984</span></span></a></span><span>)</span></span></span>.</p>
+<p>For a given speaker, formants are normalized as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_{i}^* = 26.81 \left(
+    1 + \frac{F_i}{F_i + 1960}
+    \right) - 0.53 - I(F_i)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(I(F_i)\)</span> is an indicator function returning 1 if
+<span class="math notranslate nohighlight">\(F_i\)</span> was produced by a speaker
+identified/identifying as female, and 0 otherwise.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">bladen</span></code> normalizer is implemented in the <a class="reference internal" href="api/gender.html#vlnm.normalizers.gender.BladenNormalizer" title="vlnm.normalizers.gender.BladenNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BladenNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid</span></code></p>
+<p>Normalize using the geometric center of the speakers entire vowel space.</p>
+<p>For a given speaker, the normalized formants are calculated as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S_i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[S_i = \frac{1}{|J|}\sum_{j\in J}\mu_{F_{ij}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(J\)</span> is the the set of vowels which form the convex
+hull of the vowel space, and <span class="math notranslate nohighlight">\(\mu_{F_{ij}}\)</span> is
+the mean of formant <span class="math notranslate nohighlight">\(i\)</span> for vowel <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.CentroidNormalizer" title="vlnm.normalizers.centroid.CentroidNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentroidNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="chain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chain</span></code></p>
+<p>Run multiple normalizers in sequence.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">chain</span></code> normalizer is implemented in the <a class="reference internal" href="api/base.html#vlnm.normalizers.base.ChainNormalizer" title="vlnm.normalizers.base.ChainNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChainNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="convex-hull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convex-hull</span></code></p>
+<p>Normalize using the geometric center of the convex hull enclosing the speakers vowel space.</p>
+<p>The convex hull normalizer establishes the speaker’s vowel
+space by calulating the <cite>convex hull</cite> <span><span>(</span><span>e.g., </span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#graham_yao_1983"><span><span class="authors"><span><span><span>Graham</span></span><span> &amp; </span><span><span>Yao</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#graham_yao_1983"><span><span>1983</span></span></a></span></span></span><span>)</span></span>
+from the ‘central’ formants (i.e., mean or median)
+for <cite>each</cite> of the speaker’s vowels,
+and uses the barycenter of the points
+that make-up the hull to normalize the formant data.</p>
+<p>For a given speaker, the normalized formants are calculated as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S_i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[S_i = \frac{1}{|J|}\sum_{j\in J}||F_{ij}||\]</div>
+<p>Where <span class="math notranslate nohighlight">\(J\)</span> is the the set of vowels which form the convex
+hull of the vowel space, <span class="math notranslate nohighlight">\(F_{ij}\)</span> is formant <span class="math notranslate nohighlight">\(i\)</span>
+of vowel <span class="math notranslate nohighlight">\(j\)</span>, and <span class="math notranslate nohighlight">\(||F_{ij}||\)</span> indicates
+the central tendency of <span class="math notranslate nohighlight">\(F_{ij}\)</span>.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">convex-hull</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.ConvexHullNormalizer" title="vlnm.normalizers.centroid.ConvexHullNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvexHullNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></p>
+<p>‘Default’ normalizer which returns formant data unaltered.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code> normalizer is implemented in the <a class="reference internal" href="api/base.html#vlnm.normalizers.base.DefaultNormalizer" title="vlnm.normalizers.base.DefaultNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="erb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">erb</span></code></p>
+<p>Normalise formants using the ERB scale <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#moore_glasberg_1996"><span><span class="authors"><span><span><span>Moore</span></span><span> &amp; </span><span><span>Glasberg</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#moore_glasberg_1996"><span><span>1996</span></span></a></span></span></span><span>)</span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = 21.4 \ln\left(1 + 0.00437{F_i}\right)\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">erb</span></code> normalizer is implemented in the <a class="reference internal" href="api/formant.html#vlnm.normalizers.formant.ErbNormalizer" title="vlnm.normalizers.formant.ErbNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErbNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="factor-analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">factor-analysis</span></code></p>
+<p>Normalize data using Factor Analayis (FA).</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">factor-analysis</span></code> normalizer is implemented in the <a class="reference internal" href="api/projection.html#vlnm.normalizers.projection.FactorAnalysisNormalizer" title="vlnm.normalizers.projection.FactorAnalysisNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FactorAnalysisNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="fast-ica"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fast-ica</span></code></p>
+<p>Normalize data using (fast) Independent Components Analysis (ICA).</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">fast-ica</span></code> normalizer is implemented in the <a class="reference internal" href="api/projection.html#vlnm.normalizers.projection.FastICANormalizer" title="vlnm.normalizers.projection.FastICANormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FastICANormalizer</span></code></a> class.</p>
+<p class="name rubric" id="gerstman"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gerstman</span></code></p>
+<p>Normalize formants according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#gerstman_1968"><span><span class="authors"><span><span><span>Gerstman</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#gerstman_1968"><span><span>1968</span></span></a></span><span>)</span></span></span>.</p>
+<p>Formants are normalized by subtracting the speaker’s minimum value
+for the formant and then divided by the speaker’s range for
+the formant. These value are then multipled by <span class="math notranslate nohighlight">\(999\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = 999 \frac{F_i - \min{F_i}}{\max{F_i}}\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">gerstman</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.GerstmanNormalizer" title="vlnm.normalizers.speaker.GerstmanNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">GerstmanNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="ie-gmagm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ie-gmagm</span></code></p>
+<p>Normalize formants according to
+<span><span><a class="xref cite natbib reference internal" href="../bibliography.html#ananthapadmanabha_ramakrishnan_2016"><span><span class="authors"><span><span><span>Ananthapadmanabha</span></span><span> &amp; </span><span><span>Ramakrishnan</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#ananthapadmanabha_ramakrishnan_2016"><span><span>2016</span></span></a></span><span>, appendix B</span><span>)</span></span></span>.</p>
+<p>Formants for a given token are
+first normalized by dividing the values in Hz
+by the geometric mean of the first three formants.
+The normalized values are then ‘denormalized’ by
+multiplying by the geometric mean of
+the means for each vowel across all speakers.
+Equivalently, for a given token of vowel <span class="math notranslate nohighlight">\(j\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[F^*_{ij} = F_{ij}\left(
+    \prod_{i=1}^{3}
+        \frac{\mu_{ij}}{F_{ij}}
+    \right)^{\frac{1}{3}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mu_{ij}\)</span> is the mean of <span class="math notranslate nohighlight">\(F_i\)</span>
+for vowel <span class="math notranslate nohighlight">\(j\)</span> for all tokens and speakers.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ie-gmagm</span></code> normalizer is implemented in the <a class="reference internal" href="api/vowel.html#vlnm.normalizers.vowel.IEGMAGMNormalizer" title="vlnm.normalizers.vowel.IEGMAGMNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IEGMAGMNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="ie-ht"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ie-ht</span></code></p>
+<p>Normalize (and potentially relabel) formants
+according in <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#ananthapadmanabha_ramakrishnan_2016"><span><span class="authors"><span><span><span>Ananthapadmanabha</span></span><span> &amp; </span><span><span>Ramakrishnan</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#ananthapadmanabha_ramakrishnan_2016"><span><span>2016</span></span></a></span><span>)</span></span></span>.</p>
+<p>Let <span class="math notranslate nohighlight">\(F^{\prime}_{ij}\)</span> be the raw formant value in Hz
+for a particular token of vowel <span class="math notranslate nohighlight">\(j\)</span>
+divided by the gemometric mean of the first three formants for
+that token:</p>
+<div class="math notranslate nohighlight">
+\[F^{\prime}_{ij} = \frac{F_{ij}}
+    { \left( \prod_{i=1}^{3}F_{ij} \right)^{\frac{1}{3}} }\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\mu_{ij}\)</span> be the mean of <span class="math notranslate nohighlight">\(F_i\)</span>
+for vowel <span class="math notranslate nohighlight">\(j\)</span> for all tokens and speakers,
+and define <span class="math notranslate nohighlight">\(F^{\prime\prime}_{ij}\)</span> as follows:</p>
+<div class="math notranslate nohighlight">
+\[F^{\prime\prime}_{ij} = F^{\prime}_{ij}\mu_{ij}\]</div>
+<p>Then let <span class="math notranslate nohighlight">\(\mu^{\prime\prime}_{ij}\)</span> and <span class="math notranslate nohighlight">\(\sigma^{\prime\prime}_{ij}\)</span>
+be the mean and standard deviation, respectively,
+of <span class="math notranslate nohighlight">\(F^{\prime\prime}_i\)</span> for vowel <span class="math notranslate nohighlight">\(j\)</span> for all tokens and
+speakers.
+Then the normalized value can be calulated as follows:</p>
+<div class="math notranslate nohighlight">
+\[F^*_{ij^*} = F^\prime_{ij} \mu_{ij^*}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(j^*\)</span> is the vowel from the set of vowels <span class="math notranslate nohighlight">\(J\)</span>
+such that:</p>
+<div class="math notranslate nohighlight">
+\[j^* = \underset{j \in J}{\text{argmin}}
+    \left(
+        \sum_{i=1}^{2}\left(
+            \frac{F^\prime_{ij}\mu_{ij} - \mu^{\prime\prime}_{ij}}
+                {\sigma^{\prime\prime}_{ij}}
+        \right)^2
+    \right)^{\frac{1}{2}}\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ie-ht</span></code> normalizer is implemented in the <a class="reference internal" href="api/vowel.html#vlnm.normalizers.vowel.IEHTNormalizer" title="vlnm.normalizers.vowel.IEHTNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">IEHTNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="lce"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lce</span></code></p>
+<p>Normalize by dividing formants by their mamximum value for a speaker.</p>
+<p>Formants are normalized by “linear compression or expansion”
+<span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span></span></span><span> p.607</span><span>)</span></span>, that is by dividing
+each formant for a given speaker by it’s maximum value for that speaker:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{\max{F_i}}\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lce</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.LCENormalizer" title="vlnm.normalizers.speaker.LCENormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LCENormalizer</span></code></a> class.</p>
+<p class="name rubric" id="lda"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lda</span></code></p>
+<p>Normalize data using Linear Discriminant Analysis (LDA).</p>
+<p>See <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#wang_van-heuven_2006"><span><span class="authors"><span><span><span>Wang</span></span><span> &amp; </span><span><span><span>van</span> </span><span>Heuven</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#wang_van-heuven_2006"><span><span>2006</span></span></a></span><span>)</span></span></span> for an example of applying
+LDA to phonetic data.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lda</span></code> normalizer is implemented in the <a class="reference internal" href="api/projection.html#vlnm.normalizers.projection.LDANormalizer" title="vlnm.normalizers.projection.LDANormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LDANormalizer</span></code></a> class.</p>
+<p class="name rubric" id="lobanov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lobanov</span></code></p>
+<p>Normalize formants according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span><span>)</span></span></span>:</p>
+<p>This uses the following formula:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i - \mu_{F_i}}{\sigma_{F_i}}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mu_{F_i}\)</span> is the mean of the formant <span class="math notranslate nohighlight">\(F_i\)</span>
+and <span class="math notranslate nohighlight">\(\sigma_{F_i}\)</span> is the “rms deviation” (<span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span class="authors"><span><span><span>Lobanov</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#lobanov_1971"><span><span>1971</span></span></a></span></span></span></span>, p.606)
+of formant <span class="math notranslate nohighlight">\(F_i\)</span> from its mean for the speaker’s vowels.
+As noted by <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span><span>)</span></span></span> this is equivalent
+to the standard deviation when the mean is zero,
+and for efficiency this is how the normalizer is implemented.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lobanov</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.LobanovNormalizer" title="vlnm.normalizers.speaker.LobanovNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LobanovNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log</span></code></p>
+<p>Normalize using the natural logarithm of the formant values.</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[F_i^* = \log\left(F_i\right)\]</div>
+</div></blockquote>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">log</span></code> normalizer is implemented in the <a class="reference internal" href="api/formant.html#vlnm.normalizers.formant.LogNormalizer" title="vlnm.normalizers.formant.LogNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="log10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log10</span></code></p>
+<p>Normalize using the base 10 logarithm of the formant values.</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[F_i^* = \log_{10}\left(F_i\right)\]</div>
+</div></blockquote>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">log10</span></code> normalizer is implemented in the <a class="reference internal" href="api/formant.html#vlnm.normalizers.formant.Log10Normalizer" title="vlnm.normalizers.formant.Log10Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Log10Normalizer</span></code></a> class.</p>
+<p class="name rubric" id="mel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel</span></code></p>
+<p>Normalise vowels using the Mel scale <span><span>(</span><span>see </span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#oshaughnessy_1987"><span><span class="authors"><span><span><span>O'Shaughnessy</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#oshaughnessy_1987"><span><span>1987</span></span></a></span></span></span><span>, p.150</span><span>)</span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = 1127 \ln\left(1 + \frac{F_i}{700}\right)\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">mel</span></code> normalizer is implemented in the <a class="reference internal" href="api/formant.html#vlnm.normalizers.formant.MelNormalizer" title="vlnm.normalizers.formant.MelNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MelNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="neary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neary</span></code></p>
+<p>Normalize by subtracting log-transformed formant means for each speaker.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = T\left(
+    \log\left(F_i\right) - \frac{1}{n}
+        \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
+\right)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(T(x)=x\)</span> or <span class="math notranslate nohighlight">\(T(x)=\exp(x)\)</span>,
+and <cite>n</cite> is the highest formant index.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">neary</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.NearyNormalizer" title="vlnm.normalizers.speaker.NearyNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="neary-exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neary-exp</span></code></p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyNormalizer</span></code> with the <code class="docutils literal notranslate"><span class="pre">exp</span></code> parameter automatically set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>See <span><span><span><a class="xref cite reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a><span>, </span><a class="xref cite reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span></span></span> for discussion.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">neary-exp</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.NearyExpNormalizer" title="vlnm.normalizers.speaker.NearyExpNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyExpNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="nearygm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nearygm</span></code></p>
+<p>Normalize by subtracting the speaker’s mean log-transformed formants.</p>
+<p>The Neary ‘Grand Mean’ normalizer log-transforms each formant
+and then substracts the mean log-transform of <em>all</em> formants
+under-considraton for a given speaker.
+This is usually <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span></span></span><span>)</span></span>
+or <span class="math notranslate nohighlight">\(F_1\)</span>, <span class="math notranslate nohighlight">\(F_2\)</span>, and <span class="math notranslate nohighlight">\(F_3\)</span> <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="../bibliography.html#clopper_2009"><span><span class="authors"><span><span><span>Clopper</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../bibliography.html#clopper_2009"><span><span>2009</span></span></a></span></span></span><span>)</span></span>:</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = T\left(
+    \log\left(F_i\right) - \frac{1}{n}
+        \sum_{j=1}^{n}\mu_{\log\left(F_j\right)}
+\right)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(T(x)=x\)</span> or <span class="math notranslate nohighlight">\(T(x)=\exp(x)\)</span>,
+and <cite>n</cite> is the highest formant index.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">nearygm</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.NearyGMNormalizer" title="vlnm.normalizers.speaker.NearyGMNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="nearygm-exp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nearygm-exp</span></code></p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMNormalizer</span></code> with the <code class="docutils literal notranslate"><span class="pre">exp</span></code> parameter automatically set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>See <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span class="authors"><span><span><span>Flynn</span></span><span> &amp; </span><span><span>Foulkes</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#flynn_foulkes_2011"><span><span>2011</span></span></a></span><span>)</span></span></span> and <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span class="authors"><span><span><span>Thomas</span></span><span> &amp; </span><span><span>Kendall</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#thomas_kendel_2007"><span><span>2007</span></span></a></span><span>)</span></span></span> for discussion.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">nearygm-exp</span></code> normalizer is implemented in the <a class="reference internal" href="api/speaker.html#vlnm.normalizers.speaker.NearyGMExpNormalizer" title="vlnm.normalizers.speaker.NearyGMExpNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearyGMExpNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="nmf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmf</span></code></p>
+<p>Normalize data using Non-negative Matrix Factorization (NMF).</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">nmf</span></code> normalizer is implemented in the <a class="reference internal" href="api/projection.html#vlnm.normalizers.projection.NMFNormalizer" title="vlnm.normalizers.projection.NMFNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NMFNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="nordstrom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nordstrom</span></code></p>
+<p>Normalize formant data according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#nordstrom_1977"><span><span class="authors"><span><span><span>Nordström</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#nordstrom_1977"><span><span>1977</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}F_i^* = F_i \times
+    \begin{cases}
+        \frac{
+            \mu_{F_3}^{\small{male}}
+        }{
+            \mu_{F_3}^{\small{female}}
+        } &amp; \mbox{if } I(F_i) = 1
+        \\
+        1 &amp; \mbox{otherwise}
+    \end{cases}\end{split}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mu_{F_3}\)</span> is the mean <span class="math notranslate nohighlight">\(F_3\)</span> across
+all vowels where <span class="math notranslate nohighlight">\(F_1\)</span> is greater than 600Hz,
+and <span class="math notranslate nohighlight">\(I(F_i)\)</span> is an indicator function which
+returns 1 if <span class="math notranslate nohighlight">\(F_i\)</span> is from a speaker
+identified/identifying as female, and 0 otherwise.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">nordstrom</span></code> normalizer is implemented in the <a class="reference internal" href="api/gender.html#vlnm.normalizers.gender.NordstromNormalizer" title="vlnm.normalizers.gender.NordstromNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NordstromNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="pca"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pca</span></code></p>
+<p>Normalize data using Principle Components Analysis (PCA).</p>
+<p>See <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#jacobi_etal_2006"><span><span class="authors"><span><span><span>Jacobi</span></span> <em>et al.</em></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#jacobi_etal_2006"><span><span>2006</span></span></a></span><span>)</span></span></span> for an example of applying
+PCA to phonetic data.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">pca</span></code> normalizer is implemented in the <a class="reference internal" href="api/projection.html#vlnm.normalizers.projection.PCANormalizer" title="vlnm.normalizers.projection.PCANormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">PCANormalizer</span></code></a> class.</p>
+<p class="name rubric" id="schwa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">schwa</span></code></p>
+<p>Centroid normalizer using formant data for [ə] as the centroid.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{F_{i}^{[ə]}} - 1\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">schwa</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.SchwaNormalizer" title="vlnm.normalizers.centroid.SchwaNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SchwaNormalizer</span></code></a> class.</p>
+<p class="name rubric" id="wattfab1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab1</span></code></p>
+<p>Normalize vowels according to <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<p>Formant data is normalized by
+by dividing the component formants for a vowel by a
+the components of a centroid calculated
+from the <span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> data for the
+<span class="small-caps">fleece</span>, <span class="small-caps">trap</span> and <span class="small-caps">goose</span> vowels, with
+the formants for the <span class="small-caps">goose</span> vowel derived
+from the other vowels by setting
+<span class="math notranslate nohighlight">\(F_1\)</span> and <span class="math notranslate nohighlight">\(F_2\)</span> to the <span class="math notranslate nohighlight">\(F_1\)</span>
+of the <span class="small-caps">fleece</span> vowel.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[S(F_j) = \frac{1}{3}\left
+    (F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}
+\right)\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}\]</div>
+<p>with <span class="math notranslate nohighlight">\([i]\)</span>, <span class="math notranslate nohighlight">\([a]\)</span>, and <span class="math notranslate nohighlight">\([u^\prime]\)</span> indicating
+the <span class="small-caps">fleece</span>, <span class="small-caps">trap</span>
+and (derived) <span class="small-caps">goose</span> vowels, respectively.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab1</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.WattFabricius1Normalizer" title="vlnm.normalizers.centroid.WattFabricius1Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius1Normalizer</span></code></a> class.</p>
+<p class="name rubric" id="wattfab2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab2</span></code></p>
+<p>Second centroid normalizer described in <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}S(F_j) = \begin{cases}
+    \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
+    &amp; \text{when } j = 2
+    \\
+    \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
+    &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_1^{[u^\prime]} = F_2^{[u^\prime]} = F_1^{[i]}\]</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab2</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.WattFabricius2Normalizer" title="vlnm.normalizers.centroid.WattFabricius2Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius2Normalizer</span></code></a> class.</p>
+<p class="name rubric" id="wattfab3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab3</span></code></p>
+<p>Third centroid normalizer described in <span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span class="authors"><span><span><span>Watt</span></span><span> &amp; </span><span><span>Fabricius</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../bibliography.html#watt_fabricius_2002"><span><span>2002</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[F_i^* = \frac{F_i}{S(F_i)}\]</div>
+<p>Where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}S(F_j) = \begin{cases}
+    \frac{1}{2}\left(F_j^{[i]} + F_j^{[u^\prime]}\right)
+    &amp; \text{when } j = 2
+    \\
+    \frac{1}{3}\left(F_j^{[i]} + F_j^{[a]} + F_j^{[u^\prime]}\right)
+    &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[F_j^{[u^\prime]} = \underset{\rho}{\text{argmin}}\mbox{ }\mu_{F_k^{/\rho \in P/}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(P\)</span> is the set of point vowels.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">wattfab3</span></code> normalizer is implemented in the <a class="reference internal" href="api/centroid.html#vlnm.normalizers.centroid.WattFabricius3Normalizer" title="vlnm.normalizers.centroid.WattFabricius3Normalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">WattFabricius3Normalizer</span></code></a> class.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/normalizers/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,467 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.data &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="vlnm.normalizers.vowel" href="normalizers/api/vowel.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.data">
+<span id="vlnm-data"></span><h1><a class="reference internal" href="#module-vlnm.data" title="vlnm.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.data</span></code></a><a class="headerlink" href="#module-vlnm.data" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h2>
+<p><strong>VLNM</strong> distributes a small number of datasets
+containing formant data, which can be used to
+test or evaluate normalizers.</p>
+<dl class="class">
+<dt id="vlnm.data.Dataset">
+<em class="property">class </em><code class="descname">Dataset</code><span class="sig-paren">(</span><em>source</em>, <em>dtypes=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vlnm/data.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.data.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for datasets.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Absolute file path to the dataset source.
+Must be readable by <code class="xref py py-func docutils literal notranslate"><span class="pre">pd.read_csv()</span></code>.</p>
+</li>
+<li><p><strong>dtypes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>Dictionary mapping column names on
+data types.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>**kwargs</strong></p></li>
+</ul>
+<p>Passed on to the <code class="xref py py-func docutils literal notranslate"><span class="pre">pd.read_csv()</span></code> function
+when data is loaded.</p>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="vlnm.data.Dataset.enable_cache">
+<em class="property">static </em><code class="descname">enable_cache</code><span class="sig-paren">(</span><em>enable=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vlnm/data.html#Dataset.enable_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.data.Dataset.enable_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable caching for datasets.</p>
+<p>By default data sets are loaded from disk.
+When the cache is enabled, data sets will be
+loaded in to memory, and subsequent calls
+to the <a class="reference internal" href="#vlnm.data.Dataset.load" title="vlnm.data.Dataset.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> method will return
+a copy of this data set.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>enable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>)</p></li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> enable and reset the cache.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="vlnm.data.Dataset.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>columns=None</em>, <em>dtypes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vlnm/data.html#Dataset.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.data.Dataset.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a dataset from disk or the cache.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>List of columns to subset the data.
+If omitted, all columns are returned.</p>
+</li>
+<li><p><strong>dtypes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>)</p>
+<p>Dictionary mapping column names on
+data types.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> containing the data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.data.hm2005">
+<code class="descname">hm2005</code><span class="sig-paren">(</span><em>columns=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vlnm/data.html#hm2005"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.data.hm2005" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data derived from <span><span><a class="xref cite natbib reference internal" href="bibliography.html#hawkins_midgley_2005"><span><span class="authors"><span><span><span>Hawkins</span></span><span> &amp; </span><span><span>Midgley</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="bibliography.html#hawkins_midgley_2005"><span><span>2005</span></span></a></span><span>)</span></span></span>.</p>
+<p>The data consists of formant measurements
+taken from 11 RP monopthongs in <cite>hVd</cite>
+contexts produced by twenty male speakers of RP divided
+into four age groups.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Specify which columns to return.
+If omitted all columns are returned.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed on to <a class="reference internal" href="#vlnm.data.Dataset.load" title="vlnm.data.Dataset.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.data.Dataset.load()</span></code></a> method</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Dataframe containing the data</p>
+</dd>
+<dt class="field-even">Dataset columns</dt>
+<dd class="field-even"><ul>
+<li><p><strong>group</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Group</p>
+</li>
+<li><p><strong>age</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Age label of group</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">np.int64</span></code>)</p>
+<p>Speaker identifier</p>
+</li>
+<li><p><strong>f1 - f2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.int64</span></code>)</p>
+<p>Formant data in Hz</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Vowel labels as hVd words.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm.data</span> <span class="kn">import</span> <span class="n">hm2005</span>
+
+<span class="n">hm2005</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-age">
+age</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+S1-1</td>
+<td class="column-age column-dtype-str">
+65+</td>
+<td class="column-vowel column-dtype-str">
+heed</td>
+<td class="column-f1 column-dtype-int64">
+358</td>
+<td class="column-f2 column-dtype-int64">
+2210</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+S1-1</td>
+<td class="column-age column-dtype-str">
+65+</td>
+<td class="column-vowel column-dtype-str">
+hid</td>
+<td class="column-f1 column-dtype-int64">
+397</td>
+<td class="column-f2 column-dtype-int64">
+1877</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+S1-1</td>
+<td class="column-age column-dtype-str">
+65+</td>
+<td class="column-vowel column-dtype-str">
+head</td>
+<td class="column-f1 column-dtype-int64">
+436</td>
+<td class="column-f2 column-dtype-int64">
+1885</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+S1-1</td>
+<td class="column-age column-dtype-str">
+65+</td>
+<td class="column-vowel column-dtype-str">
+had</td>
+<td class="column-f1 column-dtype-int64">
+485</td>
+<td class="column-f2 column-dtype-int64">
+1545</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+S1-1</td>
+<td class="column-age column-dtype-str">
+65+</td>
+<td class="column-vowel column-dtype-str">
+hard</td>
+<td class="column-f1 column-dtype-int64">
+603</td>
+<td class="column-f2 column-dtype-int64">
+996</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="vlnm.data.pb1952">
+<code class="descname">pb1952</code><span class="sig-paren">(</span><em>columns=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vlnm/data.html#pb1952"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.data.pb1952" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return data derived from <span><span><a class="xref cite natbib reference internal" href="bibliography.html#peterson_barney_1952"><span><span class="authors"><span><span><span>Peterson</span></span><span> &amp; </span><span><span>Barney</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="bibliography.html#peterson_barney_1952"><span><span>1952</span></span></a></span><span>)</span></span></span>.</p>
+<p>The dataset was extracted from the source files
+for PRAAT <span><span>(</span><span><span><span><a class="xref cite natbib reference internal" href="bibliography.html#boersma_weenink_2018"><span><span class="authors"><span><span><span>Boersma</span></span><span> &amp; </span><span><span>Weenink</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="bibliography.html#boersma_weenink_2018"><span><span>2018</span></span></a></span></span></span><span>)</span></span> and the
+IPA symbols provided in those files
+replaced with their unicode equivalents.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>Specify which columns to return.
+If omitted all columns are returned.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed on to <a class="reference internal" href="#vlnm.data.Dataset.load" title="vlnm.data.Dataset.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.data.Dataset.load()</span></code></a> method</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Dataframe containing the data</p>
+</dd>
+<dt class="field-even">Dataset columns</dt>
+<dd class="field-even"><ul>
+<li><p><strong>type</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Type of speaker (child, man or woman)</p>
+</li>
+<li><p><strong>sex</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Reported gender of speaker</p>
+</li>
+<li><p><strong>speaker</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">np.int64</span></code>)</p>
+<p>Speaker identifier</p>
+</li>
+<li><p><strong>vowel</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>Vowel labels</p>
+</li>
+<li><p><strong>IPA</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html#pandas.Categorical" title="(in pandas v0.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Categorical</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a>)</p>
+<p>IPA symbol</p>
+</li>
+<li><p><strong>f0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.int64</span></code>)</p>
+<p>Fundamental frequency in Hz.</p>
+</li>
+<li><p><strong>f1 - f3</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.int64</span></code>)</p>
+<p>Formant data in Hz.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm.data</span> <span class="kn">import</span> <span class="n">pb1952</span>
+
+<span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/data.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

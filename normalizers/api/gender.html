@@ -1,0 +1,618 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.gender &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="vlnm.normalizers.speaker" href="speaker.html" />
+    <link rel="prev" title="vlnm.normalizers.formant" href="formant.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Vowel Normalization</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vlnm.normalizers.gender">
+<span id="vlnm-normalizers-gender"></span><h1><a class="reference internal" href="#module-vlnm.normalizers.gender" title="vlnm.normalizers.gender"><code class="xref py py-mod docutils literal notranslate"><span class="pre">vlnm.normalizers.gender</span></code></a><a class="headerlink" href="#module-vlnm.normalizers.gender" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gender-based-normalizers">
+<h2>Gender-based normalizers<a class="headerlink" href="#gender-based-normalizers" title="Permalink to this headline">¶</a></h2>
+<p>Normalizers which adjust calculations based
+on the speaker’s identified/identifying gender.
+Note, that as defined in the literature
+<span><span>(</span><span>e.g., </span><span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bladon_etal_1984"><span><span class="authors"><span><span><span>Bladon</span></span> <em>et al.</em></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#bladon_etal_1984"><span><span>1984</span></span></a></span></span><span>; </span><span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#nordstrom_1977"><span><span class="authors"><span><span><span>Nordström</span></span></span></span></span></a><span>, </span><a class="xref cite natbib reference internal" href="../../bibliography.html#nordstrom_1977"><span><span>1977</span></span></a></span></span></span><span>)</span></span>
+the normalizers use a binary gender classification.</p>
+<dl class="simple">
+<dt>The following normalizers are implemented in the <code class="docutils literal notranslate"><span class="pre">vlnm.normalizers.gender</span></code> module:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#vlnm.normalizers.gender.BladenNormalizer" title="vlnm.normalizers.gender.BladenNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BladenNormalizer</span></code></a></p></li>
+<li><p><a class="reference internal" href="#vlnm.normalizers.gender.NordstromNormalizer" title="vlnm.normalizers.gender.NordstromNormalizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NordstromNormalizer</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="vlnm.normalizers.gender.BladenNormalizer">
+<em class="property">class </em><code class="descname">BladenNormalizer</code><span class="sig-paren">(</span><em>formants=None</em>, <em>gender='gender'</em>, <em>female='F'</em>, <em>male='M'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/gender.html#BladenNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.gender.BladenNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bladon_etal_1984"><span><span class="authors"><span><span><span>Bladon</span></span> <em>et al.</em></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#bladon_etal_1984"><span><span>1984</span></span></a></span><span>)</span></span></span>.</p>
+<p>For a given speaker, formants are normalized as follows:</p>
+<div class="math notranslate nohighlight">
+\[F_{i}^* = 26.81 \left(
+    1 + \frac{F_i}{F_i + 1960}
+    \right) - 0.53 - I(F_i)\]</div>
+<p>Where <span class="math notranslate nohighlight">\(I(F_i)\)</span> is an indicator function returning 1 if
+<span class="math notranslate nohighlight">\(F_i\)</span> was produced by a speaker
+identified/identifying as female, and 0 otherwise.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='bladen'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>formants</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> columns containing the formant data.
+If omitted, any columns matching
+<code class="docutils literal notranslate"><span class="pre">'f0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'f4'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'f5'</span></code>
+will be used.</p>
+</li>
+<li><p><strong>gender</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> column containing the gender labels.</p>
+</li>
+<li><p><strong>female</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The label in the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> indicating a speaker
+identified/identifying as female.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">F</span></code>.</p>
+</li>
+<li><p><strong>male</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The label in the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> indicating a speaker
+identified/identifying as male.
+If omitted, defaults to <code class="docutils literal notranslate"><span class="pre">M</span></code>.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">BladenNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">])</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">BladenNormalizer</span><span class="p">(</span>
+    <span class="n">formants</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">],</span> <span class="n">gender</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">female</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">norm_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-sex">
+sex</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+0</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-sex column-dtype-str">
+m</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+240</td>
+<td class="column-f2 column-dtype-int64">
+2280</td>
+<td style="text-align: right; padding-right: 0;">
+2</td>
+<td style="text-align: left; padding-left: 0;">
+.39473</td>
+<td style="text-align: right; padding-right: 0;">
+13</td>
+<td style="text-align: left; padding-left: 0;">
+.88670</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+1</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-sex column-dtype-str">
+m</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+280</td>
+<td class="column-f2 column-dtype-int64">
+2400</td>
+<td style="text-align: right; padding-right: 0;">
+2</td>
+<td style="text-align: left; padding-left: 0;">
+.82125</td>
+<td style="text-align: right; padding-right: 0;">
+14</td>
+<td style="text-align: left; padding-left: 0;">
+.22780</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+2</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-sex column-dtype-str">
+m</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2030</td>
+<td style="text-align: right; padding-right: 0;">
+3</td>
+<td style="text-align: left; padding-left: 0;">
+.91932</td>
+<td style="text-align: right; padding-right: 0;">
+13</td>
+<td style="text-align: left; padding-left: 0;">
+.11018</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+3</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-sex column-dtype-str">
+m</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+310</td>
+<td class="column-f2 column-dtype-int64">
+1980</td>
+<td style="text-align: right; padding-right: 0;">
+3</td>
+<td style="text-align: left; padding-left: 0;">
+.13128</td>
+<td style="text-align: right; padding-right: 0;">
+12</td>
+<td style="text-align: left; padding-left: 0;">
+.94305</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+4</td>
+<td class="column-speaker column-dtype-str">
+1</td>
+<td class="column-sex column-dtype-str">
+m</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+490</td>
+<td class="column-f2 column-dtype-int64">
+1870</td>
+<td style="text-align: right; padding-right: 0;">
+4</td>
+<td style="text-align: left; padding-left: 0;">
+.83200</td>
+<td style="text-align: right; padding-right: 0;">
+12</td>
+<td style="text-align: left; padding-left: 0;">
+.56000</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.gender.BladenNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/gender.html#BladenNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.gender.BladenNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vlnm.normalizers.gender.NordstromNormalizer">
+<em class="property">class </em><code class="descname">NordstromNormalizer</code><span class="sig-paren">(</span><em>f0=None</em>, <em>f1=None</em>, <em>f2=None</em>, <em>f3=None</em>, <em>gender='gender'</em>, <em>female='F'</em>, <em>male='M'</em>, <em>rename=None</em>, <em>groupby=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/gender.html#NordstromNormalizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.gender.NordstromNormalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data according to <span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#nordstrom_1977"><span><span class="authors"><span><span><span>Nordström</span></span></span></span></span></a> <span>(</span><span><a class="xref cite natbib reference internal" href="../../bibliography.html#nordstrom_1977"><span><span>1977</span></span></a></span><span>)</span></span></span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}F_i^* = F_i \times
+    \begin{cases}
+        \frac{
+            \mu_{F_3}^{\small{male}}
+        }{
+            \mu_{F_3}^{\small{female}}
+        } &amp; \mbox{if } I(F_i) = 1
+        \\
+        1 &amp; \mbox{otherwise}
+    \end{cases}\end{split}\]</div>
+<p>Where <span class="math notranslate nohighlight">\(\mu_{F_3}\)</span> is the mean <span class="math notranslate nohighlight">\(F_3\)</span> across
+all vowels where <span class="math notranslate nohighlight">\(F_1\)</span> is greater than 600Hz,
+and <span class="math notranslate nohighlight">\(I(F_i)\)</span> is an indicator function which
+returns 1 if <span class="math notranslate nohighlight">\(F_i\)</span> is from a speaker
+identified/identifying as female, and 0 otherwise.</p>
+<p>To use this normalizer in the <a class="reference internal" href="vlnm.html#vlnm.normalize" title="vlnm.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">vlnm.normalize()</span></code></a> function,
+use <code class="docutils literal notranslate"><span class="pre">method='nordstrom'</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>f0, f1, f2, f3</strong></p></li>
+<li><p><strong>gender</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> column containing the gender labels.</p>
+</li>
+<li><p><strong>female</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The label in the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> indicating a speaker
+identified/identifying as female.</p>
+</li>
+<li><p><strong>male</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)</p>
+<p>The label in the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code> indicating a speaker
+identified/identifying as male.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul>
+<li><p><strong>rename</strong></p>
+<p>Rename output columns.
+See <a class="reference internal" href="../quickstart.html#normalization-renaming"><span class="std std-ref">renaming columns</span></a>
+for details.</p>
+</li>
+<li><p><strong>groupby</strong></p>
+<p>One or more columns over which to group
+the data before normalization.
+See <a class="reference internal" href="../quickstart.html#normalization-grouping"><span class="std std-ref">grouping data</span></a>
+for details.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Optional keyword arguments passed to the parent constructor.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="jupyter line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<div class="jupyter-cell highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vlnm</span> <span class="kn">import</span> <span class="n">pb1952</span><span class="p">,</span> <span class="n">NordstromNormalizer</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pb1952</span><span class="p">([</span><span class="s1">&#39;speaker&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;vowel&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">])</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">NordstromNormalizer</span><span class="p">(</span><span class="n">gender</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">female</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="s1">&#39;{}*&#39;</span><span class="p">)</span>
+<span class="n">norm_df</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="c1"># Show subset of data</span>
+<span class="n">norm_df</span><span class="p">[</span><span class="n">norm_df</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter-output line-block">
+<div class="jupyter-block line-block">
+<div class="jupyter-container line-block">
+<table class="dataframe">
+<thead>
+<tr class="head">
+<th class="column-index">
+</th>
+<th class="column-speaker">
+speaker</th>
+<th class="column-sex">
+sex</th>
+<th class="column-vowel">
+vowel</th>
+<th class="column-f1">
+f1</th>
+<th class="column-f2">
+f2</th>
+<th class="column-f3">
+f3</th>
+<th class="column-f1* column-dtype-float64" colspan=2 style="text-align: center;">
+f1*</th>
+<th class="column-f2* column-dtype-float64" colspan=2 style="text-align: center;">
+f2*</th>
+<th class="column-f3* column-dtype-float64" colspan=2 style="text-align: center;">
+f3*</th></tr></thead>
+<tbody>
+<tr class="row-1 row-even">
+<td class="column-index column-dtype-None">
+660</td>
+<td class="column-speaker column-dtype-str">
+34</td>
+<td class="column-sex column-dtype-str">
+f</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+370</td>
+<td class="column-f2 column-dtype-int64">
+2670</td>
+<td class="column-f3 column-dtype-int64">
+3100</td>
+<td style="text-align: right; padding-right: 0;">
+322</td>
+<td style="text-align: left; padding-left: 0;">
+.08058</td>
+<td style="text-align: right; padding-right: 0;">
+2324</td>
+<td style="text-align: left; padding-left: 0;">
+.20310</td>
+<td style="text-align: right; padding-right: 0;">
+2698</td>
+<td style="text-align: left; padding-left: 0;">
+.51296</td></tr>
+<tr class="row-2 row-odd">
+<td class="column-index column-dtype-None">
+661</td>
+<td class="column-speaker column-dtype-str">
+34</td>
+<td class="column-sex column-dtype-str">
+f</td>
+<td class="column-vowel column-dtype-str">
+iy</td>
+<td class="column-f1 column-dtype-int64">
+390</td>
+<td class="column-f2 column-dtype-int64">
+2760</td>
+<td class="column-f3 column-dtype-int64">
+3060</td>
+<td style="text-align: right; padding-right: 0;">
+339</td>
+<td style="text-align: left; padding-left: 0;">
+.49034</td>
+<td style="text-align: right; padding-right: 0;">
+2402</td>
+<td style="text-align: left; padding-left: 0;">
+.54702</td>
+<td style="text-align: right; padding-right: 0;">
+2663</td>
+<td style="text-align: left; padding-left: 0;">
+.69344</td></tr>
+<tr class="row-3 row-even">
+<td class="column-index column-dtype-None">
+662</td>
+<td class="column-speaker column-dtype-str">
+34</td>
+<td class="column-sex column-dtype-str">
+f</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+468</td>
+<td class="column-f2 column-dtype-int64">
+2330</td>
+<td class="column-f3 column-dtype-int64">
+2930</td>
+<td style="text-align: right; padding-right: 0;">
+407</td>
+<td style="text-align: left; padding-left: 0;">
+.38841</td>
+<td style="text-align: right; padding-right: 0;">
+2028</td>
+<td style="text-align: left; padding-left: 0;">
+.23716</td>
+<td style="text-align: right; padding-right: 0;">
+2550</td>
+<td style="text-align: left; padding-left: 0;">
+.52999</td></tr>
+<tr class="row-4 row-odd">
+<td class="column-index column-dtype-None">
+663</td>
+<td class="column-speaker column-dtype-str">
+34</td>
+<td class="column-sex column-dtype-str">
+f</td>
+<td class="column-vowel column-dtype-str">
+ih</td>
+<td class="column-f1 column-dtype-int64">
+410</td>
+<td class="column-f2 column-dtype-int64">
+2380</td>
+<td class="column-f3 column-dtype-int64">
+2950</td>
+<td style="text-align: right; padding-right: 0;">
+356</td>
+<td style="text-align: left; padding-left: 0;">
+.90010</td>
+<td style="text-align: right; padding-right: 0;">
+2071</td>
+<td style="text-align: left; padding-left: 0;">
+.76156</td>
+<td style="text-align: right; padding-right: 0;">
+2567</td>
+<td style="text-align: left; padding-left: 0;">
+.93975</td></tr>
+<tr class="row-5 row-even">
+<td class="column-index column-dtype-None">
+664</td>
+<td class="column-speaker column-dtype-str">
+34</td>
+<td class="column-sex column-dtype-str">
+f</td>
+<td class="column-vowel column-dtype-str">
+eh</td>
+<td class="column-f1 column-dtype-int64">
+550</td>
+<td class="column-f2 column-dtype-int64">
+2200</td>
+<td class="column-f3 column-dtype-int64">
+2880</td>
+<td style="text-align: right; padding-right: 0;">
+478</td>
+<td style="text-align: left; padding-left: 0;">
+.76843</td>
+<td style="text-align: right; padding-right: 0;">
+1915</td>
+<td style="text-align: left; padding-left: 0;">
+.07371</td>
+<td style="text-align: right; padding-right: 0;">
+2507</td>
+<td style="text-align: left; padding-left: 0;">
+.00559</td></tr></tbody></table></div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="vlnm.normalizers.gender.NordstromNormalizer.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/vlnm/normalizers/gender.html#NordstromNormalizer.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vlnm.normalizers.gender.NordstromNormalizer.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize formant data.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>)</p>
+<p>DataFrame containing formant data.</p>
+</li>
+<li><p><strong>**kwargs</strong></p>
+<p>Passed to the parent method.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A DataFrame containing the normalized formants.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/normalizers/api/gender.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

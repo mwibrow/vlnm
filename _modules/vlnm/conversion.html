@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.conversion &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.conversion</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Conversion</span>
+<span class="sd">~~~~~~~~~~</span>
+
+<span class="sd">This module contains miscellaeneous functions for converting</span>
+<span class="sd">from Hz to other scales.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="hz_to_bark"><a class="viewcode-back" href="../../normalizers/api/conversion.html#vlnm.conversion.hz_to_bark">[docs]</a><span class="k">def</span> <span class="nf">hz_to_bark</span><span class="p">(</span><span class="n">frq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;traunmuller&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert from Hz to Bark scale.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    frq :</span>
+<span class="sd">        The frequency data to convert.</span>
+
+<span class="sd">    method :</span>
+<span class="sd">        The conversion method used, from the list below.</span>
+<span class="sd">        If not given, defaults to ``&#39;traumuller&#39;``.</span>
+
+<span class="sd">        - ``&#39;syrdal&#39;`` conversion from :citet:`syrdal_gopal_1986`:</span>
+
+<span class="sd">            .. math::</span>
+
+<span class="sd">                F^\prime = 13 \arctan\left( 0.76\frac{F_c}{1000} \right) +</span>
+<span class="sd">                    3.5 \arctan \left( \frac{F_c}{7500} \right)^2</span>
+
+<span class="sd">            where</span>
+
+<span class="sd">            .. math::</span>
+
+<span class="sd">                F_c = \begin{cases}</span>
+<span class="sd">                    150 &amp; \mbox{when } F &lt; 150</span>
+<span class="sd">                    \\</span>
+<span class="sd">                    F - 0.2(F - 150) &amp; \mbox{when } 150 \leq F &lt; 200</span>
+<span class="sd">                    \\</span>
+<span class="sd">                    F - 0.2(250 - F) &amp; \mbox{when } 200\leq F &lt; 250</span>
+<span class="sd">                    \\</span>
+<span class="sd">                    F &amp; \mbox{otherwise}</span>
+<span class="sd">                    \end{cases}</span>
+
+<span class="sd">        - ``&#39;traumuller&#39;`` conversion from :citet:`traunmuller_1990`:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            F^\prime = 26.81 \left(\frac{F}{F + 1960}\right)</span>
+
+<span class="sd">        - ``&#39;volk&#39;`` conversion from :citet:`volk_2015`:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            F^\prime  = 32.12 \left(</span>
+<span class="sd">                1 - \left(1 +</span>
+<span class="sd">                    \left(\frac{F}{873.47}\right)^{1.18}</span>
+<span class="sd">                \right)^{-0.4}</span>
+<span class="sd">            \right)</span>
+
+<span class="sd">        - ``&#39;zwicker&#39;`` conversion from :citet:`zwicker_terhardt_1980`:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            F^\prime = 13 \arctan\left( 0.76\frac{F}{1000} \right) +</span>
+<span class="sd">            3.5 \arctan \left( \frac{F}{7500} \right)^2</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    :</span>
+<span class="sd">        The converted data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;greenwood&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">11.9</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">frq</span> <span class="o">/</span> <span class="mf">165.4</span> <span class="o">+</span> <span class="mf">0.88</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;syrdal&#39;</span><span class="p">:</span>
+        <span class="n">frq</span><span class="p">[</span><span class="n">frq</span> <span class="o">&lt;</span> <span class="mf">150.</span><span class="p">]</span> <span class="o">=</span> <span class="mf">150.</span>
+        <span class="n">frq</span><span class="p">[(</span><span class="n">frq</span> <span class="o">&gt;=</span> <span class="mf">150.</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">frq</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">)]</span> <span class="o">=</span> <span class="n">frq</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="p">(</span><span class="n">frq</span> <span class="o">-</span> <span class="mf">150.</span><span class="p">))</span>
+        <span class="n">frq</span><span class="p">[(</span><span class="n">frq</span> <span class="o">&gt;=</span> <span class="mf">200.</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">frq</span> <span class="o">&lt;</span> <span class="mi">250</span><span class="p">)]</span> <span class="o">=</span> <span class="n">frq</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">250.</span> <span class="o">-</span> <span class="n">frq</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">hz_to_bark</span><span class="p">(</span><span class="n">frq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;zwicker&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;traunmuller&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">26.81</span> <span class="o">*</span> <span class="n">frq</span> <span class="o">/</span> <span class="p">(</span><span class="n">frq</span> <span class="o">+</span> <span class="mi">1960</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.53</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;volk&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">32.12</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="p">(</span><span class="n">frq</span> <span class="o">/</span> <span class="mf">873.47</span><span class="p">)</span> <span class="o">**</span> <span class="mf">1.18</span><span class="p">)</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;zwicker&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">13</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="mf">0.00076</span> <span class="o">*</span> <span class="n">frq</span><span class="p">)</span> <span class="o">+</span>
+                <span class="mf">3.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">frq</span> <span class="o">/</span> <span class="mf">7500.</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown method: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="hz_to_mel"><a class="viewcode-back" href="../../normalizers/api/conversion.html#vlnm.conversion.hz_to_mel">[docs]</a><span class="k">def</span> <span class="nf">hz_to_mel</span><span class="p">(</span><span class="n">frq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert from Hz to mel scale.</span>
+
+<span class="sd">    The formula used here is the &#39;natural-log&#39; equivalent</span>
+<span class="sd">    of the formula given in :citet:`{% oshaughnessy_1987 %}, p.150`:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       F^\prime = 1127\log\left(1 + \frac{F}{700}\right)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    frq:</span>
+<span class="sd">        The frequency data to convert.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    :</span>
+<span class="sd">        The converted data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">1127.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">frq</span> <span class="o">/</span> <span class="mf">700.</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="hz_to_erb"><a class="viewcode-back" href="../../normalizers/api/conversion.html#vlnm.conversion.hz_to_erb">[docs]</a><span class="k">def</span> <span class="nf">hz_to_erb</span><span class="p">(</span><span class="n">frq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert Hz to approximate ERB scale.</span>
+
+<span class="sd">    Formula taken from :citet:`{% moore_glasberg_1996 %}, p.336`:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       F^\prime = 21.4\log\left(1 + 0.00437F\right)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    frq :</span>
+<span class="sd">        The frequency data to convert.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    :</span>
+<span class="sd">        The converted data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">21.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.00437</span> <span class="o">*</span> <span class="n">frq</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="hz_to_log"><a class="viewcode-back" href="../../normalizers/api/conversion.html#vlnm.conversion.hz_to_log">[docs]</a><span class="k">def</span> <span class="nf">hz_to_log</span><span class="p">(</span><span class="n">frq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert Hz to the natural logarithmic scale.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       F^\prime = \log\left(F\right)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    frq :</span>
+<span class="sd">        The frequency data to convert.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    :</span>
+<span class="sd">        The converted data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">frq</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="hz_to_log10"><a class="viewcode-back" href="../../normalizers/api/conversion.html#vlnm.conversion.hz_to_log10">[docs]</a><span class="k">def</span> <span class="nf">hz_to_log10</span><span class="p">(</span><span class="n">frq</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert Hz to the base-10 logarithmic scale.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       F^\prime = \log_{10}\left(F\right)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    frq :</span>
+<span class="sd">        The frequency data to convert.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    :</span>
+<span class="sd">        The converted data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">frq</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

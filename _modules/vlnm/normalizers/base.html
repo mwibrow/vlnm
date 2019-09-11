@@ -1,0 +1,544 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>vlnm.normalizers.base &#8212; VLNM 0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/jupyter.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/vlnm/css/vlnm.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/images/logo.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">VLNM</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Vowel normalization using Python</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mwibrow&repo=vlnm&type=watch&count=False&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../normalizers/index.html">Vowel Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for vlnm.normalizers.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Vowel normalizer base classes</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">The :mod:`base` module contains the base classes</span>
+<span class="sd">for vowel normalizers as well as the</span>
+<span class="sd">:class:`.DefaultNormalizer` which returns data unnormalized</span>
+<span class="sd">so can be used as a control when comparing normalization methods.</span>
+
+
+<span class="sd">.. normalizers-list::</span>
+<span class="sd">    :module: vlnm.normalizers.base</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">get_normalizer</span>
+<span class="kn">from</span> <span class="nn">..docstrings</span> <span class="k">import</span> <span class="n">docstring</span>
+<span class="kn">from</span> <span class="nn">..registration</span> <span class="k">import</span> <span class="n">classify</span><span class="p">,</span> <span class="n">register</span>
+
+<span class="n">FORMANTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;f0&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">uninstantiable</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">klass</span> <span class="o">==</span> <span class="bp">cls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Class &quot;</span><span class="si">{}</span><span class="s1">&quot; cannot be instantiated&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">klass</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span> <span class="o">=</span> <span class="n">new</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">    `This class can only be instantiated by child classes`.</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="bp">cls</span>
+
+
+<div class="viewcode-block" id="Normalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.Normalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">Normalizer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base normalizer class.</span>
+
+<span class="sd">    The :class:`Normalizer` class forms the base of all</span>
+<span class="sd">    normalizers and custom normalizers should all interit</span>
+<span class="sd">    from this class or one of its subclasses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MAX_FX</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="c1"># Required columns for the normalizer.</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[],</span>
+        <span class="c1"># Specifically provide the output columns.</span>
+        <span class="n">outputs</span><span class="o">=</span><span class="p">[],</span>
+        <span class="c1"># Keywords used by the normalizer.</span>
+        <span class="n">keywords</span><span class="o">=</span><span class="p">[],</span>
+        <span class="c1"># Default options</span>
+        <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Class configuration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_config</span><span class="p">()</span>
+
+        <span class="c1"># Constructor options.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;options&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Did the user specify formants?</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_FX</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_formants</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)}</span>
+
+        <span class="c1"># Options set up in normalize method.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Parameters (configuration and options) supplied to _norm method.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formants</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_FX</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">klass</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                               <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">})</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">config</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_user_formants</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">user_formants</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">user_formants</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_formants</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">sub_key</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">sub_key</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Normalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.Normalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span>
+            <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">rename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">rename</span><span class="o">=</span><span class="n">rename</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rename&#39;</span><span class="p">),</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+               <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_formant_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="c1"># Check keywords.</span>
+        <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;keywords&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">keyword</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyword_default</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+        <span class="c1"># Check required columns are in the data frame.</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]:</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span> <span class="ow">or</span> <span class="n">column</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s1">&#39;Column </span><span class="si">{}</span><span class="s1"> not in dataframe&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;Column </span><span class="si">{}</span><span class="s1"> not in dataframe&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prenormalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;groups&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="n">norm_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">norm_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_postnormalize</span><span class="p">(</span><span class="n">norm_df</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">norm_df</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_formant_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;formants&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">formants</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">formants</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">formants</span><span class="p">,</span> <span class="n">column</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formants</span> <span class="o">=</span> <span class="n">formants</span>
+
+    <span class="k">def</span> <span class="nf">_keyword_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
+        <span class="sd">&quot;&quot;&quot;Get default keyword arguments.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span> <span class="ow">or</span> <span class="n">keyword</span>
+
+    <span class="k">def</span> <span class="nf">_prenormalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+        <span class="sd">&quot;&quot;&quot;Actions performed before normalization.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_postnormalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+        <span class="sd">&quot;&quot;&quot;Actions performed after normalization.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">formant_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formant_iterator</span><span class="p">():</span>
+            <span class="n">formant_spec</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">formant</span> <span class="k">for</span> <span class="n">formant</span> <span class="ow">in</span> <span class="n">formant_spec</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">formant</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">formant_spec</span><span class="p">)</span>
+
+            <span class="c1"># Get the columns to subset the dataframe.</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">formant_spec</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">][:]</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">formant_spec</span><span class="p">:</span>
+                    <span class="n">subset</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formant_spec</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">subset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">column</span><span class="p">))</span>
+
+            <span class="c1"># Throw an error if column not in dataframe or just plough on?</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">subset</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+            <span class="n">norm_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">subset</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+            <span class="c1"># Find new/renameable columns and rename.</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_outputs</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">outputs</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">formant_spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">norm_df</span>
+                           <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">]</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">])</span>
+            <span class="n">rename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rename&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">norm_df</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">new_column</span> <span class="o">=</span> <span class="n">rename</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">new_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">rename</span><span class="p">:</span>
+                            <span class="n">new_column</span> <span class="o">=</span> <span class="n">rename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_column</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rename</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">new_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;outputs&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_formant_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+        <span class="sd">&quot;&quot;&quot;Implemented by subclasses&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="FormantSpecificNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.FormantSpecificNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">FormantSpecificNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for normalizers which require specification of individual formants.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MAX_FX</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">f0</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">f1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">f2</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">f3</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">f4</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">f5</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">fxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f0</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f3</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">f5</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">fxs</span><span class="p">):</span>
+            <span class="n">formants</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;f</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">fxs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_FX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">fxs</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">formants</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">f0</span><span class="o">=</span><span class="n">f0</span> <span class="ow">or</span> <span class="s1">&#39;f0&#39;</span><span class="p">,</span>
+                <span class="n">f1</span><span class="o">=</span><span class="n">f1</span> <span class="ow">or</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span>
+                <span class="n">f2</span><span class="o">=</span><span class="n">f2</span> <span class="ow">or</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span>
+                <span class="n">f3</span><span class="o">=</span><span class="n">f3</span> <span class="ow">or</span> <span class="s1">&#39;f3&#39;</span><span class="p">,</span>
+                <span class="n">f4</span><span class="o">=</span><span class="n">f4</span> <span class="ow">or</span> <span class="s1">&#39;f4&#39;</span><span class="p">,</span>
+                <span class="n">f5</span><span class="o">=</span><span class="n">f5</span> <span class="ow">or</span> <span class="s1">&#39;f5&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_formants</span><span class="p">(</span><span class="n">formants</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_formant_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">formant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">formant</span><span class="p">,</span> <span class="n">column</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formants</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_sanitize_formants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formants</span><span class="p">):</span>  <span class="c1"># pylint: disable=no-self-use</span>
+        <span class="n">fxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">formants</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">fx</span> <span class="ow">in</span> <span class="n">fxs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">formants</span><span class="p">[</span><span class="n">fx</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">formants</span><span class="p">[</span><span class="n">fx</span><span class="p">]:</span>
+                    <span class="n">formants</span><span class="p">[</span><span class="n">fx</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">formants</span><span class="p">[</span><span class="n">fx</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">formants</span>
+
+    <span class="k">def</span> <span class="nf">_formant_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fxs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="k">for</span> <span class="n">formants</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">[</span><span class="n">fx</span><span class="p">]</span> <span class="k">for</span> <span class="n">fx</span> <span class="ow">in</span> <span class="n">fxs</span> <span class="k">if</span> <span class="n">fx</span> <span class="ow">in</span> <span class="n">fxs</span><span class="p">)):</span>
+            <span class="n">formant_spec</span> <span class="o">=</span> <span class="p">{</span><span class="n">fx</span><span class="p">:</span> <span class="n">formants</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">formants</span><span class="p">)}</span>
+            <span class="n">formant_spec</span><span class="p">[</span><span class="s1">&#39;formants&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">formant_spec</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="k">yield</span> <span class="n">formant_spec</span></div>
+
+
+<div class="viewcode-block" id="FormantGenericNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.FormantGenericNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">FormantGenericNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for normalizers which require general list of formants.</span>
+
+<span class="sd">    The :class:`FormantGenericNormalizer` should be used as the base</span>
+<span class="sd">    class for normalizers whose implementation does not need</span>
+<span class="sd">    to distinguish between specific formants.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formants</span> <span class="o">=</span> <span class="n">formants</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">formants</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span>
+            <span class="n">formants</span><span class="p">]</span> <span class="k">if</span> <span class="n">formants</span> <span class="k">else</span> <span class="p">[</span><span class="n">f</span><span class="s1">&#39;f</span><span class="si">{i}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_FX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_formant_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">formants</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TransformNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.TransformNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">TransformNormalizer</span><span class="p">(</span><span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for normalizers which simply transform formants.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transform&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transform&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transform</span><span class="p">:</span>
+            <span class="n">formants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;formants&#39;</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">formants</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="FormantsTransformNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.FormantsTransformNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@uninstantiable</span>
+<span class="k">class</span> <span class="nc">FormantsTransformNormalizer</span><span class="p">(</span><span class="n">TransformNormalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base clase for normalizers transform each formant independently.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DefaultNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.DefaultNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">DefaultNormalizer</span><span class="p">(</span><span class="n">FormantGenericNormalizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&#39;Default&#39; normalizer which returns formant data unaltered.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    formants:</span>
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    rename:</span>
+<span class="sd">    **kwargs:</span>
+<span class="sd">        Optional keyword arguments passed to the parent constructor.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import pb1952, DefaultNormalizer</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        norm_df = DefaultNormalizer(rename=&#39;{}*&#39;).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">formants</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formants</span><span class="o">=</span><span class="n">formants</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="n">rename</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DefaultNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.DefaultNormalizer.normalize">[docs]</a>    <span class="nd">@docstring</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ChainNormalizer"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.ChainNormalizer">[docs]</a><span class="nd">@docstring</span>
+<span class="nd">@register</span><span class="p">(</span><span class="s1">&#39;chain&#39;</span><span class="p">)</span>
+<span class="nd">@classify</span><span class="p">(</span><span class="n">vowel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formant</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">speaker</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ChainNormalizer</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run multiple normalizers in sequence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    normalizers:</span>
+<span class="sd">        A list of normalizers.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. ipython::</span>
+
+<span class="sd">        from vlnm import (</span>
+<span class="sd">            pb1952,</span>
+<span class="sd">            ChainNormalizer, BarkNormalizer, LobanovNormalizer)</span>
+
+<span class="sd">        df = pb1952([&#39;speaker&#39;, &#39;vowel&#39;, &#39;f1&#39;, &#39;f2&#39;])</span>
+<span class="sd">        normalizers = [</span>
+<span class="sd">            BarkNormalizer(rename=&#39;{}*&#39;),</span>
+<span class="sd">            LobanovNormalizer(formants=[&#39;f1*&#39;, &#39;f2*&#39;])</span>
+<span class="sd">        ]</span>
+<span class="sd">        norm_df = ChainNormalizer(normalizers).normalize(df)</span>
+<span class="sd">        norm_df.head()</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">normalizers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Normalizer</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span> <span class="o">=</span> <span class="n">normalizers</span>
+
+<div class="viewcode-block" id="ChainNormalizer.normalize"><a class="viewcode-back" href="../../../normalizers/api/base.html#vlnm.normalizers.base.ChainNormalizer.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalize a DataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df:</span>
+<span class="sd">            The DataFrame containing the formant data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            The normalized data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">for</span> <span class="n">normalizer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">norm_df</span> <span class="o">=</span> <span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_df</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">normalizer</span> <span class="o">=</span> <span class="n">get_normalizer</span><span class="p">(</span><span class="n">normalizer</span><span class="p">)</span>
+                <span class="n">norm_df</span> <span class="o">=</span> <span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">norm_df</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">norm_df</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2018-present, Mark Wibrow.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
