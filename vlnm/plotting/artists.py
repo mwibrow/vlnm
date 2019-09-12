@@ -194,3 +194,31 @@ class EllipseArtist(Artist):
             angle=angle,
             **props)
         axis.add_patch(ellipse)
+
+
+class LabelArtist(Artist):
+    """Artist class for drawing labels."""
+    defaults = dict(
+        text={
+            'color': 'black',
+            'size': 10
+        }
+    )
+
+    translators = dict(
+        text={}
+    )
+
+    def legend(self, **_) -> None:
+        """Return the legend artist for labels."""
+        return None
+
+    def plot(self, axis, x, y, **props):
+        """Draw markers."""
+        translator = self._get_translator('text')
+        defaults = self.translate_props(self._get_defaults('text'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+        label = props.pop('label')
+        for x, y in zip(x, y):
+            axis.text(x, y, label, clip_on=True, **props)

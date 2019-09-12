@@ -7,6 +7,7 @@ import types
 from typing import Dict, Generator, List, Tuple, Union
 
 import matplotlib.pyplot as plt
+import matplotlib.style as mstyle
 from matplotlib.figure import Figure
 from matplotlib.axis import Axis
 import matplotlib.patches as mpatches
@@ -14,7 +15,7 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import MultiPoint
 
-from vlnm.plotting.artists import Artist, EllipseArtist, MarkerArtist, PolygonArtist
+from vlnm.plotting.artists import Artist, EllipseArtist, LabelArtist, MarkerArtist, PolygonArtist
 from vlnm.plotting.mappers import get_prop_mapper
 from vlnm.plotting.utils import (
     context_from_kwargs,
@@ -24,6 +25,11 @@ from vlnm.plotting.utils import (
     merge,
     merge_contexts,
     strip)
+
+
+def use_style(style):
+    """Set the global style for vowel plots."""
+    mstyle.use(style)
 
 
 class VowelPlot:
@@ -57,6 +63,7 @@ class VowelPlot:
             width: float = 4,
             height: float = 4,
             figure: Figure = None,
+            style: str = 'default',
             **kwargs):
         figsize = kwargs.pop('figsize', (width, height) if width and height else None)
         self.figure = figure or create_figure(figsize=figsize, **kwargs)
@@ -147,38 +154,44 @@ class VowelPlot:
             if key.endswith('_by'):
                 prop = key[:-3]
                 group = value
-                mapping = context[prop]
-                if prop == 'plot':
-                    plot_mapper[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
+                mapping = context.get(prop)
+                if prop:
+                    if prop == 'plot':
+                        plot_mapper[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
+                    else:
+                        prop_mappers[group] = prop_mappers.get(group, [])
+                        prop_mappers[group].append(
+                            get_prop_mapper(prop, mapping=mapping, data=df[group]))
+
+        if groups:
+            # Iterate over groups.
+            grouped = df.groupby(groups, as_index=False)
+            params = context.get('defaults', {}).copy()
+            for values, group_df in grouped:
+                values = values if isinstance(values, tuple) else (values,)
+                props = params.copy()
+                group_props = {}
+                plot_props = {}
+                group_values = {}
+                for group, value in zip(groups, values):
+                    group_values[group] = value
+                    if group in prop_mappers:
+                        mapped_props = {}
+                        for prop_mapper in prop_mappers[group]:
+                            mapped_props.update(prop_mapper.get_props(value))
+                        mapped_props.update(**context.get('_params', {}))
+                        group_props[group] = group_props.get(group, OrderedDict())
+                        group_props[group][value] = merge(params, mapped_props)
+                        props.update(**mapped_props)
+                    if group in plot_mapper:
+                        plot_props = plot_mapper[group].get_props(value)
+
+                if plot_props:
+                    axis = self.subplot(**plot_props)
                 else:
-                    prop_mappers[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
+                    axis = self.axis or self.subplot(row=1, column=1)
 
-        # Iterate over groups.
-        grouped = df.groupby(groups, as_index=False)
-        params = context.get('defaults', {}).copy()
-        for values, group_df in grouped:
-            values = values if isinstance(values, tuple) else (values,)
-            props = params.copy()
-            group_props = {}
-            plot_props = {}
-            group_values = {}
-            for group, value in zip(groups, values):
-                group_values[group] = value
-                if group in prop_mappers:
-                    mapped_props = prop_mappers[group].get_props(value)
-                    mapped_props.update(**context.get('_params', {}))
-                    group_props[group] = group_props.get(group, OrderedDict())
-                    group_props[group][value] = merge(params, mapped_props)
-                    props.update(**mapped_props)
-                if group in plot_mapper:
-                    plot_props = plot_mapper[group].get_props(value)
-
-            if plot_props:
-                axis = self.subplot(**plot_props)
-            else:
-                axis = self.axis or self.subplot(row=1, column=1)
-
-            yield axis, group_df, props, group_props
+                yield axis, group_df, props, group_props
 
     def _update_legend(self, legend_id: str, group_props: Dict, artist: Artist):
         legend = self.legends.get(legend_id, {})
@@ -234,9 +247,34 @@ class VowelPlot:
             x = group_df[context['x']]
             y = group_df[context['y']]
             artist.plot(axis, x, y, **props)
-
             if legend:
                 self._update_legend(legend, group_props, artist.legend)
+
+        return self
+
+    def labels(
+            self,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            where: str = 'all',
+            legend: str = None, **kwargs) -> 'VowelPlot':
+
+        context, params = context_from_kwargs(kwargs)
+
+        label
+        context = merge_contexts(
+            self.plot_context,
+            context,
+            dict(data=data, x=x, y=y, where=where, _params=params))
+        context['label'] = context.get('label', list(context['data'][context['label_by']].unique()))
+        artist = LabelArtist()
+
+        for axis, group_df, props, group_props in self._df_iterator(context):
+            x = group_df[context['x']]
+            y = group_df[context['y']]
+            props['label'] = group_
+            artist.plot(axis, x, y, **props)
 
         return self
 

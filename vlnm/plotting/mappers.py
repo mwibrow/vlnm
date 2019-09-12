@@ -101,4 +101,4 @@ def get_prop_mapper(prop, mapping=None, data=None):
         return IndexPropMapper(prop, mapping=mapping, data=data)
     elif 'color' in prop:
         return ColorPropMapper(prop, mapping=mapping, data=data)
-    return PropMapper(prop, mapping-mapping, data=data)
+    return PropMapper(prop, mapping=mapping, data=data)
