@@ -262,18 +262,17 @@ class VowelPlot:
 
         context, params = context_from_kwargs(kwargs)
 
-        label
+
         context = merge_contexts(
             self.plot_context,
             context,
             dict(data=data, x=x, y=y, where=where, _params=params))
-        context['label'] = context.get('label', list(context['data'][context['label_by']].unique()))
         artist = LabelArtist()
 
         for axis, group_df, props, group_props in self._df_iterator(context):
             x = group_df[context['x']]
             y = group_df[context['y']]
-            props['label'] = group_
+            props['label'] = list(group_df[context['label_by']].unique())[0]
             artist.plot(axis, x, y, **props)
 
         return self
