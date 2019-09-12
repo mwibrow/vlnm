@@ -131,7 +131,7 @@ the normalized data can be written to new columns using the
 :arg:`rename` argument.
 The value passed to this argument can take two forms.
 In the first, a simple string can be passed,
-and the characters ``{}`` will be replaced by the
+and if it contains the characters ``{}``, they will be replaced by the
 original output columns:
 
 .. ipython::
@@ -142,6 +142,16 @@ original output columns:
 This will create new columns :col:`f1*` and :col:`f2*` containing
 the normalized data for the :col:`f1` and :col:`f2` columns,
 respectively.
+
+If the string does not contain the characters ``{}``,
+the normalized columns will be numbered using the string
+as a prefix, so using ``rename='n'`` will produce
+normalized columns :col:`n1`, :col:`n2`… and so on:
+
+.. ipython::
+
+    normalize('vowels.csv', 'normalized.csv', method='lobanov', rename='n')
+    pd.read_csv('normalized.csv').head()
 
 Alternatively, the :arg:`rename` argument can be a dictionary.
 Columns will be renamed only if they have a key in the
