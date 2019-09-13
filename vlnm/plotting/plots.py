@@ -363,6 +363,7 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             confidence: float = 0.95,
+            sd: float = None,
             legend: str = '',
             ** kwargs):
         """Add confidence-interval-based ellipsed around formant data.
@@ -384,7 +385,7 @@ class VowelPlot:
             group_x = group_df[x]
             group_y = group_df[y]
             center_x, center_y, width, height, angle = get_confidence_ellipse(
-                group_x, group_y, confidence)
+                group_x, group_y, confidence=confidence, sd=sd)
 
             artist.plot(axis, (center_x, center_y), width, height, angle, **props)
             axis.relim()

@@ -201,7 +201,9 @@ class LabelArtist(Artist):
     defaults = dict(
         text={
             'color': 'black',
-            'size': 10
+            'size': 10,
+            'ha': 'center',
+            'va': 'center',
         }
     )
 

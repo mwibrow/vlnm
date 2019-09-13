@@ -119,7 +119,8 @@ class HandlerEllipse(HandlerPatch):
 def get_confidence_ellipse(
         x: List[float],
         y: List[float],
-        confidence: float = 0.95) -> Tuple[float, float, float]:
+        confidence: float = 0.95,
+        sd: float = None) -> Tuple[float, float, float]:
     """Calculate parameters for a 2D 'confidence ellipse'
 
     Parameters
@@ -145,7 +146,26 @@ def get_confidence_ellipse(
         raise ValueError('Too little data to calculate ellipse')
     cov = np.cov(x, y)
     eigenvalues, eignvectors = np.linalg.eig(cov)
-    angle = np.arctan2(*np.flip(eignvectors[:, 0])) / np.pi * 180
-    alpha = st.chi2(df=2).ppf(confidence)
-    width, height = 2 * np.sqrt(alpha * eigenvalues)
-    return np.mean(x), np.mean(y), width, height, angle
+    angle = np.arctan2(*np.flip(eignvectors[:, 0]))
+
+    cx, cy = np.mean(x), np.mean(y)
+
+    if sd:
+        x, y = rotate_xy(x - cx, y - cy, angle)
+        width, height = rotate_xy(2 * np.std(x) * sd, 2 * np.std(y) * sd, -angle)
+    else:
+        alpha = st.chi2(df=2).ppf(confidence)
+        width, height = 2 * np.sqrt(alpha * eigenvalues)
+
+    angle = angle / np.pi * 180
+    return cx, cy, width, height, angle
+
+def rotate_xy(x, y, angle):
+    """Rotate 2d coordinates.
+    """
+    cs, sn = np.cos(angle), np.sin(angle)
+    matrix = np.matrix([[cs, -sn], [sn, cs]])
+    x, y = matrix.dot([np.atleast_1d(x), np.atleast_1d(y)])
+    x = np.asarray(np.squeeze(x))
+    y = np.asarray(np.squeeze(y))
+    return x, y
