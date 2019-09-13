@@ -165,7 +165,5 @@ def rotate_xy(x, y, angle):
     """
     cs, sn = np.cos(angle), np.sin(angle)
     matrix = np.matrix([[cs, -sn], [sn, cs]])
-    x, y = matrix.dot([np.atleast_1d(x), np.atleast_1d(y)])
-    x = np.asarray(np.squeeze(x))
-    y = np.asarray(np.squeeze(y))
+    x, y = np.asarray(matrix.dot([np.atleast_1d(x), np.atleast_1d(y)]))
     return x, y
