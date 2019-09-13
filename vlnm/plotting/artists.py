@@ -219,5 +219,10 @@ class LabelArtist(Artist):
         defaults = self.translate_props(self._get_defaults('text'), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
-        for x, y, label in zip(x, y, labels):
-            axis.text(x, y, label, clip_on=True, **props)
+        if labels:
+            if instance(labels, str):
+                for x, y in zip(x, y):
+                    axis.text(x, y, label, clip_on=True, **props)
+            else:
+                for x, y, label in zip(x, y, labels):
+                    axis.text(x, y, label, clip_on=True, **props)
