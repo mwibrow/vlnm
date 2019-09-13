@@ -156,8 +156,10 @@ class VowelPlot:
                 group = value
                 mapping = context.get(prop)
                 if prop:
-                    if prop == 'plot':
+                    if prop == 'plot': # plot mapping is special
                         plot_mapper[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
+                    elif prop == 'label': # label mapping is special
+                        pass
                     else:
                         prop_mappers[group] = prop_mappers.get(group, [])
                         prop_mappers[group].append(
@@ -258,6 +260,8 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             where: str = 'all',
+            label_by: str = None,
+            label: Union[str, dict, list, types.FunctionType] = None,
             legend: str = None, **kwargs) -> 'VowelPlot':
 
         context, params = context_from_kwargs(kwargs)
@@ -266,14 +270,14 @@ class VowelPlot:
         context = merge_contexts(
             self.plot_context,
             context,
-            dict(data=data, x=x, y=y, where=where, _params=params))
+            dict(data=data, x=x, y=y, where=where, label_by=label_by, _params=params))
         artist = LabelArtist()
 
         for axis, group_df, props, group_props in self._df_iterator(context):
             x = group_df[context['x']]
             y = group_df[context['y']]
-            props['label'] = list(group_df[context['label_by']].unique())[0]
-            artist.plot(axis, x, y, **props)
+            labels = group_df[context['label_by']]
+            artist.plot(axis, x, y, labels, **props)
 
         return self
 

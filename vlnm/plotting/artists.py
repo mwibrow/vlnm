@@ -213,12 +213,11 @@ class LabelArtist(Artist):
         """Return the legend artist for labels."""
         return None
 
-    def plot(self, axis, x, y, **props):
+    def plot(self, axis, x, y, labels, **props):
         """Draw markers."""
         translator = self._get_translator('text')
         defaults = self.translate_props(self._get_defaults('text'), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
-        label = props.pop('label')
-        for x, y in zip(x, y):
+        for x, y, label in zip(x, y, labels):
             axis.text(x, y, label, clip_on=True, **props)
