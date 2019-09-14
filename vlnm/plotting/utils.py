@@ -120,7 +120,7 @@ def get_confidence_ellipse(
         x: List[float],
         y: List[float],
         confidence: float = 0.95,
-        sd: float = None) -> Tuple[float, float, float]:
+        n_std: float = None) -> Tuple[float, float, float]:
     """Calculate parameters for a 2D 'confidence ellipse'
 
     Parameters
@@ -130,12 +130,18 @@ def get_confidence_ellipse(
     y:
         Data for the y-coordinates.
     confidence:
-        Confidence level in the range :math:`0` to :math:`1`.
+        Confidence level in the range :math:`0` to :math:`1`
+        used to determine the major and minor axis of the ellipse.
+        Ignored if the ``n_std`` parameter is given.
+    n_std:
+        Number of standard deviations from the mean used
+        used to determine the major and minor axis of the ellipse.
 
     Returns
     -------
     :
-        A tuple the width, height, and angle (in degrees)
+        A 5-tuple containing the x- and y- cooridnates of the center,
+        (horizontal) width, (vertical) height, and angle (in degrees)
         of the required ellipse.
     """
     x = np.array(x)
@@ -160,8 +166,26 @@ def get_confidence_ellipse(
     angle = angle / np.pi * 180
     return cx, cy, width, height, angle
 
-def rotate_xy(x, y, angle):
+
+def rotate_xy(
+        x: Union[Iterable[float], float],
+        y: Union[Iterable[float], float],
+        angle: float) -> Tuple[np.array, np.array]:
     """Rotate 2d coordinates.
+
+    Paramaters
+    ----------
+    x:
+        Data x-coordinates.
+    y:
+        Data y-coordinates.
+    angle:
+        Angle to rotate in radians.
+
+    Returns
+    -------
+    :
+        A 2-tuple containing the
     """
     cs, sn = np.cos(angle), np.sin(angle)
     matrix = np.matrix([[cs, -sn], [sn, cs]])
