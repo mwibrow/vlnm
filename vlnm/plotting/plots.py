@@ -116,7 +116,6 @@ class VowelPlot:
             column = (index % self.columns) + 1
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
-        print(row, column, index)
         self.axis = self.figure.add_subplot(
             self.rows, self.columns, index, label=label, **kwargs)
         if invert_axes or self.plot_context.get('invert_axes'):
@@ -182,6 +181,7 @@ class VowelPlot:
                 group_props = {}
                 plot_props = {}
                 group_values = {}
+
                 for group, value in zip(groups, values):
                     group_values[group] = value
                     if group in prop_mappers:
@@ -243,6 +243,7 @@ class VowelPlot:
             y: str = None,
             where: str = 'all',
             legend: str = None, **kwargs) -> 'VowelPlot':
+
         context, params = context_from_kwargs(kwargs)
 
         context = merge_contexts(
@@ -388,17 +389,15 @@ class VowelPlot:
 
         x = context['x']
         y = context['y']
+        import sys
         for axis, group_df, props, group_props in self._df_iterator(context):
-
             group_x = group_df[x]
             group_y = group_df[y]
             center_x, center_y, width, height, angle = get_confidence_ellipse(
-                group_x, group_y, confidence=confidence, sd=sd)
-
+                group_x, group_y, confidence=confidence, n_std=n_std, n_mad=n_mad)
             artist.plot(axis, (center_x, center_y), width, height, angle, **props)
             axis.relim()
             axis.autoscale_view()
-
             if legend:
                 self._update_legend(legend, group_props, artist.legend)
         return self

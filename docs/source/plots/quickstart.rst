@@ -34,7 +34,6 @@ Markers
         plot.xlabel('F2 (Hz)')
         plot.ylabel('F1 (Hz)')
 
-
 .. ipython::
 
     from vlnm import pb1952
@@ -43,5 +42,7 @@ Markers
     df = pb1952(columns=['vowel', 'f1', 'f2'])
 
     with VowelPlot(data=df, x='f2', y='f1') as plot:
-        plot.ellipses(color_by='vowel', color='tab20', legend='ellipses')
-        plot.legend('ellipses')
+        plot.ellipses(color_by='vowel', color='tab20', alpha=0.5, legend='ellipses')
+        plot.legend('ellipses', loc='center left', bbox_to_anchor=(1, 0.5))
+        plot.xlabel('F2 (Hz)')
+        plot.ylabel('F1 (Hz)')

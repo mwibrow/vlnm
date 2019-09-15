@@ -172,7 +172,9 @@ class JupyterDirective(YAMLDirective):
         if 'reset' in self.options:
             self.shell.reset()
 
-        self.shell.update_user_ns(Sphinx=self.state.document.settings.env.app)
+        self.shell.update_user_ns(
+            Sphinx=self.state.document.settings.env.app,
+            _pylab_helpers=_pylab_helpers)
 
         if 'chdir' in options:
             chdir = self.normalize_path(options['chdir'])
@@ -204,7 +206,7 @@ class JupyterDirective(YAMLDirective):
         error = exc_result.error_before_exec or exc_result.error_in_exec
         results = exc_result.result
 
-        if error or stdout or results is not None:
+        if error or stdout or results is not None or _pylab_helpers.Gcf.get_active():
             output = docutils.nodes.line_block(classes=['jupyter-output'])
             if error:
                 if errors == 'show':
@@ -294,8 +296,10 @@ class JupyterDirective(YAMLDirective):
                 nodes.append(node)
             else:
                 for result in results:
-                    _nodes, stdout = self.jupyter_results(result, stdout, **options)
+                    stdout = ''
+                    _nodes, sout = self.jupyter_results(result, stdout, **options)
                     nodes.extend(_nodes)
+                    stdout += sout
 
         return nodes, stdout
 
@@ -329,7 +333,6 @@ class JupyterDirective(YAMLDirective):
             gallery = env.gallery
             name = f'{gallery.next_image()}.{fmt}'
             path, uri = gallery.image_paths(name)
-            print(path, uri)
             figure.savefig(path, format=fmt, bbox_inches='tight', dpi=dpi)
             node = docutils.nodes.raw(
                 '', f'<img src="{uri}" class="image jupyter-image" />', format='html')
