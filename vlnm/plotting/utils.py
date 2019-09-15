@@ -120,7 +120,8 @@ def get_confidence_ellipse(
         x: List[float],
         y: List[float],
         confidence: float = 0.95,
-        n_std: float = None) -> Tuple[float, float, float]:
+        n_std: float = None,
+        n_mad: float = None) -> Tuple[float, float, float]:
     """Calculate parameters for a 2D 'confidence ellipse'
 
     Parameters
@@ -132,10 +133,15 @@ def get_confidence_ellipse(
     confidence:
         Confidence level in the range :math:`0` to :math:`1`
         used to determine the major and minor axis of the ellipse.
-        Ignored if the ``n_std`` parameter is given.
+        Ignored if either of the ``n_std`` or ``n_mad` parameters are given.
     n_std:
-        Number of standard deviations from the mean used
+        If specified, the number of standard deviations from the mean used
         used to determine the major and minor axis of the ellipse.
+    n_mad:
+        If specified, the number of median absolute deviations from the median used
+        used to determine the major and minor axis of the ellipse.
+        In addition the ellipse will be centered at the median
+        of the data points.
 
     Returns
     -------
@@ -154,11 +160,17 @@ def get_confidence_ellipse(
     eigenvalues, eignvectors = np.linalg.eig(cov)
     angle = np.arctan2(*np.flip(eignvectors[:, 0]))
 
-    cx, cy = np.mean(x), np.mean(y)
+    if n_mad:
+        cx, cy = np.median(x), np.median(y)
+    else:
+        cx, cy = np.mean(x), np.mean(y)
 
-    if sd:
+    if n_mad:
         x, y = rotate_xy(x - cx, y - cy, angle)
-        width, height = rotate_xy(2 * np.std(x) * sd, 2 * np.std(y) * sd, -angle)
+        width, height = rotate_xy(2 * np.median(x) * n_mad, 2 * np.median(y) * n_mad, -angle)
+    if n_std:
+        x, y = rotate_xy(x - cx, y - cy, angle)
+        width, height = rotate_xy(2 * np.std(x) * n_std, 2 * np.std(y) * n_std, -angle)
     else:
         alpha = st.chi2(df=2).ppf(confidence)
         width, height = 2 * np.sqrt(alpha * eigenvalues)
@@ -185,7 +197,7 @@ def rotate_xy(
     Returns
     -------
     :
-        A 2-tuple containing the
+        A 2-tuple containing the rotated coordinates.
     """
     cs, sn = np.cos(angle), np.sin(angle)
     matrix = np.matrix([[cs, -sn], [sn, cs]])

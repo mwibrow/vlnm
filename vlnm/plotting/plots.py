@@ -24,6 +24,7 @@ from vlnm.plotting.utils import (
     HandlerEllipse,
     merge,
     merge_contexts,
+    split_kwargs,
     strip)
 
 
@@ -63,14 +64,14 @@ class VowelPlot:
             width: float = 4,
             height: float = 4,
             figure: Figure = None,
-            style: str = 'default',
             **kwargs):
+
         figsize = kwargs.pop('figsize', (width, height) if width and height else None)
         self.figure = figure or create_figure(figsize=figsize, **kwargs)
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
+        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True, **rest))
         self.axis = None
         self.legends = {}
 
@@ -100,16 +101,16 @@ class VowelPlot:
         return self
 
     def end_plot(self):
-        if 'invert_axes' in self.plot_context:
-            axes = self.figure.get_axes()
-            for axis in axes:
-                if not axis.xaxis_inverted():
-                    axis.invert_xaxis()
-                if not axis.yaxis_inverted():
-                    axis.invert_yaxis()
         return self.figure
 
-    def subplot(self, row: int = None, column: int = None, label: str = None, **kwargs) -> Axis:
+    def subplot(
+            self,
+            row: int = None,
+            column: int = None,
+            label: str = None,
+            invert_axis: str = None,
+            **kwargs) -> Axis:
+        axis_kwargs, _ = get_axis_kwargs(kwargs)
         if not column:
             index = row - 1
             row = (index // self.rows) + 1
@@ -117,7 +118,12 @@ class VowelPlot:
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
         self.axis = self.figure.add_subplot(
-            self.rows, self.columns, index, label=label, **kwargs)
+            self.rows, self.columns, index, label=label, **axis_kwargs)
+        if invert_axis or self.plot_context.get('invert_axis'):
+            if not self.axis.xaxis_inverted():
+                self.axis.invert_xaxis()
+            if not self.axis.yaxis_inverted():
+                self.axis.invert_yaxis()
         return self.axis
 
     @staticmethod
@@ -156,9 +162,10 @@ class VowelPlot:
                 group = value
                 mapping = context.get(prop)
                 if prop:
-                    if prop == 'plot': # plot mapping is special
-                        plot_mapper[group] = get_prop_mapper(prop, mapping=mapping, data=df[group])
-                    elif prop == 'label': # label mapping is special
+                    if prop == 'plot':  # plot mapping is special
+                        plot_mapper[group] = get_prop_mapper(
+                            prop, mapping=mapping, data=df[group])
+                    elif prop == 'label':  # label mapping is special
                         pass
                     else:
                         prop_mappers[group] = prop_mappers.get(group, [])
@@ -266,7 +273,6 @@ class VowelPlot:
 
         context, params = context_from_kwargs(kwargs)
 
-
         context = merge_contexts(
             self.plot_context,
             context,
@@ -363,10 +369,12 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             confidence: float = 0.95,
-            sd: float = None,
+            n_std: float = None,
+            n_mad: float = None,
             legend: str = '',
             ** kwargs):
-        """Add confidence-interval-based ellipsed around formant data.
+        """Add confidence-interval-based ellipses around formant data.
+
 
         """
         context, params = context_from_kwargs(kwargs)
