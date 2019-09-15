@@ -31,8 +31,8 @@ Markers
     with VowelPlot(data=df, x='f2', y='f1') as plot:
         plot.markers(color_by='vowel', color='tab20', size=5, legend='markers')
         plot.legend('markers')
-        plot.xlabel('F2 (Hz))
-        plot.ylabel('F1 (Hz))
+        plot.xlabel('F2 (Hz)')
+        plot.ylabel('F1 (Hz)')
 
 
 .. ipython::
