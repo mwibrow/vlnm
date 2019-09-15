@@ -20,6 +20,7 @@ import warnings
 from docutils.parsers.rst import directives, Directive
 import docutils.nodes
 from IPython.core.interactiveshell import InteractiveShell
+from matplotlib import _pylab_helpers
 from pygments import token
 from pygments.lexer import RegexLexer
 import numpy as np
@@ -269,6 +270,10 @@ class JupyterDirective(YAMLDirective):
             literal = repr(results)
             node = docutils.nodes.literal_block(literal, literal)
             return [node], stdout
+        else:
+            if _pylab_helpers.Gcf.get_active():
+                figure = _pylab_helpers.Gcf.get_active().canvas.figure
+                return self.jupyter_result_figure(figure, stdout, **options)
         return [], stdout
 
     def jupyter_result_tuple(self, results, stdout, **options):

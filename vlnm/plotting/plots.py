@@ -88,7 +88,7 @@ class VowelPlot:
     def __exit__(self, exc_type, _exc_value, _traceback):
         if exc_type:
             return exc_type
-        return self.end_plot()
+        return False
 
     def __call__(self, **kwargs):
         return self.context(**kwargs)
@@ -116,6 +116,7 @@ class VowelPlot:
             column = (index % self.columns) + 1
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
+        print(row, column, index)
         self.axis = self.figure.add_subplot(
             self.rows, self.columns, index, label=label, **kwargs)
         if invert_axes or self.plot_context.get('invert_axes'):
