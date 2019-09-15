@@ -8,7 +8,7 @@ EXTENSIONS=-z ./extensions
 WATCH=-z ../vlnm -z ./$(SRCDIR) $(EXTENSIONS)
 CMDOPT=-E -a -d $(BLDDIR)/.doctrees
 IGNORE=-i *.csv -i *.tsv
-SPHINXBUILD=python3 -msphinx
+SPHINXBUILD=python3 -m sphinx
 
 html:
 	$(SPHINXBUILD) $(CMDOPT) -b html  $(SRCDIR) $(BLDDIR)/html

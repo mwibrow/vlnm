@@ -22,10 +22,12 @@ Markers
 -------
 
 .. ipython::
+
     from vlnm import pb1952
     from vlnm.plotting import VowelPlot
 
     df = pb1952(columns=['vowel', 'f1', 'f2'])
 
+    print('hello')
     with VowelPlot(data=df, x='f1', y='f2') as plot:
         plot.markers(color_by='vowel', color='tab20', legend=True)

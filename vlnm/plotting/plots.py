@@ -24,7 +24,6 @@ from vlnm.plotting.utils import (
     HandlerEllipse,
     merge,
     merge_contexts,
-    split_kwargs,
     strip)
 
 
@@ -52,6 +51,7 @@ class VowelPlot:
             plot.markers(color_by='vowel', colors='tab20')
             plot.labels(where='mean')
 
+        ### plot.figure
     """
 
     def __init__(
@@ -71,7 +71,7 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True, **rest))
+        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
 
@@ -87,7 +87,7 @@ class VowelPlot:
 
     def __exit__(self, exc_type, _exc_value, _traceback):
         if exc_type:
-            return False
+            return exc_type
         return self.end_plot()
 
     def __call__(self, **kwargs):
@@ -108,9 +108,8 @@ class VowelPlot:
             row: int = None,
             column: int = None,
             label: str = None,
-            invert_axis: str = None,
+            invert_axes: str = None,
             **kwargs) -> Axis:
-        axis_kwargs, _ = get_axis_kwargs(kwargs)
         if not column:
             index = row - 1
             row = (index // self.rows) + 1
@@ -118,8 +117,8 @@ class VowelPlot:
         label = label or '{}-{}'.format(row, column)
         index = (row - 1) * self.columns + column
         self.axis = self.figure.add_subplot(
-            self.rows, self.columns, index, label=label, **axis_kwargs)
-        if invert_axis or self.plot_context.get('invert_axis'):
+            self.rows, self.columns, index, label=label, **kwargs)
+        if invert_axes or self.plot_context.get('invert_axes'):
             if not self.axis.xaxis_inverted():
                 self.axis.invert_xaxis()
             if not self.axis.yaxis_inverted():

@@ -324,6 +324,7 @@ class JupyterDirective(YAMLDirective):
             gallery = env.gallery
             name = f'{gallery.next_image()}.{fmt}'
             path, uri = gallery.image_paths(name)
+            print(path, uri)
             figure.savefig(path, format=fmt, bbox_inches='tight', dpi=dpi)
             node = docutils.nodes.raw(
                 '', f'<img src="{uri}" class="image jupyter-image" />', format='html')
@@ -420,7 +421,7 @@ class JupyterGallery:
 
     def image_paths(self, image):
         path = os.path.join(self.path, image)
-        uri = os.path.join(self.uri, image)
+        uri = os.path.join('/', self.uri, image)
         self.images.append((image, uri))
         return path, uri
 
