@@ -81,7 +81,7 @@ class MarkerArtist(Artist):
         plot={
             'marker': '.',
             'color': 'black',
-            'size': 1
+            'size': 10
         }
     )
 

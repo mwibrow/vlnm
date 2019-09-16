@@ -5,6 +5,7 @@
 from collections import OrderedDict
 import types
 from typing import Dict, Generator, List, Tuple, Union
+import uuid
 
 import matplotlib.pyplot as plt
 import matplotlib.style as mstyle
@@ -64,6 +65,7 @@ class VowelPlot:
             width: float = 4,
             height: float = 4,
             figure: Figure = None,
+            legends: bool = True,
             **kwargs):
 
         figsize = kwargs.pop('figsize', (width, height) if width and height else None)
@@ -74,6 +76,7 @@ class VowelPlot:
         self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
+        self._auto_legend = legends
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -101,6 +104,15 @@ class VowelPlot:
         return self
 
     def end_plot(self):
+        if self._auto_legend:
+            legend_ids = list(self.legends.keys())
+        for legend_id in legend_ids:
+            self.legend(legend_id)
+        if self.axis:
+            if not self.get_xlabel():
+                self.xlabel(self.plot_context['x'])
+            if not self.get_ylabel():
+                self.ylabel(self.plot_context['y'])
         return self.figure
 
     def subplot(
@@ -239,6 +251,10 @@ class VowelPlot:
                 **kwargs)
             self.axis.add_artist(legend_artist)
 
+    @staticmethod
+    def _generate_legend_id(prefix):
+        return '{}-{}'.format(prefix, uuid.uuid1())
+
     def markers(
             self,
             data: pd.DataFrame = None,
@@ -260,7 +276,8 @@ class VowelPlot:
             x = group_df[context['x']]
             y = group_df[context['y']]
             artist.plot(axis, x, y, **props)
-            if legend:
+            if legend != False:
+                legend = legend or self._generate_legend_id('markers')
                 self._update_legend(legend, group_props, artist.legend)
 
         return self
