@@ -87,8 +87,8 @@ class VowelPlot:
 
     def __exit__(self, exc_type, _exc_value, _traceback):
         if exc_type:
-            return exc_type
-        return False
+            return False
+        return self.end_plot()
 
     def __call__(self, **kwargs):
         return self.context(**kwargs)
@@ -213,7 +213,9 @@ class VowelPlot:
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
         """
+
         legend_ids = list(self.legends.keys())
+
         if not legend_ids:
             return
         legend_id = legend_id or legend_ids[0]
@@ -226,6 +228,7 @@ class VowelPlot:
         title = kwargs.pop('title', [])
         if isinstance(title, str):
             title = [title]
+
         for i, group in enumerate(legend):
             handles = list(legend[group].values())
             labels = list(legend[group].keys())
