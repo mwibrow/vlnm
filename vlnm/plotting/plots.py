@@ -66,7 +66,7 @@ class VowelPlot:
             width: float = 4,
             height: float = 4,
             figure: Figure = None,
-            legends: bool = True,
+            legend: bool = True,
             **kwargs):
 
         figsize = kwargs.pop('figsize', (width, height) if width and height else None)
@@ -77,7 +77,8 @@ class VowelPlot:
         self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
-        self._auto_legend = bool(legends)
+        self._auto_legend = bool(legend)
+        self.legend_options = legend if isinstance(legend, dict) else {}
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -226,7 +227,7 @@ class VowelPlot:
             legend[group] = legend.get(group, OrderedDict())
             for label in group_props[group]:
                 legend[group][label] = artist(**group_props[group][label])
-        self.legends[legend_id] = (legend, legend_options)
+        self.legends[legend_id] = (legend, legend_options or self.legend_options)
 
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
@@ -355,8 +356,11 @@ class VowelPlot:
 
         artist = PolygonArtist()
 
+        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('polygon')
+
         x = context['x']
         y = context['y']
+
         for axis, group_df, props, group_props in self._df_iterator(context):
             xy = []
             if hull:
@@ -378,7 +382,7 @@ class VowelPlot:
             axis.autoscale_view()
 
             if legend:
-                self._update_legend(legend, group_props, artist.legend)
+                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
             return self
 
     def polyline(
@@ -428,7 +432,8 @@ class VowelPlot:
 
         x = context['x']
         y = context['y']
-        import sys
+
+        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('ellipses')
         for axis, group_df, props, group_props in self._df_iterator(context):
             group_x = group_df[x]
             group_y = group_df[y]
@@ -438,5 +443,5 @@ class VowelPlot:
             axis.relim()
             axis.autoscale_view()
             if legend:
-                self._update_legend(legend, group_props, artist.legend)
+                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
         return self
