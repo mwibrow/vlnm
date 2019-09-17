@@ -28,6 +28,7 @@ from vlnm.plotting.utils import (
     strip)
 
 
+
 def use_style(style):
     """Set the global style for vowel plots."""
     mstyle.use(style)
@@ -76,7 +77,7 @@ class VowelPlot:
         self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
-        self._auto_legend = legends
+        self._auto_legend = bool(legends)
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -214,30 +215,36 @@ class VowelPlot:
 
                 yield axis, group_df, props, group_props
 
-    def _update_legend(self, legend_id: str, group_props: Dict, artist: Artist):
-        legend = self.legends.get(legend_id, {})
+    def _update_legend(
+            self,
+            legend_id: str,
+            group_props: dict,
+            artist: Artist,
+            legend_options: dict):
+        legend, _ = self.legends.get(legend_id, ({}, {}))
         for group in group_props:
             legend[group] = legend.get(group, OrderedDict())
             for label in group_props[group]:
                 legend[group][label] = artist(**group_props[group][label])
-        self.legends[legend_id] = legend
+        self.legends[legend_id] = (legend, legend_options)
 
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
         """
-
         legend_ids = list(self.legends.keys())
 
         if not legend_ids:
             return
         legend_id = legend_id or legend_ids[0]
-        legend = self.legends[legend_id]
+        legend, legend_options = self.legends[legend_id]
 
         if 'handler_map' not in kwargs:
             kwargs['handler_map'] = {
                 mpatches.Ellipse: HandlerEllipse()
             }
-        title = kwargs.pop('title', [])
+
+        legend_options.update(**kwargs)
+        title = legend_options.pop('title', [])
         if isinstance(title, str):
             title = [title]
 
@@ -248,7 +255,7 @@ class VowelPlot:
                 handles=handles,
                 labels=labels,
                 title=title[i] if title else group,
-                **kwargs)
+                **legend_options)
             self.axis.add_artist(legend_artist)
 
     @staticmethod
@@ -261,7 +268,8 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             where: str = 'all',
-            legend: str = None, **kwargs) -> 'VowelPlot':
+            legend: Union[str, dict] = None,
+            **kwargs) -> 'VowelPlot':
 
         context, params = context_from_kwargs(kwargs)
 
@@ -272,15 +280,26 @@ class VowelPlot:
 
         artist = MarkerArtist()
 
+
+        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('markers')
+
         for axis, group_df, props, group_props in self._df_iterator(context):
             x = group_df[context['x']]
             y = group_df[context['y']]
             artist.plot(axis, x, y, **props)
-            if legend != False:
-                legend = legend or self._generate_legend_id('markers')
-                self._update_legend(legend, group_props, artist.legend)
+            if legend:
+                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
 
         return self
+
+    def _handle_legend_entry(self, legend_id, legend, artist_props, artist):
+        if legend == False:
+            return
+        legend_options = {}
+        if isinstance(legend, dict):
+            legend_options = legend
+        self._update_legend(legend_id, artist_props, artist, legend_options)
+
 
     def labels(
             self,
