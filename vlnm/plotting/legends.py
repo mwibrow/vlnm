@@ -21,6 +21,7 @@ TRANSLATOR = dict(
     }
 )
 
+
 def translate_legend_options(**options):
     """Translate between custom legend keyword arguments and matplotlib keywords."""
     legend_options = {}
@@ -54,6 +55,9 @@ class LegendGroup:
             return {**self.parent.options, **self.options}
         return self.options
 
+    def __getitem__(self, label):
+        return self.entries[label]
+
 
 class LegendCollection:
 
@@ -75,9 +79,13 @@ class LegendCollection:
             return {**self.parent.options, **self.options}
         return self.options
 
+    def __getitem__(self, group):
+        return self.groups[group]
+
+
 class Legend:
 
-    def __init__(self, options):
+    def __init__(self, options=None):
         self.collection = OrderedDict()
         self.options = options or {}
 
@@ -102,6 +110,9 @@ class Legend:
             return translate_legend_options(
                 **self.collection[collection_id].get_options())
         return translate_legend_options(**self.options)
+
+    def __getitem__(self, collection_id):
+        return self.collection[collection_id]
 
     def __bool__(self):
         return bool(self.collection)

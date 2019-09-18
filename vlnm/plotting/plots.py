@@ -27,6 +27,7 @@ from vlnm.plotting.utils import (
     merge_contexts,
     strip)
 
+from vlnm.plotting.legends import Legend
 
 
 def use_style(style):
@@ -79,6 +80,7 @@ class VowelPlot:
         self.legends = {}
         self._auto_legend = bool(legend)
         self.legend_options = legend if isinstance(legend, dict) else {}
+        self.plot_legend = Legend()
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -106,10 +108,10 @@ class VowelPlot:
         return self
 
     def end_plot(self):
-        if self._auto_legend:
-            legend_ids = list(self.legends.keys())
-        for legend_id in legend_ids:
-            self.legend(legend_id)
+        # if self._auto_legend:
+        #     legend_ids = list(self.legends.keys())
+        # for legend_id in legend_ids:
+        #     self.legend(legend_id)
         if self.axis:
             if not self.get_xlabel():
                 self.xlabel(self.plot_context['x'])
@@ -288,7 +290,6 @@ class VowelPlot:
 
         artist = MarkerArtist()
 
-
         legend_id = legend if isinstance(legend, str) else self._generate_legend_id('markers')
 
         for axis, group_df, props, group_props in self._df_iterator(context):
@@ -307,7 +308,6 @@ class VowelPlot:
         if isinstance(legend, dict):
             legend_options = legend
         self._update_legend(legend_id, artist_props, artist, legend_options)
-
 
     def labels(
             self,
