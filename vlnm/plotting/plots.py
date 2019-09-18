@@ -222,12 +222,19 @@ class VowelPlot:
             group_props: dict,
             artist: Artist,
             legend_options: dict):
-        legend, _ = self.legends.get(legend_id, ({}, {}))
+
         for group in group_props:
-            legend[group] = legend.get(group, OrderedDict())
             for label in group_props[group]:
-                legend[group][label] = artist(**group_props[group][label])
-        self.legends[legend_id] = (legend, legend_options or self.legend_options)
+                self.plot_legend.add_entry(
+                    legend_id, group, label, artist(**group_props[group][label]))
+            self.plot_legend.update_options(legend_id=legend_id, **legend_options)
+
+        # legend, _ = self.legends.get(legend_id, ({}, {}))
+        # for group in group_props:
+        #     legend[group] = legend.get(group, OrderedDict())
+        #     for label in group_props[group]:
+        #         legend[group][label] = artist(**group_props[group][label])
+        # self.legends[legend_id] = (legend, legend_options or self.legend_options)
 
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
