@@ -4,6 +4,8 @@ Module for handling legends.
 
 from collections import OrderedDict
 
+import matplotlib.pyplot as plt
+
 TRANSLATOR = dict(
     position={
         'bottom': dict(
@@ -25,7 +27,7 @@ TRANSLATOR = dict(
 def translate_legend_options(**options):
     """Translate between custom legend keyword arguments and matplotlib keywords."""
     legend_options = {}
-    for key, value in options:
+    for key, value in options.items():
         if key in TRANSLATOR:
             if value in TRANSLATOR[key]:
                 legend_options.update(**TRANSLATOR[key][value])
@@ -102,14 +104,27 @@ class Legend:
         else:
             self.options.update(**options)
 
-    def get_options(self, collection_id=None, group=None):
+    def get_options(self, collection_id=None, group=None, **options):
         if collection_id and group:
             return translate_legend_options(
-                **self.collection[collection_id].groups[group].get_options())
+                **self.collection[collection_id].groups[group].get_options(),
+                **options)
         if collection_id:
             return translate_legend_options(
-                **self.collection[collection_id].get_options())
-        return translate_legend_options(**self.options)
+                **self.collection[collection_id].get_options(),
+                **options)
+        return translate_legend_options(**self.options, **options)
+
+    def make_legend_artist(self, collection_id, group, **options):
+        options = self.get_options(collection_id, group, **options)
+        entries = self[collection_id][group].entries
+        title = options.pop('title', None)
+        legend_artist = plt.legend(
+            handles=list(entries.values()),
+            labels=list(entries.keys()),
+            title=title or group,
+            **options)
+        return legend_artist
 
     def __getitem__(self, collection_id):
         return self.collection[collection_id]
