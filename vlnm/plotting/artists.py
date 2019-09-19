@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
+from matplotlib import rcParams
 
 
 def dict_diff(this, that):
@@ -80,14 +81,14 @@ class MarkerArtist(Artist):
         plot={
             'marker': '.',
             'color': 'black',
-            'size': 10
+            'size': rcParams['lines.markersize'],
         }
     )
 
     translators = dict(
         plot={
             'color': ['edgecolor', 'facecolor'],
-            'size': 's'
+            'size': lambda s: {'s': s ** 2}
         },
         legend={
             'color': ['markeredgecolor', 'markerfacecolor'],
