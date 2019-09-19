@@ -35,6 +35,19 @@ def use_style(style):
     mstyle.use(style)
 
 
+VOWEL_PLOT = None
+
+
+def get_plot():
+    global VOWEL_PLOT
+    return VOWEL_PLOT
+
+
+def set_plot(plot):
+    global VOWEL_PLOT
+    VOWEL_PLOT = plot
+
+
 class VowelPlot:
     """
     Class for managing vowel plots.
@@ -81,6 +94,8 @@ class VowelPlot:
         self._auto_legend = bool(legend)
         self.legend_options = legend if isinstance(legend, dict) else {}
         self.plot_legend = Legend()
+
+        set_plot(self)
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -232,13 +247,6 @@ class VowelPlot:
                 self.plot_legend.add_entry(
                     legend_id, group, label, artist(**group_props[group][label]))
             self.plot_legend.update_options(legend_id=legend_id, **legend_options)
-
-        # legend, _ = self.legends.get(legend_id, ({}, {}))
-        # for group in group_props:
-        #     legend[group] = legend.get(group, OrderedDict())
-        #     for label in group_props[group]:
-        #         legend[group][label] = artist(**group_props[group][label])
-        # self.legends[legend_id] = (legend, legend_options or self.legend_options)
 
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
