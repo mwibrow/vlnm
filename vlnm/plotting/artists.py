@@ -50,19 +50,18 @@ class Artist:
                 translated[prop] = value
         return translated
 
-    def _get_legend_props(self, props):
-        translator = self._get_translator('legend')
-        defaults = self.translate_props(self._get_defaults('legend'), translator)
+    def _get_props(self, props, name):
+        translator = self._get_translator(name)
+        defaults = self.translate_props(self._get_defaults(name), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
         return props
 
-    def _get_plot_props(self, props):
-        translator = self._get_translator('plot')
-        defaults = self.translate_props(self._get_defaults('plot'), translator)
-        props = self.translate_props(props, translator)
-        props.update(**dict_diff(defaults, props))
-        return props
+    def _get_legend_props(self, props):
+        return self._get_props(props, 'legend')
+
+    def _get_plot_props(self, props, name='plot'):
+        return self._get_props(props, 'plot')
 
     def legend(self, **_kwargs) -> Any:  # pylint: disable=no-self-use
         """
@@ -199,7 +198,7 @@ class EllipseArtist(Artist):
 class LabelArtist(Artist):
     """Artist class for drawing labels."""
     defaults = dict(
-        text={
+        plot={
             'color': 'black',
             'size': 10,
             'ha': 'center',
@@ -208,7 +207,7 @@ class LabelArtist(Artist):
     )
 
     translators = dict(
-        text={}
+        plot={}
     )
 
     def legend(self, **_) -> None:
@@ -217,11 +216,8 @@ class LabelArtist(Artist):
 
     def plot(self, axis, x, y, labels, **props):
         """Draw markers."""
-        translator = self._get_translator('text')
-        defaults = self.translate_props(self._get_defaults('text'), translator)
-        props = self.translate_props(props, translator)
-        props.update(**dict_diff(defaults, props))
 
+        props = self._get_plot_props(props)
         if isinstance(labels, str) and labels:
             for x, y in zip(x, y):
                 axis.text(x, y, label, clip_on=True, **props)

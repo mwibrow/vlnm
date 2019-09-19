@@ -180,7 +180,7 @@ class VowelPlot:
                     if prop == 'plot':  # plot mapping is special
                         plot_mapper[group] = get_prop_mapper(
                             prop, mapping=mapping, data=df[group])
-                    elif prop == 'label':  # label mapping is special
+                    elif prop in ['group', 'label']:  # special cases
                         pass
                     else:
                         prop_mappers[group] = prop_mappers.get(group, [])
@@ -208,6 +208,8 @@ class VowelPlot:
                         group_props[group] = group_props.get(group, OrderedDict())
                         group_props[group][value] = merge(params, mapped_props)
                         props.update(**mapped_props)
+                    else:
+                        props.update(**context.get('_params', {}))
                     if group in plot_mapper:
                         plot_props = plot_mapper[group].get_props(value)
 
