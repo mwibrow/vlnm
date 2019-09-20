@@ -94,6 +94,7 @@ class VowelPlot:
         self._auto_legend = bool(legend)
         self.legend_options = legend if isinstance(legend, dict) else {}
         self.plot_legend = Legend()
+        self.axes = [[None for _ in range(columns)] for _ in range(rows)]
 
         set_plot(self)
 
@@ -154,6 +155,7 @@ class VowelPlot:
                 self.axis.invert_xaxis()
             if not self.axis.yaxis_inverted():
                 self.axis.invert_yaxis()
+        self.axes[row - 1][column - 1] = self.axis
         return self.axis
 
     @staticmethod

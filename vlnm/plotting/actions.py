@@ -1,7 +1,7 @@
 """
 Convenience functions
 """
-
+from typing import Union, Dict
 from contextlib import contextmanager
 from functools import wraps
 
@@ -10,7 +10,7 @@ import pandas as pd
 from .plots import VowelPlot, get_plot
 
 
-def vowel_plot(func):
+def require_vowel_plot(func):
     @wraps(func)
     def wrapper(*args, plot=None, **kwargs):
         plot = plot or get_plot()
@@ -20,7 +20,11 @@ def vowel_plot(func):
     return wrapper
 
 
-@vowel_plot
+def vowel_plot(**kwargs):
+    return VowelPlot(**kwargs)
+
+
+@require_vowel_plot
 def markers(*args, **kwargs):
     """Add markers to an existing plot.
 
@@ -34,9 +38,8 @@ def markers(*args, **kwargs):
 
     ipython::
 
-        with VowelPlot():
-            with data(data=df, x='f2', y='f1'):
-                markers(color_by='vowel', color='tab20')
+        with VowelPlot(data=df, x='f2', y='f1'):
+            markers(color_by='vowel', color='tab20')
 
 
     """
@@ -44,19 +47,19 @@ def markers(*args, **kwargs):
     plot.markers(*args, **kwargs)
 
 
-@vowel_plot
+@require_vowel_plot
 def labels(*args, **kwargs):
     plot = kwargs.pop('_plot')
     plot.labels(*args, **kwargs)
 
 
-@vowel_plot
+@require_vowel_plot
 def ellipses(*args, **kwargs):
     plot = kwargs.pop('_plot')
     plot.ellipses(*args, **kwargs)
 
 
-@vowel_plot
+@require_vowel_plot
 @contextmanager
 def legend(**kwargs):
     plot = kwargs.pop('_plot')
@@ -68,10 +71,21 @@ def legend(**kwargs):
         plot.legend_options = legend_options
 
 
-@vowel_plot
+@require_vowel_plot
+@contextmanager
+def subplot(**kwargs):
+    plot = kwargs.pop('_plot')
+    try:
+        plot.subplot(**kwargs)
+        yield plot
+    finally:
+        pass
+
+
+@require_vowel_plot
 @contextmanager
 def data(
-        data: Union[str, pd.DataFrame, File] = None,
+        data: Union[str, pd.DataFrame] = None,
         x: str = 'f2',
         y: str = 'f1', **kwargs):
     plot = kwargs.pop('_plot')
