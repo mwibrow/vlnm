@@ -57,6 +57,12 @@ class LegendGroup:
             return {**self.parent.options, **self.options}
         return self.options
 
+    def values(self):
+        return self.entries.values()
+
+    def keys(self):
+        return self.entries.keys()
+
     def __getitem__(self, label):
         return self.entries[label]
 
@@ -83,6 +89,10 @@ class LegendCollection:
 
     def __getitem__(self, group):
         return self.groups[group]
+
+    def __iter__(self):
+        for group in self.groups:
+            yield group
 
 
 class Legend:

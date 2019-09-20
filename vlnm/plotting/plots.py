@@ -3,6 +3,7 @@
     ~~~~~~~~~~~~~~~
 """
 from collections import OrderedDict
+from contextlib import ExitStack
 import types
 from typing import Dict, Generator, List, Tuple, Union
 import uuid
@@ -27,7 +28,7 @@ from vlnm.plotting.utils import (
     merge_contexts,
     strip)
 
-from vlnm.plotting.legends import Legend
+from vlnm.plotting.legends import Legend, translate_legend_options
 
 
 def use_style(style):
@@ -73,13 +74,14 @@ class VowelPlot:
     def __init__(
             self,
             data: pd.DataFrame = None,
-            x: str = None,
-            y: str = None,
+            x: str = 'f2',
+            y: str = 'f1',
             rows: int = 1,
             columns: int = 1,
             width: float = 4,
             height: float = 4,
             figure: Figure = None,
+            axes: Union[list, dict] = None,
             legend: bool = True,
             **kwargs):
 
@@ -94,7 +96,10 @@ class VowelPlot:
         self._auto_legend = bool(legend)
         self.legend_options = legend if isinstance(legend, dict) else {}
         self.plot_legend = Legend()
-        self.axes = [[None for _ in range(columns)] for _ in range(rows)]
+
+        self.axes = None
+        if figure:
+            self.axes = axes
 
         set_plot(self)
 
@@ -135,13 +140,23 @@ class VowelPlot:
                 self.ylabel(self.plot_context['y'])
         return self.figure
 
+    def elements(self, *args):
+        stack = ExitStack()
+        for arg in args:
+            stack.enter_context(arg)
+        return stack
+
     def subplot(
             self,
-            row: int = None,
-            column: int = None,
+            row: int = 1,
+            column: int = 1,
+            axis: Union[str, int] = None,
             label: str = None,
             invert_axes: str = None,
             **kwargs) -> Axis:
+        if self.axes and axis:
+            self.axis = self.axes[axis]
+            return self.axis
         if not column:
             index = row - 1
             row = (index // self.rows) + 1
@@ -155,7 +170,6 @@ class VowelPlot:
                 self.axis.invert_xaxis()
             if not self.axis.yaxis_inverted():
                 self.axis.invert_yaxis()
-        self.axes[row - 1][column - 1] = self.axis
         return self.axis
 
     @staticmethod
@@ -243,7 +257,6 @@ class VowelPlot:
             group_props: dict,
             artist: Artist,
             legend_options: dict):
-
         for group in group_props:
             for label in group_props[group]:
                 self.plot_legend.add_entry(
@@ -253,12 +266,9 @@ class VowelPlot:
     def legend(self, legend_id=None, **kwargs):
         """Add a legend to the current axis.
         """
-        legend_ids = list(self.legends.keys())
 
-        if not legend_ids:
-            return
-        legend_id = legend_id or legend_ids[0]
-        legend, legend_options = self.legends[legend_id]
+        legend_options = self.legend_options
+        legend = self.plot_legend[legend_id]
 
         if 'handler_map' not in kwargs:
             kwargs['handler_map'] = {
@@ -277,7 +287,7 @@ class VowelPlot:
                 handles=handles,
                 labels=labels,
                 title=title[i] if title else group,
-                **legend_options)
+                **translate_legend_options(**legend_options))
             self.axis.add_artist(legend_artist)
 
     @staticmethod
@@ -308,13 +318,12 @@ class VowelPlot:
             x = group_df[context['x']]
             y = group_df[context['y']]
             artist.plot(axis, x, y, **props)
-            if legend:
-                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
+            self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
 
         return self
 
     def _handle_legend_entry(self, legend_id, legend, artist_props, artist):
-        if legend == False:
+        if not legend and not self.plot_context.get('legend'):
             return
         legend_options = {}
         if isinstance(legend, dict):
