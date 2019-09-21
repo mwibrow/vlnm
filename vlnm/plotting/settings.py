@@ -10,12 +10,12 @@ class Settings:
     def __init__(self, settings=None):
         self.stack = [settings] if settings else []
 
-    def push(self, settings=None, **kwargs):
+    def push(self, setting=None, **settings):
         """Add settings to the stack."""
+        if setting:
+            self.stack.append(setting)
         if settings:
             self.stack.append(settings)
-        if kwargs:
-            self.stack.append(kwargs)
 
     def pop(self):
         """Remove settings from the stack."""
@@ -41,7 +41,24 @@ class Settings:
 
         return settings
 
+    def scope(self, setting=None, **settings):
+        """Enter a setting scope."""
+        self.push(setting, **settings)
+        return self
+
+    def end_scope(self):
+        """Exit a setting scope."""
+        self.pop()
+
     def __getitem__(self, setting):
         if isinstance(setting, slice):
             return self.current()
         return self.current(setting)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, *_):
+        if exc_type:
+            return False
+        return self.end_scope()

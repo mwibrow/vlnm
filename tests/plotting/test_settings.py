@@ -14,14 +14,14 @@ class TestSettings(unittest.TestCase):
     def test_init(self):
         """Should init with empty stack."""
         settings = Settings()
-        self.assertEquals(len(settings.stack), 0)
+        self.assertEqual(len(settings.stack), 0)
 
     def test_push(self):
         """Should add to stack"""
         settings = Settings()
         settings.push(data=dict(data='df', x='f1', y='f2'))
 
-        self.assertEquals(len(settings.stack), 1)
+        self.assertEqual(len(settings.stack), 1)
         self.assertIn('data', settings.stack[0])
 
     def test_current(self):
@@ -32,7 +32,7 @@ class TestSettings(unittest.TestCase):
 
         current = settings.current()
 
-        self.assertEquals(len(settings.stack), 2)
+        self.assertEqual(len(settings.stack), 2)
         self.assertIn('data', current)
 
         data = current['data']
@@ -47,7 +47,7 @@ class TestSettings(unittest.TestCase):
         settings.push(data=1)
 
         current = settings.current()
-        self.assertEquals(len(settings.stack), 2)
+        self.assertEqual(len(settings.stack), 2)
         self.assertIn('data', current)
         data = current['data']
         self.assertEqual(data, 1)
@@ -60,7 +60,7 @@ class TestSettings(unittest.TestCase):
 
         current = settings.current('data')
 
-        self.assertEquals(len(settings.stack), 2)
+        self.assertEqual(len(settings.stack), 2)
         self.assertIn('data', current)
         self.assertIn('x', current)
         self.assertIn('y', current)
@@ -72,5 +72,27 @@ class TestSettings(unittest.TestCase):
         settings.push(data=1)
 
         current = settings.current('data')
-        self.assertEquals(len(settings.stack), 2)
-        self.assertEquals(current, 1)
+        self.assertEqual(len(settings.stack), 2)
+        self.assertEqual(current, 1)
+
+    def test_scope_keywords(self):
+        """Scope should update settings before and after."""
+        settings = Settings()
+        settings.push(data=0)
+        with settings.scope(data=1):
+            current = settings.current('data')
+            self.assertEqual(current, 1)
+
+        current = settings.current('data')
+        self.assertEqual(current, 0)
+
+    def test_scope(self):
+        """Scope should update settings before and after."""
+        settings = Settings()
+        settings.push(dict(data=0))
+        with settings.scope(dict(data=1)):
+            current = settings.current('data')
+            self.assertEqual(current, 1)
+
+        current = settings.current('data')
+        self.assertEqual(current, 0)
