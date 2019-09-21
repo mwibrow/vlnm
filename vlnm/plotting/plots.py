@@ -30,6 +30,8 @@ from vlnm.plotting.utils import (
 
 from vlnm.plotting.legends import Legend, translate_legend_options
 
+from vlnm.plotting.settings import Settings
+
 
 def use_style(style):
     """Set the global style for vowel plots."""
@@ -37,6 +39,8 @@ def use_style(style):
 
 
 VOWEL_PLOT = None
+
+__VOWEL_PLOT_SETTINGS = Settings()
 
 
 def get_plot():
@@ -47,6 +51,10 @@ def get_plot():
 def set_plot(plot):
     global VOWEL_PLOT
     VOWEL_PLOT = plot
+
+
+def get_settings():
+    global __VOWEL_PLOT_SETTINGS
 
 
 class VowelPlot:
