@@ -111,6 +111,8 @@ class VowelPlot:
 
         set_plot(self)
 
+        self.settings = Settings()
+
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
             return getattr(self.axis, attr)
@@ -259,6 +261,78 @@ class VowelPlot:
 
                 yield axis, group_df, props, group_props
 
+    def _group_iterator(self, setting):
+        data = self.settings['data']
+        context = self.settings[setting]
+
+        df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
+        if where:
+            df = self._aggregate_df(df, [x, y], groups, where)
+
+        groups = []
+        prop_mappers = {}
+        plot_mapper = {}
+
+        # Aggregate df if required.
+        groups = list(set(value for key, value in context.items() if key.endswith('_by')))
+
+        # Get property mappers.
+        params = context.copy()
+
+        for key, value in context.items():
+            if key.endswith('_by'):
+                prop = key[:-3]
+                alt_prop = prop + 's'
+                if prop in context:
+                    del params[prop]
+                if alt_prop in context:
+                    del params[alt_prop]
+                group = value
+                mapping = context.get(prop, context.get(alt_prop))
+                if prop and mapping:
+                    if prop == 'plot':  # plot mapping is special
+                        plot_mapper[group] = get_prop_mapper(
+                            prop, mapping=mapping, data=df[group])
+                    elif prop in ['group', 'label']:  # special cases
+                        pass
+                    else:
+                        prop_mappers[group] = prop_mappers.get(group, [])
+                        prop_mappers[group].append(
+                            get_prop_mapper(prop, mapping=mapping, data=df[group]))
+
+        if groups:
+            # Iterate over groups.
+            grouped = df.groupby(groups, as_index=False)
+            params = context.get('defaults', {}).copy()
+            for values, group_df in grouped:
+                values = values if isinstance(values, tuple) else (values,)
+                props = params.copy()
+                group_props = {}
+                plot_props = {}
+                group_values = {}
+
+                for group, value in zip(groups, values):
+                    group_values[group] = value
+                    if group in prop_mappers:
+                        mapped_props = {}
+                        for prop_mapper in prop_mappers[group]:
+                            mapped_props.update(prop_mapper.get_props(value))
+                        mapped_props.update(**context.get('_params', {}))
+                        group_props[group] = group_props.get(group, OrderedDict())
+                        group_props[group][value] = merge(params, mapped_props)
+                        props.update(**mapped_props)
+                    else:
+                        props.update(**context.get('_params', {}))
+                    if group in plot_mapper:
+                        plot_props = plot_mapper[group].get_props(value)
+
+                if plot_props:
+                    axis = self.subplot(**plot_props)
+                else:
+                    axis = self.axis or self.subplot(row=1, column=1)
+
+                yield axis, group_df, props, group_props
+
     def _update_legend(
             self,
             legend_id: str,
@@ -311,22 +385,36 @@ class VowelPlot:
             legend: Union[str, dict] = None,
             **kwargs) -> 'VowelPlot':
 
-        context, params = context_from_kwargs(kwargs)
-
-        context = merge_contexts(
-            self.plot_context,
-            context,
-            dict(data=data, x=x, y=y, where=where, _params=params))
+        #context, params = context_from_kwargs(kwargs)
 
         artist = MarkerArtist()
 
-        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('markers')
+        with self.settings.scope(
+                data=dict(
+                    data,
+                    x=x,
+                    y=y,
+                    where=where),
+                markers={**kwargs}):
+            for axis, group_df, props, group_props in self._group_iterator('markers'):
+                x = group_df[context['x']]
+                y = group_df[context['y']]
+                artist.plot(axis, x, y, **props)
 
-        for axis, group_df, props, group_props in self._df_iterator(context):
-            x = group_df[context['x']]
-            y = group_df[context['y']]
-            artist.plot(axis, x, y, **props)
-            self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
+        # context = merge_contexts(
+        #     self.plot_context,
+        #     context,
+        #     dict(data=data, x=x, y=y, where=where, _params=params))
+
+        # artist = MarkerArtist()
+
+        # legend_id = legend if isinstance(legend, str) else self._generate_legend_id('markers')
+
+        # for axis, group_df, props, group_props in self._df_iterator(context):
+        #     x = group_df[context['x']]
+        #     y = group_df[context['y']]
+        #     artist.plot(axis, x, y, **props)
+        #     self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
 
         return self
 

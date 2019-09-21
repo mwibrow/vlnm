@@ -4,18 +4,33 @@ Settings
 """
 
 
+def strip_dict(source, deep=False, ignore=None):
+    if not source:
+        return source
+    ignore = ignore or [None]
+    destination = {}
+    for key, value in source.items():
+        if value not in ignore:
+            if isinstance(value, dict) and deep:
+                destination[key] = strip_dict(value, deep=deep, ignore=ignore)
+            else:
+                destination[key] = value
+    return destination
+
+
 class Settings:
     """Container for settings."""
 
     def __init__(self, settings=None):
         self.stack = [settings] if settings else []
 
-    def push(self, setting=None, **settings):
+    def push(self, *args, **kwargs):
         """Add settings to the stack."""
-        if setting:
-            self.stack.append(setting)
-        if settings:
-            self.stack.append(settings)
+        settings = {}
+        for arg in args:
+            settings.update(**arg)
+        settings.update(**kwargs)
+        self.stack.append(settings)
 
     def pop(self):
         """Remove settings from the stack."""
@@ -27,7 +42,7 @@ class Settings:
         if setting:
             for item in self.stack:
                 try:
-                    settings.update(**item.get(setting, {}))
+                    settings.update(**strip_dict(item.get(setting, {})))
                 except (AttributeError, TypeError):
                     settings = item.get(setting)
         else:
@@ -35,15 +50,15 @@ class Settings:
                 for key, value in item.items():
                     settings[key] = settings.get(key, {})
                     try:
-                        settings[key].update(**value)
+                        settings[key].update(**strip_dict(value))
                     except (AttributeError, TypeError):
                         settings[key] = value
 
         return settings
 
-    def scope(self, setting=None, **settings):
+    def scope(self, *args, **kwargs):
         """Enter a setting scope."""
-        self.push(setting, **settings)
+        self.push(*args, **kwargs)
         return self
 
     def end_scope(self):
