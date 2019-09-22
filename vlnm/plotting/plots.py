@@ -430,22 +430,29 @@ class VowelPlot:
             y: str = None,
             where: str = 'all',
             label_by: str = None,
-            label: Union[str, dict, list, types.FunctionType] = None,
-            legend: str = None, **kwargs) -> 'VowelPlot':
+            **kwargs) -> 'VowelPlot':
 
-        context, params = context_from_kwargs(kwargs)
-
-        context = merge_contexts(
-            self.plot_context,
-            context,
-            dict(data=data, x=x, y=y, where=where, label_by=label_by, _params=params))
         artist = LabelArtist()
 
-        for axis, group_df, props, group_props in self._df_iterator(context):
-            x = group_df[context['x']]
-            y = group_df[context['y']]
-            labels = group_df[context['label_by']]
-            artist.plot(axis, x, y, labels, **props)
+        with self.settings.scope(
+                data=dict(
+                    data=data,
+                    x=x,
+                    y=y,
+                    where=where),
+                labels={**kwargs}) as context:
+
+            data_context = context['data']
+            xcol, ycol = data_context['x'], data_context['y']
+            plot_context = context['labels']
+
+            for axis, group_df, props, group_props in self._group_iterator(
+                    data_context, plot_context):
+
+                x = group_df[xcol]
+                y = group_df[ycol]
+                labels = group_df[context['label_by']]
+                artist.plot(axis, x, y, labels, **props)
 
         return self
 
