@@ -11,6 +11,7 @@ import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerPatch
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy.stats as st
 
 from vlnm.utils import merge, strip
@@ -203,3 +204,23 @@ def rotate_xy(
     matrix = np.matrix([[cs, -sn], [sn, cs]])
     x, y = np.asarray(matrix.dot([np.atleast_1d(x), np.atleast_1d(y)]))
     return x, y
+
+
+def aggregate_df(
+        df: pd.DataFrame,
+        columns: List[str],
+        groups: List[str] = None,
+        where: Union[str, None] = None) -> pd.DataFrame:
+    """Aggregate dataframe columns over grouping factors.
+
+    """
+    if where and groups:
+        if where == 'mean':
+            df = df.groupby(groups, as_index=True).apply(
+                lambda group_df: group_df[columns].mean(axis=0))
+            df = df.reset_index()
+        elif where == 'median':
+            df = df.groupby(groups, as_index=True).apply(
+                lambda group_df: group_df[columns].median(axis=0))
+            df = df.reset_index()
+    return df
