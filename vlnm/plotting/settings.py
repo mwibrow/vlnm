@@ -39,7 +39,7 @@ class Settings:
     def current(self, setting=None):
         """Look at the current value of the stack."""
         settings = {}
-        if setting:
+        if isinstance(setting, str):
             for item in self.stack:
                 value = item.get(setting)
                 if isinstance(value, dict):
@@ -48,12 +48,14 @@ class Settings:
                     settings = value
         else:
             for item in self.stack:
-                for key, value in item.items():
-                    settings[key] = settings.get(key, {})
-                    try:
-                        settings[key].update(**strip_dict(value))
-                    except (AttributeError, TypeError):
-                        settings[key] = value
+                keys = setting or item.keys()
+                for key in keys:
+                    if key in item:
+                        settings[key] = settings.get(key, {})
+                        try:
+                            settings[key].update(**strip_dict(item[key]))
+                        except (AttributeError, TypeError):
+                            settings[key] = item[key]
 
         return settings
 

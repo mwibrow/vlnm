@@ -131,12 +131,9 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.plot_context = strip(dict(data=data, x=x, y=y, invert_axes=True))
         self.axis = None
         self.legends = {}
-        self._auto_legend = bool(legend)
-        self.legend_options = legend if isinstance(legend, dict) else {}
-        self.plot_legend = Legend()
+        self._legend = Legend()
 
         self.axes = None
         if figure:
@@ -144,7 +141,11 @@ class VowelPlot:
 
         set_plot(self)
 
-        self.settings = Settings()
+        self._settings = Settings(
+            axis=dict(invert_axes=True),
+            data=dict(data=data, x=x, y=y),
+            legend=legend if isinstance(legend, dict) else {},
+        )
 
     def __getattr__(self, attr):
         if self.axis and hasattr(self.axis, attr):
@@ -214,72 +215,6 @@ class VowelPlot:
             if not self.axis.yaxis_inverted():
                 self.axis.invert_yaxis()
         return self.axis
-
-    def _df_iterator(
-            self, context: Dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
-
-        df = context['data']
-        x = context['x']
-        y = context['y']
-        where = context.get('where')
-        groups = []
-        prop_mappers = {}
-        plot_mapper = {}
-
-        # Aggregate df if required.
-        groups = list(set(value for key, value in context.items() if key.endswith('_by')))
-        if where:
-            df = self._aggregate_df(df, [x, y], groups, where)
-
-        # Get property mappers.
-        for key, value in context.items():
-            if key.endswith('_by'):
-                prop = key[:-3]
-                group = value
-                mapping = context.get(prop)
-                if prop:
-                    if prop == 'plot':  # plot mapping is special
-                        plot_mapper[group] = get_prop_mapper(
-                            prop, mapping=mapping, data=df[group])
-                    elif prop in ['group', 'label']:  # special cases
-                        pass
-                    else:
-                        prop_mappers[group] = prop_mappers.get(group, [])
-                        prop_mappers[group].append(
-                            get_prop_mapper(prop, mapping=mapping, data=df[group]))
-
-        if groups:
-            # Iterate over groups.
-            grouped = df.groupby(groups, as_index=False)
-            params = context.get('defaults', {}).copy()
-            for values, group_df in grouped:
-                values = values if isinstance(values, tuple) else (values,)
-                props = params.copy()
-                group_props = {}
-                plot_props = {}
-                group_values = {}
-
-                for group, value in zip(groups, values):
-                    group_values[group] = value
-                    if group in prop_mappers:
-                        mapped_props = {}
-                        for prop_mapper in prop_mappers[group]:
-                            mapped_props.update(prop_mapper.get_props(value))
-                        mapped_props.update(**context.get('_params', {}))
-                        group_props[group] = group_props.get(group, OrderedDict())
-                        group_props[group][value] = merge(params, mapped_props)
-                        props.update(**mapped_props)
-                    else:
-                        props.update(**context.get('_params', {}))
-                    if group in plot_mapper:
-                        plot_props = plot_mapper[group].get_props(value)
-
-                if plot_props:
-                    axis = self.subplot(**plot_props)
-                else:
-                    axis = self.axis or self.subplot(row=1, column=1)
-
-                yield axis, group_df, props, group_props
 
     def _group_iterator(
             self,
@@ -375,53 +310,35 @@ class VowelPlot:
             legend: Union[str, dict] = None,
             **kwargs) -> 'VowelPlot':
 
-        #context, params = context_from_kwargs(kwargs)
-
         artist = MarkerArtist()
-
-        with self.settings.scope(
+        with self._settings.scope(
                 data=dict(
                     data=data,
                     x=x,
                     y=y,
                     where=where),
-                markers={**kwargs}) as context:
+                legend=legend if instance(legend, dict) else {},
+                markers={**kwargs}) as plot_settings:
 
-            data_context = context['data']
-            xcol, ycol = data_context['x'], data_context['y']
-            plot_context = context['markers']
+            settings = plot_settings.current(['data', 'markers', 'legend'])
+            legend_id = legend if isinstance(
+                legend, str) else self._generate_legend_id('markers')
 
             for axis, group_df, props, group_props in self._group_iterator(
-                    data_context, plot_context):
+                    settings['data'], settings['markers']):
 
-                x = group_df[xcol]
-                y = group_df[ycol]
+                x = group_df[settings['data']['x']]
+                y = group_df[settings['data']['y']]
                 artist.plot(axis, x, y, **props)
 
-        # context = merge_contexts(
-        #     self.plot_context,
-        #     context,
-        #     dict(data=data, x=x, y=y, where=where, _params=params))
-
-        # artist = MarkerArtist()
-
-        # legend_id = legend if isinstance(legend, str) else self._generate_legend_id('markers')
-
-        # for axis, group_df, props, group_props in self._df_iterator(context):
-        #     x = group_df[context['x']]
-        #     y = group_df[context['y']]
-        #     artist.plot(axis, x, y, **props)
-        #     self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
+                if legend:
+                    self._update_legend(legend_id, group_props,
+                                        artist.legend, settings['legend'])
 
         return self
 
     def _handle_legend_entry(self, legend_id, legend, artist_props, artist):
-        if not legend and not self.plot_context.get('legend'):
-            return
-        legend_options = {}
-        if isinstance(legend, dict):
-            legend_options = legend
-        self._update_legend(legend_id, artist_props, artist, legend_options)
+        self._update_legend(legend_id, artist_props, artist, legend)
 
     def labels(
             self,
@@ -434,7 +351,7 @@ class VowelPlot:
 
         artist = LabelArtist()
 
-        with self.settings.scope(
+        with self._settings.scope(
                 data=dict(
                     data=data,
                     x=x,

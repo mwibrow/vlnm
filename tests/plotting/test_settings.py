@@ -65,6 +65,20 @@ class TestSettings(unittest.TestCase):
         self.assertIn('x', current)
         self.assertIn('y', current)
 
+    def test_current_by_tuple(self):
+        """Should return merged stack by multiple names"""
+        settings = Settings()
+        settings.push(a=dict(key='value-a'))
+        settings.push(b=dict(key='value-b'))
+        settings.push(c=dict(key='value-c'))
+
+        current = settings.current(['a', 'b'])
+
+        self.assertEqual(len(settings.stack), 3)
+        self.assertIn('a', current)
+        self.assertIn('b', current)
+        self.assertNotIn('c', current)
+
     def test_current_by_named_value(self):
         """Should return merged stack by named value"""
         settings = Settings()
