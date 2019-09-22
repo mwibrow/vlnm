@@ -10,7 +10,7 @@ def strip_dict(source, deep=False, ignore=None):
     ignore = ignore or [None]
     destination = {}
     for key, value in source.items():
-        if value not in ignore:
+        if not any(value is i for i in ignore):
             if isinstance(value, dict) and deep:
                 destination[key] = strip_dict(value, deep=deep, ignore=ignore)
             else:
@@ -41,10 +41,11 @@ class Settings:
         settings = {}
         if setting:
             for item in self.stack:
-                try:
-                    settings.update(**strip_dict(item.get(setting, {})))
-                except (AttributeError, TypeError):
-                    settings = item.get(setting)
+                value = item.get(setting)
+                if isinstance(value, dict):
+                    settings.update(**strip_dict(value))
+                else:
+                    settings = value
         else:
             for item in self.stack:
                 for key, value in item.items():
