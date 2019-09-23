@@ -141,7 +141,7 @@ class VowelPlot:
 
         set_plot(self)
 
-        self._settings = Settings(
+        self.settings = Settings(
             axis=dict(invert_axes=True),
             data=dict(data=data, x=x, y=y),
             legend=legend if isinstance(legend, dict) else {},
@@ -179,9 +179,9 @@ class VowelPlot:
         #     self.legend(legend_id)
         if self.axis:
             if not self.get_xlabel():
-                self.xlabel(self.plot_context['x'])
+                self.xlabel(self.settings['data']['x'])
             if not self.get_ylabel():
-                self.ylabel(self.plot_context['y'])
+                self.ylabel(self.settings['data']['y'])
         return self.figure
 
     def elements(self, *args):
@@ -209,7 +209,7 @@ class VowelPlot:
         index = (row - 1) * self.columns + column
         self.axis = self.figure.add_subplot(
             self.rows, self.columns, index, label=label, **kwargs)
-        if invert_axes or self.plot_context.get('invert_axes'):
+        if invert_axes or self.settings['axis'].get('invert_axes'):
             if not self.axis.xaxis_inverted():
                 self.axis.invert_xaxis()
             if not self.axis.yaxis_inverted():
@@ -311,16 +311,17 @@ class VowelPlot:
             **kwargs) -> 'VowelPlot':
 
         artist = MarkerArtist()
-        with self._settings.scope(
+        with self.settings.scope(
                 data=dict(
                     data=data,
                     x=x,
                     y=y,
                     where=where),
-                legend=legend if instance(legend, dict) else {},
+                legend=legend if isinstance(legend, dict) else {},
                 markers={**kwargs}) as plot_settings:
 
             settings = plot_settings.current(['data', 'markers', 'legend'])
+
             legend_id = legend if isinstance(
                 legend, str) else self._generate_legend_id('markers')
 
@@ -351,7 +352,7 @@ class VowelPlot:
 
         artist = LabelArtist()
 
-        with self._settings.scope(
+        with self.settings.scope(
                 data=dict(
                     data=data,
                     x=x,
