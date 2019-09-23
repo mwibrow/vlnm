@@ -4,11 +4,13 @@ Settings
 """
 
 import json
+from typing import Union
 
 import pandas as pd
 
 
 def strip_dict(source, deep=False, ignore=None):
+    """Strip keys from a dictionary."""
     if not source:
         return source
     ignore = ignore or [None]
@@ -23,6 +25,8 @@ def strip_dict(source, deep=False, ignore=None):
 
 
 class SettingsEncoder(json.JSONEncoder):
+    """Helper class for debugging settings."""
+
     def default(self, obj):
         if isinstance(obj, pd.DataFrame):
             return obj.__class__.__name__
@@ -39,7 +43,7 @@ class ScopedStack:
     def stack(self):
         return self.scopes[-1]
 
-    def push(self, item):
+    def push(self, item: dict):
         """Push an item on to the current stack."""
         stack = self.stack
 
@@ -47,7 +51,7 @@ class ScopedStack:
         new.update(**item)
         self.stack.append(new)
 
-    def peek(self):
+    def peek(self) -> dict:
         """Peek at the top of the stack."""
         return self.stack[-1]
 
@@ -115,7 +119,7 @@ class Settings:
         self._current = None
         return self.stack.pop()
 
-    def current(self, setting=None):
+    def current(self, setting: str = None) -> Union[dict, any]:
         """Look at the current value of the stack."""
         settings = {}
         if isinstance(setting, str):
@@ -126,6 +130,17 @@ class Settings:
         else:
             settings = stack
         return settings or {}
+
+    def get(self, path: str) -> any:
+        """Return a setting using a path notation, e.g., 'legend.position'."""
+        try:
+            parent, child = path.split('.')
+        except ValueError:
+            parent, child = path, None
+        setting = self.current(parant) or {}
+        if setting and child:
+            return setting.get(child)
+        return setting
 
     def scope(self, *args, **kwargs):
         """Enter a setting scope."""
@@ -144,7 +159,7 @@ class Settings:
 
         return True
 
-    def __getitem__(self, setting):
+    def __getitem__(self, setting: str) -> any:
         return self.current(setting)
 
     def __repr__(self):
