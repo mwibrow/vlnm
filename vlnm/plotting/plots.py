@@ -68,7 +68,8 @@ def get_prop_mappers(df, context):
         if key.endswith('_by') or (key + '_by') in keys:
             if key.endswith('_by'):
                 prop = key[:-3]
-                keys.remove(prop)
+                if prop in keys:
+                    keys.remove(prop)
             else:
                 prop = key
                 key = prop + '_by'
@@ -145,6 +146,8 @@ class VowelPlot:
             axis=dict(invert_axes=True),
             data=dict(data=data, x=x, y=y),
             legend=legend if isinstance(legend, dict) else {},
+            markers={},
+            labels={}
         )
 
     def __getattr__(self, attr):
@@ -358,19 +361,19 @@ class VowelPlot:
                     x=x,
                     y=y,
                     where=where),
-                labels={**kwargs}) as context:
+                labels=dict(label_by=label_by, **kwargs)) as plot_settings:
 
-            data_context = context['data']
-            xcol, ycol = data_context['x'], data_context['y']
-            plot_context = context['labels']
-
+            settings = plot_settings.current(['data', 'labels', 'legend'])
             for axis, group_df, props, group_props in self._group_iterator(
-                    data_context, plot_context):
+                    settings['data'], settings['labels']):
 
-                x = group_df[xcol]
-                y = group_df[ycol]
-                labels = group_df[context['label_by']]
+                x = group_df[settings['data']['x']]
+                y = group_df[settings['data']['y']]
+                labels = group_df[settings['labels']['label_by']]
                 artist.plot(axis, x, y, labels, **props)
+
+                axis.relim()
+                axis.autoscale_view()
 
         return self
 
