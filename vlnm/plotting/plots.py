@@ -260,6 +260,9 @@ class VowelPlot:
                 axis = self.axis or self.subplot(row=1, column=1)
 
                 yield axis, group_df, props, group_props
+        else:
+            axis = self.axis or self.subplot(row=1, column=1)
+            yield axis, df, {**params}, {}
 
     def _update_legend(
             self,
@@ -372,16 +375,16 @@ class VowelPlot:
                 labels = group_df[settings['labels']['label_by']]
                 artist.plot(axis, x, y, labels, **props)
 
-                axis.relim()
-                axis.autoscale_view()
+                # axis.relim()
+                # axis.autoscale_view()
 
         return self
 
     def polygon(
             self,
             vertex: Union[str, int],
-            vertices: List[str],
-            where: Union[str, types.FunctionType],
+            vertices: List[str] = None,
+            where: Union[str, types.FunctionType] = None,
             closed: bool = True,
             hull=True,
             data: pd.DataFrame = None,
@@ -393,46 +396,85 @@ class VowelPlot:
         """
         Add a polygon to the
         """
-        context, params = context_from_kwargs(kwargs)
-
-        context = merge_contexts(
-            self.plot_context,
-            context,
-            dict(data=data, x=x, y=y, where=where, _params=params))
-
-        if legend_only:
-            legend = legend_only
 
         artist = PolygonArtist()
 
-        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('polygon')
+        with self.settings.scope(
+                data=dict(
+                    data=data,
+                    x=x,
+                    y=y,
+                    where=where),
+                polygon=dict(**kwargs)) as plot_settings:
 
-        x = context['x']
-        y = context['y']
+            settings = plot_settings.current(['data', 'polygon', 'legend'])
 
-        for axis, group_df, props, group_props in self._df_iterator(context):
-            xy = []
-            if hull:
-                group_x = group_df[x].groupby(vertex).apply(np.mean)
-                group_y = group_df[y].groupby(vertex).apply(np.mean)
-                convex_hull = MultiPoint(
-                    map(tuple, zip(group_x, group_y))).convex_hull
-                xy.extend([(x, y) for x, y in convex_hull.coords])
-            else:
-                for vert in enumerate(vertices):
-                    i = group_df[vertex] == vert
-                    group_x = group_df[i, x].mean()
-                    group_y = group_df[i, y].mean()
-                    xy.append((group_x, group_y))
+            x = settings['data']['x']
+            y = settings['data']['y']
 
-            artist.plot(axis, xy, closed=closed, **props)
+            for axis, group_df, props, group_props in self._group_iterator(
+                    settings['data'], settings['polygon']):
+                xy = []
+                if hull:
+                    coords = np.atleast_2d(group_df[[x, y]].values)
+                    convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
+                    xy.extend([(x, y) for x, y in convex_hull])
+                else:
+                    for vert in enumerate(vertices):
+                        i = group_df[vertex] == vert
+                        group_x = group_df[i, x].mean()
+                        group_y = group_df[i, y].mean()
+                        xy.append((group_x, group_y))
+                artist.plot(axis, xy, closed=closed, **props)
 
-            axis.relim()
-            axis.autoscale_view()
+                axis.relim()
+                axis.autoscale_view()
 
-            if legend:
-                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
-            return self
+                if legend:
+                    self._update_legend(legend_id, group_props,
+                                        artist.legend, settings['legend'])
+
+        return self
+        # context, params = context_from_kwargs(kwargs)
+
+        # context = merge_contexts(
+        #     self.plot_context,
+        #     context,
+        #     dict(data=data, x=x, y=y, where=where, _params=params))
+
+        # if legend_only:
+        #     legend = legend_only
+
+        # artist = PolygonArtist()
+
+        # legend_id = legend if isinstance(legend, str) else self._generate_legend_id('polygon')
+
+        # x = context['x']
+        # y = context['y']
+
+        # for axis, group_df, props, group_props in self._df_iterator(context):
+        #     xy = []
+        #     if hull:
+        #         group_x = group_df[x].groupby(vertex).apply(np.mean)
+        #         group_y = group_df[y].groupby(vertex).apply(np.mean)
+        #         convex_hull = MultiPoint(
+        #             map(tuple, zip(group_x, group_y))).convex_hull
+        #         xy.extend([(x, y) for x, y in convex_hull.coords])
+        #     else:
+        #         for vert in enumerate(vertices):
+        #             i = group_df[vertex] == vert
+        #             group_x = group_df[i, x].mean()
+        #             group_y = group_df[i, y].mean()
+        #             xy.append((group_x, group_y))
+
+        #     artist.plot(axis, xy, closed=closed, **props)
+
+        #     axis.relim()
+        #     axis.autoscale_view()
+
+        #     if legend:
+        #         self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
+        #     return self
 
     def polyline(
             self,
@@ -470,27 +512,34 @@ class VowelPlot:
 
 
         """
-        context, params = context_from_kwargs(kwargs)
-
-        context = merge_contexts(
-            self.plot_context,
-            context,
-            dict(data=data, x=x, y=y, _params=params))
-
         artist = EllipseArtist()
 
-        x = context['x']
-        y = context['y']
+        with self.settings.scope(
+                data=dict(
+                    data=data,
+                    x=x,
+                    y=y),
+                legend=legend if isinstance(legend, dict) else {},
+                ellipses={**kwargs}) as plot_settings:
 
-        legend_id = legend if isinstance(legend, str) else self._generate_legend_id('ellipses')
-        for axis, group_df, props, group_props in self._df_iterator(context):
-            group_x = group_df[x]
-            group_y = group_df[y]
-            center_x, center_y, width, height, angle = get_confidence_ellipse(
-                group_x, group_y, confidence=confidence, n_std=n_std, n_mad=n_mad)
-            artist.plot(axis, (center_x, center_y), width, height, angle, **props)
-            axis.relim()
-            axis.autoscale_view()
-            if legend:
-                self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
+            settings = plot_settings.current(['data', 'ellipses', 'legend'])
+
+            legend_id = legend if isinstance(
+                legend, str) else self._generate_legend_id('ellipses')
+
+            for axis, group_df, props, group_props in self._group_iterator(
+                    settings['data'], settings['ellipses']):
+
+                group_x = group_df[settings['data']['x']]
+                group_y = group_df[settings['data']['y']]
+                center_x, center_y, width, height, angle = get_confidence_ellipse(
+                    group_x, group_y, confidence=confidence, n_std=n_std, n_mad=n_mad)
+                artist.plot(axis, (center_x, center_y), width, height, angle, **props)
+                axis.relim()
+                axis.autoscale_view()
+
+                if legend:
+                    self._update_legend(legend_id, group_props,
+                                        artist.legend, settings['legend'])
+
         return self
