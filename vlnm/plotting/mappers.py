@@ -62,6 +62,7 @@ class ColorPropMapper(PropMapper):
     """
     Class for mapping data on to colors.
     """
+    # FIXME: TypeError when mapping is a list
 
     def __init__(
             self,

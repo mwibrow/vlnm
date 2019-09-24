@@ -414,8 +414,17 @@ class VowelPlot:
 
             for axis, group_df, props, group_props in self._group_iterator(
                     settings['data'], settings['polygon']):
+                if vertices:
+                    group_df = group_df[group_df[vertex].isin(vertices)]
                 xy = []
                 if hull:
+                    # if where == 'mean':
+                    #     coords = np.atleast_2d(
+                    #         group_df[[x, y, vertex]].groupby(vertex).apply(np.mean).values)
+                    # elif where == 'median':
+                    #     coords = np.atleast_2d(
+                    #         group_df[[x, y, vertex]].groupby(vertex).apply(np.median).values)
+                    # else:
                     coords = np.atleast_2d(group_df[[x, y]].values)
                     convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
                     xy.extend([(x, y) for x, y in convex_hull])
@@ -427,8 +436,8 @@ class VowelPlot:
                         xy.append((group_x, group_y))
                 artist.plot(axis, xy, closed=closed, **props)
 
-                axis.relim()
-                axis.autoscale_view()
+                # axis.relim()
+                # axis.autoscale_view()
 
                 if legend:
                     self._update_legend(legend_id, group_props,
