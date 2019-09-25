@@ -222,14 +222,15 @@ class VowelPlot:
     def _group_iterator(
             self,
             data: dict,
-            context: dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
+            context: dict,
+            aggregate: list = None) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
 
         df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
 
         # Aggregate df if required.
         groups = list(set(value for key, value in context.items() if key.endswith('_by')))
         if where:
-            df = aggregate_df(df, [x, y], groups, where)
+            df = aggregate_df(df, [x, y], groups or aggregate, where)
 
         # Get property mappers.
         prop_mappers, params = get_prop_mappers(df, context)
@@ -239,6 +240,8 @@ class VowelPlot:
             grouped = df.groupby(groups, as_index=False)
 
             for values, group_df in grouped:
+                if group_df.empty:
+                    continue
                 values = values if isinstance(values, tuple) else (values,)
                 props = {}
                 group_props = {}
@@ -413,7 +416,7 @@ class VowelPlot:
             y = settings['data']['y']
 
             for axis, group_df, props, group_props in self._group_iterator(
-                    settings['data'], settings['polygon']):
+                    settings['data'], settings['polygon'], aggregate=[vertex]):
                 if vertices:
                     group_df = group_df[group_df[vertex].isin(vertices)]
                 xy = []

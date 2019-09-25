@@ -223,4 +223,5 @@ def aggregate_df(
             df = df.groupby(groups, as_index=True).apply(
                 lambda group_df: group_df[columns].median(axis=0))
             df = df.reset_index()
+        df = df[df[columns].apply(np.isfinite).apply(np.all, axis=1)]
     return df

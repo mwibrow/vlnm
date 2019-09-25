@@ -49,7 +49,7 @@ class PropMapper:
         self.mapping = mapping
 
     def get_props(self, domain: Any) -> Any:
-        value = self.mapping.get(domain, self.default) if self.default else self.mapping[domain]
+        value = self.mapping.get(domain, self.default)
         if isinstance(value, dict):
             return value
         return {self.prop: value}
@@ -62,7 +62,6 @@ class ColorPropMapper(PropMapper):
     """
     Class for mapping data on to colors.
     """
-    # FIXME: TypeError when mapping is a list
 
     def __init__(
             self,
@@ -73,10 +72,11 @@ class ColorPropMapper(PropMapper):
 
         if isinstance(mapping, matplotlib.colors.Colormap):
             mapping = list(mapping.colors)
-        try:
-            mapping = list(get_cmap(mapping).colors)
-        except ValueError:
-            mapping = [mapping]
+        if not isinstance(mapping, list):
+            try:
+                mapping = list(get_cmap(mapping).colors)
+            except ValueError:
+                mapping = [mapping]
 
         super().__init__(prop, mapping=mapping, data=data, default=default)
 

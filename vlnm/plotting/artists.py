@@ -217,7 +217,6 @@ class LabelArtist(Artist):
 
     def plot(self, axis, x, y, labels, **props):
         """Draw markers."""
-
         props = self._get_plot_props(props)
         if isinstance(labels, str) and labels:
             for x, y in zip(x, y):
