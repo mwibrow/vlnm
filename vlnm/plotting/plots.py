@@ -29,6 +29,8 @@ from vlnm.plotting.utils import (
     merge_contexts,
     strip)
 
+from vlnm.plotting.bounding_box import BoundingBox
+
 from vlnm.plotting.legends import Legend, translate_legend_options
 
 from vlnm.plotting.settings import Settings
@@ -95,43 +97,7 @@ def update_axis_limits(axis: Axis, x, y):
     pass
 
 
-class DataBounds:
-    """Class representing the boundry of data."""
 
-    def __init__(self):
-        self.xmin = self.xmax = self.ymin = self.ymax = None
-
-    def set_xbounds(self, xmin, xmax):
-        self.xmin = xmin
-        self.xmax = xmax
-
-    def set_ybounds(self, ymin, ymax):
-        self.ymin = ymin
-        self.ymax = ymax
-
-    def update_from_xy(self, xy=None, x=None, y=None):
-        if x and y:
-            xy = np.atleast_2d([x, y]).T
-        xmin, ymin = np.min(xy, axis=0)
-        xmax, ymax = np.max(xy, axis=0)
-
-        if self.xmin is not None:
-            xmin = np.min([xmin, self.xmin])
-        if self.xmax is not None:
-            xmax = np.min([xmax, self.xmax])
-        if self.ymin is not None:
-            ymin = np.min([ymin, self.ymin])
-        if self.ymax is not None:
-            ymay = np.min([ymax, self.ymax])
-
-        self.set_xbounds(xmin, xmax)
-        self.set_ybounds(ymin, ymax)
-
-    def __repr__(self):
-        points = self.xmin, self.ymin, self.xmax, self.ymax
-        if any(i is None for i in points):
-            return 'Undefined'
-        return '[({}, {}), ({}, {})]'.format(*points)
 
 
 class VowelPlot:
@@ -363,6 +329,7 @@ class VowelPlot:
             **kwargs) -> 'VowelPlot':
 
         artist = MarkerArtist()
+
         with self.settings.scope(
                 data=dict(
                     data=data,
@@ -413,15 +380,17 @@ class VowelPlot:
                 labels=dict(label_by=label_by, **kwargs)) as plot_settings:
 
             settings = plot_settings.current(['data', 'labels', 'legend'])
+            bounds = BoundingBox()
             for axis, group_df, props, group_props in self._group_iterator(
                     settings['data'], settings['labels']):
 
                 x = group_df[settings['data']['x']]
                 y = group_df[settings['data']['y']]
+                bounds.update_from_xy(x=x.values, y=y.values)
                 labels = group_df[settings['labels']['label_by']]
                 artist.plot(axis, x, y, labels, **props)
 
-                update_axis_limits(axis, x, y)
+            bounds.update_axis_bounds(axis)
                 # axis.relim()
                 # axis.autoscale_view()
 
