@@ -14,14 +14,14 @@ class TestSettings(unittest.TestCase):
     def test_init(self):
         """Should init with initial scope."""
         settings = Settings()
-        self.assertEqual(len(settings), 1)
+        self.assertEqual(len(settings.scopes), 1)
         self.assertEqual(settings.state, {})
 
     def test_init(self):
         """Should init with initial settings."""
         state = dict(item='value')
         settings = Settings(state)
-        self.assertEqual(len(settings), 1)
+        self.assertEqual(len(settings.scopes), 1)
         self.assertEqual(settings.state, state)
 
     def test_push(self):

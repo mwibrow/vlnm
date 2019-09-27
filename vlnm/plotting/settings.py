@@ -35,6 +35,7 @@ class SettingsEncoder(json.JSONEncoder):
 
 
 def state(*args, **kwargs):
+    """Helper function to create a dictionary from **args and **kwargs."""
     value = {}
     for arg in args:
         value.update(**arg)
@@ -50,6 +51,8 @@ def deepcopy(src, depth=0):
             continue
         if isinstance(value, dict) and depth:
             dest[key] = deepcopy(value, depth - 1)
+        elif isinstance(value, pd.DataFrame):
+            dest[key] = value
         else:
             dest[key] = copy.deepcopy(value)
     return dest
@@ -63,6 +66,8 @@ def deepmerge(lhs, rhs, depth=0):
             continue
         if isinstance(value, dict) and depth:
             dest[key] = deepmerge(dest.get(key, {}), value, depth - 1)
+        elif isinstance(value, pd.DataFrame):
+            dest[key] = value
         else:
             dest[key] = copy.deepcopy(value)
     return dest
@@ -83,18 +88,32 @@ class Settings:
         return self.stack[-1]
 
     def push(self, *args, **kwargs):
+        """Push settings onto the stack in the current scope."""
         item = deepmerge(self.state, state(*args, **kwargs), depth=1)
         self.stack.append(item)
 
     def pop(self):
+        """Remove the settings last added to the stack."""
         return self.stack.pop()
 
+    def scope(self, *args, **kwargs):
+        """Shorthand for begin_scope."""
+        return self.begin_scope(*args, **kwargs)
+
     def begin_scope(self, *args, **kwargs):
+        """Begin a new settings scope."""
         self.scopes.append([deepcopy(self.state, depth=1)])
         self.push(*args, **kwargs)
+        return self
 
     def end_scope(self):
+        """Restore the last settings scope."""
         return self.scopes.pop()
+
+    def __getitem__(self, keys):
+        if isinstance(keys, tuple):
+            return {key: self.state.get(key, {}) for key in keys}
+        return self.state.get(keys)
 
     def __enter__(self):
         return self
@@ -102,4 +121,7 @@ class Settings:
     def __exit__(self, exc_type, *_):
         if exc_type:
             return False
-        return True
+        return self.end_scope()
+
+    def __repr__(self):
+        return json.dumps(self.scopes, indent=2, cls=SettingsEncoder)

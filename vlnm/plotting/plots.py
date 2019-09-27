@@ -336,9 +336,9 @@ class VowelPlot:
                     y=y,
                     where=where),
                 legend=legend if isinstance(legend, dict) else {},
-                markers={**kwargs}) as plot_settings:
+                markers={**kwargs}):
 
-            settings = plot_settings.current(['data', 'markers', 'legend'])
+            settings = self.settings['data', 'markers', 'legend']
 
             legend_id = legend if isinstance(
                 legend, str) else self._generate_legend_id('markers')
@@ -376,10 +376,10 @@ class VowelPlot:
                     x=x,
                     y=y,
                     where=where),
-                labels=dict(label_by=label_by, **kwargs)) as plot_settings:
+                labels=dict(label_by=label_by, **kwargs)):
 
 
-            settings = plot_settings.current(['data', 'labels', 'legend'])
+            settings = self.settings['data', 'labels', 'legend']
             bounds = BoundingBox()
             for axis, group_df, props, group_props in self._group_iterator(
                     settings['data'], settings['labels']):
@@ -421,9 +421,9 @@ class VowelPlot:
                     x=x,
                     y=y,
                     where=where),
-                polygon=dict(**kwargs)) as plot_settings:
+                polygon=dict(**kwargs)):
 
-            settings = plot_settings.current(['data', 'polygon', 'legend'])
+            settings = self.settings['data', 'polygon', 'legend']
 
             x = settings['data']['x']
             y = settings['data']['y']
@@ -547,9 +547,9 @@ class VowelPlot:
                     x=x,
                     y=y),
                 legend=legend if isinstance(legend, dict) else {},
-                ellipses={**kwargs}) as plot_settings:
+                ellipses={**kwargs}):
 
-            settings = plot_settings.current(['data', 'ellipses', 'legend'])
+            settings = self.settings['data', 'ellipses', 'legend']
 
             legend_id = legend if isinstance(
                 legend, str) else self._generate_legend_id('ellipses')
