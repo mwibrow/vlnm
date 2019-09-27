@@ -16,10 +16,16 @@ class BoundingBox:
         self.box = None
 
     def lower(self) -> np.ndarray:
-        return self.box[0, :]
+        try:
+            return self.box[0, :]
+        except TypeError:
+            return None
 
     def upper(self) -> np.ndarray:
-        return self.box[1, :]
+        try:
+            return self.box[1, :]
+        except TypeError:
+            return None
 
     def update_from_xy(
             self, xy=np.ndarray,

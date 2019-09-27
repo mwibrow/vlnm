@@ -1,5 +1,5 @@
 {
-  "python.pythonPath": "venv/bin/python",
+  "python.pythonPath": "/Users/mwibrow/github/vlnm/venv/bin/python3",
   "restructuredtext.confPath": "${workspaceFolder}/docs/source",
   "[python]": {
     "editor.rulers": [100],
