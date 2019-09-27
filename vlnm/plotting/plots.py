@@ -329,7 +329,6 @@ class VowelPlot:
             **kwargs) -> 'VowelPlot':
 
         artist = MarkerArtist()
-
         with self.settings.scope(
                 data=dict(
                     data=data,
@@ -378,6 +377,7 @@ class VowelPlot:
                     y=y,
                     where=where),
                 labels=dict(label_by=label_by, **kwargs)) as plot_settings:
+
 
             settings = plot_settings.current(['data', 'labels', 'legend'])
             bounds = BoundingBox()
@@ -441,7 +441,9 @@ class VowelPlot:
                     #     coords = np.atleast_2d(
                     #         group_df[[x, y, vertex]].groupby(vertex).apply(np.median).values)
                     # else:
-                    coords = np.atleast_2d(group_df[[x, y]].values)
+
+                    coords = np.atleast_2d(group_df[[x, y, vertex]].values)
+                    self.group_df = group_df
                     convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
                     xy.extend([(x, y) for x, y in convex_hull])
                 else:

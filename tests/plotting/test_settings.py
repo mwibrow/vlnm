@@ -12,101 +12,79 @@ class TestSettings(unittest.TestCase):
     """Tests for the Settings class."""
 
     def test_init(self):
-        """Should init with empty stack."""
+        """Should init with initial scope."""
         settings = Settings()
-        self.assertEqual(len(settings.stack), 0)
+        self.assertEqual(len(settings), 1)
+        self.assertEqual(settings.state, {})
+
+    def test_init(self):
+        """Should init with initial settings."""
+        state = dict(item='value')
+        settings = Settings(state)
+        self.assertEqual(len(settings), 1)
+        self.assertEqual(settings.state, state)
 
     def test_push(self):
-        """Should add to stack"""
+        """Should push settings onto stack in current scope."""
         settings = Settings()
-        settings.push(data=dict(data='df', x='f1', y='f2'))
+        state = dict(item='value')
+        settings.push(state)
 
+        self.assertEqual(len(settings.scopes), 1)
+        self.assertEqual(len(settings.stack), 2)
+        self.assertEqual(settings.state, state)
+
+    def test_push_with_merge(self):
+        """Should merge settings onto stack in current scope."""
+        settings = Settings(dict(item1='value1', item2='value2'))
+        state = dict(item2='value3')
+        settings.push(state)
+
+        self.assertEqual(len(settings.scopes), 1)
+        self.assertEqual(len(settings.stack), 2)
+        self.assertEqual(len(settings.state), 2)
+        self.assertEqual(settings.state['item2'], state['item2'])
+
+    def test_pop_after_merge(self):
+        """Should return previous settings in current scope."""
+        state1 = dict(item1='value1', item2='value2')
+        settings = Settings(state1)
+        state2 = dict(item2='value3')
+        settings.push(state2)
+
+        self.assertEqual(len(settings.scopes), 1)
+        self.assertEqual(len(settings.stack), 2)
+        self.assertEqual(len(settings.state), 2)
+        self.assertEqual(settings.state['item2'], state2['item2'])
+
+        settings.pop()
         self.assertEqual(len(settings.stack), 1)
-        self.assertIn('data', settings.stack[0])
+        self.assertEqual(len(settings.state), 2)
+        self.assertEqual(settings.state, state1)
 
-    def test_current(self):
-        """Should return merged stack by name"""
-        settings = Settings()
-        settings.push(data=dict(data='df'))
-        settings.push(data=dict(x='f2', y='f1'))
+    def test_begin_scope(self):
+        """New scope should copy the last state of the parent scope."""
+        state = dict(item1='value1', item2='value2')
+        settings = Settings(state)
 
-        current = settings.current()
+        settings.begin_scope()
 
+        self.assertEqual(len(settings.scopes), 2)
         self.assertEqual(len(settings.stack), 2)
-        self.assertIn('data', current)
+        self.assertEqual(settings.stack[0], state)
+        self.assertNotEqual(id(settings.stack[0]), id(state))
 
-        data = current['data']
-        self.assertIn('data', data)
-        self.assertIn('x', data)
-        self.assertIn('y', data)
+    def test_end_scope(self):
+        """Should restore scope."""
+        state = dict(item1='value1', item2='value2')
+        settings = Settings(state)
 
-    def test_current_by_value(self):
-        """Should return merged stack by named value"""
-        settings = Settings()
-        settings.push(data=0)
-        settings.push(data=1)
+        self.assertEqual(settings.state['item2'], 'value2')
 
-        current = settings.current()
-        self.assertEqual(len(settings.stack), 2)
-        self.assertIn('data', current)
-        data = current['data']
-        self.assertEqual(data, 1)
+        settings.begin_scope(dict(item2='value3'))
 
-    def test_current_by_name(self):
-        """Should return merged stack by name"""
-        settings = Settings()
-        settings.push(data=dict(data='df'))
-        settings.push(data=dict(x='f2', y='f1'))
+        self.assertEqual(settings.state['item2'], 'value3')
 
-        current = settings.current('data')
+        settings.end_scope()
 
-        self.assertEqual(len(settings.stack), 2)
-        self.assertIn('data', current)
-        self.assertIn('x', current)
-        self.assertIn('y', current)
-
-    def test_current_by_tuple(self):
-        """Should return merged stack by multiple names"""
-        settings = Settings()
-        settings.push(a=dict(key='value-a'))
-        settings.push(b=dict(key='value-b'))
-        settings.push(c=dict(key='value-c'))
-
-        current = settings.current(['a', 'b'])
-
-        self.assertEqual(len(settings.stack), 3)
-        self.assertIn('a', current)
-        self.assertIn('b', current)
-        self.assertNotIn('c', current)
-
-    def test_current_by_named_value(self):
-        """Should return merged stack by named value"""
-        settings = Settings()
-        settings.push(data=0)
-        settings.push(data=1)
-
-        current = settings.current('data')
-        self.assertEqual(len(settings.stack), 2)
-        self.assertEqual(current, 1)
-
-    def test_scope_keywords(self):
-        """Scope should update settings before and after."""
-        settings = Settings()
-        settings.push(data=0)
-        with settings.scope(data=1):
-            current = settings.current('data')
-            self.assertEqual(current, 1)
-
-        current = settings.current('data')
-        self.assertEqual(current, 0)
-
-    def test_scope(self):
-        """Scope should update settings before and after."""
-        settings = Settings()
-        settings.push(dict(data=0))
-        with settings.scope(dict(data=1)):
-            current = settings.current('data')
-            self.assertEqual(current, 1)
-
-        current = settings.current('data')
-        self.assertEqual(current, 0)
+        self.assertEqual(settings.state['item2'], 'value2')
