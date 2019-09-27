@@ -29,7 +29,7 @@ from vlnm.plotting.utils import (
     merge_contexts,
     strip)
 
-from vlnm.plotting.bounding_box import BoundingBox
+from vlnm.plotting.bounds import BoundingBox
 
 from vlnm.plotting.legends import Legend, translate_legend_options
 

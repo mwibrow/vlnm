@@ -25,6 +25,7 @@ class BoundingBox:
             self, xy=np.ndarray,
             x: Union[float, Iterable[float]] = None,
             y: Union[float, Iterable[float]] = None):
+        """Update the bounding box."""
         if x is not None and y is not None:
             xy = np.atleast_2d([x, y]).T
 
@@ -34,14 +35,17 @@ class BoundingBox:
             np.max(points, axis=0)
         ))
 
-    def update_axis_bounds(self, axis: Axis):
-        points = np.concatenate((
-            np.vstack((
-                axis.get_xbound(),
-                axis.get_ybound(),
-            )).T,
-            self.box + np.ptp(self.box, axis=0) * axis.margins() * [[-1, -1], [1, 1]]
-        ))
+    def update_axis_bounds(self, axis: Axis, force: bool = False):
+        """Update axis bounds from bounding box instances."""
+        points = self.box + np.ptp(self.box, axis=0) * axis.margins() * [[-1, -1], [1, 1]]
+        if not force or axis.lines or axis.collections:
+            points = np.concatenate((
+                np.vstack((
+                    axis.get_xbound(),
+                    axis.get_ybound(),
+                )).T,
+                points
+            ))
         bounds = np.vstack((
             np.min(points, axis=0),
             np.max(points, axis=0)
