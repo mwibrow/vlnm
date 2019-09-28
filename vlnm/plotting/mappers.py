@@ -3,40 +3,25 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-from typing import Any, Dict, Iterable, List, Union
+from typing import Any, Callable, Dict, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
 import matplotlib.colors
+import pandas as pd
 from pandas.api.types import is_categorical_dtype
 
 
 class PropMapper:
-    """
-    Class for mapping data values for properties.
-
-    Parameters
-    ----------
-    prop:
-        Property name
-    mapping:
-        Mapping between data values and property values or a list of property values.
-    data:
-        Data values used to create dictionary mapping.
-    default:
-        Default property value returned if data-value is not in mapping.
-
-    """
 
     def __init__(
             self,
-            prop: str,
-            mapping: Union[Dict, List],
+            prop: str = None,
+            mapping: Union[Callable, dict] = None,
             data: Iterable = None,
-            default: Any = None):
+            default: any = None):
         self.prop = prop
         self.default = default
-
-        if isinstance(mapping, list):
+        if data and isinstance(mapping, list):
             try:
                 levels = data.unique()
             except AttributeError:
@@ -48,14 +33,21 @@ class PropMapper:
                 mapping = {levels[i]: mapping[i % len(mapping)] for i in range(len(levels))}
         self.mapping = mapping
 
-    def get_props(self, domain: Any) -> Any:
-        value = self.mapping.get(domain, self.default)
-        if isinstance(value, dict):
-            return value
-        return {self.prop: value}
+    def get_props(self, value: any) -> dict:
+        try:
+            props = self.mapping(value)
+        except TypeError:
+            try:
+                props = self.mapping[value]
+            except (IndexError, KeyError):
+                props = self.default
 
-    def __getitem__(self, domain: Any):
-        return self.get_value(domain)
+        if isinstance(props, dict):
+            return props
+        return {self.prop: props}
+
+    def __getitem__(self, value: any) -> dict:
+        return self.get_props(value)
 
 
 class ColorPropMapper(PropMapper):
