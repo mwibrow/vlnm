@@ -12,11 +12,12 @@ from pandas.api.types import is_categorical_dtype
 
 
 class PropMapper:
+    """Class for managing the mapping of data values to plot properties."""
 
     def __init__(
             self,
             prop: str = None,
-            mapping: Union[Callable, dict] = None,
+            mapping: Union[Callable, dict, list] = None,
             data: Iterable = None,
             default: any = None):
         self.prop = prop
@@ -34,6 +35,7 @@ class PropMapper:
         self.mapping = mapping
 
     def get_props(self, value: any) -> dict:
+        """Return the props for a particular value."""
         try:
             props = self.mapping(value)
         except TypeError:
@@ -89,9 +91,9 @@ class IndexPropMapper(PropMapper):
         super().__init__(prop, mapping=mapping, data=data, default=default)
 
 
-def get_prop_mapper(prop, mapping=None, data=None):
+def get_prop_mapper(prop, mapping=None, data=None, default=None):
     if prop == 'plot':
-        return IndexPropMapper(prop, mapping=mapping, data=data)
+        return IndexPropMapper(prop, mapping=mapping, data=data, default=default)
     elif 'color' in prop:
-        return ColorPropMapper(prop, mapping=mapping, data=data)
-    return PropMapper(prop, mapping=mapping, data=data)
+        return ColorPropMapper(prop, mapping=mapping, data=data, default=default)
+    return PropMapper(prop, mapping=mapping, data=data, default=default)
