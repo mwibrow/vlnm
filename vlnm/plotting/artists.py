@@ -224,3 +224,39 @@ class LabelArtist(Artist):
         else:
             for x, y, label in zip(x, y, labels):
                 axis.text(x, y, label, clip_on=True, **props)
+
+
+class ContourArtist(Artist):
+
+    defaults = dict(
+        plot=dict(
+            color='black',
+            line='-'
+        )
+    )
+
+    translators = dict(
+        plot={
+            'line': 'linestyle'
+        }
+    )
+
+    def legend(self, **props) -> mpatches.Patch:
+        """Return the artist to be used in the legend.
+        """
+        translator = self._get_translator('legend')
+        defaults = self.translate_props(self._get_defaults('legend'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+        return mpatches.Polygon(
+            xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
+            **props)
+
+    def plot(self, x, y, z, **props):
+        """Plot a Contour."""
+        translator = self._get_translator('plot')
+        defaults = self.translate_props(self._get_defaults('plot'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+
+        axis.contour(x, y, z, **props)

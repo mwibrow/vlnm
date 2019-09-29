@@ -10,21 +10,6 @@ from typing import Union
 import pandas as pd
 
 
-def strip_dict(source, deep=False, ignore=None):
-    """Strip keys from a dictionary."""
-    if not source:
-        return source
-    ignore = ignore or [None]
-    destination = {}
-    for key, value in source.items():
-        if not any(value is i for i in ignore):
-            if isinstance(value, dict) and deep:
-                destination[key] = strip_dict(value, deep=deep, ignore=ignore)
-            else:
-                destination[key] = value
-    return destination
-
-
 class SettingsEncoder(json.JSONEncoder):
     """Helper class for debugging settings."""
 

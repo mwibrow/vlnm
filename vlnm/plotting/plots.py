@@ -16,8 +16,10 @@ import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 from shapely.geometry import MultiPoint
+import scipy.stats as st
 
-from vlnm.plotting.artists import Artist, EllipseArtist, LabelArtist, MarkerArtist, PolygonArtist
+from vlnm.plotting.artists import (
+    Artist, ContourArtist, EllipseArtist, LabelArtist, MarkerArtist, PolygonArtist)
 from vlnm.plotting.mappers import get_prop_mapper
 from vlnm.plotting.utils import (
     aggregate_df,
@@ -95,9 +97,6 @@ def get_prop_mappers(df, context):
 
 def update_axis_limits(axis: Axis, x, y):
     pass
-
-
-
 
 
 class VowelPlot:
@@ -325,7 +324,7 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             where: str = 'all',
-            legend: Union[str, dict] = None,
+            legend: str = None,
             **kwargs) -> 'VowelPlot':
 
         artist = MarkerArtist()
@@ -340,8 +339,7 @@ class VowelPlot:
 
             settings = self.settings['data', 'markers', 'legend']
 
-            legend_id = legend if isinstance(
-                legend, str) else self._generate_legend_id('markers')
+            legend_id = legend or self._generate_legend_id('markers')
 
             for axis, group_df, props, group_props in self._group_iterator(
                     settings['data'], settings['markers']):
@@ -378,7 +376,6 @@ class VowelPlot:
                     where=where),
                 labels=dict(label_by=label_by, **kwargs)):
 
-
             settings = self.settings['data', 'labels', 'legend']
             bounds = BoundingBox()
             for axis, group_df, props, group_props in self._group_iterator(
@@ -391,8 +388,6 @@ class VowelPlot:
                 artist.plot(axis, x, y, labels, **props)
 
             bounds.update_axis_bounds(axis)
-                # axis.relim()
-                # axis.autoscale_view()
 
         return self
 
@@ -562,6 +557,59 @@ class VowelPlot:
                 center_x, center_y, width, height, angle = get_confidence_ellipse(
                     group_x, group_y, confidence=confidence, n_std=n_std, n_mad=n_mad)
                 artist.plot(axis, (center_x, center_y), width, height, angle, **props)
+                axis.relim()
+                axis.autoscale_view()
+
+                if legend:
+                    self._update_legend(legend_id, group_props,
+                                        artist.legend, settings['legend'])
+
+        return self
+
+    def contour(
+            self,
+            data: pd.DataFrame = None,
+            x: str = None,
+            y: str = None,
+            levels: int = 10,
+            samples: int = 50,
+            legend: str = '',
+            ** kwargs):
+        """Add contour plots around formant data.
+
+
+        """
+        artist = ContourArtist()
+
+        with self.settings.scope(
+                data=dict(
+                    data=data,
+                    x=x,
+                    y=y),
+                legend=legend if isinstance(legend, dict) else {},
+                contour={**kwargs}):
+
+            settings = self.settings['data', 'contour', 'legend']
+
+            legend_id = legend or self._generate_legend_id('contour')
+
+            for axis, group_df, props, group_props in self._group_iterator(
+                    settings['data'], settings['contour']):
+
+                x = group_df[settings['data']['x']]
+                y = group_df[settings['data']['y']]
+
+                kernel = st.gaussian_kde(np.array([x, y]).T)
+
+                cx, cy = np.meshgrid(
+                    np.linspace(x.min(), x.max(), num=samples),
+                    np.linspace(y.min(), y.max(), num=samples),
+                    indexing='xy')
+
+                xy = np.array([x.ravel(), y.ravel()]).T
+                cz = kernel(xy).reshape((samples, samples))
+
+                artist.plot(cx, cy, cz, **props)
                 axis.relim()
                 axis.autoscale_view()
 
