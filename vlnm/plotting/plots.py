@@ -230,15 +230,14 @@ class VowelPlot:
     def _group_iterator(
             self,
             data: dict,
-            context: dict,
-            aggregate: list = None) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
+            context: dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
 
         df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
 
         # Aggregate df if required.
         groups = list(set(value for key, value in context.items() if key.endswith('_by')))
         if where:
-            df = aggregate_df(df, [x, y], groups or aggregate, where)
+            df = aggregate_df(df, [x, y], groups, where)
 
         # Get property mappers.
         prop_mappers, params = get_prop_mappers(df, context)
@@ -273,7 +272,7 @@ class VowelPlot:
                 yield axis, group_df, props, group_props
         else:
             axis = self.axis or self.subplot(row=1, column=1)
-            yield axis, df, {**params}, {}
+            yield axis, df, {**params}, {**params}
 
     def _update_legend(
             self,
@@ -384,17 +383,17 @@ class VowelPlot:
                 x = group_df[settings['data']['x']]
                 y = group_df[settings['data']['y']]
                 bounds.update_from_xy(x=x.values, y=y.values)
+                bounds.update_axis_bounds(axis)
+
                 labels = group_df[settings['labels']['label_by']]
                 artist.plot(axis, x, y, labels, **props)
-
-            bounds.update_axis_bounds(axis)
 
         return self
 
     def polygon(
             self,
-            vertex: Union[str, int],
-            vertices: List[str] = None,
+            point: Union[str, int],
+            points: list = None,
             where: Union[str, types.FunctionType] = None,
             closed: bool = True,
             hull=True,
@@ -405,120 +404,50 @@ class VowelPlot:
             legend_only: Union[str, bool] = False,
             **kwargs) -> 'VowelPlot':
         """
-        Add a polygon to the
+        Add a polygon to the plot
         """
 
         artist = PolygonArtist()
-
         with self.settings.scope(
                 data=dict(
                     data=data,
                     x=x,
-                    y=y,
-                    where=where),
+                    y=y),
                 polygon=dict(**kwargs)):
 
             settings = self.settings['data', 'polygon', 'legend']
 
+            data = settings['data']['data']
             x = settings['data']['x']
             y = settings['data']['y']
 
+            if where:
+                data = aggregate_df(data, [x, y], point, where)
+            bounds = BoundingBox()
             for axis, group_df, props, group_props in self._group_iterator(
-                    settings['data'], settings['polygon'], aggregate=[vertex]):
-                if vertices:
-                    group_df = group_df[group_df[vertex].isin(vertices)]
+                    settings['data'], settings['polygon']):
                 xy = []
-                if hull:
-                    # if where == 'mean':
-                    #     coords = np.atleast_2d(
-                    #         group_df[[x, y, vertex]].groupby(vertex).apply(np.mean).values)
-                    # elif where == 'median':
-                    #     coords = np.atleast_2d(
-                    #         group_df[[x, y, vertex]].groupby(vertex).apply(np.median).values)
-                    # else:
-
-                    coords = np.atleast_2d(group_df[[x, y, vertex]].values)
-                    self.group_df = group_df
-                    convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
-                    xy.extend([(x, y) for x, y in convex_hull])
-                else:
-                    for vert in enumerate(vertices):
+                if points:
+                    hull = False
+                    for p in points:
                         i = group_df[vertex] == vert
                         group_x = group_df[i, x].mean()
                         group_y = group_df[i, y].mean()
-                        xy.append((group_x, group_y))
+                    group_df = group_df[group_df[point].isin(points)]
+                    xy.append((group_x, group_y))
+                if hull:
+                    coords = np.atleast_2d(group_df[[x, y, vertex]].values)
+                    convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
+                    xy.extend([(x, y) for x, y in convex_hull])
                 artist.plot(axis, xy, closed=closed, **props)
 
-                # axis.relim()
-                # axis.autoscale_view()
-
+                bounds.update_from_xy(xy)
+                bounds.update_axis_bounds(axis)
                 if legend:
                     self._update_legend(legend_id, group_props,
                                         artist.legend, settings['legend'])
 
         return self
-        # context, params = context_from_kwargs(kwargs)
-
-        # context = merge_contexts(
-        #     self.plot_context,
-        #     context,
-        #     dict(data=data, x=x, y=y, where=where, _params=params))
-
-        # if legend_only:
-        #     legend = legend_only
-
-        # artist = PolygonArtist()
-
-        # legend_id = legend if isinstance(legend, str) else self._generate_legend_id('polygon')
-
-        # x = context['x']
-        # y = context['y']
-
-        # for axis, group_df, props, group_props in self._df_iterator(context):
-        #     xy = []
-        #     if hull:
-        #         group_x = group_df[x].groupby(vertex).apply(np.mean)
-        #         group_y = group_df[y].groupby(vertex).apply(np.mean)
-        #         convex_hull = MultiPoint(
-        #             map(tuple, zip(group_x, group_y))).convex_hull
-        #         xy.extend([(x, y) for x, y in convex_hull.coords])
-        #     else:
-        #         for vert in enumerate(vertices):
-        #             i = group_df[vertex] == vert
-        #             group_x = group_df[i, x].mean()
-        #             group_y = group_df[i, y].mean()
-        #             xy.append((group_x, group_y))
-
-        #     artist.plot(axis, xy, closed=closed, **props)
-
-        #     axis.relim()
-        #     axis.autoscale_view()
-
-        #     if legend:
-        #         self._handle_legend_entry(legend_id, legend, group_props, artist.legend)
-        #     return self
-
-    def polyline(
-            self,
-            vertex: Union[str, int],
-            vertices: List[str],
-            where: Union[str, types.FunctionType],
-            hull=True,
-            data: pd.DataFrame = None,
-            x: str = None,
-            y: str = None,
-            legend: Union[str, bool] = False,
-            legend_only: Union[str, bool] = False,
-            **kwargs):
-        """Add lines to the plot.
-
-        This is just a wrapper around :method:`VowelPlot.polygon`
-        with ``closed=False``.
-
-        """
-        return self.polygon(
-            vertex=vertex, vertices=vertices, where=where, hull=hull, data=data,
-            x=x, y=y, legend=legend, lenged_only=legend_only, closed=False, **kwargs)
 
     def ellipses(
             self,
@@ -549,6 +478,7 @@ class VowelPlot:
             legend_id = legend if isinstance(
                 legend, str) else self._generate_legend_id('ellipses')
 
+            bounds = BoundingBox()
             for axis, group_df, props, group_props in self._group_iterator(
                     settings['data'], settings['ellipses']):
 
@@ -557,8 +487,11 @@ class VowelPlot:
                 center_x, center_y, width, height, angle = get_confidence_ellipse(
                     group_x, group_y, confidence=confidence, n_std=n_std, n_mad=n_mad)
                 artist.plot(axis, (center_x, center_y), width, height, angle, **props)
-                axis.relim()
-                axis.autoscale_view()
+
+                bounds.update_from_xy(
+                    x=[center_x - width / 2, center_x + width / 2],
+                    y=[center_y - height / 2, center_y - width / 2])
+                bounds.update_axis_bounds(axis)
 
                 if legend:
                     self._update_legend(legend_id, group_props,
