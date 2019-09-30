@@ -195,12 +195,6 @@ class VowelPlot:
                 self.ylabel(self.settings['data']['y'])
         return self.figure
 
-    def elements(self, *args):
-        stack = ExitStack()
-        for arg in args:
-            stack.enter_context(arg)
-        return stack
-
     def subplot(
             self,
             row: int = 1,
@@ -286,32 +280,15 @@ class VowelPlot:
                     legend_id, group, label, artist(**group_props[group][label]))
             self.plot_legend.update_options(legend_id=legend_id, **legend_options)
 
-    def legend(self, legend_id=None, **kwargs):
+    def legend(self, legend=None, group=None, **kwargs):
         """Add a legend to the current axis.
         """
 
-        legend_options = self.legend_options
-        legend = self.plot_legend[legend_id]
-
-        if 'handler_map' not in kwargs:
-            kwargs['handler_map'] = {
-                mpatches.Ellipse: HandlerEllipse()
-            }
-
-        legend_options.update(**kwargs)
-        title = legend_options.pop('title', [])
-        if isinstance(title, str):
-            title = [title]
-
-        for i, group in enumerate(legend):
-            handles = list(legend[group].values())
-            labels = list(legend[group].keys())
-            legend_artist = plt.legend(
-                handles=handles,
-                labels=labels,
-                title=title[i] if title else group,
-                **translate_legend_options(**legend_options))
-            self.axis.add_artist(legend_artist)
+        with self.settings.scope(legend={**kwargs}):
+            axis = self.axis
+            settings = self.settings['legend']
+            artist = self.plot_legend.make_legend_artist(legend, group, **settings)
+            axis.add_artist(_legend)
 
     @staticmethod
     def _generate_legend_id(prefix):

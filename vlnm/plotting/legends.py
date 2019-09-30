@@ -3,7 +3,9 @@ Module for handling legends.
 """
 
 from collections import OrderedDict
+from typing import Union
 
+from matplotlib.artist import Artist
 import matplotlib.pyplot as plt
 
 TRANSLATOR = dict(
@@ -41,21 +43,11 @@ def translate_legend_options(**options):
 
 class LegendGroup:
 
-    def __init__(self, parent=None):
+    def __init__(self):
         self.entries = OrderedDict()
-        self.parent = parent
-        self.options = {**parent.options} if parent else {}
 
     def add_entry(self, label, handle):
         self.entries[label] = handle
-
-    def update_options(self, **options):
-        self.options.update(**options)
-
-    def get_options(self, parent=True):
-        if parent and self.parent:
-            return {**self.parent.options, **self.options}
-        return self.options
 
     def values(self):
         return self.entries.values()
@@ -63,29 +55,42 @@ class LegendGroup:
     def keys(self):
         return self.entries.keys()
 
+    def get_entries(self, entry=None):
+        if not entry:
+            entries = self.entries.keys()
+        elif isinstance(entry, list):
+            entries = entry
+        else:
+            entries = [entry]
+
+        return [self.entries[name] for name in entries]
+
     def __getitem__(self, label):
         return self.entries[label]
 
 
 class LegendCollection:
 
-    def __init__(self, parent=None):
+    def __init__(self):
         self.groups = OrderedDict()
-        self.parent = parent
-        self.options = {**parent.options} if parent else {}
 
     def add_entry(self, group, label, handle):
         if not group in self.groups:
             self.groups[group] = LegendGroup(self)
         self.groups[group].add_entry(label, handle)
 
-    def update_options(self, **options):
-        self.options.update(**options)
+    def get_entries(self, group=None, entries=None):
+        if not group:
+            groups = list(self.groups.keys())
+        elif isinstance(group, list):
+            groups = group
+        else:
+            groups = [collection]
 
-    def get_options(self, parent=True):
-        if parent and self.parent:
-            return {**self.parent.options, **self.options}
-        return self.options
+        _entries = []
+        for name in self.groups:
+            _entries.extend(self.get_entries(entries))
+        return _entries
 
     def __getitem__(self, group):
         return self.groups[group]
@@ -97,44 +102,44 @@ class LegendCollection:
 
 class Legend:
 
-    def __init__(self, options=None):
+    def __init__(self):
         self.collection = OrderedDict()
-        self.options = options or {}
 
     def add_entry(self, collection_id, group, label, handle):
         if not collection_id in self.collection:
             self.collection[collection_id] = LegendCollection()
         self.collection[collection_id].add_entry(group, label, handle)
 
-    def update_options(self, collection_id=None, **options):
-        if collection_id:
-            if not collection_id in self.collection:
-                self.collection[collection_id] = LegendCollection()
-                self.collection[collection_id].update(**options)
+    def get_entries(self, collection=None, group=None, entries=None):
+
+        if not collection:
+            collections = list(self.collections.keys())
+        elif isinstance(collection, list):
+            collections = collection
         else:
-            self.options.update(**options)
+            collections = [collection]
 
-    def get_options(self, collection_id=None, group=None, **options):
-        if collection_id and group:
-            return translate_legend_options(
-                **self.collection[collection_id].groups[group].get_options(),
-                **options)
-        if collection_id:
-            return translate_legend_options(
-                **self.collection[collection_id].get_options(),
-                **options)
-        return translate_legend_options(**self.options, **options)
+        _entries = []
+        for name in collections:
+            entries.extend(self.collection[name].get_entries(group, entries))
 
-    def make_legend_artist(self, collection_id, group, **options):
-        options = self.get_options(collection_id, group, **options)
-        entries = self[collection_id][group].entries
-        title = options.pop('title', None)
-        legend_artist = plt.legend(
-            handles=list(entries.values()),
-            labels=list(entries.keys()),
-            title=title or group,
-            **options)
-        return legend_artist
+        return _entries
+
+    def make_legend_artist(
+            self,
+            collection: Union[str, list] = None,
+            group: Union[str, list] = None,
+            entries: Union[str, list] = None,
+            **options) -> Artist:
+        _entries = self.get_entries(collection, group, entries)
+        if _entries:
+            _labels, _handles = zip(*_entries)
+            artist = plt.legend(
+                handles=list(entries.values()),
+                labels=list(entries.keys()),
+                **translate_legend_options(options))
+            return artist
+        return None
 
     def __getitem__(self, collection_id):
         return self.collection[collection_id]
