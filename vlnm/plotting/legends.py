@@ -140,23 +140,20 @@ class Legend:
             collection: Union[str, list] = None,
             group: Union[str, list] = None,
             entries: Union[str, list] = None,
-            handle: Union[dict, Artist] = None,
+            entry: dict = None,
             **options) -> Artist:
-        _entries = self.get_entries(collection, group, entries)
-        if _entries:
-            _labels, _handles = zip(*_entries)
-            if handle:
-                if isinstance(handle, dict):
-                    for _handle in _handles:
-                        _handle.update(handle)
-                else:
-                    pass
-            _options = translate_legend_options(**options)
-            _artist = plt.legend(
-                handles=_handles,
-                labels=_labels,
-                **_options)
-            return _artist
+        legend_entries = self.get_entries(collection, group, entries)
+        if legend_entries:
+            labels, handles = zip(*legend_entries)
+            if entry:
+                for handle in handles:
+                    handle.update(entry)
+
+            options = translate_legend_options(**options)
+            options['handles'] = options.get('handles', handles)
+            options['labels'] = options.get('labels', labels)
+            artist = plt.legend(**options)
+            return artist
         return None
 
     def __getitem__(self, collection_id):
