@@ -150,10 +150,14 @@ class VowelPlot:
 
         set_plot(self)
 
+        self.plot_legend = Legend()
+
         self.settings = Settings(
             axis=dict(invert_axes=True),
             data=dict(data=data, x=x, y=y),
-            legend=legend if isinstance(legend, dict) else {},
+            legend=dict(
+                frameon=False,
+            ),
             markers={},
             labels={}
         )
@@ -278,17 +282,16 @@ class VowelPlot:
             for label in group_props[group]:
                 self.plot_legend.add_entry(
                     legend_id, group, label, artist(**group_props[group][label]))
-            self.plot_legend.update_options(legend_id=legend_id, **legend_options)
 
-    def legend(self, legend=None, group=None, **kwargs):
+    def legend(self, legend=None, group=None, entries=None, **kwargs):
         """Add a legend to the current axis.
         """
 
         with self.settings.scope(legend={**kwargs}):
             axis = self.axis
-            settings = self.settings['legend']
-            artist = self.plot_legend.make_legend_artist(legend, group, **settings)
-            axis.add_artist(_legend)
+            options = self.settings['legend']
+            artist = self.plot_legend.make_legend_artist(legend, group, entries, **options)
+            axis.add_artist(artist)
 
     @staticmethod
     def _generate_legend_id(prefix):

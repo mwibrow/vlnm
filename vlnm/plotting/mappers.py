@@ -22,7 +22,7 @@ class PropMapper:
             default: any = None):
         self.prop = prop
         self.default = default
-        if data and isinstance(mapping, list):
+        if data is not None and isinstance(mapping, list):
             try:
                 levels = data.unique()
             except AttributeError:

@@ -13,8 +13,14 @@ TRANSLATOR = dict(
         'bottom': dict(
             loc='upper center', bbox_to_anchor=(0.5, 0),
         ),
+        'bottom right': dict(
+            loc='lower left', bbox_to_anchor=(1, 0),
+        ),
         'top': dict(
             loc='lower center', bbox_to_anchor=(0.5, 1),
+        ),
+        'top right': dict(
+            loc='upper left', bbox_to_anchor=(1, 1),
         ),
         'right': dict(
             loc='center left', bbox_to_anchor=(1, 0.5)
@@ -38,6 +44,8 @@ def translate_legend_options(**options):
                     "Invalid value '{}' for legend option '{}'. Expected one of {}.".format(
                         value, key, ', '.join("'{}'".format(prop) for prop in TRANSLATOR[key])
                     ))
+        else:
+            legend_options[key] = value
     return legend_options
 
 
@@ -63,7 +71,7 @@ class LegendGroup:
         else:
             entries = [entry]
 
-        return [self.entries[name] for name in entries]
+        return [(name, self.entries[name]) for name in entries]
 
     def __getitem__(self, label):
         return self.entries[label]
@@ -76,7 +84,7 @@ class LegendCollection:
 
     def add_entry(self, group, label, handle):
         if not group in self.groups:
-            self.groups[group] = LegendGroup(self)
+            self.groups[group] = LegendGroup()
         self.groups[group].add_entry(label, handle)
 
     def get_entries(self, group=None, entries=None):
@@ -89,7 +97,7 @@ class LegendCollection:
 
         _entries = []
         for name in self.groups:
-            _entries.extend(self.get_entries(entries))
+            _entries.extend(self.groups[name].get_entries(entries))
         return _entries
 
     def __getitem__(self, group):
@@ -113,7 +121,7 @@ class Legend:
     def get_entries(self, collection=None, group=None, entries=None):
 
         if not collection:
-            collections = list(self.collections.keys())
+            collections = list(self.collection.keys())
         elif isinstance(collection, list):
             collections = collection
         else:
@@ -121,7 +129,7 @@ class Legend:
 
         _entries = []
         for name in collections:
-            entries.extend(self.collection[name].get_entries(group, entries))
+            _entries.extend(self.collection[name].get_entries(group, entries))
 
         return _entries
 
@@ -134,10 +142,11 @@ class Legend:
         _entries = self.get_entries(collection, group, entries)
         if _entries:
             _labels, _handles = zip(*_entries)
+            _options = translate_legend_options(**options)
             artist = plt.legend(
-                handles=list(entries.values()),
-                labels=list(entries.keys()),
-                **translate_legend_options(options))
+                handles=_handles,
+                labels=_labels,
+                **_options)
             return artist
         return None
 
