@@ -96,7 +96,7 @@ class LegendCollection:
             groups = [group]
 
         _entries = []
-        for name in self.groups:
+        for name in groups:
             _entries.extend(self.groups[name].get_entries(entries))
         return _entries
 
@@ -125,6 +125,8 @@ class Legend:
         elif isinstance(collection, list):
             collections = collection
         else:
+            if '.' in collection:
+                collection, group, entries = *collection.split('.'), None
             collections = [collection]
 
         _entries = []
@@ -138,16 +140,23 @@ class Legend:
             collection: Union[str, list] = None,
             group: Union[str, list] = None,
             entries: Union[str, list] = None,
+            handle: Union[dict, Artist] = None,
             **options) -> Artist:
         _entries = self.get_entries(collection, group, entries)
         if _entries:
             _labels, _handles = zip(*_entries)
+            if handle:
+                if isinstance(handle, dict):
+                    for _handle in _handles:
+                        _handle.update(handle)
+                else:
+                    pass
             _options = translate_legend_options(**options)
-            artist = plt.legend(
+            _artist = plt.legend(
                 handles=_handles,
                 labels=_labels,
                 **_options)
-            return artist
+            return _artist
         return None
 
     def __getitem__(self, collection_id):
