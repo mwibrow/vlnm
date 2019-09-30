@@ -63,15 +63,15 @@ class LegendGroup:
     def keys(self):
         return self.entries.keys()
 
-    def get_entries(self, entry=None):
-        if not entry:
-            entries = self.entries.keys()
-        elif isinstance(entry, list):
-            entries = entry
+    def get_entries(self, entries=None):
+        if not entries:
+            _entries = self.entries.keys()
+        elif isinstance(entries, list):
+            _entries = entries
         else:
-            entries = [entry]
+            _entries = [entries]
 
-        return [(name, self.entries[name]) for name in entries]
+        return [(name, self.entries[name]) for name in _entries]
 
     def __getitem__(self, label):
         return self.entries[label]
@@ -93,7 +93,7 @@ class LegendCollection:
         elif isinstance(group, list):
             groups = group
         else:
-            groups = [collection]
+            groups = [group]
 
         _entries = []
         for name in self.groups:
