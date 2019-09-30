@@ -283,14 +283,14 @@ class VowelPlot:
                 self.plot_legend.add_entry(
                     legend_id, group, label, artist(**group_props[group][label]))
 
-    def legend(self, legend=None, group=None, entries=None, **kwargs):
+    def legend(self, legend=None, group=None, labels=None, **kwargs):
         """Add a legend to the current axis.
         """
 
         with self.settings.scope(legend={**kwargs}):
             axis = self.axis
             options = self.settings['legend']
-            artist = self.plot_legend.make_legend_artist(legend, group, entries, **options)
+            artist = self.plot_legend.make_legend_artist(legend, group, labels, **options)
             axis.add_artist(artist)
 
     @staticmethod

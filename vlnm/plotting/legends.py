@@ -63,15 +63,15 @@ class LegendGroup:
     def keys(self):
         return self.entries.keys()
 
-    def get_entries(self, entries=None):
-        if not entries:
-            _entries = self.entries.keys()
-        elif isinstance(entries, list):
-            _entries = entries
+    def get_entries(self, labels=None):
+        if not labels:
+            entries = self.entries.keys()
+        elif isinstance(labels, list):
+            entries = labels
         else:
-            _entries = [entries]
+            entries = [labels]
 
-        return [(name, self.entries[name]) for name in _entries]
+        return [(name, self.entries[name]) for name in entries]
 
     def __getitem__(self, label):
         return self.entries[label]
@@ -87,7 +87,7 @@ class LegendCollection:
             self.groups[group] = LegendGroup()
         self.groups[group].add_entry(label, handle)
 
-    def get_entries(self, group=None, entries=None):
+    def get_entries(self, group=None, labels=None):
         if not group:
             groups = list(self.groups.keys())
         elif isinstance(group, list):
@@ -95,10 +95,10 @@ class LegendCollection:
         else:
             groups = [group]
 
-        _entries = []
+        entries = []
         for name in groups:
-            _entries.extend(self.groups[name].get_entries(entries))
-        return _entries
+            entries.extend(self.groups[name].get_entries(labels))
+        return entries
 
     def __getitem__(self, group):
         return self.groups[group]
@@ -118,7 +118,7 @@ class Legend:
             self.collection[collection_id] = LegendCollection()
         self.collection[collection_id].add_entry(group, label, handle)
 
-    def get_entries(self, collection=None, group=None, entries=None):
+    def get_entries(self, collection=None, group=None, labels=None):
 
         if not collection:
             collections = list(self.collection.keys())
@@ -131,7 +131,7 @@ class Legend:
 
         _entries = []
         for name in collections:
-            _entries.extend(self.collection[name].get_entries(group, entries))
+            _entries.extend(self.collection[name].get_entries(group, labels))
 
         return _entries
 
@@ -139,10 +139,10 @@ class Legend:
             self,
             collection: Union[str, list] = None,
             group: Union[str, list] = None,
-            entries: Union[str, list] = None,
+            labels: Union[str, list] = None,
             entry: dict = None,
             **options) -> Artist:
-        legend_entries = self.get_entries(collection, group, entries)
+        legend_entries = self.get_entries(collection, group, labels)
         if legend_entries:
             labels, handles = zip(*legend_entries)
             if entry:
