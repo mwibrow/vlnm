@@ -58,15 +58,9 @@ class LegendGroup:
     def add_entry(self, label, handle):
         self.entries[label] = handle
 
-    def values(self):
-        return self.entries.values()
-
-    def keys(self):
-        return self.entries.keys()
-
     def get_entries(self, labels=None, remove=False):
         if not labels:
-            labels = self.entries.keys()
+            labels = list(self.entries.keys())
         elif not isinstance(labels, list):
             labels = [labels]
 
@@ -74,6 +68,8 @@ class LegendGroup:
 
         for label in labels:
             entries[label] = self.entries.pop(label) if remove else self.entries[label]
+
+        return entries
 
     def __getitem__(self, label):
         return self.entries[label]
