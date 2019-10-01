@@ -127,9 +127,9 @@ class Legend:
                 collection, group, entries = *collection.split('.'), None
             collections = [collection]
 
-        _entries = []
+        _entries = OrderedDict()
         for name in collections:
-            _entries.extend(self.collection[name].get_entries(group, labels))
+            _entries.update(**self.collection[name].get_entries(group, labels))
             if remove:
                 del self.collection[name]
         return _entries
@@ -143,7 +143,7 @@ class Legend:
             **options) -> Artist:
         legend_entries = self.get_entries(collection, group, labels)
         if legend_entries:
-            labels, handles = zip(*legend_entries)
+            labels, handles = zip(*legend_entries.items())
             if entry:
                 for handle in handles:
                     handle.update(entry)

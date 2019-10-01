@@ -4,6 +4,7 @@ Tests for the vlnm.plotting.legends module
 """
 
 import unittest
+import unittest.mock as mock
 
 from vlnm.plotting.legends import (
     Legend,
@@ -113,7 +114,7 @@ class TestLegendCollection(unittest.TestCase):
     """Tests for the LegendCollection class"""
 
     def test_init(self):
-        """Initialise without error."""
+        """Initialise without error"""
         collection = LegendCollection()
         self.assertDictEqual(collection.groups, {})
 
@@ -213,12 +214,90 @@ class TestLegend(unittest.TestCase):
             legend['collection1']['group1']['label1'], 'handle1')
 
     def test_bool_false(self):
-        """Empty collection is falsey."""
+        """Empty collection is falsey"""
         legend = Legend()
         self.assertFalse(legend)
 
     def test_bool_true(self):
-        """Collection with groups is truthy."""
+        """Collection with groups is truthy"""
         legend = Legend()
         legend.add_entry('collection1', 'group1', 'label1', 'handle1')
         self.assertTrue(legend)
+
+    def test_get_entries_all(self):
+        """Retrieve all entries from all collections"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1-1', 'label1-1-1', 'handle1-1-1')
+        legend.add_entry('collection1', 'group1-2', 'label1-2-1', 'handle1-2-1')
+        legend.add_entry('collection2', 'group2-1', 'label2-1-1', 'handle2-1-1')
+        entries = legend.get_entries()
+        self.assertDictEqual(entries, {
+            'label1-1-1': 'handle1-1-1',
+            'label1-2-1': 'handle1-2-1',
+            'label2-1-1': 'handle2-1-1'
+        })
+
+    def test_get_entries_list(self):
+        """Retrieve all entries from list of collections"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1-1', 'label1-1-1', 'handle1-1-1')
+        legend.add_entry('collection1', 'group1-2', 'label1-2-1', 'handle1-2-1')
+        legend.add_entry('collection2', 'group2-1', 'label2-1-1', 'handle2-1-1')
+        entries = legend.get_entries(['collection2'])
+        self.assertDictEqual(entries, {
+            'label2-1-1': 'handle2-1-1'
+        })
+
+    def test_get_entries_name(self):
+        """Retrieve all entries from specific collections"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1-1', 'label1-1-1', 'handle1-1-1')
+        legend.add_entry('collection1', 'group1-2', 'label1-2-1', 'handle1-2-1')
+        legend.add_entry('collection2', 'group2-1', 'label2-1-1', 'handle2-1-1')
+        entries = legend.get_entries('collection1')
+        self.assertDictEqual(entries, {
+            'label1-1-1': 'handle1-1-1',
+            'label1-2-1': 'handle1-2-1',
+        })
+
+    def test_get_entries_dot(self):
+        """Retrieve all entries using dot notation"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1-1', 'label1-1-1', 'handle1-1-1')
+        legend.add_entry('collection1', 'group1-2', 'label1-2-1', 'handle1-2-1')
+        legend.add_entry('collection2', 'group2-1', 'label2-1-1', 'handle2-1-1')
+        entries = legend.get_entries('collection1.group1-2')
+        self.assertDictEqual(entries, {
+            'label1-2-1': 'handle1-2-1',
+        })
+
+    def test_remove_entries_all(self):
+        """Remove all entries from all collections"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1-1', 'label1-1-1', 'handle1-1-1')
+        legend.add_entry('collection1', 'group1-2', 'label1-2-1', 'handle1-2-1')
+        legend.add_entry('collection2', 'group2-1', 'label2-1-1', 'handle2-1-1')
+        removed = legend.get_entries().copy()
+        entries = legend.get_entries(remove=True)
+        self.assertDictEqual(entries, removed)
+        self.assertFalse(legend)
+
+    @mock.patch('matplotlib.pyplot.legend')
+    def test_make_legend_artist_empty(self, mock_legend):
+        """No entries returns none"""
+        legend = Legend()
+        artist = legend.make_legend_artist()
+        self.assertIsNone(artist)
+
+    @mock.patch('matplotlib.pyplot.legend')
+    def test_make_legend_artist(self, mock_legend):
+        """Return artist if entries in the legend collection"""
+
+        legend = Legend()
+        legend.add_entry('collection1', 'group1', 'label1', 'handle1')
+        artist = legend.make_legend_artist()
+        self.assertIsNotNone(artist)
+        mock_legend.assert_called_with(
+            handles=('handle1',),
+            labels=('label1',)
+        )
