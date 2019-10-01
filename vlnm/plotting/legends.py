@@ -94,19 +94,15 @@ class LegendCollection:
         else:
             groups = [group]
 
-        entries = []
+        entries = OrderedDict()
         for name in groups:
-            entries.extend(self.groups[name].get_entries(labels))
+            entries.update(**self.groups[name].get_entries(labels))
             if remove:
                 del self.groups[name]
         return entries
 
     def __getitem__(self, group):
         return self.groups[group]
-
-    def __iter__(self):
-        for group in self.groups:
-            yield group
 
 
 class Legend:

@@ -107,3 +107,118 @@ class TestLegendGroup(unittest.TestCase):
         entries = group.get_entries('label2', remove=True)
         self.assertDictEqual(entries, removed)
         self.assertEqual(len(group.entries), 1)
+
+
+class TestLegendCollection(unittest.TestCase):
+    """Tests for the LegendCollection class"""
+
+    def test_init(self):
+        """Initialise without error."""
+        collection = LegendCollection()
+        self.assertDictEqual(collection.groups, {})
+
+    def test_add_entry(self):
+        """Add an entry to the collection"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1', 'handle1')
+        self.assertEqual(collection.groups['group1'].entries['label1'], 'handle1')
+
+    def test_get_item(self):
+        """Retrieve group using []"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1', 'handle1')
+        self.assertEqual(collection['group1']['label1'], 'handle1')
+
+    def test_get_entries_all(self):
+        """Retrieve all entries from all groups"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1-1', 'handle1-1')
+        collection.add_entry('group1', 'label1-2', 'handle1-2')
+        collection.add_entry('group2', 'label2-1', 'handle2-1')
+        entries = collection.get_entries()
+        self.assertDictEqual(entries, {
+            'label1-1': 'handle1-1',
+            'label1-2': 'handle1-2',
+            'label2-1': 'handle2-1'
+        })
+
+    def test_get_entries_group(self):
+        """Retrieve all entries from a group"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1-1', 'handle1-1')
+        collection.add_entry('group1', 'label1-2', 'handle1-2')
+        collection.add_entry('group2', 'label2-1', 'handle2-1')
+        entries = collection.get_entries('group1')
+        self.assertDictEqual(entries, {
+            'label1-1': 'handle1-1',
+            'label1-2': 'handle1-2',
+        })
+
+    def test_get_entries_group_entry(self):
+        """Retrieve specific entry from a group"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1-1', 'handle1-1')
+        collection.add_entry('group1', 'label1-2', 'handle1-2')
+        collection.add_entry('group2', 'label2-1', 'handle2-1')
+        entries = collection.get_entries('group1', 'label1-2')
+        self.assertDictEqual(entries, {
+            'label1-2': 'handle1-2',
+        })
+
+    def test_get_entries_group_list(self):
+        """Retrieve entries from groups"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1-1', 'handle1-1')
+        collection.add_entry('group1', 'label1-2', 'handle1-2')
+        collection.add_entry('group2', 'label2-1', 'handle2-1')
+        collection.add_entry('group3', 'label3-1', 'handle3-1')
+        entries = collection.get_entries(['group1', 'group3'])
+        self.assertDictEqual(entries, {
+            'label1-1': 'handle1-1',
+            'label1-2': 'handle1-2',
+            'label3-1': 'handle3-1',
+        })
+
+    def test_get_entries_all_remove(self):
+        """Remove all entries from all groups"""
+        collection = LegendCollection()
+        collection.add_entry('group1', 'label1-1', 'handle1-1')
+        collection.add_entry('group1', 'label1-2', 'handle1-2')
+        collection.add_entry('group2', 'label2-1', 'handle2-1')
+        removed = collection.get_entries().copy()
+        entries = collection.get_entries(remove=True)
+        self.assertDictEqual(entries, removed)
+
+
+class TestLegend(unittest.TestCase):
+    """Tests for the Legend class"""
+
+    def test_init(self):
+        """Initialise without error"""
+        legend = Legend()
+        self.assertDictEqual(legend.collection, {})
+
+    def test_add_entry(self):
+        """Add an entry to the legend"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1', 'label1', 'handle1')
+        self.assertEqual(
+            legend.collection['collection1'].groups['group1'].entries['label1'], 'handle1')
+
+    def test_get_item(self):
+        """Retrieve entry using []"""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1', 'label1', 'handle1')
+        self.assertEqual(
+            legend['collection1']['group1']['label1'], 'handle1')
+
+    def test_bool_false(self):
+        """Empty collection is falsey."""
+        legend = Legend()
+        self.assertFalse(legend)
+
+    def test_bool_true(self):
+        """Collection with groups is truthy."""
+        legend = Legend()
+        legend.add_entry('collection1', 'group1', 'label1', 'handle1')
+        self.assertTrue(legend)
