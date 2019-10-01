@@ -64,15 +64,16 @@ class LegendGroup:
     def keys(self):
         return self.entries.keys()
 
-    def get_entries(self, labels=None):
+    def get_entries(self, labels=None, remove=False):
         if not labels:
-            entries = self.entries.keys()
-        elif isinstance(labels, list):
-            entries = labels
-        else:
-            entries = [labels]
+            labels = self.entries.keys()
+        elif not isinstance(labels, list):
+            labels = [labels]
 
-        return [(name, self.entries[name]) for name in entries]
+        entries = OrderedDict()
+
+        for label in labels:
+            entries[label] = self.entries.pop(label) if remove else self.entries[label]
 
     def __getitem__(self, label):
         return self.entries[label]
@@ -89,7 +90,7 @@ class LegendCollection:
             self.groups[group] = LegendGroup()
         self.groups[group].add_entry(label, handle)
 
-    def get_entries(self, group=None, labels=None):
+    def get_entries(self, group=None, labels=None, remove=False):
         if not group:
             groups = list(self.groups.keys())
         elif isinstance(group, list):
@@ -100,6 +101,8 @@ class LegendCollection:
         entries = []
         for name in groups:
             entries.extend(self.groups[name].get_entries(labels))
+            if remove:
+                del self.groups[name]
         return entries
 
     def __getitem__(self, group):
@@ -111,6 +114,7 @@ class LegendCollection:
 
 
 class Legend:
+    """Class for managing legends in the vowel plot."""
 
     def __init__(self):
         self.collection = OrderedDict()
@@ -120,7 +124,7 @@ class Legend:
             self.collection[collection_id] = LegendCollection()
         self.collection[collection_id].add_entry(group, label, handle)
 
-    def get_entries(self, collection=None, group=None, labels=None):
+    def get_entries(self, collection=None, group=None, labels=None, remove=False):
 
         if not collection:
             collections = list(self.collection.keys())
@@ -134,7 +138,8 @@ class Legend:
         _entries = []
         for name in collections:
             _entries.extend(self.collection[name].get_entries(group, labels))
-
+            if remove:
+                del self.collection[name]
         return _entries
 
     def make_legend_artist(

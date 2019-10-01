@@ -80,21 +80,9 @@ def ellipses(*args, **kwargs):
 
 
 @require_vowel_plot
-@contextmanager
 def legend(**kwargs):
     plot = kwargs.pop('_plot')
-    legend_options = plot.legend_options
-    plot_context_legend = plot.plot_context.get('legend', False)
-    plot.plot_context['legend'] = True
-    try:
-        plot.legend_options.update(**kwargs)
-        yield plot
-    finally:
-        legend_id = list(plot.plot_legend.collection.keys())[-1]
-        plot.legend(legend_id)
-        plot.legend_options = legend_options
-        del plot.plot_legend.collection[legend_id]
-        plot.plot_context['legend'] = plot_context_legend
+    plot.legend(**kwargs)
 
 
 @require_vowel_plot
