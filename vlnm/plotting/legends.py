@@ -58,7 +58,7 @@ class LegendGroup:
     def add_entry(self, label, handle):
         self.entries[label] = handle
 
-    def get_entries(self, labels=None, remove=False):
+    def get_entries(self, labels=None, remove=False) -> OrderedDict:
         if not labels:
             labels = list(self.entries.keys())
         elif not isinstance(labels, list):
@@ -86,7 +86,7 @@ class LegendCollection:
             self.groups[group] = LegendGroup()
         self.groups[group].add_entry(label, handle)
 
-    def get_entries(self, group=None, labels=None, remove=False):
+    def get_entries(self, group=None, labels=None, remove=False) -> OrderedDict:
         if not group:
             groups = list(self.groups.keys())
         elif isinstance(group, list):
