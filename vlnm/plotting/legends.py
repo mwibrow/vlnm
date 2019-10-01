@@ -50,6 +50,7 @@ def translate_legend_options(**options):
 
 
 class LegendGroup:
+    """Contains the legend entries for a particular grouping in a vowel plot element."""
 
     def __init__(self):
         self.entries = OrderedDict()
@@ -78,6 +79,7 @@ class LegendGroup:
 
 
 class LegendCollection:
+    """Contains the legend entries for all the groups used in a vowel plot element."""
 
     def __init__(self):
         self.groups = OrderedDict()

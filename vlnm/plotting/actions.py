@@ -7,7 +7,27 @@ from functools import wraps
 
 import pandas as pd
 
-from .plots import VowelPlot, get_plot
+from .plots import VowelPlot
+
+
+VOWEL_PLOT = None
+
+__VOWEL_PLOT_SETTINGS = Settings()
+
+
+def get_plot():
+    global VOWEL_PLOT
+    return VOWEL_PLOT
+
+
+def set_plot(plot):
+    global VOWEL_PLOT
+    VOWEL_PLOT = plot
+
+
+def get_settings():
+    global __VOWEL_PLOT_SETTINGS
+    return __VOWEL_PLOT_SETTINGS
 
 
 def require_vowel_plot(func):

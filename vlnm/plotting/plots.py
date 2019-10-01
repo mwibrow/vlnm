@@ -43,25 +43,6 @@ def use_style(style):
     mstyle.use(style)
 
 
-VOWEL_PLOT = None
-
-__VOWEL_PLOT_SETTINGS = Settings()
-
-
-def get_plot():
-    global VOWEL_PLOT
-    return VOWEL_PLOT
-
-
-def set_plot(plot):
-    global VOWEL_PLOT
-    VOWEL_PLOT = plot
-
-
-def get_settings():
-    global __VOWEL_PLOT_SETTINGS
-
-
 def get_prop_mappers(df, context):
     prop_mappers = {}
     params = {}
@@ -95,10 +76,6 @@ def get_prop_mappers(df, context):
     return prop_mappers, params
 
 
-def update_axis_limits(axis: Axis, x, y):
-    pass
-
-
 class VowelPlot:
     """
     Class for managing vowel plots.
@@ -118,7 +95,7 @@ class VowelPlot:
             plot.markers(color_by='vowel', colors='tab20')
             plot.labels(where='mean')
 
-        ### plot.figure
+
     """
 
     def __init__(
@@ -140,17 +117,11 @@ class VowelPlot:
         self.width, self.height = self.figure.get_size_inches()
         self.rows, self.columns = rows, columns
 
-        self.axis = None
-        self.legends = {}
-        self._legend = Legend()
-
         self.axes = None
         if figure:
-            self.axes = axes
+            self.axes = axes or figure.get_axes()
 
-        set_plot(self)
-
-        self.plot_legend = Legend()
+        self.legends = Legend()
 
         self.settings = Settings(
             axis=dict(invert_axes=True),
@@ -176,13 +147,6 @@ class VowelPlot:
         if exc_type:
             return False
         return self.end_plot()
-
-    def __call__(self, **kwargs):
-        return self.context(**kwargs)
-
-    def context(self, **kwargs):
-        self.plot_context = merge(self.plot_context, kwargs)
-        return self
 
     def start_plot(self):
         return self
@@ -290,7 +254,7 @@ class VowelPlot:
         with self.settings.scope(legend={**kwargs}):
             axis = self.axis
             options = self.settings['legend']
-            artist = self.plot_legend.make_legend_artist(legend, group, labels, **options)
+            artist = self.legends.make_legend_artist(legend, group, labels, **options)
             axis.add_artist(artist)
 
     @staticmethod
