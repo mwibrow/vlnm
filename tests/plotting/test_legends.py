@@ -301,3 +301,12 @@ class TestLegend(unittest.TestCase):
             handles=('handle1',),
             labels=('label1',)
         )
+
+    @mock.patch('matplotlib.pyplot.legend', new=lambda **kwargs: kwargs)
+    def test_make_legend_artist_modify(self):
+        """Modify artist in the legend collection"""
+        legend = Legend()
+        # Exploit fact that dict has update method.
+        legend.add_entry('collection1', 'group1', 'label1', {'key': 'value'})
+        artist = legend.make_legend_artist(entry=dict(key='alternative'))
+        self.assertEqual(artist['handles'][0]['key'], 'alternative')
