@@ -63,9 +63,20 @@ class PlotElement:
 class VowelPlotPlotElement(PlotElement):
 
     def __call__(self, *args, **kwargs):
+        self.begin(*args, **kwargs)
+
+    def begin(self, *args, **kwargs):
         if PlotElement._plot:
             raise ValueError('Vowel plots cannot be nested')
         PlotElement._plot = VowelPlot(*args, **kwargs)
+        return self
+
+    def end(self):  # pylint: disable=no-self-use
+        plot = PlotElement._plot
+        plot.legend()
+        figure = plot.figure
+        PlotElement._plot = None
+        return figure
 
     def __enter__(self):
         return self
@@ -73,11 +84,25 @@ class VowelPlotPlotElement(PlotElement):
     def __exit__(self, exc_type, *_):
         if exc_type:
             return False
-        plot = PlotElement._plot
-        plot.legend()
-        figure = plot.figure
-        PlotElement._plot = None
-        return figure
+        return self
+
+
+@singleton
+class DataPlotElement(PlotElement):
+
+    def __call__(self, *args, **kwargs):
+        super().__call__()
+        settings = PlotElement._plot.settings
+        settings.push(*args, **kwargs)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, *_):
+        if exc_type:
+            return False
+        settings = PlotElement._plot.settings
+        return settings.pop()
 
 
 @singleton
@@ -118,6 +143,7 @@ class PolygonPlotElement(PlotElement):
 
 # pylint: disable=invalid-name
 vowelplot = VowelPlotPlotElement()
+data = DataPlotElement()
 lables = LabelsPlotElement()
 markers = MarkersPlotElement()
 ellipses = EllipsesPlotElement()
