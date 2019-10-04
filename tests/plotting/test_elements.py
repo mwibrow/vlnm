@@ -4,10 +4,12 @@ Tests for the vlnm.plotting.elements module
 """
 
 import unittest
-
+from unittest.mock import patch
 from vlnm.plotting.elements import (
     bind,
     singleton,
+    MarkersPlotElement,
+    VowelPlotPlotElement,
 )
 
 
@@ -66,3 +68,29 @@ class TestBind(unittest.TestCase):
         value = obj()
         self.assertEqual(value, 'value')
         self.assertTrue(Parent.called)
+
+
+class TestMarkersPlotElement(unittest.TestCase):
+    """Tests for the MarkersPlotElement class"""
+
+    def test_is_singleton(self):
+        """Class is singleton"""
+        objId = id(MarkersPlotElement())
+        self.assertTrue(all(
+            id(MarkersPlotElement()) == objId
+            for _ in range(10)))
+
+    def test_no_vowel_plot(self):
+        """No vowel plot raises error"""
+        with self.assertRaises(ValueError):
+            markers = MarkersPlotElement()
+            markers()
+
+    # @patch('vlnm.plotting.VowelPlot')
+    # def test_call(self, mockMarkers):
+    #     """VowelPlot.markers called"""
+
+    #     with VowelPlotPlotElement().begin():
+    #         markers = MarkersPlotElement()
+    #         markers(color_by='vowel', colors='black')
+    #         mockMarkers.assert_called_once()

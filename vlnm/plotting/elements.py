@@ -22,7 +22,7 @@ def singleton(cls: Generic[T]) -> Generic[T]:
     def new(cls: Generic[T], *args, **kwargs) -> Generic[T]:
         if getattr(cls, instance) is None:
             setattr(cls, instance, object.__new__(cls, *args, **kwargs))
-        return cls
+        return getattr(cls, instance)
     cls.__new__ = new
     return cls
 
@@ -35,7 +35,7 @@ def bind(bindable: Callable, to='__call__') -> Callable:
                 getattr(super(obj.__class__, obj), to)(*args, **kwargs)
             except AttributeError:
                 pass
-            return bindable(obj, *args, **kwargs)
+            return bindable(obj._plot, *args, **kwargs)
         setattr(cls, to, call)
         return cls
     return wrapper
