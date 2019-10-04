@@ -79,12 +79,12 @@ class VowelPlotPlotElement(PlotElement):
         return figure
 
     def __enter__(self):
-        return self
+        return self.begin()
 
     def __exit__(self, exc_type, *_):
         if exc_type:
             return False
-        return self
+        return self.end()
 
 
 @singleton

@@ -4,10 +4,11 @@ Tests for the vlnm.plotting.elements module
 """
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import (MagicMock, patch)
 from vlnm.plotting.elements import (
     bind,
     singleton,
+    PlotElement,
     MarkersPlotElement,
     VowelPlotPlotElement,
 )
@@ -70,6 +71,39 @@ class TestBind(unittest.TestCase):
         self.assertTrue(Parent.called)
 
 
+class TestVowelPlotPlotElement(unittest.TestCase):
+    """Tests for the VowelPlotPlotElement."""
+
+    def setUp(self):
+        self.patcher = patch('vlnm.plotting.elements.VowelPlot')
+        self.mock_vowelplot_class = self.patcher.start()
+        self.mock_vowelplot = MagicMock()
+        self.mock_vowelplot_class.return_value = self.mock_vowelplot
+
+    def tearDown(self):
+        self.patcher.stop()
+
+    def test_begin_end(self):
+        """Test begin and end"""
+        plot = VowelPlotPlotElement()
+        plot.begin()
+        plot.end()
+        self.mock_vowelplot.legend.assert_called_once()
+
+    def test_context_manager(self):
+        """VowelPlot legend called"""
+        with VowelPlotPlotElement():
+            pass
+        self.mock_vowelplot.legend.assert_called_once()
+
+    def test_nested(self):
+        """Nested plot raises error"""
+        with self.assertRaises(ValueError):
+            with VowelPlotPlotElement():
+                with VowelPlotPlotElement():
+                    pass
+
+
 class TestMarkersPlotElement(unittest.TestCase):
     """Tests for the MarkersPlotElement class"""
 
@@ -86,11 +120,11 @@ class TestMarkersPlotElement(unittest.TestCase):
             markers = MarkersPlotElement()
             markers()
 
-    # @patch('vlnm.plotting.VowelPlot')
-    # def test_call(self, mockMarkers):
-    #     """VowelPlot.markers called"""
-
-    #     with VowelPlotPlotElement().begin():
-    #         markers = MarkersPlotElement()
-    #         markers(color_by='vowel', colors='black')
-    #         mockMarkers.assert_called_once()
+    @patch('vlnm.plotting.VowelPlot')
+    def test_call(self, mockVowelPlot):
+        """VowelPlot.markers called"""
+        print('HERE', mockVowelPlot)
+        # with VowelPlotPlotElement().begin():
+        #     markers = MarkersPlotElement()
+        # markers(color_by='vowel', colors='black')
+        # mockMarkers.assert_called_once()
