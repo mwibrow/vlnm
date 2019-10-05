@@ -27,7 +27,7 @@ def singleton(cls: Generic[T]) -> Generic[T]:
     return cls
 
 
-def bind(bindable: Callable, instance='_plot', to='__call__') -> Callable:
+def bind(bindable: Callable, to='__call__') -> Callable:
     """Bind a callable to an instance method (default `__call__`)."""
     def wrapper(cls: Generic[U]) -> Generic[U]:
         def call(obj, *args, **kwargs):
@@ -35,7 +35,7 @@ def bind(bindable: Callable, instance='_plot', to='__call__') -> Callable:
                 getattr(super(obj.__class__, obj), to)(*args, **kwargs)
             except AttributeError:
                 pass
-            return bindable(getattr(obj, instance), *args, **kwargs)
+            return getattr(gcp(), bindable.__name__)(*args, **kwargs)
         setattr(cls, to, call)
         return cls
     return wrapper
@@ -53,12 +53,10 @@ class PlotElement:
 
     @classmethod
     def gcp(cls):
-        assert cls == PlotElement, 'Method not callable from child classes'
         return PlotElement._plot
 
     @classmethod
     def scp(cls, plot):
-        assert cls == PlotElement, 'Method not callable from child classes'
         PlotElement._plot = plot
 
     def __call__(self, *args, **kwargs):
@@ -146,6 +144,14 @@ class ContourPlotElement(PlotElement):
 @bind(VowelPlot.polygon)
 class PolygonPlotElement(PlotElement):
     pass
+
+
+def gcp():
+    return PlotElement.gcp()
+
+
+def scp(plot=None):
+    PlotElement.scp(plot)
 
 
 # pylint: disable=invalid-name

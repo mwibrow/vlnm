@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import (MagicMock, patch)
 from vlnm.plotting.elements import (
     bind,
+    gcp,
     singleton,
     PlotElement,
     MarkersPlotElement,
@@ -109,6 +110,7 @@ class TestMarkersPlotElement(unittest.TestCase):
 
     def setUp(self):
         PlotElement.scp(None)
+        self.mock_vowelplot = MagicMock()
 
     def tearDown(self):
         PlotElement.scp(None)
@@ -123,15 +125,28 @@ class TestMarkersPlotElement(unittest.TestCase):
     def test_no_vowel_plot(self):
         """No vowel plot raises error"""
         with self.assertRaises(ValueError):
-            markers = MarkersPlotElement()
-            markers()
+            MarkersPlotElement()()
 
     @patch('vlnm.plotting.elements.VowelPlot')
     def test_call(self, mock_vowelplot_class):
         """VowelPlot.markers called"""
-        mock_vowelplot = MagicMock()
-        mock_vowelplot_class.return_value = mock_vowelplot
+        mock_vowelplot_class.return_value = self.mock_vowelplot
+        self.mock_vowelplot.markers = MagicMock()
+        kwargs = dict(color_by='vowel', colors='black')
         VowelPlotPlotElement().begin()
+        MarkersPlotElement()(**kwargs)
+        self.mock_vowelplot.markers.assert_called_with(**kwargs)
 
-        markers = MarkersPlotElement()
-        markers(color_by='vowel', colors='black')
+
+def mkcls(klass):
+    class TestKlass(unittest.TestCase):
+        def test_no_vowel_plot(self):
+            """ValueError if no vowel plot"""
+            with self.assertRaises(ValueError):
+                klass()()
+
+    TestKlass.__qualname__ = TestKlass.__name__ = 'Test' + klass.__name__
+    return TestKlass
+
+
+TestMarkersPlot = mkcls(MarkersPlotElement)
