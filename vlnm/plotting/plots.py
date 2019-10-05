@@ -334,7 +334,7 @@ class VowelPlot:
 
         return self
 
-    def polygon(
+    def polygons(
             self,
             point: Union[str, int],
             points: list = None,
@@ -443,7 +443,7 @@ class VowelPlot:
 
         return self
 
-    def contour(
+    def contours(
             self,
             data: pd.DataFrame = None,
             x: str = None,

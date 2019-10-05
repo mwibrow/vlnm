@@ -149,22 +149,22 @@ class EllipsesPlotElement(PlotElement):
 
 
 @singleton
-@bind_vowelplot_method(VowelPlot.contour)
-class ContourPlotElement(PlotElement):
+@bind_vowelplot_method(VowelPlot.contours)
+class ContoursPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind_vowelplot_method(VowelPlot.polygon)
-class PolygonPlotElement(PlotElement):
+@bind_vowelplot_method(VowelPlot.polygons)
+class PolygonsPlotElement(PlotElement):
     pass
 
 
 # pylint: disable=invalid-name
 vowelplot = VowelPlotPlotElement()
 data = DataPlotElement()
-lables = LabelsPlotElement()
+labels = LabelsPlotElement()
 markers = MarkersPlotElement()
 ellipses = EllipsesPlotElement()
-contour = ContourPlotElement()
-polygon = PolygonPlotElement()
+contours = ContoursPlotElement()
+polygons = PolygonsPlotElement()

@@ -9,7 +9,12 @@ from vlnm.plotting.elements import (
     bind,
     singleton,
     PlotElement,
+    ContoursPlotElement,
+    PolygonsPlotElement,
+    LegendPlotElement,
     MarkersPlotElement,
+    LabelsPlotElement,
+    EllipsesPlotElement,
     VowelPlotPlotElement,
 )
 
@@ -110,34 +115,46 @@ class TestVowelPlotPlotElement(unittest.TestCase):
                     pass
 
 
-class TestMarkersPlotElement(unittest.TestCase):
-    """Tests for the MarkersPlotElement class"""
+def test_factory(klass, method):
+    class TestKlass(unittest.TestCase):
 
-    def setUp(self):
-        PlotElement.set_plot(None)
-        self.mock_vowelplot = MagicMock()
+        def setUp(self):
+            PlotElement.set_plot(None)
+            self.mock_vowelplot = MagicMock()
 
-    def tearDown(self):
-        PlotElement.set_plot(None)
+        def tearDown(self):
+            PlotElement.set_plot(None)
 
-    def test_is_singleton(self):
-        """Class is singleton"""
-        objId = id(MarkersPlotElement())
-        self.assertTrue(all(
-            id(MarkersPlotElement()) == objId
-            for _ in range(10)))
+        def test_is_singleton(self):
+            """Class is singleton"""
+            objId = id(klass())
+            self.assertTrue(all(
+                id(klass()) == objId
+                for _ in range(10)))
 
-    def test_no_vowel_plot(self):
-        """No vowel plot raises error"""
-        with self.assertRaises(ValueError):
-            MarkersPlotElement()()
+        def test_no_vowel_plot(self):
+            """No vowel plot raises error"""
+            with self.assertRaises(ValueError):
+                klass()()
 
-    @patch('vlnm.plotting.elements.VowelPlot')
-    def test_call(self, mock_vowelplot_class):
-        """VowelPlot.markers called"""
-        mock_vowelplot_class.return_value = self.mock_vowelplot
-        self.mock_vowelplot.markers = MagicMock()
-        kwargs = dict(color_by='vowel', colors='black')
-        VowelPlotPlotElement().begin()
-        MarkersPlotElement()(**kwargs)
-        self.mock_vowelplot.markers.assert_called_with(**kwargs)
+        @patch('vlnm.plotting.elements.VowelPlot')
+        def test_call(self, mock_vowelplot_class):
+            """VowelPlot method called"""
+            mock_vowelplot_class.return_value = self.mock_vowelplot
+            setattr(self.mock_vowelplot, method, MagicMock())
+            kwargs = dict(color_by='vowel', colors='black')
+            VowelPlotPlotElement().begin()
+            klass()(**kwargs)
+            getattr(self.mock_vowelplot, method).assert_called_with(**kwargs)
+
+    TestKlass.__qualname__ = TestKlass.__name__ = 'Test{}'.format(klass.__name__)
+    TestKlass.__doc__ = """Tests for the {} class""".format(klass.__name__)
+    return TestKlass
+
+
+TestContoursPlotElement = test_factory(ContoursPlotElement, 'contours')
+TestEllipsesPlotElement = test_factory(EllipsesPlotElement, 'ellipses')
+TestLabelsPlotElement = test_factory(LabelsPlotElement, 'labels')
+TestMarkersPlotElement = test_factory(MarkersPlotElement, 'markers')
+TestPolygonsPlotElement = test_factory(PolygonsPlotElement, 'polygons')
+TestLegendPlotElement = test_factory(LegendPlotElement, 'legend')
