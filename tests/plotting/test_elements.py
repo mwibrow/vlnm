@@ -37,7 +37,22 @@ class TestSingleton(unittest.TestCase):
 class TestBind(unittest.TestCase):
     """Tests for the bind decorator"""
 
-    def test_bind(self):
+    def test_bind_function(self):
+        """Correctly bind to function"""
+
+        def to_bind():
+            return 'value'
+
+        @bind(to_bind)
+        class Klass:
+            def __call__(self):
+                pass
+
+        obj = Klass()
+        value = obj()
+        self.assertEqual(value, 'value')
+
+    def test_bind_method(self):
         """Correctly bind to method"""
 
         class Bindable:
@@ -101,6 +116,13 @@ class TestVowelPlotPlotElement(unittest.TestCase):
         plot.end()
         self.mock_vowelplot.legend.assert_called_once()
 
+    def test_call(self):
+        """Test begin with __call__"""
+        plot = VowelPlotPlotElement()
+        plot()
+        plot.end()
+        self.mock_vowelplot.legend.assert_called_once()
+
     def test_context_manager(self):
         """VowelPlot legend called"""
         with VowelPlotPlotElement():
@@ -115,7 +137,7 @@ class TestVowelPlotPlotElement(unittest.TestCase):
                     pass
 
 
-def test_factory(klass, method):
+def factory(klass, method):
     class TestKlass(unittest.TestCase):
 
         def setUp(self):
@@ -152,9 +174,9 @@ def test_factory(klass, method):
     return TestKlass
 
 
-TestContoursPlotElement = test_factory(ContoursPlotElement, 'contours')
-TestEllipsesPlotElement = test_factory(EllipsesPlotElement, 'ellipses')
-TestLabelsPlotElement = test_factory(LabelsPlotElement, 'labels')
-TestMarkersPlotElement = test_factory(MarkersPlotElement, 'markers')
-TestPolygonsPlotElement = test_factory(PolygonsPlotElement, 'polygons')
-TestLegendPlotElement = test_factory(LegendPlotElement, 'legend')
+TestContoursPlotElement = factory(ContoursPlotElement, 'contours')
+TestEllipsesPlotElement = factory(EllipsesPlotElement, 'ellipses')
+TestLabelsPlotElement = factory(LabelsPlotElement, 'labels')
+TestMarkersPlotElement = factory(MarkersPlotElement, 'markers')
+TestPolygonsPlotElement = factory(PolygonsPlotElement, 'polygons')
+TestLegendPlotElement = factory(LegendPlotElement, 'legend')
