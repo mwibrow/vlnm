@@ -74,6 +74,10 @@ def set_plot(plot=None):
     PlotElement.set_plot(plot)
 
 
+def bind_vowelplot_method(bindable: Callable):
+    return bind(bindable, get_plot)
+
+
 @singleton
 class VowelPlotPlotElement(PlotElement):
 
@@ -81,16 +85,16 @@ class VowelPlotPlotElement(PlotElement):
         self.begin(*args, **kwargs)
 
     def begin(self, *args, **kwargs):
-        if PlotElement._plot:
+        if get_plot():
             raise ValueError('Vowel plots cannot be nested')
-        PlotElement._plot = VowelPlot(*args, **kwargs)
+        set_plot(VowelPlot(*args, **kwargs))
         return self
 
     def end(self):  # pylint: disable=no-self-use
-        plot = PlotElement._plot
+        plot = get_plot()
         plot.legend()
         figure = plot.figure
-        PlotElement._plot = None
+        set_plot()
         return figure
 
     def __enter__(self):
@@ -107,7 +111,7 @@ class DataPlotElement(PlotElement):
 
     def __call__(self, *args, **kwargs):
         super().__call__()
-        settings = PlotElement._plot.settings
+        settings = get_plot().settings
         settings.push(*args, **kwargs)
 
     def __enter__(self):
@@ -116,42 +120,42 @@ class DataPlotElement(PlotElement):
     def __exit__(self, exc_type, *_):
         if exc_type:
             return False
-        settings = PlotElement._plot.settings
+        settings = get_plot().settings
         return settings.pop()
 
 
 @singleton
-@bind(VowelPlot.markers, get_plot)
+@bind_vowelplot_method(VowelPlot.markers)
 class MarkersPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.labels, get_plot)
+@bind_vowelplot_method(VowelPlot.labels)
 class LabelsPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.legend, get_plot)
+@bind_vowelplot_method(VowelPlot.legend)
 class LegendPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.ellipses, get_plot)
+@bind_vowelplot_method(VowelPlot.ellipses)
 class EllipsesPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.contour, get_plot)
+@bind_vowelplot_method(VowelPlot.contour)
 class ContourPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.polygon, get_plot)
+@bind_vowelplot_method(VowelPlot.polygon)
 class PolygonPlotElement(PlotElement):
     pass
 
