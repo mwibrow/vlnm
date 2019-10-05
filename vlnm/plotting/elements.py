@@ -27,7 +27,7 @@ def singleton(cls: Generic[T]) -> Generic[T]:
     return cls
 
 
-def bind(bindable: Callable, to='__call__') -> Callable:
+def bind(bindable: Callable, instance=None, to='__call__') -> Callable:
     """Bind a callable to an instance method (default `__call__`)."""
     def wrapper(cls: Generic[U]) -> Generic[U]:
         def call(obj, *args, **kwargs):
@@ -35,7 +35,9 @@ def bind(bindable: Callable, to='__call__') -> Callable:
                 getattr(super(obj.__class__, obj), to)(*args, **kwargs)
             except AttributeError:
                 pass
-            return getattr(gcp(), bindable.__name__)(*args, **kwargs)
+            if instance:
+                return getattr(instance(), bindable.__name__)(*args, **kwargs)
+            return bindable(*args, **kwargs)
         setattr(cls, to, call)
         return cls
     return wrapper
@@ -52,16 +54,24 @@ class PlotElement:
     _plot: VowelPlot = None
 
     @classmethod
-    def gcp(cls):
+    def get_plot(cls):
         return PlotElement._plot
 
     @classmethod
-    def scp(cls, plot):
+    def set_plot(cls, plot):
         PlotElement._plot = plot
 
     def __call__(self, *args, **kwargs):
         if not PlotElement._plot:
             raise ValueError('No active vowel plot')
+
+
+def get_plot():
+    return PlotElement.get_plot()
+
+
+def set_plot(plot=None):
+    PlotElement.set_plot(plot)
 
 
 @singleton
@@ -111,47 +121,39 @@ class DataPlotElement(PlotElement):
 
 
 @singleton
-@bind(VowelPlot.markers)
+@bind(VowelPlot.markers, get_plot)
 class MarkersPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.labels)
+@bind(VowelPlot.labels, get_plot)
 class LabelsPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.legend)
+@bind(VowelPlot.legend, get_plot)
 class LegendPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.ellipses)
+@bind(VowelPlot.ellipses, get_plot)
 class EllipsesPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.contour)
+@bind(VowelPlot.contour, get_plot)
 class ContourPlotElement(PlotElement):
     pass
 
 
 @singleton
-@bind(VowelPlot.polygon)
+@bind(VowelPlot.polygon, get_plot)
 class PolygonPlotElement(PlotElement):
     pass
-
-
-def gcp():
-    return PlotElement.gcp()
-
-
-def scp(plot=None):
-    PlotElement.scp(plot)
 
 
 # pylint: disable=invalid-name

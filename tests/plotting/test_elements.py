@@ -7,7 +7,6 @@ import unittest
 from unittest.mock import (MagicMock, patch)
 from vlnm.plotting.elements import (
     bind,
-    gcp,
     singleton,
     PlotElement,
     MarkersPlotElement,
@@ -40,7 +39,10 @@ class TestBind(unittest.TestCase):
             def to_bind(self):  # pylint: disable=no-self-use
                 return 'value'
 
-        @bind(Bindable.to_bind)
+        def get_instance():
+            return Bindable()
+
+        @bind(Bindable.to_bind, get_instance)
         class Klass:
             def __call__(self):
                 pass
@@ -62,7 +64,10 @@ class TestBind(unittest.TestCase):
             def __call__(self, *args, **kwargs):
                 Parent.called = True
 
-        @bind(Bindable.to_bind)
+        def get_instance():
+            return Bindable()
+
+        @bind(Bindable.to_bind, get_instance)
         class Child(Parent):
             pass
 
@@ -109,11 +114,11 @@ class TestMarkersPlotElement(unittest.TestCase):
     """Tests for the MarkersPlotElement class"""
 
     def setUp(self):
-        PlotElement.scp(None)
+        PlotElement.set_plot(None)
         self.mock_vowelplot = MagicMock()
 
     def tearDown(self):
-        PlotElement.scp(None)
+        PlotElement.set_plot(None)
 
     def test_is_singleton(self):
         """Class is singleton"""
@@ -136,17 +141,3 @@ class TestMarkersPlotElement(unittest.TestCase):
         VowelPlotPlotElement().begin()
         MarkersPlotElement()(**kwargs)
         self.mock_vowelplot.markers.assert_called_with(**kwargs)
-
-
-def mkcls(klass):
-    class TestKlass(unittest.TestCase):
-        def test_no_vowel_plot(self):
-            """ValueError if no vowel plot"""
-            with self.assertRaises(ValueError):
-                klass()()
-
-    TestKlass.__qualname__ = TestKlass.__name__ = 'Test' + klass.__name__
-    return TestKlass
-
-
-TestMarkersPlot = mkcls(MarkersPlotElement)
