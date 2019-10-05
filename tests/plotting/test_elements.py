@@ -107,6 +107,12 @@ class TestVowelPlotPlotElement(unittest.TestCase):
 class TestMarkersPlotElement(unittest.TestCase):
     """Tests for the MarkersPlotElement class"""
 
+    def setUp(self):
+        PlotElement.scp(None)
+
+    def tearDown(self):
+        PlotElement.scp(None)
+
     def test_is_singleton(self):
         """Class is singleton"""
         objId = id(MarkersPlotElement())
@@ -120,11 +126,12 @@ class TestMarkersPlotElement(unittest.TestCase):
             markers = MarkersPlotElement()
             markers()
 
-    @patch('vlnm.plotting.VowelPlot')
-    def test_call(self, mockVowelPlot):
+    @patch('vlnm.plotting.elements.VowelPlot')
+    def test_call(self, mock_vowelplot_class):
         """VowelPlot.markers called"""
-        print('HERE', mockVowelPlot)
-        # with VowelPlotPlotElement().begin():
-        #     markers = MarkersPlotElement()
-        # markers(color_by='vowel', colors='black')
-        # mockMarkers.assert_called_once()
+        mock_vowelplot = MagicMock()
+        mock_vowelplot_class.return_value = mock_vowelplot
+        VowelPlotPlotElement().begin()
+
+        markers = MarkersPlotElement()
+        markers(color_by='vowel', colors='black')

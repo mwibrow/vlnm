@@ -27,15 +27,15 @@ def singleton(cls: Generic[T]) -> Generic[T]:
     return cls
 
 
-def bind(bindable: Callable, to='__call__') -> Callable:
-    """Bind a callable to a class method (default `__call__`)."""
+def bind(bindable: Callable, instance='_plot', to='__call__') -> Callable:
+    """Bind a callable to an instance method (default `__call__`)."""
     def wrapper(cls: Generic[U]) -> Generic[U]:
         def call(obj, *args, **kwargs):
             try:
                 getattr(super(obj.__class__, obj), to)(*args, **kwargs)
             except AttributeError:
                 pass
-            return bindable(obj._plot, *args, **kwargs)
+            return bindable(getattr(obj, instance), *args, **kwargs)
         setattr(cls, to, call)
         return cls
     return wrapper
@@ -48,14 +48,21 @@ class PlotElement:
     A plot 'element' is anything that can be drawn
     in a vowel plot (including the vowel plot itself).
     """
+
     _plot: VowelPlot = None
 
-    @property
-    def plot(self):
+    @classmethod
+    def gcp(cls):
+        assert cls == PlotElement, 'Method not callable from child classes'
         return PlotElement._plot
 
+    @classmethod
+    def scp(cls, plot):
+        assert cls == PlotElement, 'Method not callable from child classes'
+        PlotElement._plot = plot
+
     def __call__(self, *args, **kwargs):
-        if not self.plot:
+        if not PlotElement._plot:
             raise ValueError('No active vowel plot')
 
 
