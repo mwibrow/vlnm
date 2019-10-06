@@ -20,7 +20,8 @@ class Artist:
     defaults = {}
     translators = {}
 
-    def __init__(self, defaults=None):
+    def __init__(self, defaults=None, vowel_plot=None):
+        self.vowel_plot = vowel_plot
         self.defaults = defaults or self.__class__.defaults or {}
 
     def _get_translator(self, which='plot'):
@@ -61,7 +62,7 @@ class Artist:
     def _get_legend_props(self, props):
         return self._get_props(props, 'legend')
 
-    def _get_plot_props(self, props, name='plot'):
+    def _get_plot_props(self, props):
         return self._get_props(props, 'plot')
 
     def legend(self, **_kwargs) -> Any:  # pylint: disable=no-self-use
@@ -219,11 +220,11 @@ class LabelArtist(Artist):
         """Draw markers."""
         props = self._get_plot_props(props)
         if isinstance(labels, str) and labels:
-            for x, y in zip(x, y):
-                axis.text(x, y, label, clip_on=True, **props)
+            for lx, ly in zip(x, y):
+                axis.text(lx, ly, labels, clip_on=True, **props)
         else:
-            for x, y, label in zip(x, y, labels):
-                axis.text(x, y, label, clip_on=True, **props)
+            for lx, ly, label in zip(x, y, labels):
+                axis.text(lx, ly, label, clip_on=True, **props)
 
 
 class ContourArtist(Artist):
@@ -252,7 +253,7 @@ class ContourArtist(Artist):
             xy=[(0.25, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0)],
             **props)
 
-    def plot(self, x, y, z, **props):
+    def plot(self, axis, x, y, z, **props):
         """Plot a Contour."""
         translator = self._get_translator('plot')
         defaults = self.translate_props(self._get_defaults('plot'), translator)

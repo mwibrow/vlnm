@@ -23,13 +23,8 @@ from vlnm.plotting.artists import (
 from vlnm.plotting.mappers import get_prop_mapper
 from vlnm.plotting.utils import (
     aggregate_df,
-    context_from_kwargs,
     create_figure,
-    get_confidence_ellipse,
-    HandlerEllipse,
-    merge,
-    merge_contexts,
-    strip)
+    get_confidence_ellipse)
 
 from vlnm.plotting.bounds import BoundingBox
 

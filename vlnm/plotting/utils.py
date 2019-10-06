@@ -55,55 +55,6 @@ def translate_props(props: Dict, translator: Dict[str, Union[str, Iterable, Call
     return translated
 
 
-def context_from_kwargs(
-        kwargs: Dict,
-        include: List[str] = None,
-        exclude: List[str] = None) -> Tuple[Dict, Dict]:
-    r"""
-    Separate context and non-context keyword arguments.
-
-    Parameters
-    ----------
-    \*\*kwargs:
-        Keyword arguments.
-    include:
-        Keywords that are always in the context.
-    exclude:
-        Keywords that are never in the context.
-
-    Returns
-    -------
-    :
-        The context keywords and the rest.
-
-    """
-    include = include or []
-    exclude = exclude or []
-
-    context = {}
-    rest = kwargs.copy()
-    for key, value in kwargs.items():
-        if key in include:
-            context[key] = value
-            del rest[key]
-        elif key in exclude:
-            continue
-        elif key.endswith('_by'):
-            context[key] = value
-            del rest[key]
-            prop = key[:-3]
-            if prop in kwargs:
-                context[prop] = kwargs[prop]
-                del rest[prop]
-
-    context = strip(context)
-    return context, rest
-
-
-def merge_contexts(*contexts):
-    return reduce(merge, contexts)
-
-
 class HandlerEllipse(HandlerPatch):
     def create_artists(
             self, legend, orig_handle,
