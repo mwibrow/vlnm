@@ -137,8 +137,12 @@ class TestVowelPlotPlotElement(unittest.TestCase):
                     pass
 
 
-def factory(klass, method):
-    class TestKlass(unittest.TestCase):
+class Helpers:
+
+    class TestPlotElementChildren(unittest.TestCase):
+
+        klass = PlotElement
+        method = 'method'
 
         def setUp(self):
             PlotElement.set_plot(None)
@@ -149,34 +153,52 @@ def factory(klass, method):
 
         def test_is_singleton(self):
             """Class is singleton"""
-            objId = id(klass())
+            objId = id(self.klass())
             self.assertTrue(all(
-                id(klass()) == objId
+                id(self.klass()) == objId
                 for _ in range(10)))
 
         def test_no_vowel_plot(self):
             """No vowel plot raises error"""
             with self.assertRaises(ValueError):
-                klass()()
+                self.klass()()
 
         @patch('vlnm.plotting.elements.VowelPlot')
         def test_call(self, mock_vowelplot_class):
             """VowelPlot method called"""
             mock_vowelplot_class.return_value = self.mock_vowelplot
-            setattr(self.mock_vowelplot, method, MagicMock())
+            setattr(self.mock_vowelplot, self.method, MagicMock())
             kwargs = dict(color_by='vowel', colors='black')
             VowelPlotPlotElement().begin()
-            klass()(**kwargs)
-            getattr(self.mock_vowelplot, method).assert_called_with(**kwargs)
-
-    TestKlass.__qualname__ = TestKlass.__name__ = 'Test{}'.format(klass.__name__)
-    TestKlass.__doc__ = """Tests for the {} class""".format(klass.__name__)
-    return TestKlass
+            self.klass()(**kwargs)
+            getattr(self.mock_vowelplot, self.method).assert_called_with(**kwargs)
 
 
-TestContoursPlotElement = factory(ContoursPlotElement, 'contours')
-TestEllipsesPlotElement = factory(EllipsesPlotElement, 'ellipses')
-TestLabelsPlotElement = factory(LabelsPlotElement, 'labels')
-TestMarkersPlotElement = factory(MarkersPlotElement, 'markers')
-TestPolygonsPlotElement = factory(PolygonsPlotElement, 'polygons')
-TestLegendPlotElement = factory(LegendPlotElement, 'legend')
+class TestContoursPlotElement(Helpers.TestPlotElementChildren):
+    klass = ContoursPlotElement
+    method = 'contours'
+
+
+class TestEllipsesPlotElement(Helpers.TestPlotElementChildren):
+    klass = EllipsesPlotElement
+    method = 'ellipses'
+
+
+class TestLabelsPlotElement(Helpers.TestPlotElementChildren):
+    klass = LabelsPlotElement
+    method = 'labels'
+
+
+class TestMarkersPlotElement(Helpers.TestPlotElementChildren):
+    klass = MarkersPlotElement
+    method = 'markers'
+
+
+class TestPolygonsPlotElement(Helpers.TestPlotElementChildren):
+    klass = PolygonsPlotElement
+    method = 'polygons'
+
+
+class TestLegendPlotElement(Helpers.TestPlotElementChildren):
+    klass = LegendPlotElement
+    method = 'legend'
