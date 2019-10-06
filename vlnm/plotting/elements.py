@@ -107,12 +107,8 @@ class VowelPlotPlotElement(PlotElement):
 
 
 @singleton
+@bind_vowelplot_method(VowelPlot.data)
 class DataPlotElement(PlotElement):
-
-    def __call__(self, *args, **kwargs):
-        super().__call__()
-        settings = get_plot().settings
-        settings.push(*args, **kwargs)
 
     def __enter__(self):
         return self

@@ -71,18 +71,19 @@ def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
     :
         The converted data.
     """
+    frq = np.atleast_1d(frq)
     if method == 'greenwood':
         return 11.9 * np.log10(frq / 165.4 + 0.88)
-    elif method == 'syrdal':
+    if method == 'syrdal':
         frq[frq < 150.] = 150.
         frq[(frq >= 150.) & (frq < 200)] = frq - (0.2 * (frq - 150.))
         frq[(frq >= 200.) & (frq < 250)] = frq - (0.2 * (250. - frq))
         return hz_to_bark(frq, method='zwicker')
-    elif method == 'traunmuller':
+    if method == 'traunmuller':
         return 26.81 * frq / (frq + 1960) - 0.53
-    elif method == 'volk':
+    if method == 'volk':
         return 32.12 * (1. - (1. + (frq / 873.47) ** 1.18) ** -0.4)
-    elif method == 'zwicker':
+    if method == 'zwicker':
         return (13 * np.arctan(0.00076 * frq) +
                 3.5 * np.arctan(frq / 7500.) ** 2)
     raise ValueError('Unknown method: {}'.format(method))

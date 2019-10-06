@@ -10,6 +10,7 @@ from vlnm.plotting.elements import (
     singleton,
     PlotElement,
     ContoursPlotElement,
+    DataPlotElement,
     PolygonsPlotElement,
     LegendPlotElement,
     MarkersPlotElement,
@@ -202,3 +203,21 @@ class TestPolygonsPlotElement(Helpers.TestPlotElementChildren):
 class TestLegendPlotElement(Helpers.TestPlotElementChildren):
     klass = LegendPlotElement
     method = 'legend'
+
+
+class TestDataPlotElement(Helpers.TestPlotElementChildren):
+    klass = DataPlotElement
+    method = 'data'
+
+    @patch('vlnm.plotting.elements.VowelPlot')
+    def test_context(self, mock_vowelplot_class):
+        """Data context pops settings."""
+        mock_vowelplot_class.return_value = self.mock_vowelplot
+        self.mock_vowelplot.data = MagicMock()
+        self.mock_vowelplot.settings = MagicMock()
+
+        VowelPlotPlotElement().begin()
+        with DataPlotElement():
+            pass
+
+        self.mock_vowelplot.settings.pop.assert_called_once()

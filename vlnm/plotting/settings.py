@@ -5,7 +5,7 @@ Settings
 
 import copy
 import json
-from typing import Union
+from typing import Any, Tuple, Union
 
 import pandas as pd
 
@@ -13,7 +13,7 @@ import pandas as pd
 class SettingsEncoder(json.JSONEncoder):
     """Helper class for debugging settings."""
 
-    def default(self, obj):
+    def default(self, obj: Any) -> str:  # pylint: disable=method-hidden
         if isinstance(obj, pd.DataFrame):
             return obj.__class__.__name__
         return json.JSONEncoder.default(self, obj)
@@ -28,7 +28,7 @@ def state(*args, **kwargs):
     return value
 
 
-def deepcopy(src, depth=0):
+def deepcopy(src: dict, depth: int = 0) -> dict:
     """Custom deepcopy."""
     dest = {}
     for key, value in src.items():
@@ -43,7 +43,7 @@ def deepcopy(src, depth=0):
     return dest
 
 
-def deepmerge(lhs, rhs, depth=0):
+def deepmerge(lhs: dict, rhs: dict, depth=0) -> dict:
     """Deep merge settings."""
     dest = lhs.copy()
     for key, value in rhs.items():
@@ -95,7 +95,7 @@ class Settings:
         """Restore the last settings scope."""
         return self.scopes.pop()
 
-    def __getitem__(self, keys):
+    def __getitem__(self, keys: Union[Tuple, str]) -> Any:
         if isinstance(keys, tuple):
             return {key: self.state.get(key, {}) for key in keys}
         return self.state.get(keys)

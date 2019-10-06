@@ -261,6 +261,9 @@ class VowelPlot:
     def _generate_legend_id(prefix):
         return '{}-{}'.format(prefix, uuid.uuid1())
 
+    def data(self, data=None, x=None, y=None, **kwargs):
+        self.settings.push(data=dict(data=data, x=x, y=y, **kwargs))
+
     def markers(
             self,
             data: pd.DataFrame = None,

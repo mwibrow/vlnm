@@ -11,7 +11,7 @@ from vlnm.plotting.settings import Settings
 class TestSettings(unittest.TestCase):
     """Tests for the Settings class."""
 
-    def test_init(self):
+    def test_init_scopes(self):
         """Should init with initial scope."""
         settings = Settings()
         self.assertEqual(len(settings.scopes), 1)
