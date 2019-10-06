@@ -7,6 +7,7 @@ from Hz to other scales.
 """
 
 import numpy as np
+import pandas as pd
 
 
 def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
@@ -71,7 +72,8 @@ def hz_to_bark(frq: np.ndarray, method: str = 'traunmuller') -> np.ndarray:
     :
         The converted data.
     """
-    frq = np.atleast_1d(frq)
+    if not isinstance(frq, pd.DataFrame):
+        frq = np.atleast_1d(frq)
     if method == 'greenwood':
         return 11.9 * np.log10(frq / 165.4 + 0.88)
     if method == 'syrdal':
