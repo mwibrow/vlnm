@@ -41,9 +41,10 @@ class BoundingBox:
             np.max(points, axis=0)
         ))
 
-    def update_axis_bounds(self, axis: Axis, force: bool = False):
+    def update_axis_bounds(self, axis: Axis, force: bool = None):
         """Update axis bounds from bounding box instances."""
         points = self.box + np.ptp(self.box, axis=0) * axis.margins() * [[-1, -1], [1, 1]]
+
         if not force or axis.lines or axis.collections:
             points = np.concatenate((
                 np.vstack((
