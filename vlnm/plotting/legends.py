@@ -124,7 +124,7 @@ class Legend:
             collections = collection
         else:
             if '.' in collection:
-                collection, group, entries = *collection.split('.'), None
+                collection, group, labels = *collection.split('.'), None
             collections = [collection]
 
         _entries = OrderedDict()

@@ -10,7 +10,7 @@ from matplotlib import rcParams
 
 
 def dict_diff(this, that):
-    """Return the keys in one dictionary that are not in another."""
+    """Return the entries in one dictionary that are not in another."""
     return {key: value for key, value in this.items() if not key in that}
 
 
@@ -24,10 +24,10 @@ class Artist:
         self.vowel_plot = vowel_plot
         self.defaults = defaults or self.__class__.defaults or {}
 
-    def _get_translator(self, which='plot'):
+    def _get_translator(self, which='plot'):  # pragma: no cover
         return self.translators.get(which, self.translators.get('plot', {}))
 
-    def _get_defaults(self, which='plot'):
+    def _get_defaults(self, which='plot'):  # pragma: no cover
         return self.defaults.get(which, self.defaults.get('plot', {}))
 
     def translate_props(self, props: Dict, translator: Dict) -> Dict:
@@ -52,17 +52,17 @@ class Artist:
                 translated[prop] = value
         return translated
 
-    def _get_props(self, props, name):
+    def _get_props(self, props, name):  # pragma: no cover
         translator = self._get_translator(name)
         defaults = self.translate_props(self._get_defaults(name), translator)
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
         return props
 
-    def _get_legend_props(self, props):
+    def _get_legend_props(self, props):  # pragma: no cover
         return self._get_props(props, 'legend')
 
-    def _get_plot_props(self, props):
+    def _get_plot_props(self, props):  # pragma: no cover
         return self._get_props(props, 'plot')
 
     def legend(self, **_kwargs) -> Any:  # pylint: disable=no-self-use
