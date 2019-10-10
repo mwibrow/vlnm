@@ -3,16 +3,14 @@
     ~~~~~~~~~~~~~~~
 """
 from collections import OrderedDict
-from contextlib import ExitStack
 import types
-from typing import Dict, Generator, List, Tuple, Union
+from typing import Dict, Generator, Tuple, Union
 import uuid
 
 import matplotlib.pyplot as plt
 import matplotlib.style as mstyle
 from matplotlib.figure import Figure
 from matplotlib.axis import Axis
-import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 from shapely.geometry import MultiPoint
@@ -28,7 +26,7 @@ from vlnm.plotting.utils import (
 
 from vlnm.plotting.bounds import BoundingBox
 
-from vlnm.plotting.legends import Legend, translate_legend_options
+from vlnm.plotting.legends import Legend
 
 from vlnm.plotting.settings import Settings
 
@@ -104,7 +102,6 @@ class VowelPlot:
             height: float = 4,
             figure: Figure = None,
             axes: Union[list, dict] = None,
-            legend: bool = True,
             **kwargs):
 
         figsize = kwargs.pop('figsize', (width, height) if width and height else None)
@@ -113,6 +110,7 @@ class VowelPlot:
         self.rows, self.columns = rows, columns
 
         self.axes = None
+        self.axis = None
         if figure:
             self.axes = axes or figure.get_axes()
 
@@ -147,15 +145,6 @@ class VowelPlot:
         return self
 
     def end_plot(self):
-        # if self._auto_legend:
-        #     legend_ids = list(self.legends.keys())
-        # for legend_id in legend_ids:
-        #     self.legend(legend_id)
-        if self.axis:
-            if not self.get_xlabel():
-                self.xlabel(self.settings['data']['x'])
-            if not self.get_ylabel():
-                self.ylabel(self.settings['data']['y'])
         return self.figure
 
     def subplot(
@@ -235,8 +224,7 @@ class VowelPlot:
             self,
             legend_id: str,
             group_props: dict,
-            artist: Artist,
-            legend_options: dict):
+            artist: Artist):
         for group in group_props:
             for label in group_props[group]:
                 self.plot_legend.add_entry(
@@ -290,13 +278,13 @@ class VowelPlot:
                 artist.plot(axis, x, y, **props)
 
                 if legend:
-                    self._update_legend(legend_id, group_props,
-                                        artist.legend, settings['legend'])
+                    self._update_legend(
+                        legend_id,
+                        group_props,
+                        artist.legend,
+                        settings['legend'])
 
         return self
-
-    def _handle_legend_entry(self, legend_id, legend, artist_props, artist):
-        self._update_legend(legend_id, artist_props, artist, legend)
 
     def labels(
             self,
@@ -319,7 +307,7 @@ class VowelPlot:
 
             settings = self.settings['data', 'labels', 'legend']
             bounds = BoundingBox()
-            for axis, group_df, props, group_props in self._group_iterator(
+            for axis, group_df, props, _group_props in self._group_iterator(
                     settings['data'], settings['labels']):
 
                 x = group_df[settings['data']['x']]
@@ -343,7 +331,6 @@ class VowelPlot:
             x: str = None,
             y: str = None,
             legend: Union[str, bool] = False,
-            legend_only: Union[str, bool] = False,
             **kwargs) -> 'VowelPlot':
         """
         Add a polygon to the plot
@@ -366,19 +353,20 @@ class VowelPlot:
             if where:
                 data = aggregate_df(data, [x, y], point, where)
             bounds = BoundingBox()
+            legend_id = legend or self._generate_legend_id('polygons')
             for axis, group_df, props, group_props in self._group_iterator(
-                    settings['data'], settings['polygon']):
+                    settings['data'], settings['polygons']):
                 xy = []
                 if points:
                     hull = False
                     for p in points:
-                        i = group_df[vertex] == vert
+                        i = group_df[point] == p
                         group_x = group_df[i, x].mean()
                         group_y = group_df[i, y].mean()
                     group_df = group_df[group_df[point].isin(points)]
                     xy.append((group_x, group_y))
                 if hull:
-                    coords = np.atleast_2d(group_df[[x, y, vertex]].values)
+                    coords = np.atleast_2d(group_df[[x, y, point]].values)
                     convex_hull = MultiPoint(coords).convex_hull.exterior.coords[:]
                     xy.extend([(x, y) for x, y in convex_hull])
                 artist.plot(axis, xy, closed=closed, **props)
@@ -386,8 +374,11 @@ class VowelPlot:
                 bounds.update_from_xy(xy)
                 bounds.update_axis_bounds(axis)
                 if legend:
-                    self._update_legend(legend_id, group_props,
-                                        artist.legend, settings['legend'])
+                    self._update_legend(
+                        legend_id,
+                        group_props,
+                        artist.legend,
+                        settings['legend'])
 
         return self
 
