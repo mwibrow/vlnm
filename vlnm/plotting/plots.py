@@ -273,8 +273,7 @@ class VowelPlot:
                     self._update_legend(
                         legend_id,
                         group_props,
-                        artist.legend,
-                        settings['legend'])
+                        artist.legend)
 
         return self
 
@@ -297,7 +296,7 @@ class VowelPlot:
                     where=where),
                 labels=dict(label_by=label_by, **kwargs)):
 
-            settings = self.settings['data', 'labels', 'legend']
+            settings = self.settings['data', 'labels']
             bounds = BoundingBox()
             for axis, group_df, props, _group_props in self._group_iterator(
                     settings['data'], settings['labels']):
@@ -336,7 +335,7 @@ class VowelPlot:
                     y=y),
                 polygon=dict(**kwargs)):
 
-            settings = self.settings['data', 'polygon', 'legend']
+            settings = self.settings['data', 'polygon']
 
             data = settings['data']['data']
             x = settings['data']['x']
@@ -369,8 +368,7 @@ class VowelPlot:
                     self._update_legend(
                         legend_id,
                         group_props,
-                        artist.legend,
-                        settings['legend'])
+                        artist.legend)
 
         return self
 
@@ -398,7 +396,7 @@ class VowelPlot:
                 legend=legend if isinstance(legend, dict) else {},
                 ellipses={**kwargs}):
 
-            settings = self.settings['data', 'ellipses', 'legend']
+            settings = self.settings['data', 'ellipses']
 
             legend_id = legend if isinstance(
                 legend, str) else self._generate_legend_id('ellipses')
@@ -420,7 +418,7 @@ class VowelPlot:
 
                 if legend:
                     self._update_legend(legend_id, group_props,
-                                        artist.legend, settings['legend'])
+                                        artist.legend)
 
         return self
 
@@ -447,7 +445,7 @@ class VowelPlot:
                 legend=legend if isinstance(legend, dict) else {},
                 contour={**kwargs}):
 
-            settings = self.settings['data', 'contour', 'legend']
+            settings = self.settings['data', 'contour']
 
             legend_id = legend or self._generate_legend_id('contour')
 
@@ -473,6 +471,6 @@ class VowelPlot:
 
                 if legend:
                     self._update_legend(legend_id, group_props,
-                                        artist.legend, settings['legend'])
+                                        artist.legend)
 
         return self
