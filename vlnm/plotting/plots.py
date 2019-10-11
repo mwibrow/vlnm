@@ -37,34 +37,26 @@ def use_style(style):
 
 
 def get_prop_mappers(df, context):
-    prop_mappers = {}
-    params = {}
 
     keys = set(context.keys())
-    while keys:
-        key = keys.pop()
-        if key.endswith('_by') or (key + '_by') in keys:
-            if key.endswith('_by'):
-                prop = key[:-3]
-                if prop in keys:
-                    keys.remove(prop)
+    bys = [key for key in keys if key.endswith('_by')]
+    params = {
+        key: context[key] for key in keys
+        if not key.endswith('_by') and not key + '_by' in keys}
+
+    prop_mappers = {}
+    for by in bys:
+        prop = by[: -3]
+        group = context[by]
+        mapping = context.get(prop)
+
+        if prop and mapping:
+            if prop in ['group', 'label']:  # special cases
+                pass
             else:
-                prop = key
-                key = prop + '_by'
-                keys.remove(key)
-            group = context[key]
-            mapping = context.get(prop)
-
-            if prop and mapping:
-                if prop in ['group', 'label']:  # special cases
-                    pass
-                else:
-                    prop_mappers[group] = prop_mappers.get(group, [])
-                    prop_mappers[group].append(
-                        get_prop_mapper(prop, mapping=mapping, data=df[group]))
-
-        else:
-            params[key] = context[key]
+                prop_mappers[group] = prop_mappers.get(group, [])
+                prop_mappers[group].append(
+                    get_prop_mapper(prop, mapping=mapping, data=df[group]))
 
     return prop_mappers, params
 
