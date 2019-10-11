@@ -55,6 +55,10 @@ class TestVowelPlotMarkers(unittest.TestCase):
             self.df['vowel'],
             sorted(self.df['vowel'].unique()),
             True)
+        self.df['group'] = pd.Categorical(
+            self.df['group'],
+            sorted(self.df['group'].unique()),
+            True)
         self.plot = VowelPlot(data=self.df, x='f2', y='f1')
 
     def tearDown(self):
@@ -78,9 +82,13 @@ class TestVowelPlotMarkers(unittest.TestCase):
 
     def test_multiple_calls(self):
         """Test number of calls with multiple aesthetics"""
+        markers = ['.', '+', 'x']
+        cmap = 'tab20'
+        colors = get_cmap(cmap).colors[:len(self.df['vowel'].unique())]
+
         with self.plot:
             self.plot.markers(
-                color_by='vowel', color='tab20',
+                color_by='vowel', color=cmap,
                 marker_by='group', marker=['.', '+', 'x'])
         self.assertTrue(self.mock_artist_class)
 
@@ -88,3 +96,14 @@ class TestVowelPlotMarkers(unittest.TestCase):
         self.assertEqual(
             self.mock_artist.plot.call_count,
             expected)
+
+        kalls = set()
+        for kall in self.mock_artist.plot.call_args_list:
+            _, kwargs = kall
+            kalls.add((kwargs['marker'], kwargs['color']))
+
+        for color in colors:
+            for marker in markers:
+                self.assertIn((marker, color), kalls)
+                kalls.remove((marker, color))
+        self.assertSetEqual(kalls, set())
