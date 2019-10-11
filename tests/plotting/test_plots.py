@@ -81,7 +81,7 @@ class TestVowelPlotMarkers(unittest.TestCase):
         with self.plot:
             self.plot.markers(
                 color_by='vowel', color='tab20',
-                marker_by='group', marker='.')
+                marker_by='group', marker=['.', '+', 'x'])
         self.assertTrue(self.mock_artist_class)
 
         expected = len(self.df['vowel'].unique()) * len(self.df['group'].unique())
