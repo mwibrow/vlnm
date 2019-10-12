@@ -61,6 +61,62 @@ def get_prop_mappers(df, context):
     return prop_mappers, params
 
 
+def groups_iterator(
+        plot: 'VowelPlot',
+        data: dict,
+        context: dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
+
+    df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
+
+    # Aggregate df if required.
+    groups = list(set(value for key, value in context.items() if key.endswith('_by')))
+    # hoist axis group
+    if 'axis' in groups:
+        groups.remove('axis')
+        groups = ['axis'] + groups
+    if where:
+        df = aggregate_df(df, [x, y], groups, where)
+
+    # Get property mappers.
+        prop_mappers, params = get_prop_mappers(df, context)
+
+    if groups:
+        # Iterate over groups.
+        grouped = df.groupby(groups, as_index=False)
+
+        for values, group_df in grouped:
+            if group_df.empty:
+                continue
+            values = values if isinstance(values, tuple) else (values,)
+            props = {}
+            group_props = {}
+            group_values = {}
+
+            for group, value in zip(groups, values):
+                group_values[group] = value
+                if group in prop_mappers:
+                    mapped_props = {}
+                    for prop_mapper in prop_mappers[group]:
+                        mapped_props.update(prop_mapper.get_props(value))
+                    mapped_props.update(**params)
+                    group_props[group] = group_props.get(group, OrderedDict())
+                    group_props[group][value] = {**mapped_props}
+                    props.update(**mapped_props)
+                else:
+                    props.update(**params)
+
+            axis = plot.axis or plot.subplot(row=1, column=1)
+
+            yield axis, group_df, props, group_props
+    else:
+        axis = plot.axis or plot.subplot(row=1, column=1)
+        yield axis, df, {**params}, {**params}
+
+
+
+def generate_legend_id(prefix):
+    return '{}-{}'.format(prefix, uuid.uuid1())
+
 class VowelPlot:
     """
     Class for managing vowel plots.
@@ -118,7 +174,7 @@ class VowelPlot:
             labels={}
         )
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr):  # pragma: no cover
         if self.axis and hasattr(self.axis, attr):
             return getattr(self.axis, attr)
         if hasattr(plt, attr):
@@ -165,53 +221,6 @@ class VowelPlot:
                 self.axis.invert_yaxis()
         return self.axis
 
-    def _group_iterator(
-            self,
-            data: dict,
-            context: dict) -> Generator[Tuple[Axis, pd.DataFrame, Dict, Dict], None, None]:
-
-        df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
-
-        # Aggregate df if required.
-        groups = list(set(value for key, value in context.items() if key.endswith('_by')))
-        if where:
-            df = aggregate_df(df, [x, y], groups, where)
-
-        # Get property mappers.
-        prop_mappers, params = get_prop_mappers(df, context)
-
-        if groups:
-            # Iterate over groups.
-            grouped = df.groupby(groups, as_index=False)
-
-            for values, group_df in grouped:
-                if group_df.empty:
-                    continue
-                values = values if isinstance(values, tuple) else (values,)
-                props = {}
-                group_props = {}
-                group_values = {}
-
-                for group, value in zip(groups, values):
-                    group_values[group] = value
-                    if group in prop_mappers:
-                        mapped_props = {}
-                        for prop_mapper in prop_mappers[group]:
-                            mapped_props.update(prop_mapper.get_props(value))
-                        mapped_props.update(**params)
-                        group_props[group] = group_props.get(group, OrderedDict())
-                        group_props[group][value] = {**mapped_props}
-                        props.update(**mapped_props)
-                    else:
-                        props.update(**params)
-
-                axis = self.axis or self.subplot(row=1, column=1)
-
-                yield axis, group_df, props, group_props
-        else:
-            axis = self.axis or self.subplot(row=1, column=1)
-            yield axis, df, {**params}, {**params}
-
     def _update_legend(
             self,
             legend_id: str,
@@ -232,9 +241,7 @@ class VowelPlot:
             artist = self.legends.make_legend_artist(legend, group, labels, **options)
             axis.add_artist(artist)
 
-    @staticmethod
-    def _generate_legend_id(prefix):
-        return '{}-{}'.format(prefix, uuid.uuid1())
+
 
     def data(self, data=None, x=None, y=None, **kwargs):
         self.settings.push(data=dict(data=data, x=x, y=y, **kwargs))
@@ -260,9 +267,10 @@ class VowelPlot:
 
             settings = self.settings['data', 'markers', 'legend']
 
-            legend_id = legend or self._generate_legend_id('markers')
+            legend_id = legend or generate_legend_id('markers')
 
-            for axis, group_df, props, group_props in self._group_iterator(
+            for axis, group_df, props, group_props in groups_iterator(
+                    self,
                     settings['data'], settings['markers']):
 
                 x = group_df[settings['data']['x']]
@@ -298,7 +306,8 @@ class VowelPlot:
 
             settings = self.settings['data', 'labels']
             bounds = BoundingBox()
-            for axis, group_df, props, _group_props in self._group_iterator(
+            for axis, group_df, props, _group_props in groups_iterator(
+                    self,
                     settings['data'], settings['labels']):
 
                 x = group_df[settings['data']['x']]
@@ -344,8 +353,9 @@ class VowelPlot:
             if where:
                 data = aggregate_df(data, [x, y], point, where)
             bounds = BoundingBox()
-            legend_id = legend or self._generate_legend_id('polygons')
-            for axis, group_df, props, group_props in self._group_iterator(
+            legend_id = legend or generate_legend_id('polygons')
+            for axis, group_df, props, group_props in groups_iterator(
+                    self,
                     settings['data'], settings['polygons']):
                 xy = []
                 if points:
@@ -399,10 +409,11 @@ class VowelPlot:
             settings = self.settings['data', 'ellipses']
 
             legend_id = legend if isinstance(
-                legend, str) else self._generate_legend_id('ellipses')
+                legend, str) else generate_legend_id('ellipses')
 
             bounds = BoundingBox()
-            for axis, group_df, props, group_props in self._group_iterator(
+            for axis, group_df, props, group_props in groups_iterator(
+                    self,
                     settings['data'], settings['ellipses']):
 
                 group_x = group_df[settings['data']['x']]
@@ -447,9 +458,10 @@ class VowelPlot:
 
             settings = self.settings['data', 'contour']
 
-            legend_id = legend or self._generate_legend_id('contour')
+            legend_id = legend or generate_legend_id('contour')
 
-            for axis, group_df, props, group_props in self._group_iterator(
+            for axis, group_df, props, group_props in groups_iterator(
+                    self,
                     settings['data'], settings['contour']):
 
                 x = group_df[settings['data']['x']]
