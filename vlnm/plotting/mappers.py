@@ -3,7 +3,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-from collections import OrderedDict
+from collections import OrderedDict, OrderedSet
 from typing import Any, Callable, Dict, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
@@ -97,6 +97,18 @@ def get_prop_mapper(prop, mapping=None, data=None, default=None):
     elif 'color' in prop:
         return ColorPropMapper(prop, mapping=mapping, data=data, default=default)
     return PropMapper(prop, mapping=mapping, data=data, default=default)
+
+
+def mapping_from_data(data: Iterable, values: Iterable) -> dict:
+    """Map categorical data values to prop values."""
+    try:
+        uniques = list(data.values.categories)
+    except AttributeError:
+        try:
+            uniques = sorted(data.unique())
+        except AttributeError:
+            uniques = sorted(np.unique(values))
+    return {value: unique for value, unique in zip(values, uniques)}
 
 
 class GroupPropsMapper:
