@@ -3,12 +3,13 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-from collections import OrderedDict, OrderedSet
+from collections import OrderedDict
 from typing import Any, Callable, Dict, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
 import matplotlib.colors
 from pandas.api.types import is_categorical_dtype
+import numpy as np
 
 
 class PropMapper:
