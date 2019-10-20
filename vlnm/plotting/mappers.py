@@ -3,11 +3,11 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
+from collections import OrderedDict
 from typing import Any, Callable, Dict, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
 import matplotlib.colors
-import pandas as pd
 from pandas.api.types import is_categorical_dtype
 
 
@@ -97,3 +97,24 @@ def get_prop_mapper(prop, mapping=None, data=None, default=None):
     elif 'color' in prop:
         return ColorPropMapper(prop, mapping=mapping, data=data, default=default)
     return PropMapper(prop, mapping=mapping, data=data, default=default)
+
+
+class GroupPropsMapper:
+    """Class for managing the mapping of multiple props."""
+
+    def __init__(self, groups):
+        self.groups = groups
+        self.mappers = OrderedDict({group: [] for group in groups})
+
+    def add_mapper(self, group, mapper):
+        self.mappers[group].append(mapper)
+
+    def get_props(self, data, *args, defaults=None, **kwargs):
+        props = {}
+        group_props = OrderedDict()
+        for group, value in data:
+            group_props[group] = {**(defaults or {})}
+            for mapper in self.mappers[group]:
+                group_props[group].update(**mapper.get_props(value, *args, **kwargs))
+            props.update(**group_props[group])
+        return props, group_props

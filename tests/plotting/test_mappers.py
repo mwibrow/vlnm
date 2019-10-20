@@ -13,7 +13,7 @@ class TestPropMapper(unittest.TestCase):
 
     def test_init_no_args(self):
         """Create instance without error."""
-        mapper = PropMapper()
+        PropMapper()
 
     def test_dict_mapper_value(self):
         """Dict mapping returns correct props value."""
