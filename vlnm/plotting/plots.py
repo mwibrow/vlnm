@@ -76,8 +76,9 @@ def groups_iterator(
     if where:
         df = aggregate_df(df, [x, y], groups, where)
 
-    # Get property mappers.
-        prop_mappers, params = get_prop_mappers(df, context)
+    group_props_mapper = GroupPropsMapper(groups)
+    for prop in bys:
+        group_props_mapper.add_prop_mapper(bys[prop], prop, values[prop])
 
     if groups:
         # Iterate over groups.
@@ -87,24 +88,16 @@ def groups_iterator(
             if group_df.empty:
                 continue
             values = values if isinstance(values, tuple) else (values,)
+
             props = {}
-            group_props = {}
-            group_values = {}
+            group_props = group_props_mapper.get_props(groups, values, plot=self)
+            for grp_props in group_props.values():
+                props.update(grp_props)
+                grp_props.update(params)
+            props.update(params)
 
-            for group, value in zip(groups, values):
-                group_values[group] = value
-                if group in prop_mappers:
-                    mapped_props = {}
-                    for prop_mapper in prop_mappers[group]:
-                        mapped_props.update(prop_mapper.get_props(value))
-                    mapped_props.update(**params)
-                    group_props[group] = group_props.get(group, OrderedDict())
-                    group_props[group][value] = {**mapped_props}
-                    props.update(**mapped_props)
-                else:
-                    props.update(**params)
-
-            axis = plot.axis or plot.subplot(row=1, column=1)
+            axis = props.pop('axis')
+            axis = axis or plot.axis or plot.subplot(row=1, column=1)
 
             yield axis, group_df, props, group_props
     else:
