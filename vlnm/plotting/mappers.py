@@ -13,6 +13,18 @@ import numpy as np
 Primative = Union[int, float, str, bool]
 
 
+def unique(data: Iterable, sort=True):
+    """Get unique data values."""
+    try:
+        uniques = list(data.values.categories)
+    except AttributeError:
+        try:
+            uniques = sorted(data.unique()) if sort else list(data.unique())
+        except AttributeError:
+            uniques = sorted(np.unique(data)) if sort else list(np.unique(data))
+    return uniques
+
+
 class Mapper:
     """Class for mapping data values onto property values."""
 

@@ -18,7 +18,9 @@ import scipy.stats as st
 
 from vlnm.plotting.artists import (
     Artist, ContourArtist, EllipseArtist, LabelArtist, MarkerArtist, PolygonArtist)
-from vlnm.plotting.mappers import get_prop_mapper
+from vlnm.plotting.mappers import (
+    GroupPropsMapper
+)
 from vlnm.plotting.utils import (
     aggregate_df,
     create_figure,
@@ -36,28 +38,16 @@ def use_style(style):
     mstyle.use(style)
 
 
-def get_prop_mappers(df, context):
-
-    keys = set(context.keys())
-    bys = [key for key in keys if key.endswith('_by')]
-    params = {
-        key: context[key] for key in keys
-        if not key.endswith('_by') and not key + '_by' in keys}
-    prop_mappers = {}
-    for by in bys:
-        prop = by[: -3]
-        group = context[by]
-        mapping = context.get(prop)
-
-        if prop and mapping:
-            if prop in ['group', 'label']:  # special cases
-                pass
-            else:
-                prop_mappers[group] = prop_mappers.get(group, [])
-                prop_mappers[group].append(
-                    get_prop_mapper(prop, mapping=mapping, data=df[group]))
-
-    return prop_mappers, params
+def split_context(**kwargs):
+    prop_groups, prop_values, params = {}, {}, {}
+    for key, value in kwargs.items():
+        if key.endswith('_by'):
+            prop_groups[key[-3:]] = value
+        elif key + '_by' in kwargs:
+            prop_values[key] = value
+        else:
+            params[key] = value
+    return prop_grups, prop_values, params
 
 
 def groups_iterator(
@@ -67,18 +57,19 @@ def groups_iterator(
 
     df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
 
-    # Aggregate df if required.
-    groups = list(set(value for key, value in context.items() if key.endswith('_by')))
+    prop_groups, prop_values, params = split_context(**context)
+    groups = list(set(prop_groups.values()))
     # hoist axis group
     if 'axis' in groups:
         groups.remove('axis')
         groups = ['axis'] + groups
+
     if where:
         df = aggregate_df(df, [x, y], groups, where)
 
     group_props_mapper = GroupPropsMapper(groups)
-    for prop in bys:
-        group_props_mapper.add_prop_mapper(bys[prop], prop, values[prop])
+    for prop, group in prop_groups.items():
+        group_props_mapper.add_prop_mapper(group, prop, prop_values[prop])
 
     if groups:
         # Iterate over groups.
@@ -90,7 +81,7 @@ def groups_iterator(
             values = values if isinstance(values, tuple) else (values,)
 
             props = {}
-            group_props = group_props_mapper.get_props(groups, values, plot=self)
+            group_props = group_props_mapper.get_props(groups, values, plot=plot)
             for grp_props in group_props.values():
                 props.update(grp_props)
                 grp_props.update(params)

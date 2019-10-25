@@ -5,56 +5,37 @@ Tests for the vlnm.plotting.mappers module
 
 import unittest
 
-from vlnm.plotting.mappers import PropMapper
+import pandas as pd
+
+from vlnm.plotting.mappers import (
+    unique
+)
 
 
-class TestPropMapper(unittest.TestCase):
-    """Tests for the PropMapper class."""
+class TestUnique(unittest.TestCase):
+    """Tests for the unique function"""
 
-    def test_init_no_args(self):
-        """Create instance without error."""
-        PropMapper()
+    def test_empty_data(self):
+        """Empty data returns empty list."""
+        self.assertListEqual([], unique([]))
 
-    def test_dict_mapper_value(self):
-        """Dict mapping returns correct props value."""
-        mapper = PropMapper(prop='prop', mapping=dict(a=1))
-        props = mapper.get_props('a')
-        self.assertDictEqual(props, dict(prop=1))
+    def test_list(self):
+        """Return uniques"""
+        expected = ['a', 'z', 'k', 'l']
+        actual = unique(expected * 10, sort=True)
+        self.assertListEqual(actual, sorted(expected))
 
-    def test_dict_mapper_dict(self):
-        """Dict mapping returns correct props dict."""
-        mapper = PropMapper(mapping=dict(a=dict(b=2)))
-        props = mapper.get_props('a')
-        self.assertDictEqual(props, dict(b=2))
+    def test_series(self):
+        """Uniques returned from pandas series"""
+        expected = ['a', 'z', 'k', 'l']
+        series = pd.Series(expected[::-1] * 10)
+        actual = unique(series)
+        self.assertListEqual(actual, sorted(expected))
 
-    def test_dict_mapper_default_value(self):
-        """Dict mapping returns correct default props value."""
-        mapper = PropMapper(prop='prop', mapping=dict(a=1), default=2)
-        props = mapper.get_props('b')
-        self.assertDictEqual(props, dict(prop=2))
-
-    def test_dict_mapper_default_dict(self):
-        """Dict mapping returns correct default props dict."""
-        mapper = PropMapper(mapping=dict(a=1), default=dict(prop=2))
-        props = mapper.get_props('b')
-        self.assertDictEqual(props, dict(prop=2))
-
-    def test_function_mapper_value(self):
-        """Function mapping returns correct props value."""
-        def mapping(value):
-            if value == 'a':
-                return 1
-            return 2
-        mapper = PropMapper(prop='prop', mapping=mapping)
-        props = mapper.get_props('a')
-        self.assertDictEqual(props, dict(prop=1))
-
-    def test_function_mapper_dict(self):
-        """Function mapping returns correct props dict."""
-        def mapping(value):
-            if value == 'a':
-                return dict(prop=1)
-            return dict(prop=2)
-        mapper = PropMapper(mapping=mapping)
-        props = mapper.get_props('a')
-        self.assertDictEqual(props, dict(prop=1))
+    def test_categorical(self):
+        """Pandas categorical returned in level order"""
+        expected = ['a', 'z', 'k', 'l']
+        series = pd.Series(expected[::-1] * 10).astype('category')
+        series.cat.categories = expected
+        actual = unique(series)
+        self.assertListEqual(actual, expected)
