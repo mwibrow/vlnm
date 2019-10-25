@@ -43,7 +43,6 @@ def get_prop_mappers(df, context):
     params = {
         key: context[key] for key in keys
         if not key.endswith('_by') and not key + '_by' in keys}
-
     prop_mappers = {}
     for by in bys:
         prop = by[: -3]
@@ -113,9 +112,9 @@ def groups_iterator(
         yield axis, df, {**params}, {**params}
 
 
-
 def generate_legend_id(prefix):
     return '{}-{}'.format(prefix, uuid.uuid1())
+
 
 class VowelPlot:
     """
@@ -240,8 +239,6 @@ class VowelPlot:
             options = self.settings['legend']
             artist = self.legends.make_legend_artist(legend, group, labels, **options)
             axis.add_artist(artist)
-
-
 
     def data(self, data=None, x=None, y=None, **kwargs):
         self.settings.push(data=dict(data=data, x=x, y=y, **kwargs))
