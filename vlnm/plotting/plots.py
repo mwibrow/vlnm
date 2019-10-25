@@ -47,7 +47,7 @@ def split_context(**kwargs):
             prop_values[key] = value
         else:
             params[key] = value
-    return prop_grups, prop_values, params
+    return prop_groups, prop_values, params
 
 
 def groups_iterator(
