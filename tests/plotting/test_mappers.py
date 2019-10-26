@@ -116,3 +116,27 @@ class TestMapper(unittest.TestCase):
         mapper = Mapper(['a', 'b', 'c', 'd'], cycle=True)
         actual = {data: mapper.get_value(data) for data in ['w', 'x', 'y', 'z', 'q']}
         self.assertDictEqual(actual, expected)
+
+    def test_dict_mapping(self):
+        """dict mapping returns correct value"""
+        expected = {
+            'w': 'a',
+            'x': 'b',
+            'y': 'c',
+            'z': 'd',
+        }
+        mapper = Mapper(expected)
+        actual = {data: mapper.get_value(data) for data in expected}
+        self.assertDictEqual(actual, expected)
+
+    def test_dict_mapping_default(self):
+        """dict mapping returns correct default value"""
+        mapping = {
+            'w': 'a',
+            'x': 'b',
+            'y': 'c',
+            'z': 'd',
+        }
+        mapper = Mapper(mapping, default='q')
+        actual = {data: mapper.get_value(data) for data in ['w', 'x', 'y', 'z', 'p']}
+        self.assertDictEqual(actual, {'p': 'q', **mapping})
