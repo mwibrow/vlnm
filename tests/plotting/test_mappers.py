@@ -78,3 +78,41 @@ class TestMapper(unittest.TestCase):
         self.assertEqual(mapping.args, ('any', 1, ))
         self.assertDictEqual(mapping.kwargs, dict(test='value'))
         self.assertEqual(value, 'test')
+
+    def test_list_mapping(self):
+        """List mapping returns correct value"""
+        expected = {
+            'w': 'a',
+            'x': 'b',
+            'y': 'c',
+            'z': 'd',
+        }
+        mapper = Mapper(list(expected.values()))
+        actual = {data: mapper.get_value(data) for data in expected}
+        self.assertDictEqual(actual, expected)
+
+    def test_list_mapping_default(self):
+        """List mapping returns correct default value"""
+        expected = {
+            'w': 'a',
+            'x': 'b',
+            'y': 'c',
+            'z': 'd',
+            'q': 'p',
+        }
+        mapper = Mapper(['a', 'b', 'c', 'd'], default='p')
+        actual = {data: mapper.get_value(data) for data in ['w', 'x', 'y', 'z', 'q']}
+        self.assertDictEqual(actual, expected)
+
+    def test_list_mapping_cycle(self):
+        """List mapping cycles values"""
+        expected = {
+            'w': 'a',
+            'x': 'b',
+            'y': 'c',
+            'z': 'd',
+            'q': 'a',
+        }
+        mapper = Mapper(['a', 'b', 'c', 'd'], cycle=True)
+        actual = {data: mapper.get_value(data) for data in ['w', 'x', 'y', 'z', 'q']}
+        self.assertDictEqual(actual, expected)
