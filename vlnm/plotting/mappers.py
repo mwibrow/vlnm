@@ -3,11 +3,9 @@
     ~~~~~~~~~~~~~~~~~~~~~~~
 
 """
-from collections import OrderedDict
-from typing import Any, Callable, Dict, Iterable, List, Union
+from typing import Any, Callable, Iterable, List, Union
 
 from matplotlib.cm import get_cmap
-import matplotlib.colors
 import numpy as np
 
 Primative = Union[int, float, str, bool]
@@ -150,7 +148,7 @@ class GroupPropsMapper:
         """Add a factory prop mapping for a data group."""
         self.groups[group].update({prop: prop_mapper(prop, values, **kwargs)})
 
-    def get_props(self, groups: Union[List, str], *args, values: any = None, **kwargs) -> dict:
+    def get_props(self, groups: Union[List, str], values: any, *args, **kwargs) -> dict:
         """
         Return property values for each data group
         """

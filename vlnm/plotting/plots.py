@@ -42,7 +42,7 @@ def split_context(**kwargs):
     prop_groups, prop_values, params = {}, {}, {}
     for key, value in kwargs.items():
         if key.endswith('_by'):
-            prop_groups[key[-3:]] = value
+            prop_groups[key[:-3]] = value
         elif key + '_by' in kwargs:
             prop_values[key] = value
         else:
@@ -58,6 +58,7 @@ def groups_iterator(
     df, x, y, where = data['data'], data['x'], data['y'], data.get('where')
 
     prop_groups, prop_values, params = split_context(**context)
+
     groups = list(set(prop_groups.values()))
     # hoist axis group
     if 'axis' in groups:
@@ -87,7 +88,7 @@ def groups_iterator(
                 grp_props.update(params)
             props.update(params)
 
-            axis = props.pop('axis')
+            axis = props.pop('axis', None)
             axis = axis or plot.axis or plot.subplot(row=1, column=1)
 
             yield axis, group_df, props, group_props
