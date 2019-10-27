@@ -8,6 +8,7 @@ from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 from matplotlib import rcParams
+import numpy as np
 
 from vlnm.plotting.arrows import FancierArrowPatch
 
@@ -295,7 +296,7 @@ class LineArtist(Artist):
             codes=[Path.MOVETO] + [Path.LINETO])
 
         start_arrow, end_arrow = arrows
-        return arrows.FancierArrowPatch(
+        return FancierArrowPatch(
             path=path,
             snap=True,
             arrowstyle=mpatches.ArrowStyle(
@@ -314,20 +315,23 @@ class LineArtist(Artist):
         props = self.translate_props(props, translator)
         props.update(**dict_diff(defaults, props))
 
-        codes = [Path.MOVETO] + [Path.LINETO] * (len(points) - 1)
-        path = Path(
-            vertices=points,
-            codes=codes)
+        points = np.atleast_3d(points).T
+        for i in range(points.shape[-1]):
+            vertices = points[i, :].T
+            codes = [Path.MOVETO] + [Path.LINETO] * (len(vertices) - 1)
+            path = Path(
+                vertices=vertices,
+                codes=codes)
 
-        start_arrow, end_arrow = arrows
-        arrow = arrows.FancierArrowPatch(
-            path=path,
-            snap=True,
-            arrowstyle=mpatches.ArrowStyle(
-                'fancier',
-                begin=start_arrow,
-                end=end_arrow,
-            ),
-            **props)
+            start_arrow, end_arrow = arrows
+            arrow = FancierArrowPatch(
+                path=path,
+                snap=True,
+                arrowstyle=mpatches.ArrowStyle(
+                    'fancier',
+                    begin=start_arrow,
+                    end=end_arrow,
+                ),
+                **props)
 
-        axis.add_patch(arrow)
+            axis.add_patch(arrow)
