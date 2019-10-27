@@ -266,7 +266,7 @@ class ContourArtist(Artist):
         axis.contour(x, y, z, **props)
 
 
-class PolylineArtist(Artist):
+class LineArtist(Artist):
 
     defaults = dict(
         plot=dict(
@@ -284,6 +284,7 @@ class PolylineArtist(Artist):
     def plot(self, axis, points, arrows, **props):
         """Plot a Contour."""
 
+        arrows = arrows or (None, None)
         translator = self._get_translator('plot')
         defaults = self.translate_props(self._get_defaults('plot'), translator)
         props = self.translate_props(props, translator)
@@ -294,13 +295,12 @@ class PolylineArtist(Artist):
             vertices=points,
             codes=codes)
 
-        start_arrow, end_arrow = None, None
+        start_arrow, end_arrow = arrows
         arrow = arrows.FancierArrowPatch(
             path=path,
             snap=True,
             arrowstyle=mpatches.ArrowStyle(
                 'fancier',
-
                 begin=start_arrow,
                 end=end_arrow,
             ),

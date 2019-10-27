@@ -17,7 +17,7 @@ from shapely.geometry import MultiPoint
 import scipy.stats as st
 
 from vlnm.plotting.artists import (
-    Artist, ContourArtist, EllipseArtist, LabelArtist, MarkerArtist, PolygonArtist)
+    Artist, ContourArtist, EllipseArtist, LabelArtist, LineArtist, MarkerArtist, PolygonArtist)
 from vlnm.plotting.mappers import (
     GroupPropsMapper
 )
@@ -464,13 +464,48 @@ class VowelPlot:
 
         return self
 
-    def polylines(self,
-                  data: pd.DataFrame,
-                  points: List[Tuple[str, str]] = None,
-                  start: Tuple[str, str] = None,
-                  end: Tuple[str, str] = None,
-                  arrows: Union[str, Tuple[FancierArrow, FancierArrow]] = None,
-                  legend: str = '',
-                  **kwargs):
+    def lines(self,
+              data: pd.DataFrame,
+              points: List[Tuple[str, str]] = None,
+              start: Tuple[str, str] = None,
+              end: Tuple[str, str] = None,
+              arrows: Union[str, Tuple[FancierArrow, FancierArrow]] = None,
+              where: str = None,
+              legend: str = '',
+              **kwargs):
         """Add lines to the plot.
         """
+
+        points = points or [start, end]
+
+        artist = LineArtist()
+
+        with self.settings.scope(
+                data=dict(
+                    data=data,
+                    where=None),
+                legend=legend if isinstance(legend, dict) else {},
+                lines={**kwargs}):
+
+            settings = self.settings['data', 'lines', 'legend']
+
+            legend_id = legend or generate_legend_id('lines')
+
+            for axis, group_df, props, group_props in self.groups_iterator(
+                    settings['data'], settings['lines']):
+
+                data_points = []
+                for x, y in points:
+                    if where:
+                        agg_df = aggregate_df(group_df, [x, y], [], where)
+                    else:
+                        agg_df = group_df
+
+                    data_points.append((agg_df[x], agg_df[y]))
+                artist.plot(axis, data_points, arrows, **props)
+
+                if legend:
+                    self._update_legend(
+                        legend_id,
+                        group_props,
+                        artist.legend)
