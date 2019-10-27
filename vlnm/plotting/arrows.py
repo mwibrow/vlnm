@@ -16,6 +16,7 @@ from scipy.special import binom
 
 # pylint: disable=protected-access
 
+
 def bezier_point_at_t(bezier: np.ndarray, t: float) -> np.ndarray:
     """
     Return the point on a bezier curve at the specified time.
@@ -93,6 +94,7 @@ class FancierArrowFactory:
     """
     Factory class for use with arrow style in FancyArrowPatch.
     """
+
     def __init__(self, cls, **kwargs):
         self.cls = cls
         self.kwargs = kwargs
@@ -107,6 +109,7 @@ def _register_style(name, **kwargs):
     def _register(cls):
         mpatches.ArrowStyle._style_list[name.lower()] = FancierArrowFactory(cls, **kwargs)
     return _register
+
 
 @_register_style('Fancier')
 class FancierArrowStyle(mpatches.ArrowStyle._Base):
@@ -246,7 +249,6 @@ class FancierArrowPatch(mpatches.FancyArrowPatch):
             self.get_linewidth() * dpi_cor,
             self.get_mutation_aspect())
 
-
         return paths, fillables, styles
 
     def draw(self, renderer):
@@ -299,6 +301,7 @@ class PatchContext:
     """
     Class for managing rendering of patches.
     """
+
     def __init__(self, renderer, gid=None):
         self.renderer = renderer
         self._patch = None
@@ -377,6 +380,7 @@ class Kite(FancierArrow):
     """
     Kite shaped arrow.
     """
+
     def __init__(self, width=1., length=1., inset=0.75, side=None, fill=False, **kwargs):
         super().__init__(
             width=width,
@@ -385,7 +389,6 @@ class Kite(FancierArrow):
             side=side,
             fill=fill,
             **kwargs)
-
 
     def get_arrow_head(self, linewidth, scale):
 
@@ -416,10 +419,12 @@ class Kite(FancierArrow):
         arrow_head = transform.transform_path(path)
         return arrow_head, shorten
 
+
 class Stealth(FancierArrow):
     """
     Stealth-like arrow.
     """
+
     def __init__(
             self, width=1., length=1., inset=0.75, side=None, angle=None, fill=False, **kwargs):
         super().__init__(
@@ -435,7 +440,6 @@ class Stealth(FancierArrow):
         side = self.side
         length, width = self.length, self.width
         inset = self.inset * length
-
 
         xscale = yscale = scale
 
@@ -459,6 +463,7 @@ class Stealth(FancierArrow):
         arrow_head = transform.transform_path(path)
         return arrow_head, shorten
 
+
 class Circle(FancierArrow):
     """
     Circle arrow.
@@ -467,6 +472,7 @@ class Circle(FancierArrow):
     _path = Affine2D.from_values(1, 0, 0, 1, -0.5, 0).transform_path(Path.circle(radius=.5))
     _semi_path = Affine2D.from_values(0.5, 0, 0, 0.5, -0.5, 0).transform_path(
         Path.arc(0, 180, is_wedge=True))
+
     def __init__(
             self, width=1., length=1., side=None, fill=False, **kwargs):
         snap = kwargs.pop('snap', False)

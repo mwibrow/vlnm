@@ -261,3 +261,28 @@ class ContourArtist(Artist):
         props.update(**dict_diff(defaults, props))
 
         axis.contour(x, y, z, **props)
+
+
+class PolylineArtist(Arist):
+
+    defaults = dict(
+        plot=dict(
+            color='black',
+            line='-'
+        )
+    )
+
+    translators = dict(
+        plot={
+            'line': 'linestyle'
+        }
+    )
+
+    def plot(self, axis, points, arrows, **props):
+        """Plot a Contour."""
+        # translator = self._get_translator('plot')
+        # defaults = self.translate_props(self._get_defaults('plot'), translator)
+        # props = self.translate_props(props, translator)
+        # props.update(**dict_diff(defaults, props))
+
+        # axis.contour(x, y, z, **props)
