@@ -281,10 +281,34 @@ class LineArtist(Artist):
         }
     )
 
-    def plot(self, axis, points, arrows, **props):
+    def legend(self, **props) -> mpatches.Patch:
+        """Return the artist to be used in the legend.
+        """
+        arrows = props.pop('arrows', (None, None))
+        translator = self._get_translator('legend')
+        defaults = self.translate_props(self._get_defaults('legend'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+
+        path = Path(
+            vertices=[(0, 0.5), (1, 0.5)],
+            codes=[Path.MOVETO] + [Path.LINETO])
+
+        start_arrow, end_arrow = arrows
+        return arrows.FancierArrowPatch(
+            path=path,
+            snap=True,
+            arrowstyle=mpatches.ArrowStyle(
+                'fancier',
+                begin=start_arrow,
+                end=end_arrow,
+            ),
+            **props)
+
+    def plot(self, axis, points, **props):
         """Plot a Contour."""
 
-        arrows = arrows or (None, None)
+        arrows = props.pop('arrows', (None, None))
         translator = self._get_translator('plot')
         defaults = self.translate_props(self._get_defaults('plot'), translator)
         props = self.translate_props(props, translator)

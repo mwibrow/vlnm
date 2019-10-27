@@ -454,7 +454,7 @@ class VowelPlot:
                 xy = np.array([x.ravel(), y.ravel()]).T
                 cz = kernel(xy).reshape((samples, samples))
 
-                artist.plot(cx, cy, cz, **props)
+                artist.plot(cx, cy, cz, levels=levels, **props)
                 axis.relim()
                 axis.autoscale_view()
 
@@ -478,6 +478,8 @@ class VowelPlot:
 
         points = points or [start, end]
 
+        columns = np.unique(np.array(points).flatten())
+
         artist = LineArtist()
 
         with self.settings.scope(
@@ -494,14 +496,9 @@ class VowelPlot:
             for axis, group_df, props, group_props in self.groups_iterator(
                     settings['data'], settings['lines']):
 
-                data_points = []
-                for x, y in points:
-                    if where:
-                        agg_df = aggregate_df(group_df, [x, y], [], where)
-                    else:
-                        agg_df = group_df
-
-                    data_points.append((agg_df[x], agg_df[y]))
+                if where:
+                    group_df = aggregate_df(group_df, columns, [], where=where)
+                data_points = [(group_df[x], group_df[y]) for x, y in points]
                 artist.plot(axis, data_points, arrows, **props)
 
                 if legend:
