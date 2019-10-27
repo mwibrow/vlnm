@@ -4,7 +4,7 @@
 """
 
 import types
-from typing import Dict, Generator, Tuple, Union
+from typing import Dict, Generator, List, Tuple, Union
 import uuid
 
 import matplotlib.pyplot as plt
@@ -31,6 +31,7 @@ from vlnm.plotting.bounds import BoundingBox
 from vlnm.plotting.legends import Legend
 
 from vlnm.plotting.settings import Settings
+from vlnm.plotting.arrows import FancierArrow
 
 
 def use_style(style):
@@ -462,3 +463,14 @@ class VowelPlot:
                                         artist.legend)
 
         return self
+
+    def polylines(self,
+                  data: pd.DataFrame,
+                  points: List[Tuple[str, str]] = None,
+                  start: Tuple[str, str] = None,
+                  end: Tuple[str, str] = None,
+                  arrows: Union[str, Tuple[FancierArrow, FancierArrow]] = None,
+                  legend: str = '',
+                  **kwargs):
+        """Add lines to the plot.
+        """

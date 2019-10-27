@@ -6,7 +6,10 @@ from typing import Any, Dict, Tuple
 
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
+from matplotlib.path import Path
 from matplotlib import rcParams
+
+from vlnm.plotting.arrows import FancierArrowPatch
 
 
 def dict_diff(this, that):
@@ -263,7 +266,7 @@ class ContourArtist(Artist):
         axis.contour(x, y, z, **props)
 
 
-class PolylineArtist(Arist):
+class PolylineArtist(Artist):
 
     defaults = dict(
         plot=dict(
@@ -274,15 +277,33 @@ class PolylineArtist(Arist):
 
     translators = dict(
         plot={
-            'line': 'linestyle'
+            'scale': 'mutation_scale'
         }
     )
 
     def plot(self, axis, points, arrows, **props):
         """Plot a Contour."""
-        # translator = self._get_translator('plot')
-        # defaults = self.translate_props(self._get_defaults('plot'), translator)
-        # props = self.translate_props(props, translator)
-        # props.update(**dict_diff(defaults, props))
 
-        # axis.contour(x, y, z, **props)
+        translator = self._get_translator('plot')
+        defaults = self.translate_props(self._get_defaults('plot'), translator)
+        props = self.translate_props(props, translator)
+        props.update(**dict_diff(defaults, props))
+
+        codes = [Path.MOVETO] + [Path.LINETO] * (len(points) - 1)
+        path = Path(
+            vertices=points,
+            codes=codes)
+
+        start_arrow, end_arrow = None, None
+        arrow = arrows.FancierArrowPatch(
+            path=path,
+            snap=True,
+            arrowstyle=mpatches.ArrowStyle(
+                'fancier',
+
+                begin=start_arrow,
+                end=end_arrow,
+            ),
+            **props)
+
+        axis.add_patch(arrow)

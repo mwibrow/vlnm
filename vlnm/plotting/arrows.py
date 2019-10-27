@@ -501,3 +501,83 @@ class Circle(FancierArrow):
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
         return arrow_head, shorten + miter
+
+
+class Triangle(FancierArrow):
+    """
+    Triangle arrow.
+    """
+
+    def __init__(
+            self, width=1., length=1., side=None, angle=None, fill=False, **kwargs):
+        super().__init__(
+            width=width,
+            length=length,
+            angle=angle,
+            side=side,
+            fill=fill,
+            **kwargs)
+
+    def get_arrow_head(self, linewidth, scale):
+        side = self.side
+        length, width = self.length, self.width
+
+        xscale = yscale = scale
+
+        if side and side in [FancierArrow.LEFT, FancierArrow.RIGHT]:
+            miter = 0.5 * linewidth / self.tan_a
+            path = Path(
+                vertices=[(0, 0), (-length, -width / 2), (-length, 0), (0, 0)],
+                codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+            if side == FancierArrow.LEFT:
+                yscale = -yscale
+        else:
+            miter = 0.5 * linewidth / self.sin_a
+            path = Path(
+                vertices=[(0, 0), (-length, -width / 2), (-length, width / 2), (0, 0)],
+                codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+        shorten = length * scale + miter
+
+        transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
+        arrow_head = transform.transform_path(path)
+        return arrow_head, shorten
+
+
+class StraightBarb(FancierArrow):
+    """
+    Barb like arrow.
+    """
+
+    def __init__(
+            self, width=1., length=1., side=None, angle=None,  **kwargs):
+        super().__init__(
+            width=width,
+            length=length,
+            angle=angle,
+            side=side,
+            fill=False,
+            **kwargs)
+
+    def get_arrow_head(self, linewidth, scale):
+        side = self.side
+        length, width = self.length, self.width
+
+        xscale = yscale = scale
+
+        if side and side in [FancierArrow.LEFT, FancierArrow.RIGHT]:
+            miter = 0.5 * linewidth / self.tan_a
+            path = Path(
+                vertices=[(0, 0), (-length, -width / 2)],
+                codes=[Path.MOVETO, Path.LINETO])
+            if side == FancierArrow.LEFT:
+                yscale = -yscale
+        else:
+            miter = 0.5 * linewidth / self.sin_a
+            path = Path(
+                vertices=[(-length, -width / 2), (0, 0), (-length, width / 2)],
+                codes=[Path.MOVETO, Path.LINETO, Path.LINETO])
+        shorten = miter
+
+        transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
+        arrow_head = transform.transform_path(path)
+        return arrow_head, shorten
