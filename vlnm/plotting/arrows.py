@@ -286,7 +286,6 @@ class FancierArrowPatch(mpatches.FancyArrowPatch):
         else:
             with PatchContext(renderer) as patch:
                 gc_style = default_style.copy()
-                gc_style.update(style or {})
                 patch.gc(**gc_style)
                 for path, fillable in zip(paths, fillables):
                     if fillable:
