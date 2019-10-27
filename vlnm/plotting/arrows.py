@@ -14,6 +14,7 @@ import numpy as np
 
 from scipy.special import binom
 
+from vlnm.plotting.elements import singleton
 # pylint: disable=protected-access
 
 
@@ -548,7 +549,7 @@ class StraightBarb(FancierArrow):
     """
 
     def __init__(
-            self, width=1., length=1., side=None, angle=None,  **kwargs):
+            self, width=1., length=1., side=None, angle=None, **kwargs):
         super().__init__(
             width=width,
             length=length,
@@ -580,3 +581,61 @@ class StraightBarb(FancierArrow):
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
         return arrow_head, shorten
+
+
+class ArrowHead:
+
+    def __init__(self, klass, **kwargs):
+        self.klass = klass
+        self.kwargs = kwargs
+
+    def create(self, **kwargs):
+        props = {**self.kwargs}
+        props.update(**kwargs)
+        return self.klass(**props)
+
+    def __call__(self, **kwargs):
+        return self.create(**kwargs)
+
+
+@singleton
+class ArrowHeads:
+
+    def __init__(self):
+        self.arrows = {}
+
+    def __setitem__(self, key, value):
+        self.arrows[key] = value
+
+    def __getitem__(self, key):
+        return self.create(key)
+
+    def create(self, head, **kwargs):
+        try:
+            arrowhead = self.arrows[head]
+            return arrowhead.create(**kwargs)
+        except KeyError:
+            raise KeyError("Unknown arrow head '{}'".format(head))
+
+
+def register_arrow(klass, label=None, start=None, end=None, **kwargs):
+    """Register an arrow head."""
+    arrowheads = ArrowHeads()
+    label = label or klass.__name__
+    arrowhead = ArrowHead(klass, **kwargs)
+    arrowheads[klass] = arrowhead
+    arrowheads[label] = arrowhead
+    if start:
+        arrowheads[start] = arrowhead
+    if end:
+        arrowheads[end] = arrowhead
+
+
+register_arrow(Triangle, 'triangle', '<|', '|>')
+register_arrow(Circle, 'circle', 'o', 'o')
+register_arrow(StraightBarb, 'barb', '<', '>')
+register_arrow(Stealth, 'barb', 'stealth', 'stealth')
+
+
+def arrow(head, **kwargs):
+    return ArrowHeads.create(head, **kwargs)
