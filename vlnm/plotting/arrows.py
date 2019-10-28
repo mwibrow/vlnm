@@ -361,13 +361,23 @@ class FancierArrow:
     LEFT = 'l'
     RIGHT = 'r'
 
-    def __init__(self, fill=False, width=1., length=1., angle=None, side=None, inset=0.5, **style):
+    def __init__(
+            self,
+            fill=False,
+            width=1.,
+            length=1.,
+            angle=None,
+            side=None,
+            inset=0.5,
+            shorten=None,
+            **style):
         self.fill = fill
         self.width = 2 * length / np.radians(angle) if angle else width
         self.length = length
         self.angle = angle if angle else np.arctan2(width / 2, length)
         self.side = side.lower()[0] if side else None
         self.inset = inset
+        self.shorten = shorten
         self.style = style
 
         hyp = np.hypot(width / 2, length)
@@ -413,7 +423,8 @@ class Kite(FancierArrow):
                           (0, 0),
                           (-inset, width / 2), (-length, 0)],
                 codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-        shorten = length * scale + miter
+
+        shorten = self.shorten * xscale if self.shorten is not None else length * scale + miter
 
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
@@ -457,7 +468,7 @@ class Stealth(FancierArrow):
                           (0, 0), (-length, width / 2),
                           (-inset, 0)],
                 codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-        shorten = inset * scale + miter
+        shorten = self.shorten * xscale if self.shorten is not None else inset * scale + miter
 
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
@@ -489,7 +500,6 @@ class Circle(FancierArrow):
         miter = linewidth / 2
         xscale = self.length * scale
         yscale = self.width * scale
-        shorten = 1. * xscale
 
         side = self.side
         if side in [FancierArrow.LEFT, FancierArrow.RIGHT]:
@@ -499,8 +509,9 @@ class Circle(FancierArrow):
         else:
             path = self._path
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
+        shorten = self.shorten * xscale if self.shorten is not None else 1. * xscale + miter
         arrow_head = transform.transform_path(path)
-        return arrow_head, shorten + miter
+        return arrow_head, shorten
 
 
 class Triangle(FancierArrow):
@@ -536,7 +547,7 @@ class Triangle(FancierArrow):
             path = Path(
                 vertices=[(0, 0), (-length, -width / 2), (-length, width / 2), (0, 0)],
                 codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-        shorten = length * scale + miter
+        shorten = self.shorten * xscale if self.shorten is not None else length * scale + miter
 
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
@@ -576,7 +587,7 @@ class StraightBarb(FancierArrow):
             path = Path(
                 vertices=[(-length, -width / 2), (0, 0), (-length, width / 2)],
                 codes=[Path.MOVETO, Path.LINETO, Path.LINETO])
-        shorten = miter
+        shorten = self.shorten * xscale if self.shorten is not None else miter
 
         transform = Affine2D().scale(xscale, yscale).translate(-miter, 0)
         arrow_head = transform.transform_path(path)
