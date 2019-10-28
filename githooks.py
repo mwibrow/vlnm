@@ -60,8 +60,6 @@ def pre_commit():
 
 HOOKS = {
     'pre-commit': pre_commit
-
-
 }
 
 
