@@ -20,14 +20,14 @@ def message(text, styles=None):
 
 def pre_commit():
     message('Running pre-commit...', [Fore.YELLOW])
-    message('   Checking changed files...', [Fore.YELLOW])
+    message('   - Checking changed files...', [Fore.YELLOW])
     repo = Repo(REPO_PATH)
     diff = repo.git.diff(repo.active_branch, name_only=True)
     changed = [
         item for item in diff.split('\n') if item.endswith('.py')]
-    message('       {} found'.format(len(changed)), [Fore.YELLOW])
+    message('    - {} found'.format(len(changed)), [Fore.YELLOW])
     if changed:
-        message('   Running autopep8', [Fore.YELLOW])
+        message('    - Running autopep8 on files', [Fore.YELLOW])
         options = autopep8.parse_args([
             '--global-config=.pep8',
             '--in-place'] + changed)
