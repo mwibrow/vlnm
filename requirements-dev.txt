@@ -1,5 +1,6 @@
 autopep8==1.4
 colorama==0.4.1
+GitPython==3.0.4
 IPython==7.3.0
 latexcodec==1.0.5
 libsass==0.18.0
