@@ -3,8 +3,8 @@
     ~~~~~~~~~~~~~~~~~~
 
 """
-from functools import reduce
-from typing import Callable, Dict, Iterable, List, Tuple, Union
+
+from typing import Iterable, List, Tuple, Union
 
 from matplotlib.figure import Figure
 import matplotlib.patches as mpatches
@@ -14,45 +14,10 @@ import numpy as np
 import pandas as pd
 import scipy.stats as st
 
-from vlnm.utils import merge, strip
-
 
 def create_figure(*args, **kwargs) -> Figure:
     """Wrapper around matplotlib.pyplot.figure"""
     return plt.figure(*args, **kwargs)
-
-
-def translate_props(props: Dict, translator: Dict[str, Union[str, Iterable, Callable]]) -> Dict:
-    """
-    Translate from user-supplied properties to internal properties.
-
-    Parameters
-    ----------
-    props:
-        Dictionary of properties.
-    translator:
-        Dictionary mapping property names to one or more property names,
-        or a function to return multiple properties as a dictionary.
-
-    Returns
-    -------
-    :
-        Dictionary of translated properties.
-    """
-    translated = {}
-    for prop, value in props.items():
-        if prop in translator:
-            translation = translator[prop]
-            try:
-                translated.update(**translation(value))
-            except TypeError:
-                if isinstance(translation, list):
-                    translated.update(**{key: value for key in translation})
-                else:
-                    translated[translation] = value
-        else:
-            translated[prop] = value
-    return translated
 
 
 class HandlerEllipse(HandlerPatch):
@@ -106,7 +71,7 @@ def get_confidence_ellipse(
     y = np.array(y)
     if x.size != y.size:
         raise ValueError('Ellipse data must be the same shape.')
-    elif x.size < 3 or y.size < 3:
+    if x.size < 3 or y.size < 3:
         raise ValueError('Too little data to calculate ellipse')
     cov = np.cov(x, y)
     eigenvalues, eignvectors = np.linalg.eig(cov)
