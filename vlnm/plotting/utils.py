@@ -1,7 +1,6 @@
 """
-    Plotting utilities
-    ~~~~~~~~~~~~~~~~~~
-
+Plotting utilities
+~~~~~~~~~~~~~~~~~~
 """
 
 from typing import Iterable, List, Tuple, Union
@@ -84,10 +83,12 @@ def get_confidence_ellipse(
 
     if n_mad:
         x, y = rotate_xy(x - cx, y - cy, angle)
-        width, height = rotate_xy(2 * np.median(x) * n_mad, 2 * np.median(y) * n_mad, -angle)
+        width, height = rotate_xy(
+            2 * np.median(x) * n_mad, 2 * np.median(y) * n_mad, -angle)
     if n_std:
         x, y = rotate_xy(x - cx, y - cy, angle)
-        width, height = rotate_xy(2 * np.std(x) * n_std, 2 * np.std(y) * n_std, -angle)
+        width, height = rotate_xy(
+            2 * np.std(x) * n_std, 2 * np.std(y) * n_std, -angle)
     else:
         alpha = st.chi2(df=2).ppf(confidence)
         width, height = 2 * np.sqrt(alpha * eigenvalues)

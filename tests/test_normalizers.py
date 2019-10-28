@@ -78,3 +78,7 @@ class TestRegisterNormalizers(unittest.TestCase):
         actual = {}
         register_normalizer(True, 'test', index=actual)
         self.assertDictEqual(actual, {'test': True})
+
+
+class WholeBunchOfChanges:
+    pass
