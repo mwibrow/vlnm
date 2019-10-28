@@ -4,11 +4,27 @@
 """
 import os
 import re
+import sys
 
 from setuptools import setup, find_packages
+from setuptools.command.develop import develop
+
+from colorama import init as init_colorama, Fore, Style
+from python_githooks.__main__ import main as githooks
+
+init_colorama()
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_DIR = os.path.join(PROJECT_ROOT, 'vlnm')
+
+
+class PostDevelopCommand(develop):
+    """Post-installation for development mode."""
+
+    def run(self):
+        sys.stdout.write(Fore.BLUE + 'Running git hooks\n' + Style.RESET_ALL)
+        githooks()
+        develop.run(self)
 
 
 def read(*paths, **kwargs):
@@ -16,7 +32,7 @@ def read(*paths, **kwargs):
         return file_in.read()
 
 
-def find_version(*file_paths):
+def find_version(*_file_paths):
     version_file = read(PACKAGE_DIR, '__init__.py')
     version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', version_file, re.M)
     if version_match:
@@ -71,6 +87,9 @@ def setup_vlnm():
         include_package_data=True,
         install_requires=REQUIREMENTS,
         classifiers=CLASSIFIERS,
+        cmdclass={
+            'develop': PostDevelopCommand,
+        },
         extras_require={
             'dev': REQUIREMENTS_DEV
         },
