@@ -1,5 +1,5 @@
 autopep8==1.4
-IPython==7.3.0
+IPython==7.16.3
 latexcodec==1.0.5
 libsass==0.18.0
 nox==2018.9.14
